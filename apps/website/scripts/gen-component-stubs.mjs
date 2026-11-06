@@ -17,8 +17,9 @@
  * `mdx-page.tsx` renders a preview when `demos/basic.tsx` exists.
  *
  * HONEST-SCOPE: a stub is written ONLY when its `component` has a generated
- * props JSON (proving the component is exported from the barrel). Any entry
- * whose props JSON is missing is SKIPPED and logged — no vaporware page.
+ * props JSON (proving the component is exported from the barrel), or one under
+ * the name in `PROPS_TABLE_OF`. Any entry whose props JSON is missing is
+ * SKIPPED and logged — no vaporware page.
  *
  * The ~25 T2 rich-guide slugs (page-components/*, viewing/index, editing/index,
  * the whole app-config section) are intentionally NOT in this table — they are
@@ -267,7 +268,47 @@ const STUBS = [
   { slug: "geometry-collection-field", section: "maps", component: "GeometryCollectionField", registry: null, title: "GeometryCollectionField", desc: "Shows a GeoJSON `GeometryCollection` from a record on a map, drawing each geometry by its own type. A collection with no coordinates shows the empty text panel. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
   { slug: "feature-field", section: "maps", component: "FeatureField", registry: null, title: "FeatureField", desc: "Shows the geometry of a GeoJSON `Feature` from a record on a map. Its `properties` are not rendered. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
   { slug: "feature-collection-field", section: "maps", component: "FeatureCollectionField", registry: null, title: "FeatureCollectionField", desc: "Shows every geometry of a GeoJSON `FeatureCollection` from a record on a map. A feature with a null geometry is left out. It is `GeoJsonField` under the name of a GeoJSON type, so it takes the same props.", importFrom: "@chelone/react/maps" },
+
+  // ── maps (shape inputs, from the @chelone/react/maps/draw entry) ──────────
+  // Each is `ShapeInput` under the name of a GeoJSON type, and each names the
+  // toolbar it shows by default. A backticked tool name reads as a value of the
+  // `tools` prop, never as a prop of its own.
+  { slug: "point-input", section: "maps", component: "PointInput", registry: null, title: "PointInput", desc: "Edits a GeoJSON `Point` by drawing on a map with `draw-point`, `move` and `delete`. A new point replaces the old one. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "multi-point-input", section: "maps", component: "MultiPointInput", registry: null, title: "MultiPointInput", desc: "Edits a GeoJSON `MultiPoint` by drawing on a map with `draw-point`, `edit`, `move` and `delete`. Each point is its own feature on the map. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "line-string-input", section: "maps", component: "LineStringInput", registry: null, title: "LineStringInput", desc: "Edits a GeoJSON `LineString` by drawing on a map with `draw-line`, `edit`, `move` and `delete`. A new line replaces the old one. `snapToRoads` snaps each drawn or edited line to the road network through the `MapsProvider` router, and throws when there is none. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "multi-line-string-input", section: "maps", component: "MultiLineStringInput", registry: null, title: "MultiLineStringInput", desc: "Edits a GeoJSON `MultiLineString` by drawing on a map with `draw-line`, `edit`, `move` and `delete`. Each line is its own feature on the map. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "polygon-input", section: "maps", component: "PolygonInput", registry: null, title: "PolygonInput", desc: "Edits a GeoJSON `Polygon` by drawing on a map with `draw-polygon`, `draw-rectangle`, `draw-circle`, `cut`, `edit`, `move` and `delete`. A new drawing replaces the old one. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "multi-polygon-input", section: "maps", component: "MultiPolygonInput", registry: null, title: "MultiPolygonInput", desc: "Edits a GeoJSON `MultiPolygon` with the tools of `PolygonInput`. Each part is its own feature on the map, and a part with a hole draws read-only and stays in the value. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "geometry-collection-input", section: "maps", component: "GeometryCollectionInput", registry: null, title: "GeometryCollectionInput", desc: "Edits a GeoJSON `GeometryCollection` with every draw tool, then `cut`, `edit`, `move` and `delete`. Every shape stays in the value. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "geo-json-input", section: "maps", component: "GeoJsonInput", registry: null, title: "GeoJsonInput", desc: "Edits any one GeoJSON geometry, or with `collection` a `GeometryCollection`, limited to the `shapes` the user may draw, all three by default. Without `collection` a new drawing replaces the old one. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "feature-input", section: "maps", component: "FeatureInput", registry: null, title: "FeatureInput", desc: "Edits a GeoJSON `Feature` with the tools of its `shape`, `Polygon` by default. An edit keeps the feature's `id` and `properties`. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
+  { slug: "feature-collection-input", section: "maps", component: "FeatureCollectionInput", registry: null, title: "FeatureCollectionInput", desc: "Edits a GeoJSON `FeatureCollection` with the tools of its `allowedShapes`, `Point`, `LineString` and `Polygon` by default. Each feature keeps its own `properties` when another is removed. It is `ShapeInput` under the name of a GeoJSON type, with `kind` set for you.", importFrom: "@chelone/react/maps/draw" },
 ];
+
+/**
+ * A component whose props interface no entry point re-exports, so typedoc never
+ * documents it and no props JSON exists for the component itself. Its page
+ * renders the table of the props interface it extends: `LineStringInput` takes
+ * `LineStringInputProps`, which no entry re-exports, unlike the props interface
+ * of each sibling, and that interface is the shape inputs' base plus
+ * `snapToRoads`. `note` is the line the page puts above that table, so it never
+ * reads as the full prop list.
+ */
+const PROPS_TABLE_OF = new Map([
+  [
+    "LineStringInput",
+    {
+      from: "GeoJsonInputBase",
+      note: "The table holds the props every shape input takes. `snapToRoads` is the one `LineStringInput` adds to them.",
+    },
+  ],
+]);
+
+/** The props JSON a component's page renders, and the line above it. */
+function propsTableOf(component) {
+  const fallback = PROPS_TABLE_OF.get(component);
+  return fallback ? { name: fallback.from, note: fallback.note } : { name: component };
+}
 
 /**
  * A section whose pages are pieces of one guide: the sentence linking back to
@@ -301,7 +342,8 @@ function mdxSafe(text) {
 }
 
 function page({ component, registry, title, desc, importFrom, section }) {
-  const hasProps = existsSync(resolve(PROPS, `${component}.json`));
+  const propsTable = propsTableOf(component);
+  const hasProps = existsSync(resolve(PROPS, `${propsTable.name}.json`));
   const fm = ["---", `title: "${title}"`, `description: "${desc.replace(/`/g, "").replace(/"/g, '\\"')}"`];
   if (registry) fm.push(`registry: "${registry}"`);
   fm.push("---");
@@ -315,7 +357,8 @@ function page({ component, registry, title, desc, importFrom, section }) {
   if (guide) parts.push("", guide);
 
   parts.push("", "## Props", "");
-  parts.push(hasProps ? `<PropsTable name="${component}" />` : PROPLESS_EXPORTS.get(component));
+  if (propsTable.note) parts.push(mdxSafe(propsTable.note), "");
+  parts.push(hasProps ? `<PropsTable name="${propsTable.name}" />` : PROPLESS_EXPORTS.get(component));
   parts.push("");
   return parts.join("\n");
 }
@@ -341,7 +384,8 @@ for (const stub of STUBS) {
   // HONEST-SCOPE: never write a page for a component with no generated props
   // JSON UNLESS it is a known propless export (barrel-verified). A typo'd or
   // truly-unexported component has neither and is skipped.
-  const hasPropsJson = existsSync(resolve(PROPS, `${stub.component}.json`));
+  const propsTable = propsTableOf(stub.component);
+  const hasPropsJson = existsSync(resolve(PROPS, `${propsTable.name}.json`));
   if (!hasPropsJson && !PROPLESS_EXPORTS.has(stub.component)) {
     console.warn(
       `skip: ${stub.section}/${stub.slug} — no props JSON for ${stub.component} (not exported?)`,
