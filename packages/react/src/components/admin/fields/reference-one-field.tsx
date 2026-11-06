@@ -7,10 +7,7 @@ import type {
 import type { ReactNode } from "react";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetRecordRepresentation } from "../../../label";
-import {
-  RecordContextProvider,
-  type RecordContextValue,
-} from "../../../record/record-context";
+import { RecordContextProvider } from "../../../record/record-context";
 import { useReferenceOneFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
@@ -93,7 +90,7 @@ function ReferenceOneField<RecordType extends LooseRecord = LooseRecord>(
     reference,
     target,
     source,
-    record: recordProp as RecordContextValue,
+    record: recordProp,
     sort,
     filter,
   });

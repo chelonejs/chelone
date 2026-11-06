@@ -329,6 +329,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.getManyAggregateOptions).toBeTypeOf("function");
   });
 
+  it("exports the identifier guards", () => {
+    expect(barrel.isIdentifier).toBeTypeOf("function");
+    expect(barrel.isIdentifierArray).toBeTypeOf("function");
+  });
+
   it("exports HttpError and the fetchUtils REST helpers", () => {
     expect(barrel.HttpError).toBeTypeOf("function");
     expect(barrel.fetchUtils.fetchJson).toBeTypeOf("function");

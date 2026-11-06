@@ -37,7 +37,7 @@ export interface ReferenceArrayFieldProps {
  * `provideListContext` + `provideResourceContext`.
  */
 
-import type { ResourceRecord } from "@chelone/core";
+import { isIdentifierArray } from "@chelone/core";
 import { computed } from "vue";
 import { useGetManyAggregate } from "../../../data/queries";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -49,8 +49,9 @@ const props = defineProps<ReferenceArrayFieldProps>();
 
 const value = useFieldValue({ source: props.source, record: props.record });
 
+// The FK array read: only an array of ids is sent to the provider.
 const ids = computed<Identifier[]>(() =>
-  Array.isArray(value.value) ? (value.value as Identifier[]) : [],
+  isIdentifierArray(value.value) ? value.value : [],
 );
 
 const query = useGetManyAggregate(
@@ -62,10 +63,7 @@ const query = useGetManyAggregate(
 // Only "pending" while a non-empty fetch is in flight; an empty FK array
 // resolves to an empty list synchronously.
 const listContext = useList({
-  data: () =>
-    (ids.value.length > 0
-      ? (query.data.value ?? undefined)
-      : []) as ResourceRecord[] | undefined,
+  data: () => (ids.value.length > 0 ? (query.data.value ?? undefined) : []),
   isPending: () => (ids.value.length > 0 ? query.isPending.value : false),
   isFetching: () => (ids.value.length > 0 ? query.isFetching.value : false),
   error: () => query.error.value,
