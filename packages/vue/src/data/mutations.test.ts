@@ -11,6 +11,7 @@ import {
   type NotificationStore,
   type NotifyOptions,
 } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it, vi } from "vitest";
@@ -171,7 +172,7 @@ describe("undoable mutate callbacks", () => {
       dataProvider,
       notify,
       undoable,
-      mutation: () => mutation as T,
+      mutation: () => defined(mutation),
     };
   }
 

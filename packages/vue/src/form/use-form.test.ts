@@ -114,7 +114,7 @@ describe("useForm", () => {
     const { capture } = mountForm({
       record: { id: 1, title: "", views: 1 },
       onSubmit,
-      schema: postSchema as UseFormOptions<Post>["schema"],
+      schema: postSchema,
     });
 
     await result(capture).submit();
