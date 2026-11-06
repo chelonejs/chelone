@@ -1,3 +1,4 @@
+import { richTextToolbarItems } from "@chelone/core";
 import { defined, elementOf } from "@chelone/test-utils";
 import {
   act,
@@ -160,6 +161,16 @@ describe("<RichTextToolbar>", () => {
         HTMLSelectElement,
       ).disabled,
     ).toBe(true);
+  });
+
+  it("lists the buttons in the order core documents", async () => {
+    await mountInput();
+    const names = within(screen.getByRole("toolbar"))
+      .getAllByRole("button")
+      .map((each) => each.getAttribute("aria-label"));
+    expect(names).toEqual(
+      richTextToolbarItems.map((item) => item.defaultLabel),
+    );
   });
 
   it("a toolbar prop replaces the default toolbar and null hides it", async () => {

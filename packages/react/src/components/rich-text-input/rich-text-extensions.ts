@@ -13,7 +13,7 @@ const starterKitOptions = {
 export function createRichTextExtensions({
   placeholder,
 }: {
-  placeholder: string;
+  placeholder: string | (() => string);
 }): Extensions {
   return [
     StarterKit.configure(starterKitOptions),

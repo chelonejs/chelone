@@ -201,17 +201,17 @@ function ToolbarBody({
   });
   const [linkOpen, setLinkOpen] = useState(false);
 
-  const groups = new Map<
-    RichTextToolbarItem["group"],
-    { item: RichTextToolbarItem; button: ButtonState }[]
-  >();
+  // A run of items in one group; core lists Link and Horizontal rule apart.
+  const groups: {
+    group: RichTextToolbarItem["group"];
+    entries: { item: RichTextToolbarItem; button: ButtonState }[];
+  }[] = [];
   richTextToolbarItems.forEach((item, index) => {
     const button = state.buttons[index];
     if (!button) return;
-    groups.set(item.group, [
-      ...(groups.get(item.group) ?? []),
-      { item, button },
-    ]);
+    const last = groups.at(-1);
+    if (last?.group === item.group) last.entries.push({ item, button });
+    else groups.push({ group: item.group, entries: [{ item, button }] });
   });
 
   return (
@@ -247,8 +247,8 @@ function ToolbarBody({
             </NativeSelectOption>
           ))}
         </NativeSelect>
-        {[...groups].map(([group, entries]) => (
-          <div key={group} className="flex items-center gap-1">
+        {groups.map(({ entries }) => (
+          <div key={entries[0]?.item.id} className="flex items-center gap-1">
             <Separator orientation="vertical" className="mx-1 h-6" />
             {entries.map(({ item, button }) => (
               <ToolbarButton

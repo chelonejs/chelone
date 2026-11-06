@@ -81,6 +81,7 @@ function RichTextInput<TRecord = LooseRecord>(
     parse: props.parse ?? ((value) => value),
   });
 
+  const labelId = `${id}-label`;
   const value = typeof field.value === "string" ? field.value : "";
   const editable = disabled !== true && readOnly !== true;
 
@@ -90,9 +91,13 @@ function RichTextInput<TRecord = LooseRecord>(
   const onBlurRef = useRef(onBlur);
   onBlurRef.current = onBlur;
 
+  // The extension reads the text on each render, so a new one needs no new editor.
+  const placeholderRef = useRef(placeholder ?? "");
+  placeholderRef.current = placeholder ?? "";
   const extensions = useMemo(
-    () => createRichTextExtensions({ placeholder: placeholder ?? "" }),
-    [placeholder],
+    () =>
+      createRichTextExtensions({ placeholder: () => placeholderRef.current }),
+    [],
   );
 
   const editor = useEditor({
@@ -101,7 +106,10 @@ function RichTextInput<TRecord = LooseRecord>(
     content: value,
     editable,
     editorProps: {
-      attributes: { class: "rich-text min-h-32 px-3 py-2 outline-none" },
+      attributes: {
+        class: "rich-text min-h-32 px-3 py-2 outline-none",
+        ...(label === false ? {} : { "aria-labelledby": labelId }),
+      },
     },
     ...editorOptions,
     onUpdate: (event) => {
@@ -118,9 +126,14 @@ function RichTextInput<TRecord = LooseRecord>(
     },
   });
 
+  // `setEditable` and the placeholder text dispatch nothing, so an empty
+  // transaction tells the toolbar and the placeholder decoration to read again.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `placeholder` is read through its ref.
   useEffect(() => {
-    editor?.setEditable(editable, false);
-  }, [editor, editable]);
+    if (!editor) return;
+    editor.setEditable(editable, false);
+    editor.view.dispatch(editor.state.tr);
+  }, [editor, editable, placeholder]);
 
   // A reset or `setValue` changes the form value without the editor knowing.
   useEffect(() => {
@@ -146,6 +159,8 @@ function RichTextInput<TRecord = LooseRecord>(
     <Field className={className} data-invalid={invalid || undefined}>
       <RichTextLabel
         id={id}
+        labelId={labelId}
+        onClick={() => editor?.commands.focus()}
         label={label}
         source={source}
         resource={resource}
@@ -175,12 +190,16 @@ function RichTextInput<TRecord = LooseRecord>(
 
 function RichTextLabel({
   id,
+  labelId,
+  onClick,
   label,
   source,
   resource,
   isRequired,
 }: {
   id: string;
+  labelId: string;
+  onClick: () => void;
   label: ReactNode | false;
   source: string;
   resource: string | undefined;
@@ -188,7 +207,7 @@ function RichTextLabel({
 }) {
   if (label === false) return null;
   return (
-    <FieldLabel htmlFor={id}>
+    <FieldLabel id={labelId} htmlFor={id} onClick={onClick}>
       <FieldLabelText
         label={label}
         source={source}

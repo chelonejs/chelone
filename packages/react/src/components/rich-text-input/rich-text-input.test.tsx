@@ -1,6 +1,12 @@
 import { required } from "@chelone/core";
 import { defined, elementOf } from "@chelone/test-utils";
-import { act, cleanup, fireEvent, screen } from "@testing-library/react";
+import {
+  act,
+  cleanup,
+  fireEvent,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import type { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
@@ -101,6 +107,42 @@ describe("<RichTextInput>", () => {
 
     const third = await mountInput({});
     expect(third.dom().getAttribute("contenteditable")).toBe("true");
+  });
+
+  it("names the textbox with the label", async () => {
+    await mountInput({ label: "Article body" });
+    expect(screen.getByRole("textbox", { name: "Article body" })).toBeTruthy();
+  });
+
+  it("follows a placeholder that changes after mount", async () => {
+    const { dom, rerenderInput } = await mountInput({ placeholder: "First" });
+    const shown = () =>
+      dom().querySelector("p")?.getAttribute("data-placeholder");
+    expect(shown()).toBe("First");
+    rerenderInput({ placeholder: "Second" });
+    await waitFor(() => expect(shown()).toBe("Second"));
+  });
+
+  it("disables and re-enables the toolbar when disabled changes after mount", async () => {
+    const { rerenderInput, dom } = await mountInput({});
+    const bold = () =>
+      elementOf(
+        screen.getByRole("button", { name: "Bold" }),
+        HTMLButtonElement,
+      );
+    const block = () =>
+      elementOf(
+        screen.getByRole("combobox", { name: "Block type" }),
+        HTMLSelectElement,
+      );
+    expect(bold().disabled).toBe(false);
+    rerenderInput({ disabled: true });
+    await waitFor(() => expect(bold().disabled).toBe(true));
+    expect(block().disabled).toBe(true);
+    expect(dom().getAttribute("contenteditable")).toBe("false");
+    rerenderInput({ disabled: false });
+    await waitFor(() => expect(bold().disabled).toBe(false));
+    expect(block().disabled).toBe(false);
   });
 
   it("shows the required error on submit when the editor is empty", async () => {
