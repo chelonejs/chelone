@@ -1,0 +1,35 @@
+{
+  "name": "OnboardingTour",
+  "props": [
+    {
+      "name": "autoStart",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Open on mount while the tour is not stored as done. Default `true`."
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": false,
+      "comment": "Names the tour in the store: finishing or skipping it stores `onboarding-tour.<id>.completed`."
+    },
+    {
+      "name": "onComplete",
+      "type": "(reason: TourEnd) => void",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placement",
+      "type": "TourPlacement",
+      "optional": true,
+      "comment": "Where the card sits relative to its target. Default `\"auto\"`."
+    },
+    {
+      "name": "steps",
+      "type": "TourStep[]",
+      "optional": false,
+      "comment": ""
+    }
+  ]
+}
