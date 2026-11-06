@@ -36,7 +36,8 @@ subscribe(). Wrap it with realtimeDataProvider().` at the call.
 ## Example
 
 ```tsx
-import { recordTopic, usePublish } from "@chelone/react";
+import { recordTopic } from "@chelone/core";
+import { usePublish } from "@chelone/react";
 
 export const TypingButton = ({ id }: { id: number }) => {
   const publish = usePublish();

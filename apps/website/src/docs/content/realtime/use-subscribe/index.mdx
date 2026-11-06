@@ -47,7 +47,8 @@ through `realtimeDataProvider`.
 
 ```tsx
 import { useState } from "react";
-import { resourceTopic, useSubscribe } from "@chelone/react";
+import { resourceTopic } from "@chelone/core";
+import { useSubscribe } from "@chelone/react";
 
 export const PostActivity = () => {
   const [last, setLast] = useState<string | null>(null);

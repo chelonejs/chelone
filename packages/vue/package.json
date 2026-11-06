@@ -145,7 +145,8 @@
     "terra-draw-maplibre-gl-adapter": "^1.5.0",
     "vue": "^3.4.0",
     "vue-router": "^4.0.0 || ^5.0.0",
-    "@tiptap/extension-image": "^3.33.0"
+    "@tiptap/extension-image": "^3.33.0",
+    "zod": "^3.25.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
     "@chelone/supabase": {
@@ -239,6 +240,9 @@
       "optional": true
     },
     "@tiptap/extension-image": {
+      "optional": true
+    },
+    "zod": {
       "optional": true
     }
   },
