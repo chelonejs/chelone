@@ -56,6 +56,100 @@ describe("geoBounds", () => {
     expect(geoBounds(collection)).toEqual([0, 0, 20, 30]);
   });
 
+  it("covers a MultiPoint", () => {
+    expect(
+      geoBounds({
+        type: "MultiPoint",
+        coordinates: [
+          [3, 4],
+          [-6, 9, 50],
+          [1, -2],
+        ],
+      }),
+    ).toEqual([-6, -2, 3, 9]);
+  });
+
+  it("covers a LineString", () => {
+    expect(
+      geoBounds({
+        type: "LineString",
+        coordinates: [
+          [0, 1],
+          [8, -3],
+          [4, 7],
+        ],
+      }),
+    ).toEqual([0, -3, 8, 7]);
+  });
+
+  it("covers every line of a MultiLineString", () => {
+    expect(
+      geoBounds({
+        type: "MultiLineString",
+        coordinates: [
+          [
+            [0, 0],
+            [1, 1],
+          ],
+          [
+            [-4, 5],
+            [2, 6],
+          ],
+        ],
+      }),
+    ).toEqual([-4, 0, 2, 6]);
+  });
+
+  it("covers every polygon of a MultiPolygon", () => {
+    expect(
+      geoBounds({
+        type: "MultiPolygon",
+        coordinates: [
+          [
+            [
+              [0, 0],
+              [2, 0],
+              [2, 2],
+              [0, 0],
+            ],
+          ],
+          [
+            [
+              [10, 10],
+              [12, 10],
+              [12, 14],
+              [10, 10],
+            ],
+          ],
+        ],
+      }),
+    ).toEqual([0, 0, 12, 14]);
+  });
+
+  it("covers a GeometryCollection nested in a GeometryCollection", () => {
+    expect(
+      geoBounds({
+        type: "GeometryCollection",
+        geometries: [
+          { type: "Point", coordinates: [1, 1] },
+          {
+            type: "GeometryCollection",
+            geometries: [
+              { type: "Point", coordinates: [-5, 3] },
+              {
+                type: "LineString",
+                coordinates: [
+                  [2, -8],
+                  [6, 0],
+                ],
+              },
+            ],
+          },
+        ],
+      }),
+    ).toEqual([-5, -8, 6, 3]);
+  });
+
   it("covers a GeometryCollection and a MultiPolygon", () => {
     expect(
       geoBounds({

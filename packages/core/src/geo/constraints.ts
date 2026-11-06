@@ -2,7 +2,6 @@ import type { Geometry, Position } from "geojson";
 import type { Validator } from "../form/validators";
 import { isEmpty } from "../form/validators";
 import { isRecord } from "../guards";
-import type { TranslateParamValues } from "../i18n/messages";
 import { bboxToPolygon } from "./bbox";
 import { isGeoJsonValue } from "./geojson";
 import { geoAreaM2, hasSelfIntersection } from "./geometry-math";
@@ -112,7 +111,7 @@ function isUnreadable(value: unknown): boolean {
  */
 function constraint(
   fails: (geometry: Geometry) => boolean,
-  failure: () => { message: string; args?: TranslateParamValues },
+  failure: () => { message: string; args?: Record<string, number> },
 ): Validator {
   return (value) => {
     if (isEmpty(value)) return undefined;

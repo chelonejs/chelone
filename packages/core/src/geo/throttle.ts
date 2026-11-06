@@ -38,7 +38,7 @@ function timerSleep(ms: number, signal?: AbortSignal): Promise<void> {
 export function createThrottle(options: ThrottleOptions): Throttle {
   const { minIntervalMs, now = Date.now, sleep = timerSleep } = options;
   let nextAllowedAt = Number.NEGATIVE_INFINITY;
-  let tail: Promise<unknown> = Promise.resolve();
+  let tail: Promise<void> = Promise.resolve();
 
   const takeTurn = async (signal?: AbortSignal) => {
     if (signal?.aborted) throw abortError();
