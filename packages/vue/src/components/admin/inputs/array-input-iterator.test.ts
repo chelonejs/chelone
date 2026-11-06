@@ -5,6 +5,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
@@ -17,9 +18,14 @@ import ArrayInput from "./array-input.vue";
 import ArrayInputRow from "./array-input-row.vue";
 import TextInput from "./text-input.vue";
 
+/** One `<ArrayInput>` row the harness seeds. */
+interface Row {
+  sku: string;
+}
+
 interface FormValues {
   id?: number;
-  items?: unknown;
+  items?: Row[];
 }
 
 const THREE = [{ sku: "a" }, { sku: "b" }, { sku: "c" }];
@@ -63,8 +69,7 @@ function mountInForm(render: () => unknown, record: FormValues) {
   });
   return {
     wrapper,
-    items: () =>
-      (form?.values.value as { items: Array<{ sku: string }> }).items,
+    items: () => defined(form?.values.value.items),
   };
 }
 

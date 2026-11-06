@@ -9,6 +9,7 @@
  */
 
 import { fakeDataProvider } from "@chelone/core";
+import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
@@ -56,7 +57,7 @@ function makeRouter(): Router {
 
 interface Captured {
   form?: UseFormReturn<FormValues>;
-  values?: () => Record<string, unknown>;
+  values?: () => FormValues;
 }
 
 function mountInForm(
@@ -84,7 +85,7 @@ function mountInForm(
         onSubmit: async () => undefined,
       });
       captured.form = form;
-      captured.values = () => form.values.value as Record<string, unknown>;
+      captured.values = () => form.values.value;
       return () => slots.default?.();
     },
   });
@@ -116,7 +117,9 @@ describe("<SelectInput>", () => {
     // The empty option + 3 choices.
     expect(select.findAll("option")).toHaveLength(4);
     expect(select.text()).toContain("Tech");
-    expect((select.element as HTMLSelectElement).value).toBe("lifestyle");
+    expect(elementOf(select.element, HTMLSelectElement).value).toBe(
+      "lifestyle",
+    );
   });
 
   it("selecting an option writes the value", async () => {
@@ -186,8 +189,10 @@ describe("<RadioButtonGroupInput>", () => {
 
     const radios = wrapper.findAll('input[type="radio"]');
     expect(radios).toHaveLength(3);
-    const checked = radios.find((r) => (r.element as HTMLInputElement).checked);
-    expect((checked?.element as HTMLInputElement).value).toBe("people");
+    const checked = defined(
+      radios.find((r) => elementOf(r.element, HTMLInputElement).checked),
+    );
+    expect(elementOf(checked.element, HTMLInputElement).value).toBe("people");
   });
 
   it("selecting a radio writes the value", async () => {
@@ -201,10 +206,12 @@ describe("<RadioButtonGroupInput>", () => {
     );
     await flushPromises();
 
-    const techRadio = wrapper
-      .findAll('input[type="radio"]')
-      .find((r) => (r.element as HTMLInputElement).value === "tech");
-    await techRadio?.setValue();
+    const techRadio = defined(
+      wrapper
+        .findAll('input[type="radio"]')
+        .find((r) => elementOf(r.element, HTMLInputElement).value === "tech"),
+    );
+    await techRadio.setValue();
     await nextTick();
     expect(captured.values?.().category).toBe("tech");
   });
@@ -217,10 +224,12 @@ describe("<RadioButtonGroupInput>", () => {
     );
     await flushPromises();
 
-    const two = wrapper
-      .findAll('input[type="radio"]')
-      .find((r) => (r.element as HTMLInputElement).value === "2");
-    await two?.setValue();
+    const two = defined(
+      wrapper
+        .findAll('input[type="radio"]')
+        .find((r) => elementOf(r.element, HTMLInputElement).value === "2"),
+    );
+    await two.setValue();
     await nextTick();
     expect(captured.values?.().author_id).toBe(2);
   });
@@ -241,7 +250,7 @@ describe("<CheckboxGroupInput>", () => {
     const boxes = wrapper.findAll('input[type="checkbox"]');
     expect(boxes).toHaveLength(3);
     const checkedValues = boxes
-      .filter((b) => (b.element as HTMLInputElement).checked)
+      .filter((b) => elementOf(b.element, HTMLInputElement).checked)
       .map((b) => b.attributes("id"));
     expect(checkedValues).toHaveLength(2);
   });
@@ -258,13 +267,13 @@ describe("<CheckboxGroupInput>", () => {
     await flushPromises();
 
     const boxes = wrapper.findAll('input[type="checkbox"]');
-    await boxes[0]!.setValue(true); // tech
+    await defined(boxes[0]).setValue(true); // tech
     await nextTick();
-    await boxes[2]!.setValue(true); // people
+    await defined(boxes[2]).setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["tech", "people"]);
 
-    await boxes[0]!.setValue(false); // untoggle tech
+    await defined(boxes[0]).setValue(false); // untoggle tech
     await nextTick();
     expect(captured.values?.().tags).toEqual(["people"]);
   });
@@ -325,10 +334,10 @@ describe("<SelectArrayInput>", () => {
     await wrapper.find('[role="combobox"]').trigger("click");
     await nextTick();
     const boxes = wrapper.findAll('input[type="checkbox"]');
-    await boxes[1]!.setValue(true); // lifestyle
+    await defined(boxes[1]).setValue(true); // lifestyle
     await nextTick();
     expect(captured.values?.().tags).toEqual(["lifestyle"]);
-    await boxes[2]!.setValue(true); // people
+    await defined(boxes[2]).setValue(true); // people
     await nextTick();
     expect(captured.values?.().tags).toEqual(["lifestyle", "people"]);
   });
@@ -353,7 +362,7 @@ describe("<AutocompleteInput>", () => {
     await nextTick();
     const opts = wrapper.findAll('[role="option"]');
     expect(opts).toHaveLength(1);
-    expect(opts[0]!.text()).toContain("Lifestyle");
+    expect(defined(opts[0]).text()).toContain("Lifestyle");
   });
 
   it("selecting an option writes the value and closes the list", async () => {
@@ -426,7 +435,7 @@ describe("<AutocompleteArrayInput>", () => {
     // Two selected badges, each with a remove button.
     const removeButtons = wrapper.findAll("button");
     expect(removeButtons.length).toBeGreaterThanOrEqual(2);
-    await removeButtons[0]!.trigger("click");
+    await defined(removeButtons[0]).trigger("click");
     await nextTick();
     expect(captured.values?.().tags).toEqual(["people"]);
   });
