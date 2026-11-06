@@ -4,6 +4,7 @@
     "../../../packages/react/src/index.ts",
     "../../../packages/react/src/monaco.ts",
     "../../../packages/react/src/mdx-editor.ts",
+    "../../../packages/react/src/rich-text-input.ts",
     "../../../packages/react/src/kanban.ts"
   ],
   "tsconfig": "../../../packages/react/tsconfig.json",
