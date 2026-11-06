@@ -1,3 +1,4 @@
+import { HttpError } from "../data/http-error";
 import { isJsonObject, isRecord } from "../guards";
 import type { AssistantChunk, AssistantTransport } from "./types";
 
@@ -63,6 +64,13 @@ export function httpAssistantTransport(
         body: JSON.stringify({ messages, tools }),
         signal,
       });
+      if (!response.ok) {
+        throw new HttpError(
+          `Assistant request failed (HTTP ${response.status})`,
+          response.status,
+          await response.text(),
+        );
+      }
       const reader = response.body?.getReader();
       if (reader) {
         const decoder = new TextDecoder();
