@@ -1,4 +1,9 @@
-import type { LooseRecord, SourceProp } from "@chelone/core";
+import type {
+  LooseRecord,
+  RecordResources,
+  ResourceRecord,
+  SourceProp,
+} from "@chelone/core";
 import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import {
@@ -35,14 +40,16 @@ import { useResourceContext } from "../../../resource";
  * <ApiKeyInput source="apiKey" />
  * <ApiKeyInput source="apiKey" onRotate={async (record) => await regenKey(record.id)} />
  */
-function ApiKeyInput<TRecord = LooseRecord>(props: ApiKeyInputProps<TRecord>) {
+function ApiKeyInput<TRecord extends ResourceRecord = LooseRecord>(
+  props: ApiKeyInputProps<TRecord>,
+) {
   const { source, onRotate, disabled, resource: resourceProp } = props;
-  const record = useRecordContext();
+  const record = useRecordContext<TRecord>();
   const resource = useResourceContext({ resource: resourceProp });
   // `useUpdate` binds the resource at hook-call time; guard the actual dispatch
   // on `record && resource` below. An empty string is a harmless placeholder
   // when no ambient resource exists — the mutation is never fired in that case.
-  const update = useUpdate(resource ?? "");
+  const update = useUpdate<RecordResources<TRecord>, string>(resource ?? "");
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
 
@@ -54,7 +61,8 @@ function ApiKeyInput<TRecord = LooseRecord>(props: ApiKeyInputProps<TRecord>) {
       } else if (record && resource) {
         await update.mutateAsync({
           id: record.id,
-          data: { [source]: null },
+          // type-escape: `source` is a path of TRecord, so a null written there is a patch of it; the compiler cannot see through a computed key
+          data: { [source]: null } as Partial<TRecord>,
           previousData: record,
         });
       }
@@ -96,13 +104,13 @@ function ApiKeyInput<TRecord = LooseRecord>(props: ApiKeyInputProps<TRecord>) {
   );
 }
 
-interface ApiKeyInputProps<TRecord = LooseRecord> {
+interface ApiKeyInputProps<TRecord extends ResourceRecord = LooseRecord> {
   /** Record field holding the API key. */
   source: SourceProp<TRecord>;
   /** Override resource. */
   resource?: string;
   /** Async side-effect on rotate. When provided, replaces the default update mutation. */
-  onRotate?: (record: LooseRecord) => Promise<void> | void;
+  onRotate?: (record: TRecord) => Promise<void> | void;
   /** Disable the button. */
   disabled?: boolean;
 }

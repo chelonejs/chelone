@@ -1,7 +1,11 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
+
 /** Props for {@link SimpleListItem}. */
-export interface SimpleListItemProps {
-  record?: LooseRecord;
+export interface SimpleListItemProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  record?: TRecord;
   /** Override the ambient `<Resource>`. Without one the row is not linked. */
   resource?: string;
   /**
@@ -14,7 +18,7 @@ export interface SimpleListItemProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<SimpleListItem>` — one `<li>` of a `<SimpleList>`: the row content, linked
  * to the record's edit or show page. The Vue analog of `@chelone/react`'s
@@ -22,31 +26,20 @@ export interface SimpleListItemProps {
  * fields resolve it via `RecordContext`) and renders nothing without one.
  */
 
-import type { LooseRecord } from "@chelone/core";
-import { computed, provide, ref, watch } from "vue";
+import { computed, toRef } from "vue";
 import { RouterLink } from "vue-router";
 import { useResourceDefinition } from "../../../admin/resource-registry";
 import { cn } from "../../../lib/utils";
-import {
-  RecordContextKey,
-  type RecordValue,
-} from "../../../record/record-context";
+import { provideRecordContext } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath } from "../../../router";
 
 // A `false` in the union makes Vue cast an absent prop to `false`.
-const props = withDefaults(defineProps<SimpleListItemProps>(), {
+const props = withDefaults(defineProps<SimpleListItemProps<TRecord>>(), {
   linkType: undefined,
 });
 
-const recordRef = ref<RecordValue>(props.record);
-watch(
-  () => props.record,
-  (next) => {
-    recordRef.value = next;
-  },
-);
-provide(RecordContextKey, recordRef);
+provideRecordContext(toRef(props, "record"));
 
 const resource = useResourceContext(props);
 const createPath = useCreatePath();

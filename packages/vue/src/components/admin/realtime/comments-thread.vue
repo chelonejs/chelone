@@ -1,5 +1,9 @@
 <script lang="ts">
-import type { Identifier, LooseRecord } from "@chelone/core";
+import type {
+  Identifier,
+  LooseRecord,
+  ResourceRecord,
+} from "@chelone/core";
 
 /** A comment as `<CommentsThread>` reads and writes it. */
 export interface CommentRecord {
@@ -14,10 +18,10 @@ export interface CommentRecord {
 }
 
 /** A row is a comment when it has a string `body`; any other row is skipped. */
-function isCommentRecord(
-  record: LooseRecord,
-): record is LooseRecord & CommentRecord {
-  return typeof record.body === "string";
+function isCommentRecord<TRecord extends ResourceRecord>(
+  record: TRecord,
+): record is TRecord & CommentRecord {
+  return "body" in record && typeof record.body === "string";
 }
 
 /** Props for {@link CommentsThread}. */
@@ -47,6 +51,7 @@ export interface CommentsThreadProps {
 import {
   createMutationOptions,
   isRealtimeDataProvider,
+  type RecordResources,
   subscribeLiveResource,
   updateMutationOptions,
 } from "@chelone/core";
@@ -119,7 +124,12 @@ const create = useMutation(
   computed(() => createMutationOptions(ctx, props.reference)),
 );
 const update = useMutation(
-  computed(() => updateMutationOptions(ctx, props.reference)),
+  computed(() =>
+    updateMutationOptions<RecordResources<CommentRecord>, string>(
+      ctx,
+      props.reference,
+    ),
+  ),
 );
 const posting = computed(() => create.isPending.value);
 const canPost = computed(() => draft.value.trim() !== "" && !posting.value);
@@ -157,7 +167,7 @@ function onKeydown(event: KeyboardEvent) {
   }
 }
 
-async function resolve(comment: LooseRecord & CommentRecord) {
+async function resolve(comment: CommentRecord) {
   try {
     await update.mutateAsync({
       id: comment.id,

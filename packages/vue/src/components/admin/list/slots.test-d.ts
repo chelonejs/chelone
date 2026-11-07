@@ -12,10 +12,10 @@ type Task = { id: number; title: string };
 
 describe("list slots", () => {
   it("the SimpleList empty slot returns VNode[]", () => {
-    type Slots = InstanceType<typeof SimpleList>["$slots"];
-    expectTypeOf<ReturnType<NonNullable<Slots["empty"]>>>().toEqualTypeOf<
-      VNode[]
-    >();
+    type Context = NonNullable<Parameters<typeof SimpleList<Task>>[1]>;
+    expectTypeOf<
+      ReturnType<NonNullable<Context["slots"]["empty"]>>
+    >().toEqualTypeOf<VNode[]>();
   });
 
   it("the KanbanBoard card slot returns VNode[]", () => {
