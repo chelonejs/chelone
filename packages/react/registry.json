@@ -5003,7 +5003,7 @@
         }
       ],
       "registryDependencies": ["@chelone/theme-context"],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
