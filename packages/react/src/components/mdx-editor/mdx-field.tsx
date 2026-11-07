@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import {
   MDXEditor,
   type MDXEditorMethods,
@@ -16,7 +16,7 @@ import { defaultFieldPlugins } from "./default-plugins";
 import { safeHtmlImagePlugin } from "./safe-html-image-plugin";
 import "./mdx-editor-dark.css";
 
-interface MdxFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface MdxFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<MDXEditorProps, "markdown" | "readOnly" | "ref"> {
   /**
@@ -47,7 +47,7 @@ interface MdxFieldProps<RecordType extends LooseRecord = LooseRecord>
  *
  * <MdxField source="body" empty="No content" />
  */
-function MdxField<RecordType extends LooseRecord = LooseRecord>({
+function MdxField<RecordType extends ResourceRecord = LooseRecord>({
   source,
   record,
   empty,

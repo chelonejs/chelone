@@ -68,6 +68,9 @@ describe("slot returns", () => {
   });
 
   it("MdxField#empty", () => {
-    expectTypeOf<Slots<typeof MdxField>["empty"]>().toEqualTypeOf<Plain>();
+    // `MdxField` is generic in its record, so it is a generic function and has
+    // no `InstanceType`: its slots come from the second call parameter.
+    type S = NonNullable<Parameters<typeof MdxField>[1]>["slots"];
+    expectTypeOf<S["empty"]>().toEqualTypeOf<Plain>();
   });
 });

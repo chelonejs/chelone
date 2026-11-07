@@ -4,7 +4,7 @@
  * `mount` with a fake editor, and `monaco-editor` is an empty module.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { fakeDataProvider, type LooseRecord } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -12,7 +12,9 @@ import { defineComponent, h } from "vue";
 import { provideCheloneContext } from "../../context";
 import type { Theme } from "../admin/layout/theme-context";
 import ThemeProvider from "../admin/layout/theme-provider.vue";
-import MonacoJsonField from "./monaco-json-field.vue";
+import MonacoJsonField, {
+  type MonacoJsonFieldProps,
+} from "./monaco-json-field.vue";
 
 vi.mock("monaco-editor", () => ({}));
 
@@ -74,9 +76,10 @@ afterEach(() => {
   for (const w of mounted.splice(0)) w.unmount();
 });
 
-// The component is generic in its record, so its props are its first parameter.
+// The component is generic in its record, and `h` reads one at its bound, so the
+// props are named at the loose record and spread into a fresh literal below.
 function mountField(
-  props: Parameters<typeof MonacoJsonField>[0],
+  props: MonacoJsonFieldProps<LooseRecord>,
   theme: Theme = "light",
   slots?: Record<string, () => unknown>,
 ) {
@@ -90,7 +93,7 @@ function mountField(
         h(
           ThemeProvider,
           { defaultTheme: theme, storageKey: `t-${theme}` },
-          () => h(MonacoJsonField, props, slots),
+          () => h(MonacoJsonField, { ...props }, slots),
         );
     },
   });
