@@ -705,8 +705,8 @@ describe("useRegisterCommand", () => {
 });
 
 /**
- * A `matchMedia` double with a fixed answer. jsdom ships none, and the Sheet
- * path only asks `matches` and registers a change listener.
+ * A `matchMedia` double with a fixed answer. jsdom ships none, so a narrow
+ * screen is faked here.
  */
 function fakeMatchMedia(matches: boolean): (query: string) => MediaQueryList {
   return (query) => ({
@@ -722,36 +722,32 @@ function fakeMatchMedia(matches: boolean): (query: string) => MediaQueryList {
 }
 
 describe("CommandMenu on a narrow screen", () => {
-  it("CommandMenu opens in a bottom Sheet when useIsMobile is true", async () => {
+  it("CommandMenu opens in the same dialog on a narrow screen", async () => {
     vi.stubGlobal("innerWidth", 500);
     vi.stubGlobal("matchMedia", fakeMatchMedia(true));
     try {
       await mountMenu();
       await openMenu();
 
-      const sheet = document.body.querySelector('[data-slot="sheet-content"]');
-      expect(sheet?.getAttribute("data-side")).toBe("bottom");
       expect(
         document.body.querySelector('[data-slot="command-dialog"]'),
+      ).not.toBeNull();
+      expect(
+        document.body.querySelector('[data-slot="sheet-content"]'),
       ).toBeNull();
       expect(input()).not.toBeNull();
     } finally {
       vi.unstubAllGlobals();
     }
   });
-});
 
-describe("CommandMenu focus on a narrow screen", () => {
-  it("CommandMenu focuses the search box when it opens in the Sheet", async () => {
+  it("CommandMenu focuses the search box when it opens on a narrow screen", async () => {
     vi.stubGlobal("innerWidth", 500);
     vi.stubGlobal("matchMedia", fakeMatchMedia(true));
     try {
       await mountMenu();
       await openMenu();
 
-      expect(
-        document.body.querySelector('[data-slot="sheet-content"]'),
-      ).not.toBeNull();
       await until(() => document.activeElement === input());
       expect(document.activeElement).toBe(input());
     } finally {
