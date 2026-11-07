@@ -1,0 +1,37 @@
+{
+  "name": "ExportButton",
+  "props": [
+    {
+      "name": "exporter",
+      "type": "Exporter",
+      "optional": true,
+      "comment": "Custom exporter; defaults to the built-in CSV writer."
+    },
+    {
+      "name": "maxResults",
+      "type": "number",
+      "optional": true,
+      "comment": "Max rows fetched for the export. Default `1000`."
+    },
+    {
+      "name": "meta",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Passed to `dataProvider.getList` as `meta`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>`."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated label."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

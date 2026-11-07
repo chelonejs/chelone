@@ -1,0 +1,78 @@
+{
+  "name": "CsvImport",
+  "props": [
+    {
+      "name": "schema",
+      "type": "StandardSchemaV1",
+      "optional": true,
+      "comment": "A Standard Schema (zod, valibot, ...). Its keys are the fields; its non-optional keys are required."
+    },
+    {
+      "name": "fields",
+      "type": "string[]",
+      "optional": true,
+      "comment": "Overrides the schema's keys. Without either, the CSV headers are the fields."
+    },
+    {
+      "name": "requiredFields",
+      "type": "string[]",
+      "optional": true,
+      "comment": "Overrides the schema's non-optional keys."
+    },
+    {
+      "name": "mapping",
+      "type": "Record<string, string>",
+      "optional": true,
+      "comment": "A starting field to header mapping. When non-empty it replaces the auto-match."
+    },
+    {
+      "name": "transform",
+      "type": "CsvTransform",
+      "optional": true,
+      "comment": "Reshapes a mapped row before the schema sees it."
+    },
+    {
+      "name": "batchSize",
+      "type": "number",
+      "optional": true,
+      "comment": "Rows created at once. Default 100."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "The Import button's text."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource to create into. Defaults to the ambient resource."
+    },
+    {
+      "name": "onComplete",
+      "type": "((report: CsvImportReport) => void)",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onError",
+      "type": "((error: Error) => void)",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

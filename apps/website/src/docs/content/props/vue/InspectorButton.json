@@ -1,0 +1,30 @@
+{
+  "name": "InspectorButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "A message key, translated with itself as the fallback."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [
+    {
+      "name": "click",
+      "type": "[event: MouseEvent]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

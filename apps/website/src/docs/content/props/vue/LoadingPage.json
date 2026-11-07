@@ -1,0 +1,28 @@
+{
+  "name": "LoadingPage",
+  "props": [
+    {
+      "name": "loadingPrimary",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.page.loading\"",
+      "comment": "Primary heading i18n key. Default `\"ra.page.loading\"`."
+    },
+    {
+      "name": "loadingSecondary",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.loading\"",
+      "comment": "Secondary line i18n key. Default `\"ra.message.loading\"`."
+    },
+    {
+      "name": "delay",
+      "type": "number",
+      "optional": true,
+      "default": "1000",
+      "comment": "Delay (ms) before the indicator appears. Default `1000`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

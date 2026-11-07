@@ -1,0 +1,36 @@
+{
+  "name": "GuesserEmpty",
+  "props": [
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "Replaces the default title. Translated, with itself as the fallback."
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "optional": true,
+      "comment": "Replaces the default message. Translated, with itself as the fallback."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource named in the default message."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "title",
+      "type": "{}",
+      "comment": "Replaces the title text."
+    },
+    {
+      "name": "message",
+      "type": "{}",
+      "comment": "Replaces the message text."
+    }
+  ]
+}

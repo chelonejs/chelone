@@ -1,0 +1,107 @@
+{
+  "name": "FileInput",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (label-key resolution)."
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": "Helper text under the dropzone."
+    },
+    {
+      "name": "format",
+      "type": "((value: FileSelection) => FileSelection)",
+      "optional": true,
+      "comment": "Read transform (the files in the form → the files shown). Default makes a preview record of each dropped file."
+    },
+    {
+      "name": "parse",
+      "type": "((value: FileSelection) => FileSelection)",
+      "optional": true,
+      "comment": "Write transform (the dropped or remaining files → stored value). Default makes a preview record of each dropped file."
+    },
+    {
+      "name": "accept",
+      "type": "string",
+      "optional": true,
+      "comment": "The native `accept` attribute (a comma-separated MIME/extension list, e.g.\n`\"image/*,application/pdf\"`). DIVERGENCE from the React twin's react-dropzone\nobject form — the native `<input type=file>` speaks the string form."
+    },
+    {
+      "name": "multiple",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Accept multiple files (the value becomes an array). Default `false`."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables the control."
+    },
+    {
+      "name": "readonly",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Renders the control read-only."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": "Placeholder text shown in the dropzone (overrides the default labels)."
+    },
+    {
+      "name": "labelMultiple",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.input.file.upload_several\"",
+      "comment": "i18n key for the multiple-files prompt."
+    },
+    {
+      "name": "labelSingle",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.input.file.upload_single\"",
+      "comment": "i18n key for the single-file prompt."
+    },
+    {
+      "name": "source",
+      "type": "TPath",
+      "optional": false,
+      "comment": "The field path (dot/bracket), relative to the ambient source scope."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "defaultValue",
+      "type": "NoInfer<SourceValue<RecordType, TPath>>",
+      "optional": true,
+      "comment": "Input-level default (seeds only into a hole), typed as the value at `source`."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{ record: FileEntry; }",
+      "comment": ""
+    }
+  ]
+}

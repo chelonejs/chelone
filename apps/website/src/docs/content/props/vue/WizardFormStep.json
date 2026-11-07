@@ -1,0 +1,19 @@
+{
+  "name": "WizardFormStep",
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The step name, also its form group name: its inputs register into it."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

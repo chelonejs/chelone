@@ -1,0 +1,13 @@
+{
+  "name": "ValidationError",
+  "props": [
+    {
+      "name": "error",
+      "type": "string | TranslatableMessage",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

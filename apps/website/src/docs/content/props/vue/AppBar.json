@@ -1,0 +1,27 @@
+{
+  "name": "AppBar",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "start",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "title",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "toolbar",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "user-menu",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

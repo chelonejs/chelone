@@ -1,0 +1,37 @@
+{
+  "name": "MenuItemLink",
+  "props": [
+    {
+      "name": "to",
+      "type": "string",
+      "optional": false,
+      "comment": "Target path for the link. Compared against the current location (via the\nrouter `useMatch`) to derive the active-highlight state. Resource-list\nentries match with `end: false`, so the parent stays highlighted on a child\ndetail route (`/posts` active on `/posts/:id`); the dashboard/root link\n(`${basename}/`) matches exactly."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": false,
+      "comment": "The text rendered alongside `icon`. Auto-translated via `useTranslate` with\nthe string itself as the fallback, so an already-resolved label (e.g. a\nhumanized resource name) echoes through unchanged."
+    },
+    {
+      "name": "icon",
+      "type": "Component",
+      "optional": true,
+      "comment": "Icon component rendered before the label. Provide via the `#icon` slot instead for markup."
+    },
+    {
+      "name": "onClick",
+      "type": "(() => void)",
+      "optional": true,
+      "comment": "Click handler invoked alongside the default navigation (e.g. close the mobile drawer)."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

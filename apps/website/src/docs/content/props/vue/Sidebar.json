@@ -1,0 +1,34 @@
+{
+  "name": "Sidebar",
+  "props": [
+    {
+      "name": "variant",
+      "type": "\"sidebar\" | \"floating\" | \"inset\"",
+      "optional": true,
+      "default": "\"sidebar\"",
+      "comment": "Visual variant. `floating` insets + rounds the panel. Defaults to `sidebar`."
+    },
+    {
+      "name": "collapsible",
+      "type": "\"icon\" | \"none\" | \"offcanvas\"",
+      "optional": true,
+      "default": "\"icon\"",
+      "comment": "Collapse behavior when closed. Defaults to `icon`."
+    },
+    {
+      "name": "side",
+      "type": "\"right\" | \"left\"",
+      "optional": true,
+      "default": "\"left\"",
+      "comment": "Which edge the sidebar docks to. Defaults to `left`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

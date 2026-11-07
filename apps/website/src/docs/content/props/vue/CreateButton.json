@@ -1,0 +1,25 @@
+{
+  "name": "CreateButton",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>` this button targets."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated label."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

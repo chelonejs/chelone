@@ -1,0 +1,38 @@
+{
+  "name": "Count",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource to count. Defaults to the ambient resource."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "link",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Link the count to the resource's list, filtered by `filter`."
+    },
+    {
+      "name": "timeout",
+      "type": "number",
+      "optional": true,
+      "default": "1000",
+      "comment": "Milliseconds a pending count waits before showing a spinner. Default 1000."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

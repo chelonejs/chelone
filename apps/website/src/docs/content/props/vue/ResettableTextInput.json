@@ -1,0 +1,76 @@
+{
+  "name": "ResettableTextInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "resettable",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": ""
+    },
+    {
+      "name": "clearAlwaysVisible",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "readonly",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "inputClass",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

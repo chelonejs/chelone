@@ -1,0 +1,21 @@
+{
+  "name": "Field",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": ""
+    },
+    {
+      "name": "dataInvalid",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

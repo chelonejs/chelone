@@ -1,0 +1,33 @@
+{
+  "name": "AccessDenied",
+  "props": [
+    {
+      "name": "icon",
+      "type": "FunctionalComponent<{}, {}, any, {}>",
+      "optional": true,
+      "comment": "Override the default padlock glyph."
+    },
+    {
+      "name": "textPrimary",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.page.access_denied\"",
+      "comment": "i18n key for the heading. Defaults to `ra.page.access_denied`."
+    },
+    {
+      "name": "textSecondary",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.access_denied\"",
+      "comment": "i18n key for the sub-text. Defaults to `ra.message.access_denied`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": "Override the default padlock glyph."
+    }
+  ]
+}

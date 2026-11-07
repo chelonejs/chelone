@@ -1,0 +1,68 @@
+{
+  "name": "ReferenceManyField",
+  "props": [
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The referenced resource holding the reverse FK (e.g. `\"books\"`)."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": false,
+      "comment": "The FK field on the reference pointing back at this record (e.g. `\"author_id\"`)."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": true,
+      "comment": "The field on the current record the `target` matches. Default `\"id\"`."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record whose id is matched. Defaults to the ambient record."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": "Initial sort of the related list. Default id ascending."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Permanent filter merged into the reference lookup."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": "Page size for the related list. Default 25."
+    },
+    {
+      "name": "storeKey",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "KV namespace for the list params and selection. Default `${reference}.${target}.${id}`; `false` keeps them in memory."
+    },
+    {
+      "name": "debounce",
+      "type": "number",
+      "optional": true,
+      "comment": "Debounce delay in ms for debounced `setFilters` calls. Default 500."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

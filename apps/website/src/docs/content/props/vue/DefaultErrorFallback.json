@@ -1,0 +1,25 @@
+{
+  "name": "DefaultErrorFallback",
+  "props": [
+    {
+      "name": "error",
+      "type": "Error",
+      "optional": false,
+      "comment": "The thrown error."
+    },
+    {
+      "name": "info",
+      "type": "string",
+      "optional": false,
+      "comment": "Vue's description of where the error was thrown (a lifecycle or render hook name)."
+    },
+    {
+      "name": "reset",
+      "type": "() => void",
+      "optional": false,
+      "comment": "Clear the error and render the wrapped view again."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

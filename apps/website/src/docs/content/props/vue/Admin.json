@@ -1,0 +1,129 @@
+{
+  "name": "Admin",
+  "props": [
+    {
+      "name": "dataProvider",
+      "type": "DataProvider<TResources>",
+      "optional": false,
+      "comment": "The data provider (required — the P2 data seam)."
+    },
+    {
+      "name": "queryClient",
+      "type": "QueryClient",
+      "optional": true,
+      "comment": "An existing vue-query client. Omit to have `<Admin>` create one."
+    },
+    {
+      "name": "basename",
+      "type": "string",
+      "optional": true,
+      "comment": "The path the host mounts `<Admin>` at, relative to the host router's own\nhistory base (default `''`). Starts with a slash when non-empty. Chelone\nprepends it to links and resource routes; vue-router applies its history\nbase separately. Trailing slashes are removed. Remount `<Admin>` to change it."
+    },
+    {
+      "name": "authProvider",
+      "type": "AuthProvider<unknown>",
+      "optional": true,
+      "comment": "The optional auth provider."
+    },
+    {
+      "name": "i18n",
+      "type": "AnyCheloneI18n",
+      "optional": true,
+      "comment": "The optional i18n instance."
+    },
+    {
+      "name": "store",
+      "type": "CheloneStore",
+      "optional": true,
+      "comment": "The optional KV store."
+    },
+    {
+      "name": "notifications",
+      "type": "NotificationStore",
+      "optional": true,
+      "comment": "The optional notification store."
+    },
+    {
+      "name": "registry",
+      "type": "TResources",
+      "optional": true,
+      "comment": "The zod resource registry (P5), the output of `defineResources(...)`. Named\n`registry` to avoid colliding with the `resources` view-component escape\nhatch below. When present, a resource's schema becomes the DEFAULT form\nvalidator for `useForm({ resource })` (D6): the core save-pipeline and\n`useForm` already READ `ctx.resources` — `<Admin>` is what PUTS it there,\nthe exact seam React's `<Admin resources>` threads through `<CheloneProvider>`."
+    },
+    {
+      "name": "resources",
+      "type": "ResourceDefinition[]",
+      "optional": true,
+      "comment": "The escape hatch (D3): resource definitions to merge into the registry\nWITHOUT a `<Resource>` child — the config path mirroring React's array form.\nNOTE: this is the runtime VIEW registry (list/edit/create components), NOT\nthe zod schema registry — that is `registry` above."
+    },
+    {
+      "name": "customRoutes",
+      "type": "CustomRoute[]",
+      "optional": true,
+      "comment": "Extra routes mounted under `basename`, ahead of any resource route, so one at\na resource's path wins. A `noLayout` route renders outside the layout and the\nauth gate; the rest render inside the layout, behind the gate. Read once at setup."
+    },
+    {
+      "name": "requireAuth",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Gate the shell behind authentication (the no-flash auth gate). When `true`\n(and an `authProvider` is configured), the shell renders a loading spinner\nwhile the auth check is pending and the `#login` slot (default\n`<LoginPage>`) when unauthenticated — the protected layout never mounts\nduring that window. Defaults `false`: the shell renders immediately, exactly\nas before (parity with React's `<Admin requireAuth>`)."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": "The resource markers (`<Resource>`) — always rendered so they register."
+    },
+    {
+      "name": "layout",
+      "type": "{}",
+      "comment": "Override the default shell chrome (wins over the route view)."
+    },
+    {
+      "name": "dashboard",
+      "type": "{}",
+      "comment": "The index/dashboard content (rendered before the route view by default)."
+    },
+    {
+      "name": "login",
+      "type": "{}",
+      "comment": "The unauthenticated login screen (`requireAuth`) — default `<LoginPage>`."
+    },
+    {
+      "name": "loading",
+      "type": "{}",
+      "comment": "Replaces the spinner shown while the `requireAuth` check is pending."
+    },
+    {
+      "name": "ready",
+      "type": "{}",
+      "comment": "Rendered alone when no resource is registered and no `customRoutes` are given."
+    },
+    {
+      "name": "error",
+      "type": "ErrorFallbackProps",
+      "comment": "Replaces the default fallback shown when a route view throws."
+    },
+    {
+      "name": "authCallback",
+      "type": "{}",
+      "comment": "Mounted at `/auth-callback`, outside the layout and the auth gate."
+    },
+    {
+      "name": "authenticationError",
+      "type": "{}",
+      "comment": "Mounted at `/authentication-error`, inside the layout."
+    },
+    {
+      "name": "accessDenied",
+      "type": "{}",
+      "comment": "Mounted at `/access-denied`, inside the layout."
+    },
+    {
+      "name": "catchAll",
+      "type": "{}",
+      "comment": "Mounted for any path no other route owns, inside the layout."
+    }
+  ]
+}

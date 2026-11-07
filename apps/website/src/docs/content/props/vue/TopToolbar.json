@@ -1,0 +1,12 @@
+{
+  "name": "TopToolbar",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

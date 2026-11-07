@@ -1,0 +1,30 @@
+{
+  "name": "LockStatus",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "lock",
+      "type": "{ lock: Lock; }",
+      "comment": ""
+    },
+    {
+      "name": "free",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

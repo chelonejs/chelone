@@ -1,0 +1,31 @@
+{
+  "name": "TextField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

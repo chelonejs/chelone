@@ -1,0 +1,86 @@
+{
+  "name": "SelectArrayInput",
+  "props": [
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": "Placeholder shown in the trigger when nothing is selected."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": "The FK/field path. Optional under a reference wrapper (inherited from context)."
+    },
+    {
+      "name": "choices",
+      "type": "readonly (string | TChoice)[]",
+      "optional": true,
+      "comment": "Inline choices (`{ id, name }[]` or `string[]`). Omitted under a reference wrapper."
+    },
+    {
+      "name": "optionText",
+      "type": "OptionText<TChoice>",
+      "optional": true,
+      "comment": "The display path (dotted) or a formatter over the whole choice. Default `name`."
+    },
+    {
+      "name": "optionValue",
+      "type": "SourcePath<TChoice>",
+      "optional": true,
+      "comment": "The value path. Default `id`."
+    },
+    {
+      "name": "disableValue",
+      "type": "SourcePath<TChoice>",
+      "optional": true,
+      "comment": "The disabled-flag path. Default `disabled`."
+    },
+    {
+      "name": "translateChoice",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Translate a string-path label through the catalog. Default `!isFromReference`."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": "Helper text under the control."
+    },
+    {
+      "name": "defaultValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Input-level default value (seeds only into a hole), typed as the value at `source`."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables the control."
+    },
+    {
+      "name": "readonly",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Renders the control read-only (non-interactive)."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

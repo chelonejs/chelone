@@ -1,0 +1,31 @@
+{
+  "name": "TabbedFormTab",
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The tab name, also its form group name: its inputs register into it."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "The tab header label. Defaults to `name`."
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": true,
+      "comment": "The URL segment under the form base when the tabs are URL-synced. Defaults\nto `name` for every tab after the first and to `''` for the first."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

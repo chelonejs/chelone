@@ -1,0 +1,44 @@
+{
+  "name": "BulkEditDrawer",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "default": "\"Edit selected\"",
+      "comment": "Trigger text. Default `\"Edit selected\"`."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "Sheet heading. Default `label`."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "side",
+      "type": "\"right\" | \"top\" | \"bottom\" | \"left\"",
+      "optional": true,
+      "default": "\"right\"",
+      "comment": "Edge the sheet slides in from. Default `\"right\"`."
+    }
+  ],
+  "emits": [
+    {
+      "name": "success",
+      "type": "[diff: Record<string, unknown>, ids: Identifier[]]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

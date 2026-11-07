@@ -1,0 +1,26 @@
+{
+  "name": "TranslatableInputsTab",
+  "props": [
+    {
+      "name": "locale",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "groupKey",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": "Prefix that keeps the ids and form group of two groups apart. Defaults to `\"\"`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "name": "Edit",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "redirectOnSave",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Redirect to the list on a successful save (the default). Vue coerces an\nabsent Boolean prop to `false`, so this MUST default via `withDefaults`\n(otherwise omitting it silently disables the redirect); pass `false` to\nstay on the form after save."
+    },
+    {
+      "name": "validate",
+      "type": "FormLevelValidate<Partial<TRecord>>",
+      "optional": true,
+      "comment": "Form-level validate fn (ra contract) — consumed by the submit pipeline (T2)."
+    },
+    {
+      "name": "schema",
+      "type": "StandardSchemaV1<Partial<TRecord>, unknown>",
+      "optional": true,
+      "comment": "Resource schema (zod or any Standard Schema) — wired as the default form\nvalidator by the submit pipeline (T2)."
+    },
+    {
+      "name": "onSuccess",
+      "type": "((record: TRecord) => void | Promise<void>)",
+      "optional": true,
+      "comment": "Runs after a successful save with the SERVER record, post-reconciliation."
+    },
+    {
+      "name": "sanitizeEmptyValues",
+      "type": "boolean",
+      "optional": true,
+      "comment": "ra parity: nullify/strip empty TOP-LEVEL values before save. Default false."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "actions",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "toolbar",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

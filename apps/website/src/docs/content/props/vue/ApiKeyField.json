@@ -1,0 +1,43 @@
+{
+  "name": "ApiKeyField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "scopesSource",
+      "type": "SourceKey<RecordType>",
+      "optional": true,
+      "comment": "Sibling record field with scope strings; renders chips when set. A\ntop-level key, not a path: the read is `record[scopesSource]`."
+    },
+    {
+      "name": "lastUsedSource",
+      "type": "SourceKey<RecordType>",
+      "optional": true,
+      "comment": "Sibling record field with an ISO last-used timestamp. A top-level key, not\na path: the read is `record[lastUsedSource]`."
+    },
+    {
+      "name": "maskedFormat",
+      "type": "\"last4\" | \"full\"",
+      "optional": true,
+      "comment": "'last4' shows the trailing 4 chars; 'full' masks everything."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

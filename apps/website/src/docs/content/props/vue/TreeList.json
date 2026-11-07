@@ -1,0 +1,63 @@
+{
+  "name": "TreeList",
+  "props": [
+    {
+      "name": "parentSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The field holding the parent's id; a dot or bracket path reads a nested value."
+    },
+    {
+      "name": "titleSource",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The string field shown as the row title; the record representation otherwise."
+    },
+    {
+      "name": "iconSource",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The field whose value picks a component from `iconMap`."
+    },
+    {
+      "name": "iconMap",
+      "type": "Record<string, Component>",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "defaultExpanded",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Whether branches start open. Default `false`."
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"edit\" | \"show\"",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Where a row links to when nothing listens to `select`. `edit` by default,\n`show` when the resource has no edit view, and an inert row when it has\nneither. `false` leaves rows inert."
+    }
+  ],
+  "emits": [
+    {
+      "name": "select",
+      "type": "[record: TRecord]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "loading",
+      "type": "{}",
+      "comment": "Rendered while the list is pending, in place of `SimpleListLoading`."
+    },
+    {
+      "name": "empty",
+      "type": "{}",
+      "comment": "Rendered with no records, in place of `ListNoResults`."
+    }
+  ]
+}

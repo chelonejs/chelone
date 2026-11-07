@@ -1,0 +1,20 @@
+{
+  "name": "SkipNavigationButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.navigation.skip_nav\"",
+      "comment": "An i18n key (contains a dot) or literal text. Default `ra.navigation.skip_nav`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

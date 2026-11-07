@@ -1,0 +1,68 @@
+{
+  "name": "NullableBooleanInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "nullLabel",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "trueLabel",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "falseLabel",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "format",
+      "type": "((value: boolean | null) => string)",
+      "optional": true,
+      "comment": "Read transform (`true`, `false` or `null` as stored → the select's `\"true\"`, `\"false\"` or `\"\"`)."
+    },
+    {
+      "name": "parse",
+      "type": "((value: string) => boolean | null)",
+      "optional": true,
+      "comment": "Write transform (the select's `\"true\"`, `\"false\"` or `\"\"` → stored value)."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

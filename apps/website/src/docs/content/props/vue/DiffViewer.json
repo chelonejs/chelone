@@ -1,0 +1,50 @@
+{
+  "name": "DiffViewer",
+  "props": [
+    {
+      "name": "before",
+      "type": "RecordType",
+      "optional": false,
+      "comment": "The earlier version."
+    },
+    {
+      "name": "after",
+      "type": "RecordType",
+      "optional": false,
+      "comment": "The later version."
+    },
+    {
+      "name": "sources",
+      "type": "readonly SourceProp<RecordType>[]",
+      "optional": true,
+      "comment": "Fields to show, in this order. Without it: every top-level key."
+    },
+    {
+      "name": "labels",
+      "type": "Partial<Record<string, string>>",
+      "optional": true,
+      "comment": "A label per source, replacing the translated field label."
+    },
+    {
+      "name": "mode",
+      "type": "DiffViewerMode",
+      "optional": true,
+      "default": "\"side-by-side\"",
+      "comment": "Table (`side-by-side`, the default) or list (`inline`)."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Resource whose field labels apply. Defaults to the ambient resource."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "value",
+      "type": "{ source: string; value: unknown; side: \"before\" | \"after\"; }",
+      "comment": "Replaces the default value text of a cell."
+    }
+  ]
+}

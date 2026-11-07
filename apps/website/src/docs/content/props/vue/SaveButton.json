@@ -1,0 +1,34 @@
+{
+  "name": "SaveButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.action.save\"",
+      "comment": ""
+    },
+    {
+      "name": "alwaysEnable",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\"",
+      "optional": true,
+      "default": "\"default\"",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}
