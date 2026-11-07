@@ -65,12 +65,30 @@ async function mountPanel(
   return { wrapper, log, dataProvider, shownLog };
 }
 
+/** The component's root in either state: the trigger button closed, the panel open. */
 function panel(): HTMLElement {
   const el = document.body.querySelector<HTMLElement>(
     '[data-slot="data-provider-devtools"]',
   );
   if (!el) throw new Error("no data provider devtools panel");
   return el;
+}
+
+/** The round trigger button, which is the root only while the panel is closed. */
+function trigger(): HTMLButtonElement {
+  const el = document.body.querySelector<HTMLButtonElement>(
+    'button[data-slot="data-provider-devtools"]',
+  );
+  if (!el) throw new Error("no data provider devtools trigger");
+  return el;
+}
+
+function badge(): string {
+  const el = document.body.querySelector(
+    '[data-slot="data-provider-devtools-badge"]',
+  );
+  if (!el) throw new Error("no data provider devtools badge");
+  return el.textContent?.trim() ?? "";
 }
 
 const byName = (root: HTMLElement, name: string) =>
@@ -161,23 +179,36 @@ describe("DataProviderDevtools", () => {
     expect(panel().textContent).toContain("No calls yet");
   });
 
-  it("starts closed with defaultOpen false and opens with the button", async () => {
+  it("closed shows a trigger button with the call count, and opens the panel", async () => {
     await mountPanel({ defaultOpen: false });
 
     expect(panel().getAttribute("data-open")).toBe("false");
     expect(entries()).toHaveLength(0);
-    expect(button("Show").getAttribute("aria-expanded")).toBe("false");
+    expect(trigger().getAttribute("aria-expanded")).toBe("false");
+    expect(badge()).toBe("1");
 
-    button("Show").click();
+    trigger().click();
     await flushPromises();
 
     expect(panel().getAttribute("data-open")).toBe("true");
     expect(entries().length).toBeGreaterThan(0);
+    expect(document.activeElement).toBe(panel());
     expect(button("Hide").getAttribute("aria-expanded")).toBe("true");
+
+    button("Hide").click();
+    await flushPromises();
+
+    expect(panel().getAttribute("data-open")).toBe("false");
+    expect(entries()).toHaveLength(0);
+    expect(badge()).toBe("1");
+    expect(document.activeElement).toBe(trigger());
   });
 
-  it("the shortcut toggles the panel, and stops after unmount", async () => {
+  it("the shortcut toggles the panel, leaves focus alone, and stops after unmount", async () => {
     const { wrapper } = await mountPanel();
+    const field = document.createElement("input");
+    document.body.append(field);
+    field.focus();
     const press = () => {
       const event = new KeyboardEvent("keydown", {
         key: "d",
@@ -193,9 +224,11 @@ describe("DataProviderDevtools", () => {
     expect(press().defaultPrevented).toBe(true);
     await flushPromises();
     expect(panel().getAttribute("data-open")).toBe("false");
+    expect(document.activeElement).toBe(field);
     press();
     await flushPromises();
     expect(panel().getAttribute("data-open")).toBe("true");
+    expect(document.activeElement).toBe(field);
 
     wrapper.unmount();
     mounted.length = 0;

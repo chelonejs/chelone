@@ -4824,7 +4824,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
-      "dependencies": ["@chelone/core", "@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

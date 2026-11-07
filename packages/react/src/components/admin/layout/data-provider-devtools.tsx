@@ -1,8 +1,10 @@
 /**
- * `<DataProviderDevtools>` — a floating panel at the bottom right that lists
- * the calls a `createDataProviderLog` log has recorded: method, resource,
- * duration and, for a failed call, the error. Wrap the data provider with
- * `log.wrap`, then mount the panel once, in the layout.
+ * `<DataProviderDevtools>` — a round button at the bottom right carrying a
+ * badge with the number of calls a `createDataProviderLog` log has recorded.
+ * Activating it opens a panel listing those calls: method, resource, duration
+ * and, for a failed call, the error. The panel's Hide button, or the
+ * `shortcut`, closes it back to the button. Wrap the data provider with
+ * `log.wrap`, then mount the component once, in the layout.
  *
  * @example
  * const log = createDataProviderLog();
@@ -21,8 +23,9 @@ import {
   DEVTOOLS_MAX_VALUE_LENGTH,
   shouldHandleHotkey,
 } from "@chelone/core";
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { Button } from "@/components/ui/button";
+import { ActivityIcon } from "lucide-react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useEvent } from "../../../util/use-event";
@@ -36,6 +39,11 @@ export interface DataProviderDevtoolsProps {
   shortcut?: string;
   className?: string;
 }
+
+/** Where the component sits, closed and open. An app moves it with `className`. */
+const TRIGGER_CLASSES = "fixed right-4 bottom-4 z-50 rounded-full shadow-lg";
+const PANEL_CLASSES =
+  "fixed right-4 bottom-4 z-50 flex max-h-[70vh] w-96 max-w-[calc(100vw-2rem)] flex-col rounded-lg border bg-popover text-xs text-popover-foreground shadow-lg";
 
 /** The value as indented JSON cut to `DEVTOOLS_MAX_VALUE_LENGTH`, or `undefined` when there is none to show. */
 // type-escape: params and results are whatever the provider's methods take and give
@@ -121,18 +129,62 @@ export function DataProviderDevtools({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onKeyDown]);
 
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const lastOpen = useRef(open);
+  // The trigger and the panel replace each other, so a swap unmounts whatever
+  // held focus. Hand focus to the element that takes its place, and leave focus
+  // alone when the swap removed nothing the user was in (a shortcut press).
+  useEffect(() => {
+    if (lastOpen.current === open) return;
+    lastOpen.current = open;
+    const focused = document.activeElement;
+    if (focused !== null && focused !== document.body && focused.isConnected) {
+      return;
+    }
+    (open ? panelRef : triggerRef).current?.focus();
+  }, [open]);
+
   const title = translate("chelone.devtools.title", { _: "Data provider" });
+
+  // Closed: the trigger replaces the panel entirely, so nothing covers the UI.
+  if (!open) {
+    return (
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-expanded={false}
+        aria-label={`${title} (${entries.length})`}
+        data-slot="data-provider-devtools"
+        data-open={false}
+        className={cn(
+          buttonVariants({ variant: "outline", size: "icon" }),
+          TRIGGER_CLASSES,
+          className,
+        )}
+        onClick={() => setOpen(true)}
+      >
+        <ActivityIcon />
+        <span
+          data-slot="data-provider-devtools-badge"
+          className="absolute top-0 right-0 min-w-4 -translate-y-1/2 translate-x-1/2 rounded-full bg-primary px-1 text-center text-[10px] leading-4 text-primary-foreground tabular-nums"
+        >
+          {entries.length}
+        </span>
+      </button>
+    );
+  }
+
   return (
     <section
+      ref={panelRef}
+      tabIndex={-1}
       aria-label={title}
       data-slot="data-provider-devtools"
-      data-open={open}
-      className={cn(
-        "fixed right-4 bottom-4 z-50 flex max-h-[70vh] w-96 max-w-[calc(100vw-2rem)] flex-col rounded-lg border bg-popover text-xs text-popover-foreground shadow-lg",
-        className,
-      )}
+      data-open={true}
+      className={cn(PANEL_CLASSES, className)}
     >
-      <header className="flex items-center gap-2 border-b px-3 py-1.5 data-[open=false]:border-b-0">
+      <header className="flex items-center gap-2 border-b px-3 py-1.5">
         <span className="font-semibold">{title}</span>
         <span className="text-muted-foreground tabular-nums">
           {entries.length}
@@ -150,28 +202,25 @@ export function DataProviderDevtools({
           type="button"
           variant="ghost"
           size="xs"
-          aria-expanded={open}
-          onClick={() => setOpen((current) => !current)}
+          aria-expanded={true}
+          onClick={() => setOpen(false)}
         >
-          {open
-            ? translate("chelone.devtools.hide", { _: "Hide" })
-            : translate("chelone.devtools.show", { _: "Show" })}
+          {translate("chelone.devtools.hide", { _: "Hide" })}
         </Button>
       </header>
-      {open &&
-        (entries.length === 0 ? (
-          <p className="px-3 py-2 text-muted-foreground">
-            {translate("chelone.devtools.empty", { _: "No calls yet" })}
-          </p>
-        ) : (
-          // `min-h-0`: a flex child keeps its content height otherwise, and the
-          // list would spill past the panel's `max-h` instead of scrolling.
-          <ul className="min-h-0 flex-1 overflow-y-auto">
-            {[...entries].reverse().map((entry) => (
-              <Entry key={entry.id} entry={entry} />
-            ))}
-          </ul>
-        ))}
+      {entries.length === 0 ? (
+        <p className="px-3 py-2 text-muted-foreground">
+          {translate("chelone.devtools.empty", { _: "No calls yet" })}
+        </p>
+      ) : (
+        // `min-h-0`: a flex child keeps its content height otherwise, and the
+        // list would spill past the panel's `max-h` instead of scrolling.
+        <ul className="min-h-0 flex-1 overflow-y-auto">
+          {[...entries].reverse().map((entry) => (
+            <Entry key={entry.id} entry={entry} />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
