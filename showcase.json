@@ -21,7 +21,27 @@
   "array-input-row": {
     "shownBy": "array-input"
   },
-  "assistant": null,
+  "assistant": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/assistant",
+        "see": "[data-slot='assistant-panel']",
+        "click": ["[data-slot='assistant-trigger']"]
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot='assistant-panel']",
+        "click": ["[data-slot='assistant-trigger']"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot='assistant-panel']",
+        "click": ["[data-slot='assistant-trigger']"]
+      }
+    }
+  },
   "auth-callback": null,
   "auth-error": null,
   "auth-layout": null,
@@ -75,11 +95,112 @@
   },
   "boolean-field": null,
   "boolean-input": null,
-  "bulk-actions-toolbar": null,
-  "bulk-delete-button": null,
-  "bulk-edit-drawer": null,
-  "bulk-export-button": null,
-  "bulk-update-button": null,
+  "bulk-actions-toolbar": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/bulk-actions-toolbar",
+        "see": "text=/\\d+ (items|rows) selected/"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=/\\d+ (items|rows) selected/",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=/\\d+ (items|rows) selected/",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
+  "bulk-delete-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-delete-button",
+        "see": "role=button[name=\"Delete\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Delete\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Delete\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
+  "bulk-edit-drawer": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-edit-drawer",
+        "see": "text=Edit posts"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=Edit selected customers",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "text=Edit customers"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=Edit selected customers",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "text=Edit customers"
+        ]
+      }
+    }
+  },
+  "bulk-export-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-export-button",
+        "see": "role=button[name=\"Export\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "[data-slot=\"card\"] >> role=button[name=\"Export\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "[data-slot=\"bulk-export-button\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
+  "bulk-update-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-update-button",
+        "see": "role=button[name=\"Publish\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Mark champion\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Mark champion\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
   "calendar-agenda-view": {
     "shownBy": "calendar-list"
   },
@@ -137,8 +258,45 @@
   "clone-button": null,
   "color-field": null,
   "color-input": null,
-  "columns-button": null,
-  "command-menu": null,
+  "columns-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/columns-button",
+        "see": "role=button[name=\"Columns\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Columns\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Columns\"]"
+      }
+    }
+  },
+  "command-menu": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/command-menu",
+        "see": "role=dialog >> role=combobox",
+        "click": ["role=button[name=\"Search Ctrl+K\"]"]
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=dialog >> role=combobox",
+        "click": ["[data-tour='search']"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=dialog >> role=combobox",
+        "click": ["[data-tour='search']"]
+      }
+    }
+  },
   "command-menu-content": {
     "shownBy": "command-menu"
   },
@@ -155,8 +313,66 @@
   "configurable": {
     "shownBy": "inspector"
   },
-  "configurable-inputs": null,
-  "confirm": null,
+  "configurable-inputs": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/configurable-inputs",
+        "see": "role=dialog[name=\"Form\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "[data-slot='configurable']",
+          "role=button[name=\"Customize\"]"
+        ]
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=dialog[name=\"Form\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "[data-slot='configurable']",
+          "role=button[name=\"Customize\"]"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=dialog[name=\"Form\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "[data-slot='configurable']",
+          "role=button[name=\"Customize\"]"
+        ]
+      }
+    }
+  },
+  "confirm": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/confirm",
+        "see": "text=This action cannot be undone.",
+        "click": ["role=button[name=\"Delete post\"]"]
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=Are you sure you want to delete these 5 items?",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "role=button[name=\"Delete\"]"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=Are you sure you want to delete these 5 items?",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "role=button[name=\"Delete\"]"
+        ]
+      }
+    }
+  },
   "count": null,
   "count-spinner": {
     "shownBy": "count"
@@ -168,7 +384,26 @@
   },
   "cron-field": null,
   "cron-input": null,
-  "csv-import": null,
+  "csv-import": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/csv-import",
+        "see": "role=button[name=\"Import\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=Drop a CSV file here, or click to choose one",
+        "click": ["role=button[name=\"Import\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=Drop a CSV file here, or click to choose one",
+        "click": ["role=button[name=\"Import\"]"]
+      }
+    }
+  },
   "currency-field": null,
   "currency-input": null,
   "dashboard-menu-item": null,
@@ -187,7 +422,24 @@
   "data-blocks": {
     "shownBy": "block-editor-input"
   },
-  "data-provider-devtools": null,
+  "data-provider-devtools": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/data-provider-devtools",
+        "see": "[data-slot='data-provider-devtools']"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot='data-provider-devtools']"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot='data-provider-devtools']"
+      }
+    }
+  },
   "data-provider-devtools-entry": {
     "shownBy": "data-provider-devtools"
   },
@@ -229,11 +481,47 @@
     "shownBy": "block-editor-input"
   },
   "error": null,
-  "export-button": null,
+  "export-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/export-button",
+        "see": "role=button[name=\"Export\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Export\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Export\"]"
+      }
+    }
+  },
   "field-label-text": {
     "shownBy": "text-input"
   },
-  "fields-selector": null,
+  "fields-selector": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/fields-selector",
+        "see": "role=button[name=\"Reset\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Reset\"]",
+        "click": ["role=button[name=\"Columns\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Reset\"]",
+        "click": ["role=button[name=\"Columns\"]"]
+      }
+    }
+  },
   "file-field": null,
   "file-input": null,
   "file-input-preview": {
@@ -335,7 +623,27 @@
   "input-helper-text": {
     "shownBy": "text-input"
   },
-  "inspector": null,
+  "inspector": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/inspector",
+        "see": "role=dialog[name=\"Inspector\"]",
+        "click": ["role=button[name=\"Configure mode\"]"]
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=dialog[name=\"Inspector\"]",
+        "click": ["role=button[name=\"Configure mode\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=dialog[name=\"Inspector\"]",
+        "click": ["role=button[name=\"Configure mode\"]"]
+      }
+    }
+  },
   "inspector-button": {
     "shownBy": "inspector"
   },
@@ -400,7 +708,9 @@
   "list-button": null,
   "list-guesser": null,
   "list-live": null,
-  "list-no-results": null,
+  "list-no-results": {
+    "shownBy": "simple-list"
+  },
   "list-pagination": null,
   "list-toolbar": null,
   "loading": null,
@@ -435,8 +745,33 @@
   "mdx-editor": {
     "shownBy": "mdx-input"
   },
-  "mdx-field": null,
-  "mdx-input": null,
+  "mdx-field": {
+    "react": {
+      "docs": { "path": "/docs/viewing/mdx-field", "see": ".mdxeditor" },
+      "demo": { "path": "/demo/pages/1/show", "see": ".mdxeditor" }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1/show",
+        "see": "[data-slot=\"mdx-editor\"]"
+      }
+    }
+  },
+  "mdx-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/mdx-input",
+        "see": ".mdxeditor [role=toolbar]"
+      },
+      "demo": { "path": "/demo/pages/1", "see": ".mdxeditor [role=toolbar]" }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1",
+        "see": "[data-slot=\"mdx-editor\"]"
+      }
+    }
+  },
   "menu": null,
   "menu-item-link": null,
   "menu-live": null,
@@ -464,7 +799,33 @@
   "number-field": null,
   "number-input": null,
   "offline": null,
-  "onboarding-tour": null,
+  "onboarding-tour": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/onboarding-tour",
+        "see": "role=dialog[name=\"Your posts\"]",
+        "click": ["role=button[name=\"Start the tour\"]"]
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=dialog[name=\"Find anything\"]",
+        "click": [
+          "role=button[name=\"Demo User\"]",
+          "role=menuitem[name=\"Take the tour\"]"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=dialog[name=\"Find anything\"]",
+        "click": [
+          "role=button[name=\"Demo User\"]",
+          "role=menuitem[name=\"Take the tour\"]"
+        ]
+      }
+    }
+  },
   "onboarding-tour-host": {
     "shownBy": "onboarding-tour"
   },
@@ -505,8 +866,42 @@
   "reference-record-config": {
     "shownBy": "block-editor-input"
   },
-  "refresh-button": null,
-  "refresh-icon-button": null,
+  "refresh-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/refresh-button",
+        "see": "role=button[name=\"Refresh\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Refresh at-risk list\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "[data-slot=\"refresh-button\"]"
+      }
+    }
+  },
+  "refresh-icon-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/refresh-icon-button",
+        "see": "role=button[name=\"Refresh\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Refresh customers\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "[data-slot=\"refresh-icon-button\"]"
+      }
+    }
+  },
   "resettable-text-input": null,
   "resource-menu-item": null,
   "resource-menu-item-group": null,
@@ -531,7 +926,24 @@
   "rich-text-color": {
     "shownBy": "rich-text-input"
   },
-  "rich-text-field": null,
+  "rich-text-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/rich-text-field",
+        "see": "[data-slot=\"rich-text-field\"]"
+      },
+      "demo": {
+        "path": "/demo/pages/1/show",
+        "see": "[data-slot=\"rich-text-field\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1/show",
+        "see": "[data-slot=\"rich-text-field\"]"
+      }
+    }
+  },
   "rich-text-image": {
     "shownBy": "rich-text-input"
   },
@@ -541,7 +953,24 @@
   "rich-text-image-view": {
     "shownBy": "rich-text-input"
   },
-  "rich-text-input": null,
+  "rich-text-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/rich-text-input",
+        "see": "[data-slot=\"rich-text-input\"]"
+      },
+      "demo": {
+        "path": "/demo/pages/1",
+        "see": "[data-slot=\"rich-text-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1",
+        "see": "[data-slot=\"rich-text-input\"]"
+      }
+    }
+  },
   "rich-text-input-editor": {
     "shownBy": "rich-text-input"
   },
@@ -557,7 +986,26 @@
   "save-button": null,
   "saved-queries-list": null,
   "search-input": null,
-  "select-all-button": null,
+  "select-all-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/select-all-button",
+        "see": "role=button[name=/^(Select all|ra\\.action\\.select_all)$/]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Select all\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Select all\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
   "select-array-input": null,
   "select-field": null,
   "select-input": null,
@@ -629,7 +1077,9 @@
       }
     }
   },
-  "simple-list-loading": null,
+  "simple-list-loading": {
+    "shownBy": "simple-list"
+  },
   "simplify-input": null,
   "single-field-list": {
     "react": {

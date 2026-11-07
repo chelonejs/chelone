@@ -139,12 +139,12 @@ it("keeps exactly one hand-placed preview on page-components/create", async () =
 // here, and the install block proves each `registry` frontmatter names a real
 // registry item.
 it.each([
-  ["viewing/fields-selector", "FieldsSelector"],
-  ["ui-layout/inspector", "Inspector"],
-  ["editing/configurable-inputs", "ConfigurableInputs"],
+  ["viewing/fields-selector", "FieldsSelector", true],
+  ["ui-layout/inspector", "Inspector", true],
+  ["editing/configurable-inputs", "ConfigurableInputs", true],
 ])(
   "renders the %s reference page with its install block and props table",
-  async (slug, title) => {
+  async (slug, title, hasDemo) => {
     render(
       <MemoryRouter initialEntries={[`/docs/${slug}`]}>
         <Routes>
@@ -160,7 +160,29 @@ it.each([
     expect(
       screen.getByRole("heading", { level: 2, name: "Props" }),
     ).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+    expect(screen.queryAllByRole("button", { name: "preview" })).toHaveLength(
+      hasDemo ? 1 : 0,
+    );
+  },
+);
+
+// `page-components` pages do not show their `basic` demo on their own, so the
+// csv-import page places its preview by hand.
+it.each([["page-components/csv-import", "CsvImport"]])(
+  "renders the %s reference page with its live preview",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
   },
 );
 
@@ -241,7 +263,8 @@ it.each([
       screen.getByRole("heading", { level: 2, name: "Props" }),
     ).toBeTruthy();
     expect(screen.getByRole("cell", { name: prop })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+    // Each page ships a demos/basic.tsx, so it has a live preview.
+    expect(screen.getByRole("button", { name: "preview" })).toBeTruthy();
   },
 );
 
