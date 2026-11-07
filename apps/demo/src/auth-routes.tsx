@@ -15,16 +15,30 @@ import {
   SetPasswordPage,
   SupabaseLoginPage,
 } from "@chelone/react/supabase";
-import type { ReactNode } from "react";
+import { QueryClient } from "@tanstack/react-query";
+import { type ReactNode, useState } from "react";
 import { Route } from "react-router";
 
 const authProvider = stubSupabaseAuthProvider();
 
-/** The app's own services with the stub auth provider in place of the demo's. */
+/**
+ * The app's own services with the stub auth provider in place of the demo's,
+ * and a query client of its own: the auth state is cached under one key, so
+ * sharing the app's client would show the demo's signed-in user to the login
+ * page, which then redirects at once, and the stub's signed-out state to the
+ * demo's user menu.
+ */
 function StubClient({ children }: { children: ReactNode }) {
   const context = useCheloneContext();
+  const [queryClient] = useState(
+    () => new QueryClient({ defaultOptions: { queries: { retry: false } } }),
+  );
   return (
-    <CheloneProvider {...context} authProvider={authProvider}>
+    <CheloneProvider
+      {...context}
+      queryClient={queryClient}
+      authProvider={authProvider}
+    >
       {children}
     </CheloneProvider>
   );
