@@ -14,8 +14,9 @@ name: Release
 # Every action is pinned to a commit: these jobs push tags and publish to npm.
 #
 # To retry a publish that failed after its release was created, run this
-# workflow by hand: the publish job runs on workflow_dispatch and skips any
-# version npm already has.
+# workflow by hand: the publish job runs on workflow_dispatch, checks out the
+# tag of the version in `.release-please-manifest.json` (not the tip of main),
+# and skips any version npm already has.
 on:
   push:
     branches: [main]
@@ -53,6 +54,16 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      # Publish the code the tag names, so a retry after more merges land
+      # doesn't put untagged code on npm. The six packages share one version,
+      # so core's tag stands for all of them. A missing tag fails the job.
+      - name: Check out the release tag
+        run: |
+          version=$(node -p "require('./.release-please-manifest.json')['packages/core']")
+          tag="@chelone/core@$version"
+          git fetch --depth=1 origin "refs/tags/$tag:refs/tags/$tag"
+          git checkout --detach "refs/tags/$tag"
+          git log -1 --oneline
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
       # No registry-url: with it, setup-node writes an .npmrc that hands npm a
       # placeholder token, and npm publishes with it instead of using OIDC.

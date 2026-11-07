@@ -24,8 +24,10 @@ commit, so GitHub's default body, the pull request title, lists the change twice
 
 Publishing uses npm trusted publishing: each package's trusted publisher on npmjs.com names
 `chelonejs/chelone` and `release.yml`, there is no npm token, and every version carries
-provenance. To retry a failed publish, run the Release workflow by hand on `main`: the publish job
-skips any version npm already has.
+provenance. To retry a failed publish, run the Release workflow by hand on `main`: the publish job checks out
+the tag `@chelone/core@<version>` for the version in `.release-please-manifest.json` and publishes
+from it, not from the tip of `main`, so merges since the release stay out. It fails if that tag
+doesn't exist, and skips any version npm already has.
 
 A new package needs its first version published by hand, since npm only takes a trusted publisher
 for a package that exists: `pnpm pack` it, `npm publish <tarball> --access public`, then set its
