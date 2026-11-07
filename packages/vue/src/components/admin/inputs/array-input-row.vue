@@ -101,7 +101,9 @@ function moveDown() {
     </span>
     <div
       class="flex flex-1 flex-col gap-2"
-      :class="inline && 'sm:flex-row sm:items-start'"
+      :class="
+        inline && 'sm:flex-row sm:items-start sm:[&>*]:min-w-0 sm:[&>*]:flex-1'
+      "
     >
       <slot />
     </div>

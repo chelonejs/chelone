@@ -80,6 +80,7 @@
       "name": "label",
       "type": "string | false",
       "optional": true,
+      "default": "undefined",
       "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
     },
     {

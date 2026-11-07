@@ -68,6 +68,7 @@ export type Product = {
   category_id: number;
   /** 1 to 5, one decimal. */
   rating: number;
+  /** A hex colour. */
   color: string;
   image: string;
   spec_sheet: string;
@@ -77,6 +78,8 @@ export type Product = {
   tags: number[];
   /** `null` is "not decided yet", not "no". */
   featured: boolean | null;
+  /** Free-text search terms, unlike the `tags` ids. */
+  keywords: string[];
   url: string;
   variants: Variant[];
 };
@@ -105,8 +108,10 @@ export type Order = {
   total: number;
   /** ISO datetime, in the past and the future. */
   delivery_at: string;
+  /** The time of day the delivery window opens, `HH:MM`. */
   slot: string;
-  handling_minutes: number;
+  /** How long the warehouse needs to prepare it, an ISO 8601 duration such as `PT1H15M`. */
+  handling: string;
   /** Ids of `products`; `product_id` is the first. */
   product_ids: number[];
 };
@@ -327,9 +332,18 @@ const tags: Tag[] = [
 
 /** The leaf category each product (by position) sits in. */
 const productCategoryIds = [8, 6, 9, 7, 8, 10, 9, 9, 8, 9, 8, 11];
-const colors = ["black", "white", "silver", "blue", "red", "green"];
+/** Hex, which is what `<ColorInput>` parses. */
+const colors = [
+  "#111827",
+  "#f9fafb",
+  "#9ca3af",
+  "#2563eb",
+  "#dc2626",
+  "#16a34a",
+];
 const allChannels = ["web", "store", "marketplace", "wholesale"];
 const shippingClasses = ["standard", "bulky", "fragile", "express"];
+const keywordPool = ["office", "gaming", "travel", "home"];
 const variantOptions = ["Small", "Medium", "Large"];
 
 const productNames = [
@@ -366,6 +380,9 @@ const products: Product[] = productNames.map((name, i) => {
     shipping_class: cycle(shippingClasses, i),
     tags: [cycle(tags, i).id, cycle(tags, i + 3).id],
     featured: cycle([true, false, null], i),
+    keywords: [name.split(" ")[0] ?? name, cycle(keywordPool, i)].map((k) =>
+      k.toLowerCase(),
+    ),
     url: `https://example.com/products/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
     variants: variantOptions.slice(0, 2 + (i % 2)).map((option, v) => ({
       sku: `${sku}-${option.charAt(0)}`,
@@ -392,7 +409,7 @@ const cities = ["Portland", "Austin", "Denver", "Seattle", "Chicago", "Boston"];
 
 const plans = ["free", "pro", "team", "enterprise"];
 const segments = ["new", "active", "at-risk", "champion"];
-const slots = ["morning", "afternoon", "evening"];
+const slots = ["09:00", "13:00", "17:30"];
 
 const statuses = ["pending", "shipped", "delivered", "cancelled"];
 
@@ -410,6 +427,12 @@ function buildCustomers(now: Date): Customer[] {
   }));
 }
 
+/** `PT1H15M` for 75, `PT45M` for 45. */
+function isoDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  return `PT${hours > 0 ? `${hours}H` : ""}${minutes % 60}M`;
+}
+
 function buildOrders(now: Date): Order[] {
   return Array.from({ length: 16 }, (_, i) => {
     const product = cycle(products, i);
@@ -424,7 +447,7 @@ function buildOrders(now: Date): Order[] {
       total: Math.round(product.price * quantity * 100) / 100,
       delivery_at: from(now, (i - 6) * DAY + cycle([-3, 2, 7], i) * HOUR),
       slot: cycle(slots, i),
-      handling_minutes: 15 + ((i * 10) % 90),
+      handling: isoDuration(15 + ((i * 10) % 90)),
       product_ids: [product.id, cycle(products, i + 1).id],
     };
   });
@@ -737,3 +760,12 @@ export const statusChoices = statuses.map((s) => ({
   id: s,
   name: s.charAt(0).toUpperCase() + s.slice(1),
 }));
+export const channelChoices = allChannels.map((c) => ({
+  id: c,
+  name: c.charAt(0).toUpperCase() + c.slice(1),
+}));
+export const shippingClassChoices = shippingClasses.map((c) => ({
+  id: c,
+  name: c.charAt(0).toUpperCase() + c.slice(1),
+}));
+export const tagChoices = tags.map((t) => ({ id: t.id, name: t.name }));
