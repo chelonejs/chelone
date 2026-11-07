@@ -7,8 +7,8 @@
  * `fakeDataProvider` wrapped for realtime (`realtime.ts`) — no server.
  */
 
-import { createNotificationStore, createStore } from "@chelone/core";
-import { makeI18n } from "@chelone/demo-data";
+import { createNotificationStore } from "@chelone/core";
+import { demoAuthProvider, makeDemoStore, makeI18n } from "@chelone/demo-data";
 import {
   Admin,
   CustomRoutes,
@@ -66,10 +66,11 @@ const queryClient = new QueryClient({
 });
 
 // The i18n instance, notification store (the Layout toaster reads it), and the
-// KV store (list scroll / preferences) — the services a real app configures.
+// KV store (list scroll / preferences, whether the tour is done) — the
+// services a real app configures.
 const i18n = makeI18n();
 const notifications = createNotificationStore();
-const store = createStore();
+const store = makeDemoStore();
 
 export function App() {
   return (
@@ -86,6 +87,7 @@ export function App() {
           i18n={i18n}
           notifications={notifications}
           store={store}
+          authProvider={demoAuthProvider}
           resources={resources}
         >
           {/* Opt-in shadcn shell (sidebar + app bar + toaster). */}

@@ -15,11 +15,11 @@
  * (they register and render no DOM).
  */
 
-import { createNotificationStore, createStore } from "@chelone/core";
+import { createNotificationStore } from "@chelone/core";
 import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
-import { makeI18n } from "@chelone/demo-data";
+import { demoAuthProvider, makeDemoStore, makeI18n } from "@chelone/demo-data";
 import { mapsConfig } from "./maps-services";
 import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
@@ -59,8 +59,6 @@ const guessedResources = ["pages", "categories", "tags"];
 // app configures. Module scope keeps them stable for the app lifetime. The
 // realtime data provider is built in `realtime.ts`.
 const notifications = createNotificationStore();
-// The KV store a list keeps its column choices in.
-const store = createStore();
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, staleTime: 5 * 60 * 1000 },
@@ -68,6 +66,8 @@ const queryClient = new QueryClient({
   },
 });
 const i18n = makeI18n();
+// Kept in `localStorage`, so the tour that opens on a first visit stays closed.
+const store = makeDemoStore();
 </script>
 
 <template>
@@ -81,6 +81,7 @@ const i18n = makeI18n();
       :i18n="i18n"
       :notifications="notifications"
       :store="store"
+      :auth-provider="demoAuthProvider"
       :custom-routes="pageRoutes"
     >
       <template #layout><Shell /></template>
