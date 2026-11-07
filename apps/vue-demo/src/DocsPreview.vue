@@ -41,9 +41,9 @@ void load?.().then((loaded) => {
 </script>
 
 <template>
-  <!-- `flow-root` keeps the demo's own margins inside its box. The embedding
-       docs page fits the iframe to this document's body, and a margin that
-       collapsed out of it would land outside the fitted height. -->
+  <!-- `flow-root` keeps the demo's own margins inside its box: the page fits
+       the iframe to this document's body, and a margin that collapsed out of it
+       would land outside the fitted height. -->
   <div class="flow-root">
     <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
       <component :is="demo.default" />
@@ -52,9 +52,9 @@ void load?.().then((loaded) => {
 </template>
 
 <style scoped>
-/* The React panel centres its demo; this one is a box as wide as the panel, so
-   a bare field sits at its left edge instead. Auto margins centre a demo that
-   caps its own width and do nothing to one that fills the panel; `text-align`
+/* The frame is as wide as the panel, so a bare field would sit at its left
+   edge where the React panel centres it. Auto margins centre a demo that caps
+   its own width and do nothing to one that fills the frame; `text-align`
    centres a bare field, which renders inline (a `<BadgeField>` is a span), and
    is reset inside every demo so a table's cells stay left-aligned. */
 .flow-root {
