@@ -110,6 +110,20 @@ describe("<ThemeProvider>", () => {
     expect(screen.getByTestId("mode").textContent).toBe("dark");
   });
 
+  it("the mode persists under chelone-theme by default", () => {
+    const store = createStore();
+    render(
+      <Wrap store={store}>
+        <ThemeProvider defaultTheme="system">
+          <Probe />
+        </ThemeProvider>
+      </Wrap>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "go dark" }));
+    expect(store.getItem("chelone-theme")).toBe("dark");
+    expect(store.getItem("theme")).toBeUndefined();
+  });
+
   it("persists the selection to the store across a remount", () => {
     const store = createStore();
     const { unmount } = render(

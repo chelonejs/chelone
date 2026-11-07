@@ -17,7 +17,7 @@
       "name": "storageKey",
       "type": "string",
       "optional": true,
-      "comment": "Store key the selected mode is persisted under. Defaults to `\"theme\"`."
+      "comment": "Store key the selected mode is persisted under. Defaults to `\"chelone-theme\"`."
     }
   ]
 }
