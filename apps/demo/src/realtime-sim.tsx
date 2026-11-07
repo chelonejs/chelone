@@ -4,8 +4,14 @@
  * the way a second browser's would.
  */
 
-import type { Identifier } from "@chelone/core";
+import {
+  createPresenceSession,
+  type Identifier,
+  type PresenceUser,
+  presenceTopic,
+} from "@chelone/core";
 import { useGetLockLive, useNotify } from "@chelone/react";
+import { useEffect } from "react";
 import { dataProvider, locks } from "./realtime";
 
 const buttonClass =
@@ -49,4 +55,30 @@ export function SimulateOtherUser({ postId = 1 }: SimulateOtherUserProps) {
       </button>
     </div>
   );
+}
+
+const alice: PresenceUser = { id: "alice", name: "Alice Smith" };
+
+/**
+ * Another user with the post open: it announces itself on the post's presence
+ * topic the way a second browser's `<PresenceBar>` would, so the bar shows
+ * someone besides you.
+ */
+export function SimulatedViewer({
+  postId,
+  user = alice,
+}: {
+  postId: Identifier;
+  user?: PresenceUser;
+}) {
+  useEffect(() => {
+    const session = createPresenceSession({
+      dataProvider,
+      topic: presenceTopic("posts", postId),
+      user,
+    });
+    session.start();
+    return () => session.stop();
+  }, [postId, user]);
+  return null;
 }

@@ -42,6 +42,7 @@
  *              transport.
  */
 import {
+  type AuthProvider,
   addEventsForMutations,
   computeDefinition,
   createResourceRegistry,
@@ -68,6 +69,18 @@ import {
   previewResources,
   previewSeed,
 } from "./preview-fixtures";
+
+/**
+ * Signs every preview in as the first fixture author, so the components that
+ * act as a user (approve, comment, announce presence) have someone to act as.
+ */
+const previewAuthProvider: AuthProvider = {
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+  getIdentity: async () => ({ id: 1, fullName: "Ada Lovelace" }),
+};
 
 export type PreviewMode = "view" | "record" | "input" | "realtime";
 
@@ -105,10 +118,15 @@ function makePreviewRegistry(): ResourceRegistry {
   return registry;
 }
 
-/** The preview seed behind an in-memory transport and lock provider; the demo needs no server. */
-function makeRealtimeDataProvider(): DataProvider {
+/**
+ * The preview seed behind an in-memory transport, and with `withLocks` an
+ * in-memory lock provider too, for the demos that take or show a record lock.
+ */
+function makeRealtimeDataProvider(withLocks: boolean): DataProvider {
   const transport = memoryTransport();
-  const locks = inMemoryLockProvider({ publisher: transport });
+  const locks = withLocks
+    ? inMemoryLockProvider({ publisher: transport })
+    : undefined;
   return addEventsForMutations(
     realtimeDataProvider(fakeDataProvider(previewSeed()), transport, { locks }),
     transport,
@@ -130,10 +148,10 @@ export function PreviewProvider({
         },
       }),
   );
+  // Realtime over an in-memory transport, so the live components work without a
+  // server and a write in one component reaches the others.
   const [dataProvider] = useState<DataProvider>(() =>
-    mode === "realtime"
-      ? makeRealtimeDataProvider()
-      : fakeDataProvider(previewSeed()),
+    makeRealtimeDataProvider(mode === "realtime"),
   );
   const [i18n] = useState(makePreviewI18n);
   const [notifications] = useState(makePreviewNotifications);
@@ -163,6 +181,7 @@ export function PreviewProvider({
   return (
     <AdminContext
       dataProvider={dataProvider}
+      authProvider={previewAuthProvider}
       queryClient={queryClient}
       i18n={i18n}
       notifications={notifications}

@@ -12,7 +12,24 @@
   "app-bar": null,
   "app-sidebar": null,
   "application-updated-notification": null,
-  "approval-queue": null,
+  "approval-queue": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/approval-queue",
+        "see": "[data-slot=\"approval-queue-row\"]"
+      },
+      "demo": {
+        "path": "/demo/approvals",
+        "see": "[data-slot=\"approval-queue-row\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/approvals",
+        "see": "[data-slot=\"approval-queue\"]"
+      }
+    }
+  },
   "approval-queue-row": {
     "shownBy": "approval-queue"
   },
@@ -396,7 +413,24 @@
   "command-menu-record-search": {
     "shownBy": "command-menu"
   },
-  "comments-thread": null,
+  "comments-thread": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/comments-thread",
+        "see": "[data-slot=\"comments-thread\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"comments-thread\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"comments-thread\"]"
+      }
+    }
+  },
   "configurable": {
     "shownBy": "inspector"
   },
@@ -604,12 +638,46 @@
     "shownBy": "mdx-input"
   },
   "delete-button": null,
-  "diff-viewer": null,
+  "diff-viewer": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/diff-viewer",
+        "see": "[data-slot=\"diff-viewer\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"diff-viewer\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"diff-viewer\"]"
+      }
+    }
+  },
   "donut-chart": null,
   "draw-toolbar": {
     "shownBy": "shape-input"
   },
-  "dual-approval-button": null,
+  "dual-approval-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/dual-approval-button",
+        "see": "[data-slot=\"dual-approval-button\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"dual-approval-button\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"dual-approval-button\"]"
+      }
+    }
+  },
   "duration-field": {
     "react": {
       "docs": {
@@ -788,7 +856,24 @@
   "image-input-thumbnail": {
     "shownBy": "image-input"
   },
-  "in-place-editor": null,
+  "in-place-editor": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/in-place-editor",
+        "see": "[data-slot=\"in-place-editor\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"in-place-editor\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"in-place-editor\"]"
+      }
+    }
+  },
   "in-place-editor-form": {
     "shownBy": "in-place-editor"
   },
@@ -1126,7 +1211,24 @@
   "phone-input": null,
   "pivot-grid": null,
   "placeholder": null,
-  "presence-bar": null,
+  "presence-bar": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/presence-bar",
+        "see": "[data-slot=\"presence-bar\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"presence-bar\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"presence-bar\"]"
+      }
+    }
+  },
   "prev-next-buttons": null,
   "radio-button-group-input": {
     "react": {
@@ -1173,7 +1275,24 @@
   "record-list-config": {
     "shownBy": "block-editor-input"
   },
-  "record-timeline": null,
+  "record-timeline": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/record-timeline",
+        "see": "[data-slot=\"record-timeline\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"record-timeline\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"record-timeline\"]"
+      }
+    }
+  },
   "reference-array-field": {
     "react": {
       "docs": {
@@ -1410,7 +1529,24 @@
   "show": null,
   "show-button": null,
   "show-guesser": null,
-  "show-live": null,
+  "show-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/show-live",
+        "see": "[data-slot=\"show\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"show\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"show\"]"
+      }
+    }
+  },
   "sidebar-toggle-button": null,
   "simple-form-iterator": {
     "react": {
