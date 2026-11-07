@@ -6,7 +6,7 @@ import { PreviewMaps } from "@/docs/mdx/preview-maps";
 export default function ShapeFieldsDemo() {
   return (
     <PreviewMaps>
-      <div className="flex flex-col gap-4">
+      <div className="flex w-full max-w-xl flex-col gap-4">
         <PolygonField source="zone" record={previewPlace} />
         <LineStringField source="route" record={previewPlace} />
       </div>

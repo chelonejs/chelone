@@ -6,7 +6,11 @@ import { PreviewMaps } from "@/docs/mdx/preview-maps";
 export default function BBoxFieldDemo() {
   return (
     <PreviewMaps>
-      <BBoxField source="bbox" record={previewPlace} />
+      <BBoxField
+        source="bbox"
+        record={previewPlace}
+        className="w-full max-w-xl"
+      />
     </PreviewMaps>
   );
 }

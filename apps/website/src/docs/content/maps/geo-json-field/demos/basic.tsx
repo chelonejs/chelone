@@ -6,7 +6,11 @@ import { PreviewMaps } from "@/docs/mdx/preview-maps";
 export default function GeoJsonFieldDemo() {
   return (
     <PreviewMaps>
-      <GeoJsonField source="area" record={previewPlace} />
+      <GeoJsonField
+        source="area"
+        record={previewPlace}
+        className="w-full max-w-xl"
+      />
     </PreviewMaps>
   );
 }
