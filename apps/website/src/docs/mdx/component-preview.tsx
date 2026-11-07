@@ -71,13 +71,6 @@ interface ComponentPreviewProps {
   className?: string;
 }
 
-/**
- * The Vue frame's floor is 64px, not taller: the preview panel is `min-h-32 p-8`,
- * so a 64px frame makes a short Vue demo's panel the same 128px tall as its
- * React twin's. A 224px floor left a 288px band with a 20px field in it.
- */
-const VUE_FRAME_CLASS = "min-h-16 w-full border-0";
-
 type LoadedDemo =
   | {
       key: string;
@@ -222,7 +215,7 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
               ref={frameRef}
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
-              className={VUE_FRAME_CLASS}
+              className="min-h-56 w-full border-0"
             />
           ) : DemoComponent ? (
             // `min-w-0`: the panel is a flex row, and a flex item may not shrink
