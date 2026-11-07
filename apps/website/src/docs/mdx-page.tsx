@@ -17,7 +17,7 @@ const guides = import.meta.glob<GuideModule>("./content/**/*.mdx", {
 });
 
 // Only these sections show their `basic` demo automatically.
-const AUTO_DEMO_SECTION = /^(viewing|editing|ui-layout)\/[^/]+$/;
+const AUTO_DEMO_SECTION = /^(viewing|editing|ui-layout|supabase)\/[^/]+$/;
 
 const bySlug = new Map(
   Object.entries(guides).map(([k, m]) => [

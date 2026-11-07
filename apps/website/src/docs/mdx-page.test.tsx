@@ -331,3 +331,26 @@ it.each([
     expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
   },
 );
+
+// The showcase photographs each of these pages and waits for the `see` in showcase.json, so
+// a page that lists no preview fails CI's screenshot step.
+it.each([
+  ["supabase/supabase-login-page", "heading", "Sign in"],
+  ["supabase/forgot-password-page", "heading", "Forgot your password?"],
+  ["supabase/set-password-page", "button", "Save"],
+  ["supabase/social-auth-button", "button", "Sign in with Github"],
+] as const)(
+  "shows the %s live preview on its reference page",
+  async (slug, role, name) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole(role, { name })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
+  },
+);
