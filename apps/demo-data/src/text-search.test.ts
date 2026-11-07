@@ -29,7 +29,7 @@ const rows = [
 
 function provider() {
   return withTextSearch(fakeDataProvider({ products: rows }), {
-    products: ["name", "sku", "keywords"],
+    products: { q: ["name", "sku", "keywords"], contains: ["sku"] },
   });
 }
 
@@ -77,5 +77,41 @@ describe("withTextSearch", () => {
     });
 
     expect(empty.total).toBe(4);
+  });
+
+  it("matches a contains field by a case-insensitive substring of its own value", async () => {
+    const { data, total } = await provider().getList("products", {
+      pagination: page,
+      filter: { sku: "mu" },
+    });
+
+    expect(data.map((row) => row.id)).toEqual([3]);
+    expect(total).toBe(1);
+  });
+
+  it("ignores an empty contains filter", async () => {
+    const { total } = await provider().getList("products", {
+      pagination: page,
+      filter: { sku: "" },
+    });
+
+    expect(total).toBe(4);
+  });
+
+  it("walks a search by cursor", async () => {
+    const first = await provider().getList("products", {
+      pagination: { cursor: null, limit: 1 },
+      filter: { q: "desk" },
+    });
+    const second = await provider().getList("products", {
+      pagination: { cursor: first.pageInfo?.nextCursor ?? null, limit: 1 },
+      filter: { q: "desk" },
+    });
+
+    expect(first.data.map((row) => row.id)).toEqual([1]);
+    expect(first.pageInfo?.hasNextPage).toBe(true);
+    expect(second.data.map((row) => row.id)).toEqual([4]);
+    expect(second.pageInfo?.hasNextPage).toBe(false);
+    expect(second.pageInfo?.nextCursor).toBeNull();
   });
 });

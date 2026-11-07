@@ -24,13 +24,13 @@ export const locks = inMemoryLockProvider({ publisher: transport });
 export const dataProviderLog = createDataProviderLog();
 
 // Seeded once: the in-memory provider mutates its data in place. It matches
-// filters by equality, so `withTextSearch` adds the product list's `q` search. Writes made
+// filters by equality, so `withTextSearch` adds the product list's `q` and SKU searches. Writes made
 // through `dataProvider` publish on the transport, so open lists refetch.
 export const dataProvider = addEventsForMutations(
   realtimeDataProvider(
     dataProviderLog.wrap(
       withTextSearch(fakeDataProvider(seedData()), {
-        products: ["name", "sku", "keywords"],
+        products: { q: ["name", "sku", "keywords"], contains: ["sku"] },
       }),
     ),
     transport,
