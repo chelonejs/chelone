@@ -24,11 +24,18 @@ the root `package.json`, and `NODE_VERSION` with the Node version in `.github/wo
 - `/`, `/docs/<section>` and `/docs/<slug>`: the docs site, prerendered by `react-router build`
 - `404.html`: the SPA fallback from `apps/website/scripts/copy-spa-fallback.mjs`, which Pages
   serves for any unknown path
-- `/demo/` and `/vue-demo/`: the React and Vue demos, from `apps/website/scripts/copy-demo.mjs`
+- `/demo/` and `/vue-demo/`: the React and Vue demos, from `apps/website/scripts/copy-demo.mjs`,
+  each folder holding its own `404.html` copied from that demo's `index.html`
 - `/r/`: the shadcn registry, from `apps/website/scripts/copy-registry.mjs`
 
 Pages redirects a path without a trailing slash to the one with it, so
 `/docs/getting-started/install` answers 308 and then 200.
+
+Pages answers an unmatched path with the `404.html` nearest to it, so each demo keeps its own:
+`/demo/posts` finds `demo/404.html`, loads the demo's shell, which pulls `/demo/assets/*` and
+lets the demo's router render the route. Without that copy the path falls through to the site
+root's fallback and renders the docs site. The status is 404, accepted for a client-rendered
+demo: the demo has no server route to answer 200, and the page boots the same either way.
 
 ## Checking a deploy
 
@@ -41,3 +48,14 @@ curl -sI https://chelone.dev/r/registry.json | grep -iE '^(HTTP|content-type)'
 
 Each answers 200, and the registry answers with `application/json`. The landing page sends a
 103 Early Hints line first, which is why the commands keep the last status line.
+
+A demo deep link ends at 404 and still serves the demo:
+
+```sh
+curl -sIL https://chelone.dev/demo/posts | grep -E '^HTTP' | tail -1
+curl -s https://chelone.dev/demo/posts | grep -c '/demo/assets/'
+```
+
+The last status line is 404, and the count is how many of the demo's own asset URLs the shell it
+returned holds. Any count above 0 means `demo/404.html` answered; 0 means the site root's
+fallback did. `/vue-demo/posts` is the same pair with `vue-demo`.
