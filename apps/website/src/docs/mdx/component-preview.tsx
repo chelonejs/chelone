@@ -15,7 +15,7 @@
  * website has no Vue compiler, so the Vue demo renders in an iframe of the Vue
  * demo app (`apps/vue-demo/src/DocsPreview.vue`), which compiles it.
  */
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ShikiHighlighter } from "react-shiki";
 import { SHIKI_THEME } from "@/lib/shiki-theme";
 import { cn } from "@/lib/utils";
@@ -71,6 +71,13 @@ interface ComponentPreviewProps {
   className?: string;
 }
 
+/**
+ * The Vue frame's floor, in px, and the `h-16` it starts at. The panel already
+ * carries the `p-8` a React demo gets, so a frame this tall makes the Vue panel
+ * the same height the React panel would be for the same demo.
+ */
+const MIN_FRAME_HEIGHT = 64;
+
 type LoadedDemo =
   | {
       key: string;
@@ -85,6 +92,8 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [loaded, setLoaded] = useState<LoadedDemo>();
   const [chosen, setFramework] = useFramework();
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [frameHeight, setFrameHeight] = useState<number>();
   const reactKey = keyFor(demoModules, name, "tsx");
   const vueKey = keyFor(vueSources, name, "vue");
   // The switch only offers a framework the demo exists in.
@@ -111,6 +120,68 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
       cancelled = true;
     };
   }, [key, framework]);
+
+  // The Vue demo is an iframe of another app, which cannot size the frame it is
+  // in. The frame is same-origin, so read the height the demo's own document
+  // takes and give the frame that height: kept at a fixed one, a tall demo
+  // would scroll inside it.
+  useEffect(() => {
+    if (framework !== "vue") return;
+    const el = frame.current;
+    if (!el) return;
+    let resize: ResizeObserver | undefined;
+    let mutations: MutationObserver | undefined;
+    let queued = false;
+    const measure = () => {
+      const doc = el.contentDocument;
+      const body = doc?.body;
+      if (!body) return;
+      // The html box is the height the demo's flow takes; `body.scrollHeight`
+      // adds what an absolutely positioned part reaches (an open menu). Neither
+      // alone is enough: a demo's own top margin collapses out of `body`, and a
+      // library's hidden SVG inflates `documentElement.scrollHeight`.
+      const taken = Math.max(
+        doc.documentElement.getBoundingClientRect().height,
+        body.getBoundingClientRect().top + body.scrollHeight,
+      );
+      setFrameHeight(Math.max(MIN_FRAME_HEIGHT, Math.ceil(taken)));
+    };
+    // A demo that opens a menu grows without resizing its own boxes, so a
+    // resize observer alone misses it; the mutation observer catches the nodes.
+    const schedule = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        measure();
+      });
+    };
+    // The frame loads after this effect runs, and its document is replaced when
+    // it does, so the observers are attached again on `load`.
+    const attach = () => {
+      measure();
+      const doc = el.contentDocument;
+      if (!doc?.documentElement) return;
+      resize?.disconnect();
+      mutations?.disconnect();
+      resize = new ResizeObserver(schedule);
+      resize.observe(doc.documentElement);
+      if (doc.body) resize.observe(doc.body);
+      mutations = new MutationObserver(schedule);
+      mutations.observe(doc.documentElement, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+      });
+    };
+    el.addEventListener("load", attach);
+    attach();
+    return () => {
+      el.removeEventListener("load", attach);
+      resize?.disconnect();
+      mutations?.disconnect();
+    };
+  }, [framework, name]);
 
   if (!key) {
     return (
@@ -172,9 +243,11 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
         >
           {framework === "vue" ? (
             <iframe
+              ref={frame}
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
-              className="h-56 w-full border-0"
+              style={{ height: frameHeight }}
+              className="h-16 w-full border-0"
             />
           ) : DemoComponent ? (
             <PreviewProvider mode={mode}>
