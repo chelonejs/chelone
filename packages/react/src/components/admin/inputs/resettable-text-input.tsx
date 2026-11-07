@@ -1,7 +1,7 @@
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useClearableFieldValue } from "../../../form/use-clearable-field-value";
+import { useClearableFieldValue } from "../../../form";
 import { useTranslate } from "../../../i18n-hooks";
 import { TextInput, type TextInputProps } from "./text-input";
 
