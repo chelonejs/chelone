@@ -4,4 +4,4 @@
  * sibling so `title-portal.vue` stays component-only. Matches the React twin's
  * `TITLE_PORTAL_ID` so the two adapters share the same portal contract.
  */
-export const TITLE_PORTAL_ID = "chelone-title-portal";
+export { TITLE_PORTAL_ID } from "@chelone/core";

@@ -3,6 +3,7 @@ import {
   createApplicationUpdateStore,
   createOfflineStore,
   type DataProvider,
+  MOBILE_BREAKPOINT,
   type ResourceMap,
 } from "@chelone/core";
 import { notifyManager, useQueryClient } from "@tanstack/react-query";
@@ -173,9 +174,6 @@ export function useTimeout(
 
   return ready;
 }
-
-/** The mobile breakpoint (px). Below this width the viewport is "mobile". */
-const MOBILE_BREAKPOINT = 768;
 
 /**
  * `true` when the viewport is narrower than {@link MOBILE_BREAKPOINT}

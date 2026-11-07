@@ -5,19 +5,21 @@
  * disclosure.
  */
 
-import type { DataProviderLogEntry } from "@chelone/core";
+import {
+  DEVTOOLS_MAX_VALUE_LENGTH,
+  type DataProviderLogEntry,
+} from "@chelone/core";
 import { useTranslate } from "../../../i18n/use-translate";
 
 const props = defineProps<{ entry: DataProviderLogEntry }>();
 
 const translate = useTranslate();
-const maxValueLength = 2000;
 
-/** The value as indented JSON cut to `maxValueLength`, or `undefined` when there is none to show. */
+/** The value as indented JSON cut to `DEVTOOLS_MAX_VALUE_LENGTH`, or `undefined` when there is none to show. */
 // type-escape: params and results are whatever the provider's methods take and give
 function show(value: unknown): string | undefined {
   try {
-    return JSON.stringify(value, null, 2)?.slice(0, maxValueLength);
+    return JSON.stringify(value, null, 2)?.slice(0, DEVTOOLS_MAX_VALUE_LENGTH);
   } catch {
     return "[unserializable]";
   }
