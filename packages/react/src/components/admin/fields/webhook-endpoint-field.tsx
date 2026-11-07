@@ -62,8 +62,9 @@ function WebhookEndpointField<RecordType extends ResourceRecord = LooseRecord>({
         data-status={status}
         className={cn(
           "rounded px-2 py-0.5 text-xs font-medium",
-          status === "ok" && "bg-green-500/10 text-green-700",
-          status === "failed" && "bg-red-500/10 text-red-700",
+          status === "ok" &&
+            "bg-green-500/10 text-green-700 dark:text-green-400",
+          status === "failed" && "bg-red-500/10 text-red-700 dark:text-red-400",
           status === "pending" && "bg-muted text-muted-foreground",
         )}
       >
