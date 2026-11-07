@@ -87,7 +87,7 @@ function SubscriptionPlanPicker<
       <div
         id={id}
         role="radiogroup"
-        className="grid gap-3 sm:grid-cols-3"
+        className="grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-3"
         aria-disabled={disabled}
         aria-invalid={invalid || undefined}
       >

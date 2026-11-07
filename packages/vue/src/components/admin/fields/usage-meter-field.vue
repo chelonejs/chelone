@@ -96,7 +96,7 @@ const pct = computed(() => Math.min(100, Math.round(ratio.value * 100)));
 
 const indicatorClass = computed(() =>
   cn(
-    "h-full rounded-full bg-primary transition-all",
+    "block h-full rounded-full bg-primary transition-all",
     state.value === "warning" && "bg-yellow-500",
     state.value === "critical" && "bg-red-500",
   ),
