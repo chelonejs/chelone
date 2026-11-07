@@ -24,7 +24,7 @@ function DemoMenu() {
   );
   return (
     <>
-      <div className="px-4 pt-2 text-sm">
+      <div className="px-2 pt-2">
         <MenuLive
           items={[{ to: "/posts", resource: "posts", label: "Posts" }]}
         />

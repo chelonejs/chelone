@@ -13,9 +13,24 @@ import {
   Layout,
   Menu,
   MenuItemLink,
+  MenuLive,
+  ResourceMenuItemGroup,
   ThemeProvider,
+  useResourceDefinitions,
 } from "@chelone/vue";
+import { computed } from "vue";
 import { pageGroups } from "./pages";
+import SimulateOtherUser from "./realtime-sim.vue";
+
+// Posts get a live unread badge; the other resources keep their plain links.
+// The panel is repeated here because the badge clears while /posts is open:
+// adding a post from any other page is the only way to see it.
+const definitions = useResourceDefinitions();
+const others = computed(() =>
+  Object.keys(definitions).filter(
+    (name) => name !== "posts" && definitions[name]?.list != null,
+  ),
+);
 </script>
 
 <template>
@@ -23,7 +38,12 @@ import { pageGroups } from "./pages";
     <Layout>
       <template #sidebar>
         <AppSidebar>
-          <Menu />
+          <div class="px-2 pt-2">
+            <MenuLive
+              :items="[{ to: '/posts', resource: 'posts', label: 'Posts' }]"
+            />
+          </div>
+          <ResourceMenuItemGroup :resources="others" />
           <section v-for="{ group, pages } in pageGroups" :key="group">
             <h2 class="px-4 pt-2 text-xs font-medium text-muted-foreground">
               {{ group }}
@@ -37,6 +57,9 @@ import { pageGroups } from "./pages";
               />
             </Menu>
           </section>
+          <div class="px-4 pt-2">
+            <SimulateOtherUser />
+          </div>
         </AppSidebar>
       </template>
       <router-view />

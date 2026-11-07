@@ -75,7 +75,9 @@ export function PostList() {
 export function PostEdit() {
   return (
     <EditLive>
-      <LockStatus />
+      <div className="mb-4 empty:hidden">
+        <LockStatus />
+      </div>
       <LockOnMount identity="you">
         <TextInput source="title" />
         <TextInput source="body" multiline />
