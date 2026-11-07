@@ -43,6 +43,14 @@ export default defineConfig({
         find: /^@\/lib\/shiki-theme$/,
         replacement: `${wwwSrc}/lib/shiki-theme`,
       },
+      // The website's own components that share the `@/components/` prefix with
+      // the package's shadcn primitives. The build resolves `@/` per importer
+      // (chelone-source-resolver.mjs); these aliases restate that for the few
+      // names only the website has.
+      {
+        find: /^@\/components\/(brand|doc-search|site-nav|theme-toggle)$/,
+        replacement: `${wwwSrc}/components/$1`,
+      },
       { find: /^@\/components\//, replacement: `${reactPkgSrc}/components/` },
       { find: /^@\/hooks\//, replacement: `${reactPkgSrc}/hooks/` },
       // The website has no `lib/` beyond utils + shiki-theme; the package's
