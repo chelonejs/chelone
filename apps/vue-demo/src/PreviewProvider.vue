@@ -33,7 +33,13 @@ import {
   Resource,
 } from "@chelone/vue";
 import { QueryClient } from "@tanstack/vue-query";
+import { defineComponent } from "vue";
 import { resources } from "./resources/schema";
+
+// The registry derives `hasCreate` from a registered create view, so the posts
+// resource gets one for `<ListActions>` and `<CreateButton>` to offer; no demo
+// navigates to it.
+const NoCreateView = defineComponent({ render: () => null });
 
 const props = withDefaults(defineProps<{ mode?: PreviewMode }>(), {
   mode: "view",
@@ -41,6 +47,18 @@ const props = withDefaults(defineProps<{ mode?: PreviewMode }>(), {
 
 // Per mount: the data provider mutates its seed, so a demo must not share it.
 const seed = seedData();
+// The shared seed gives posts no schedule, which `<CalendarList>` plots; spread
+// them over this month, as the React preview's fixtures do.
+const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+seed.posts = seed.posts.map((post, i) => ({
+  ...post,
+  publish_at: new Date(
+    monthStart.getFullYear(),
+    monthStart.getMonth(),
+    1 + ((i * 5) % 28),
+    9 + (i % 8),
+  ).toISOString(),
+}));
 const dataProvider = fakeDataProvider(seed);
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,7 +95,7 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
     :notifications="notifications"
     :store="store"
   >
-    <Resource name="posts" record-representation="title" />
+    <Resource name="posts" :create="NoCreateView" record-representation="title" />
     <Resource name="authors" record-representation="name" />
     <template #layout>
       <Create v-if="mode === 'input'" resource="posts" title="">

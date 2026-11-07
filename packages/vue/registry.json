@@ -3124,6 +3124,7 @@
           "type": "registry:component"
         }
       ],
+      "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core", "@chelone/vue", "libphonenumber-js"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
