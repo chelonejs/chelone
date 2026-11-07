@@ -63,6 +63,7 @@ function DemoMenu() {
         <SimulateOtherUser />
       </div>
       <Menu>
+        <Menu.DashboardItem />
         {others.map(([name]) => (
           <Menu.ResourceItem key={name} name={name} />
         ))}

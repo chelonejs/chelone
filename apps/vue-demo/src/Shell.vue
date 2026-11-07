@@ -23,6 +23,7 @@ import {
   AppSidebar,
   Assistant,
   CommandMenu,
+  DashboardMenuItem,
   DataProviderDevtools,
   Layout,
   LocalesMenuButton,
@@ -75,6 +76,7 @@ const others = computed(() =>
               <div class="px-4 py-2">
                 <SimulateOtherUser />
               </div>
+              <Menu><DashboardMenuItem /></Menu>
               <ResourceMenuItemGroup :resources="others" />
               <section v-for="{ group, pages } in pageGroups" :key="group">
                 <h2 class="px-4 pt-2 text-xs font-medium text-muted-foreground">
