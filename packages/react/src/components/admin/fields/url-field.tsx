@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type * as React from "react";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
@@ -28,7 +28,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  *   </List>
  * );
  */
-const UrlFieldImpl = <RecordType extends LooseRecord = LooseRecord>(
+const UrlFieldImpl = <RecordType extends ResourceRecord = LooseRecord>(
   inProps: UrlFieldProps<RecordType>,
 ) => {
   const {
@@ -94,7 +94,7 @@ UrlFieldImpl.displayName = "UrlFieldImpl";
 
 const UrlField = genericMemo(UrlFieldImpl);
 
-interface UrlFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface UrlFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends ElementFieldProps<
     RecordType,
     Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "content">

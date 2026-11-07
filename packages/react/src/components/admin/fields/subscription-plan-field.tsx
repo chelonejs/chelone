@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { ElementFieldProps } from "@/lib/field-types";
@@ -16,7 +16,7 @@ interface SubscriptionPlan {
 }
 
 interface SubscriptionPlanFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > extends ElementFieldProps<
     RecordType,
     Omit<HTMLAttributes<HTMLSpanElement>, "color">
@@ -37,7 +37,9 @@ interface SubscriptionPlanFieldProps<
  *
  * <SubscriptionPlanField source="planId" plans={PLANS} />
  */
-function SubscriptionPlanField<RecordType extends LooseRecord = LooseRecord>({
+function SubscriptionPlanField<
+  RecordType extends ResourceRecord = LooseRecord,
+>({
   defaultValue,
   source,
   record,
