@@ -7,8 +7,10 @@
 import {
   composeValidators,
   detectJsonShape,
+  ERROR_SEVERITY,
   fromJsonText,
   type JsonShape,
+  MODEL_PREFIX,
   stripJsonComments,
   toJsonText,
 } from "@chelone/core";
@@ -37,7 +39,6 @@ import type { MonacoJsonInputProps } from "./monaco-json-input.vue";
 // Serve the bundled copy instead of the binding's default CDN fetch.
 loader.config({ monaco });
 
-const ERROR_SEVERITY = 8;
 const identity = (value: unknown) => value;
 
 // Explicit `undefined` defaults disable Vue's absent-Boolean cast of the
@@ -170,7 +171,7 @@ const contentHeight = useAutoHeight(
 );
 const container = useMonacoLayout(instance);
 
-const modelPath = `inmemory://monaco-json-input/${id.replace(/[^\w-]/g, "-")}.json`;
+const modelPath = `${MODEL_PREFIX}${id.replace(/[^\w-]/g, "-")}.json`;
 useJsonSchema(monacoApi, () => ({
   path: modelPath,
   schema: props.schema,

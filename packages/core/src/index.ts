@@ -192,7 +192,10 @@ export {
   configurableInputColumns,
   createInspector,
   defaultConfigurableInputsStoreKey,
+  INSPECTOR_KEY_STEP,
+  INSPECTOR_OPEN_LABEL,
   inspectorPositionKey,
+  PANEL_WIDTH,
 } from "./controller/inspector";
 export type {
   JobActionOptions,
@@ -633,8 +636,13 @@ export {
 export type { JsonShape } from "./form/json-text";
 export {
   detectJsonShape,
+  ERROR_SEVERITY,
   formatJsonValue,
   fromJsonText,
+  MARKERS_SETTLE_MS,
+  MODEL_PREFIX,
+  MONACO_DIAGNOSTICS_DELAY_MS,
+  MONACO_MIN_HEIGHT,
   toJsonText,
 } from "./form/json-text";
 export { setFormValues } from "./form/set-form-values";
@@ -861,6 +869,7 @@ export type {
 } from "./onboarding-tour/placement";
 export {
   placeTourCard,
+  REMEASURE_MS,
   tourSpotlightPath,
 } from "./onboarding-tour/placement";
 export type {
@@ -1094,7 +1103,11 @@ export type {
   LocationState,
   NavigateOpts,
 } from "./router/location";
-export { parseLocation, toLocationState } from "./router/location";
+export {
+  NEXT_PATHNAME_KEY,
+  parseLocation,
+  toLocationState,
+} from "./router/location";
 export type { PathMatch } from "./router/match";
 export { matchPath } from "./router/match";
 export type { CreatePathParams, CreatePathType } from "./router/paths";

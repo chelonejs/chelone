@@ -1,3 +1,4 @@
+import { MONACO_MIN_HEIGHT } from "@chelone/core";
 import Editor, { loader } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
 import { useRef, useState } from "react";
@@ -13,7 +14,6 @@ import type { MonacoJsonFieldProps } from "./monaco-json-field";
 // Serve the bundled copy instead of the binding's default CDN fetch.
 loader.config({ monaco });
 
-const MIN_HEIGHT = 120;
 const DEFAULT_HEIGHT = 200;
 const DEFAULT_MAX_HEIGHT = 400;
 
@@ -52,7 +52,7 @@ export default function MonacoJsonFieldLazy({
   const contentHeight = useAutoHeight(
     instance,
     autoHeight,
-    MIN_HEIGHT,
+    MONACO_MIN_HEIGHT,
     maxHeight,
   );
   useMonacoLayout(instance, container);

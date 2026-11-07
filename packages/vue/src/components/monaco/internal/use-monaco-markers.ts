@@ -1,15 +1,7 @@
+import { MARKERS_SETTLE_MS, MONACO_DIAGNOSTICS_DELAY_MS } from "@chelone/core";
 import type * as Monaco from "monaco-editor";
 import type { editor } from "monaco-editor";
 import { type Ref, shallowRef, watch } from "vue";
-
-/**
- * How long after the last edit `settled` waits for Monaco's markers. Monaco
- * posts them about 500 ms after an edit.
- */
-export const MARKERS_SETTLE_MS = 750;
-
-// Monaco's JSON diagnostics adapter debounces validation by this long after an edit.
-export const MONACO_DIAGNOSTICS_DELAY_MS = 500;
 
 export interface MonacoMarkers {
   markers: Ref<editor.IMarker[]>;

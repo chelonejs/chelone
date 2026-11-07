@@ -26,7 +26,7 @@
  * instead of `useEffect`.
  */
 
-import { authStateQueryOptions } from "@chelone/core";
+import { authStateQueryOptions, NEXT_PATHNAME_KEY } from "@chelone/core";
 import { useQuery } from "@tanstack/vue-query";
 import { type ComputedRef, computed, type Ref, watch } from "vue";
 import { useCheloneContext } from "../context";
@@ -114,9 +114,6 @@ export function useAuthenticated(
 
   return gate;
 }
-
-/** The Store key the login flow stashes the post-login target under. */
-const NEXT_PATHNAME_KEY = "nextPathname";
 
 export interface HandleAuthCallbackResult {
   /** True once the callback has resolved and the redirect has been issued. */
