@@ -85,13 +85,36 @@ it("the React setup page holds the React install steps the install page dropped"
   expect(unresolvedDocLinks(setupPage)).toEqual([]);
 });
 
-it("the install page keeps the shared part and points at both setup pages", () => {
+it("the install page keeps the shared part and points at the React setup page", () => {
   expect(installPage).not.toContain("npm install @chelone/react zod");
   expect(installPage).not.toContain("npx shadcn@latest init");
   expect(installPage).toContain("](/docs/react/setup)");
-  expect(installPage).toContain("](/docs/vue/setup)");
   expect(installPage).toContain("## Install for Vue");
   expect(unresolvedDocLinks(installPage)).toEqual([]);
+});
+
+it("the install page names where each adapter's install steps live", () => {
+  const shared = installPage.split("## Install for Vue")[0];
+  expect(shared).toContain("[React setup](/docs/react/setup)");
+  expect(shared).toContain("[Install for Vue](#install-for-vue)");
+  expect(shared).toContain("[Vue setup](/docs/vue/setup)");
+});
+
+it("the shared install page labels each registry URL with its adapter", () => {
+  const shared = installPage.split("## Install for Vue")[0];
+  expect(shared).not.toContain('title="components.json"');
+  const lines = shared.split("\n");
+  expect(
+    lines.some(
+      (line) => line.includes("chelone.dev/r/{name}") && line.includes("React"),
+    ),
+  ).toBe(true);
+  expect(
+    lines.some(
+      (line) =>
+        line.includes("chelone.dev/r/vue/{name}") && line.includes("Vue"),
+    ),
+  ).toBe(true);
 });
 
 it("no source file links to the old getting-started quick start path", () => {

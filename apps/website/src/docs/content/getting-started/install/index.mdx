@@ -15,29 +15,28 @@ freely.
 
 ## Pick your adapter
 
-Each setup page installs the adapter with its peers, writes the registry into
-your `components.json`, and mounts an admin:
+The React install steps are on the React section's setup page. The Vue install
+steps are the section below, and the Vue setup page covers the wiring:
 
-| Adapter          | Router                                                  | Setup page                       |
-| ---------------- | ------------------------------------------------------- | -------------------------------- |
-| `@chelone/react` | `react-router` v8 by default (React 18 apps stay on v7) | [React setup](/docs/react/setup) |
-| `@chelone/vue`   | `vue-router` 4 or 5                                     | [Vue setup](/docs/vue/setup)     |
+| Adapter          | Router                                                  | Install steps                             | Wiring                             |
+| ---------------- | ------------------------------------------------------- | ----------------------------------------- | ---------------------------------- |
+| `@chelone/react` | `react-router` v8 by default (React 18 apps stay on v7) | [React setup](/docs/react/setup)          | [Admin](/docs/app-config/admin)    |
+| `@chelone/vue`   | `vue-router` 4 or 5                                     | [Install for Vue](#install-for-vue), here | [Vue setup](/docs/vue/setup)       |
 
 ## The registry
 
-Both registries have the same shape: add the Chelone registry to your
-`components.json`, keeping the rest of your shadcn configuration.
+Each adapter serves its own registry. The entry has the same shape in both, and
+only the URL differs:
 
-```json title="components.json"
-{
-  "registries": {
-    "@chelone": "https://chelone.dev/r/{name}.json"
-  }
-}
-```
+| Adapter | Registry URL                              |
+| ------- | ----------------------------------------- |
+| React   | `https://chelone.dev/r/{name}.json`       |
+| Vue     | `https://chelone.dev/r/vue/{name}.json`   |
 
-The Vue registry is served at `https://chelone.dev/r/vue/{name}.json`, which the
-[Vue install section](#install-for-vue) writes out in full.
+Add the entry for your adapter to your `components.json`, keeping the rest of
+your shadcn configuration. Each adapter's full `components.json` snippet sits
+with its install steps: [React setup](/docs/react/setup) for React, and
+[Install for Vue](#install-for-vue) below for Vue.
 
 :::note
 The `shadcn` CLI has [known issues](https://github.com/shadcn-ui/ui/issues/8778)
