@@ -7,8 +7,47 @@ import {
   within,
 } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import MdxPage from "./mdx-page";
+
+// The same glob `component-preview.tsx` loads a demo through, so a preview test
+// waits on a render and not on a module load that a busy runner can stretch
+// past `asyncUtilTimeout`.
+const demoModules = import.meta.glob("./content/**/demos/*.tsx");
+
+const supabasePreviews = [
+  ["supabase/supabase-login-page", "heading", "Sign in"],
+  ["supabase/forgot-password-page", "heading", "Forgot your password?"],
+  ["supabase/set-password-page", "button", "Save"],
+  ["supabase/social-auth-button", "button", "Sign in with Github"],
+] as const;
+
+const realtimeDemos = [
+  ["edit-live", "Another user renames post 1"],
+  ["list-live", "Another user adds a post"],
+  ["lock-on-mount", "Grace opens post 1"],
+  ["lock-status", "Another user locks post 1"],
+  ["menu-live", "Another user adds a post"],
+] as const;
+
+beforeAll(
+  async () => {
+    const pages = [
+      "ui-layout/app-bar",
+      ...supabasePreviews.map(([slug]) => slug),
+      ...realtimeDemos.map(([slug]) => `realtime/${slug}`),
+    ];
+    await Promise.all(
+      pages.map((page) => {
+        const load = demoModules[`./content/${page}/demos/basic.tsx`];
+        if (!load) throw new Error(`No basic demo for ${page}`);
+        return load();
+      }),
+    );
+  },
+  // Its own budget: the load is what a slow runner stretches.
+  120_000,
+);
 
 // Shiki decompresses its bundled WASM through Blob.stream(), absent in jsdom.
 beforeEach(() => vi.stubGlobal("Blob", Blob));
@@ -343,12 +382,7 @@ it.each([
 );
 
 // Each of these pages lists a preview.
-it.each([
-  ["supabase/supabase-login-page", "heading", "Sign in"],
-  ["supabase/forgot-password-page", "heading", "Forgot your password?"],
-  ["supabase/set-password-page", "button", "Save"],
-  ["supabase/social-auth-button", "button", "Sign in with Github"],
-] as const)(
+it.each(supabasePreviews)(
   "shows the %s live preview on its reference page",
   async (slug, role, name) => {
     render(
@@ -364,23 +398,20 @@ it.each([
   },
 );
 
-it.each([
-  ["edit-live", "Another user renames post 1"],
-  ["list-live", "Another user adds a post"],
-  ["lock-on-mount", "Grace opens post 1"],
-  ["lock-status", "Another user locks post 1"],
-  ["menu-live", "Another user adds a post"],
-])("shows the live demo on the realtime %s page", async (slug, button) => {
-  render(
-    <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
-      <Routes>
-        <Route path="/docs/*" element={<MdxPage />} />
-      </Routes>
-    </MemoryRouter>,
-  );
+it.each(realtimeDemos)(
+  "shows the live demo on the realtime %s page",
+  async (slug, button) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
 
-  expect(await screen.findByRole("button", { name: button })).toBeTruthy();
-});
+    expect(await screen.findByRole("button", { name: button })).toBeTruthy();
+  },
+);
 
 it("renders the h2 and h3 headings of a docs page as links to their own anchors", async () => {
   render(
