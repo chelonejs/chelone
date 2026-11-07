@@ -1,0 +1,19 @@
+---
+title: "OsmFeatureOperator"
+description: "A button that edits the Polygon or MultiPolygon held in source with OpenStreetMap areas queried from Overpass by presets and tags: mode subtract removes them and add merges them in. The request runs on the click, and the result is written like a user edit, so the form turns dirty and the field's validators run. A cut or merge that would leave a Polygon as several pieces is refused with a warning and the value is left as it was. Needs an Overpass provider, from provider or MapsProvider. OsmFeatureAdd and OsmFeatureSubtract are this component with mode set for you."
+---
+{/* generated:gen-component-stubs */}
+
+A button that edits the Polygon or MultiPolygon held in `source` with OpenStreetMap areas queried from Overpass by `presets` and `tags`: `mode` `subtract` removes them and `add` merges them in. The request runs on the click, and the result is written like a user edit, so the form turns dirty and the field's validators run. A cut or merge that would leave a Polygon as several pieces is refused with a warning and the value is left as it was. Needs an Overpass provider, from `provider` or `MapsProvider`. `OsmFeatureAdd` and `OsmFeatureSubtract` are this component with `mode` set for you.
+
+## Installation
+
+```tsx
+import { OsmFeatureOperator } from "@chelone/react/maps/osm";
+```
+
+See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.
+
+## Props
+
+<PropsTable name="OsmFeatureOperator" />

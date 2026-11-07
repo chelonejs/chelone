@@ -46,6 +46,7 @@ function ListActions(props: ListActionsProps) {
 
   return (
     <div
+      data-slot="list-actions"
       className={cn("flex items-center justify-end gap-2", className)}
       {...rest}
     >

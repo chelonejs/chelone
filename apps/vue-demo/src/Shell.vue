@@ -28,13 +28,18 @@ import {
   LocalesMenuButton,
   Menu,
   MenuItemLink,
+  MenuLive,
   OnboardingTour,
+  ResourceMenuItemGroup,
   ThemeModeToggle,
   ThemeProvider,
   UserMenu,
+  useResourceDefinitions,
 } from "@chelone/vue";
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
+import { computed } from "vue";
 import { pageGroups } from "./pages";
+import SimulateOtherUser from "./realtime-sim.vue";
 import { dataProvider, dataProviderLog } from "./realtime";
 import SearchButton from "./SearchButton.vue";
 import TakeTheTour from "./TakeTheTour.vue";
@@ -42,6 +47,17 @@ import TakeTheTour from "./TakeTheTour.vue";
 // One transport and tool set for the app's lifetime: a new one starts a new conversation.
 const assistantTransport = demoAssistantTransport();
 const assistantTools = demoAssistantTools(dataProvider);
+
+// Posts get a live unread badge; the other resources keep their plain links.
+// The panel is repeated here because the badge clears while /posts is open:
+// adding a post from any other page is the only way to see it. It sits at the
+// top of the sidebar: at the bottom it scrolls under the devtools panel.
+const definitions = useResourceDefinitions();
+const others = computed(() =>
+  Object.keys(definitions).filter(
+    (name) => name !== "posts" && definitions[name]?.list != null,
+  ),
+);
 </script>
 
 <template>
@@ -51,7 +67,15 @@ const assistantTools = demoAssistantTools(dataProvider);
         <Layout>
           <template #sidebar>
             <AppSidebar>
-              <Menu />
+              <div class="px-2 pt-2">
+                <MenuLive
+                  :items="[{ to: '/posts', resource: 'posts', label: 'Posts' }]"
+                />
+              </div>
+              <div class="px-4 py-2">
+                <SimulateOtherUser />
+              </div>
+              <ResourceMenuItemGroup :resources="others" />
               <section v-for="{ group, pages } in pageGroups" :key="group">
                 <h2 class="px-4 pt-2 text-xs font-medium text-muted-foreground">
                   {{ group }}
