@@ -46,6 +46,19 @@ export interface NavTreeProps {
   className?: string;
 }
 
+/**
+ * True when `activeSlug` is the group's index slug or any descendant leaf's
+ * slug, so a group stays highlighted on every page inside it.
+ */
+function groupIsActive(group: DocGroup, activeSlug: string): boolean {
+  if ((group.indexSlug ?? group.dir) === activeSlug) return true;
+  return group.children.some((child) =>
+    child.kind === "leaf"
+      ? child.slug === activeSlug
+      : groupIsActive(child, activeSlug),
+  );
+}
+
 interface SubProps {
   activeSlug: string;
   hrefFor: (slug: string) => string;
@@ -82,7 +95,10 @@ function NavSubNode({ node, ...p }: { node: DocNode } & SubProps) {
       className="group/subnode"
     >
       <SidebarMenuSubItem>
-        <SidebarMenuSubButton asChild isActive={to === p.activeSlug}>
+        <SidebarMenuSubButton
+          asChild
+          isActive={groupIsActive(node, p.activeSlug)}
+        >
           <NavLink to={p.hrefFor(to)} onClick={p.onNavigate}>
             {node.title}
           </NavLink>
@@ -163,7 +179,7 @@ export function NavTree({
                       <SidebarMenuButton
                         asChild
                         tooltip={section.title}
-                        isActive={to === activeSlug}
+                        isActive={groupIsActive(section, activeSlug)}
                       >
                         <NavLink to={hrefFor(to)} onClick={onNavigate}>
                           {Icon ? <Icon /> : null}
