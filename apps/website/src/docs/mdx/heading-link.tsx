@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 const COPIED_MS = 2000;
 
@@ -15,13 +15,16 @@ interface HeadingLinkProps {
 export function HeadingLink({ level, id, children }: HeadingLinkProps) {
   const Tag = level === 2 ? "h2" : "h3";
   const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
+  const { search } = useLocation();
+  // Counts copies (0 = none showing), so a second copy restarts the timer and
+  // remounts the label for assistive tech to announce again.
+  const [copies, setCopies] = useState(0);
 
   useEffect(() => {
-    if (!copied) return;
-    const timer = setTimeout(() => setCopied(false), COPIED_MS);
+    if (copies === 0) return;
+    const timer = setTimeout(() => setCopies(0), COPIED_MS);
     return () => clearTimeout(timer);
-  }, [copied]);
+  }, [copies]);
 
   if (!id) return <Tag>{children}</Tag>;
 
@@ -31,8 +34,8 @@ export function HeadingLink({ level, id, children }: HeadingLinkProps) {
       return;
     }
     event.preventDefault();
-    const { origin, pathname, search } = window.location;
-    navigate({ hash: id });
+    const { origin, pathname } = window.location;
+    navigate({ search, hash: id });
     const reduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
@@ -43,7 +46,7 @@ export function HeadingLink({ level, id, children }: HeadingLinkProps) {
       await navigator.clipboard.writeText(
         `${origin}${pathname}${search}#${id}`,
       );
-      setCopied(true);
+      setCopies((n) => n + 1);
     } catch {
       // No clipboard permission: the anchor still works, so stay quiet.
     }
@@ -59,7 +62,7 @@ export function HeadingLink({ level, id, children }: HeadingLinkProps) {
         role="status"
         className="ml-3 align-middle text-xs font-normal text-muted-foreground"
       >
-        {copied ? "Copied" : ""}
+        {copies > 0 && <span key={copies}>Copied</span>}
       </span>
     </Tag>
   );

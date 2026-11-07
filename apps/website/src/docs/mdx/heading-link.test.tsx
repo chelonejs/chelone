@@ -4,12 +4,17 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { HeadingLink } from "./heading-link";
 
 function Hash() {
-  return <span data-testid="hash">{useLocation().hash}</span>;
+  const { search, hash } = useLocation();
+  return <span data-testid="hash">{`${search}${hash}`}</span>;
 }
 
-function renderHeading(level: 2 | 3 = 2, id: string | null = "options") {
+function renderHeading(
+  level: 2 | 3 = 2,
+  id: string | null = "options",
+  url = "/docs/app-config/supabase",
+) {
   return render(
-    <MemoryRouter initialEntries={["/docs/app-config/supabase"]}>
+    <MemoryRouter initialEntries={[url]}>
       <article>
         <HeadingLink level={level} id={id ?? undefined}>
           Options
@@ -104,6 +109,42 @@ it("moves the address bar hash and scrolls the heading in smoothly", async () =>
   expect(scrollIntoView.mock.contexts[0]).toBe(
     screen.getByRole("heading", { name: /Options/ }),
   );
+});
+
+it("keeps the query string when it moves the hash", async () => {
+  stubClipboard(() => Promise.resolve());
+  renderHeading(2, "options", "/docs/editing/text-input?framework=vue");
+
+  await act(async () => {
+    fireEvent.click(screen.getByRole("link", { name: "Options" }));
+  });
+
+  expect(screen.getByTestId("hash").textContent).toBe("?framework=vue#options");
+});
+
+it("keeps the label for two seconds after a second copy", async () => {
+  stubClipboard(() => Promise.resolve());
+  renderHeading();
+  const link = screen.getByRole("link", { name: "Options" });
+
+  await act(async () => {
+    fireEvent.click(link);
+  });
+  act(() => {
+    vi.advanceTimersByTime(1500);
+  });
+  await act(async () => {
+    fireEvent.click(link);
+  });
+  act(() => {
+    vi.advanceTimersByTime(1500);
+  });
+  expect(screen.getByRole("status").textContent).toBe("Copied");
+
+  act(() => {
+    vi.advanceTimersByTime(500);
+  });
+  expect(screen.getByRole("status").textContent).toBe("");
 });
 
 it("scrolls without smooth motion when the reader prefers reduced motion", async () => {
