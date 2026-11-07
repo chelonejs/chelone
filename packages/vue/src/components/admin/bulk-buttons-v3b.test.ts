@@ -220,6 +220,27 @@ describe("<BulkUpdateButton>", () => {
   });
 });
 
+describe("<BulkUpdateButton> label", () => {
+  it("shows its own label instead of the translated Update", () => {
+    const { wrapper } = mountAdmin(() =>
+      h(
+        List,
+        { resource: "posts" },
+        {
+          default: () =>
+            h(BulkUpdateButton, {
+              resource: "posts",
+              label: "Mark champion",
+            }),
+        },
+      ),
+    );
+    const button = wrapper.find('[data-slot="bulk-update-button"]');
+    expect(button.text()).toBe("Mark champion");
+    expect(button.attributes("aria-label")).toBe("Mark champion");
+  });
+});
+
 describe("<BulkExportButton>", () => {
   it("fetches the selected rows via getMany and runs the exporter", async () => {
     const capture: { list?: ListContextValue } = {};
