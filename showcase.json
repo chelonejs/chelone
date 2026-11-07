@@ -1878,13 +1878,13 @@
       },
       "demo": {
         "path": "/demo/posts",
-        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"1\")"
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"⌘\")"
       }
     },
     "vue": {
       "demo": {
         "path": "/vue-demo/posts",
-        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"1\")"
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"⌘\")"
       }
     }
   },
