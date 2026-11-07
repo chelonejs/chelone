@@ -111,6 +111,63 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
+describe("the Vue frame's height", () => {
+  // jsdom lays out nothing and never loads the frame's `src`, so the test gives
+  // its document the shape a loaded page has and fires the event a real load
+  // fires. What is pinned is whether the frame is measured at all: an
+  // unmeasured frame keeps the `h-16` it starts at, and nothing follows the
+  // demo inside it when the demo grows.
+  function loadFrame(frame: HTMLIFrameElement): void {
+    const doc = frame.contentDocument;
+    if (!doc) throw new Error("the frame has no content document");
+    const html = doc.createElement("html");
+    const body = doc.createElement("body");
+    body.innerHTML = '<div id="demo">the demo</div>';
+    html.append(body);
+    doc.append(html);
+    fireEvent.load(frame);
+  }
+
+  it("measures a frame that mounts while the preview tab is hidden", () => {
+    renderPreview(BOTH);
+
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "Vue" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+    const frame = screen.getByTitle(/Vue demo/);
+    loadFrame(frame);
+    expect(frame.style.height).toBe("64px");
+  });
+
+  it("follows the demo again when the preview tab comes back", () => {
+    let attached = 0;
+    class CountingResizeObserver {
+      constructor() {
+        attached += 1;
+      }
+      observe(): void {}
+      unobserve(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", CountingResizeObserver);
+    try {
+      renderPreview(BOTH, "/docs/editing?framework=vue");
+
+      loadFrame(screen.getByTitle(/Vue demo/));
+      expect(attached).toBe(1);
+
+      fireEvent.click(screen.getByRole("button", { name: "code" }));
+      fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+      loadFrame(screen.getByTitle(/Vue demo/));
+      expect(attached).toBe(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
+
 describe("ComponentPreview with a name that matches no demo", () => {
   it("renders no switch, preview or iframe", () => {
     const { container } = renderPreview(

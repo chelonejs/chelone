@@ -15,7 +15,7 @@
  * website has no Vue compiler, so the Vue demo renders in an iframe of the Vue
  * demo app (`apps/vue-demo/src/DocsPreview.vue`), which compiles it.
  */
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { ShikiHighlighter } from "react-shiki";
 import { SHIKI_THEME } from "@/lib/shiki-theme";
 import { cn } from "@/lib/utils";
@@ -92,7 +92,10 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [loaded, setLoaded] = useState<LoadedDemo>();
   const [chosen, setFramework] = useFramework();
-  const frame = useRef<HTMLIFrameElement>(null);
+  // State and not a ref: the frame is only mounted on the preview tab, so
+  // leaving that tab and coming back puts a different element in its place, and
+  // the effect below has to see that.
+  const [frame, setFrame] = useState<HTMLIFrameElement | null>(null);
   const [frameHeight, setFrameHeight] = useState<number>();
   const reactKey = keyFor(demoModules, name, "tsx");
   const vueKey = keyFor(vueSources, name, "vue");
@@ -124,10 +127,11 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   // The Vue demo is an iframe of another app, which cannot size the frame it is
   // in. The frame is same-origin, so read the height the demo's own document
   // takes and give the frame that height: kept at a fixed one, a tall demo
-  // would scroll inside it.
+  // would scroll inside it. Keyed on the element, because the frame is mounted
+  // and unmounted with the preview tab, and a new element needs its own load
+  // listener and observers.
   useEffect(() => {
-    if (framework !== "vue") return;
-    const el = frame.current;
+    const el = frame;
     if (!el) return;
     let resize: ResizeObserver | undefined;
     let mutations: MutationObserver | undefined;
@@ -181,7 +185,7 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
       resize?.disconnect();
       mutations?.disconnect();
     };
-  }, [framework, name]);
+  }, [frame]);
 
   if (!key) {
     return (
@@ -243,7 +247,9 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
         >
           {framework === "vue" ? (
             <iframe
-              ref={frame}
+              ref={(el) => {
+                setFrame(el);
+              }}
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
               style={{ height: frameHeight }}
