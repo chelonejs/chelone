@@ -35,7 +35,7 @@ const SET_ASIDE = new Set(["class", "className", "readonly", "readOnly", "childr
  */
 const CALLBACK_PROP = /^on[A-Z]/;
 
-/** @typedef {{ name: string; props: { name: string }[] }} PropsPage */
+/** @typedef {{ name: string; props: { name: string }[]; slots?: { name: string }[] }} PropsPage */
 /** @typedef {{ react?: string[], vue?: string[] }} ComponentGaps the props each adapter has alone */
 /** @typedef {`${"react" | "vue"}.${string}.${string}`} GapKey one gap, as `vue.TextField.sortable` */
 
@@ -57,6 +57,30 @@ function comparableProps(page) {
 }
 
 /**
+ * The React props a component's slots stand for. A React prop that hands in
+ * markup is a Vue slot under the same name, kebab-case in a template:
+ * `#control-suffix` for `controlSuffix`. Where the React name carries a
+ * `Renderer` suffix the slot drops it, `#event` for `eventRenderer`, which is
+ * how docs/vue/differences.mdx maps `<CalendarList>` and `<KanbanBoard>`. A
+ * renamed pair, `rowExtra` against `#extra`, follows no such pattern and stays
+ * a gap.
+ *
+ * @param {{ name: string }[] | undefined} slots
+ * @returns {Set<string>}
+ */
+function slotStandIns(slots) {
+  /** @type {Set<string>} */
+  const names = new Set();
+  for (const slot of slots ?? []) {
+    const name = slot.name.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    names.add(name);
+    names.add(`${name}Renderer`);
+    names.add(`${name}Render`);
+  }
+  return names;
+}
+
+/**
  * The props one adapter's page has and the other's does not, as
  * `{ react: [...], vue: [...] }`, sorted, with a side left out when it has none.
  * An empty object is parity.
@@ -71,7 +95,7 @@ export function componentGaps(reactPage, vuePage) {
   /** @type {ComponentGaps} */
   const gaps = {};
   const only = (names, other) => [...names].filter((name) => !other.has(name)).sort();
-  const reactOnly = only(react, vue);
+  const reactOnly = only(react, new Set([...vue, ...slotStandIns(vuePage.slots)]));
   const vueOnly = only(vue, react);
   if (reactOnly.length > 0) gaps.react = reactOnly;
   if (vueOnly.length > 0) gaps.vue = vueOnly;
@@ -177,7 +201,18 @@ describe("componentGaps", () => {
 
   it("sets aside class/className, readonly/readOnly, callback props and events, and children and slots", () => {
     const gaps = componentGaps(
-      page(["className", "readOnly", "onChange", "onBlur", "children", "source", "label"]),
+      page([
+        "className",
+        "readOnly",
+        "onChange",
+        "onBlur",
+        "children",
+        "source",
+        "label",
+        "controlSuffix",
+        "primaryText",
+        "eventRenderer",
+      ]),
       {
         name: "Thing",
         props: [
@@ -188,10 +223,19 @@ describe("componentGaps", () => {
           { name: "label" },
         ],
         emits: [{ name: "change" }, { name: "blur" }],
-        slots: [{ name: "default" }],
+        slots: [{ name: "default" }, { name: "controlSuffix" }, { name: "primary-text" }, { name: "event" }],
       },
     );
     assert.deepEqual(gaps, {});
+  });
+
+  it("names a React prop whose Vue slot is renamed", () => {
+    const gaps = componentGaps(page(["source", "rowExtra"]), {
+      name: "Thing",
+      props: [{ name: "source" }],
+      slots: [{ name: "extra" }],
+    });
+    assert.deepEqual(gaps, { react: ["rowExtra"] });
   });
 
   it("names a prop only one adapter has", () => {
