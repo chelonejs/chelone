@@ -1,0 +1,17 @@
+{
+  "name": "ShellErrorBoundary",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": "The wrapped tree."
+    },
+    {
+      "name": "error",
+      "type": "ErrorFallbackProps",
+      "comment": "Replaces the default fallback."
+    }
+  ]
+}

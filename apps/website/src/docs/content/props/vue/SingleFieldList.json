@@ -1,0 +1,17 @@
+{
+  "name": "SingleFieldList",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "item",
+      "type": "SingleFieldListItemSlotProps<TRecord>",
+      "comment": "Renders each record; wins over the default slot."
+    }
+  ]
+}

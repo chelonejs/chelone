@@ -1,0 +1,13 @@
+{
+  "name": "RichTextToolbar",
+  "props": [
+    {
+      "name": "editor",
+      "type": "Editor",
+      "optional": false,
+      "comment": "The editor to format. `@tiptap/vue-3` has no editor context, so it is passed in."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

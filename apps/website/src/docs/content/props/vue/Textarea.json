@@ -1,0 +1,62 @@
+{
+  "name": "Textarea",
+  "props": [
+    {
+      "name": "modelValue",
+      "type": "string | null",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "rows",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "readonly",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ariaInvalid",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [
+    {
+      "name": "blur",
+      "type": "[event: FocusEvent]"
+    },
+    {
+      "name": "update:modelValue",
+      "type": "[value: string]"
+    },
+    {
+      "name": "focus",
+      "type": "[event: FocusEvent]"
+    }
+  ],
+  "slots": []
+}

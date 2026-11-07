@@ -1,0 +1,59 @@
+{
+  "name": "DonutChart",
+  "props": [
+    {
+      "name": "data",
+      "type": "readonly TRow[]",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "labelField",
+      "type": "keyof TRow & string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "valueField",
+      "type": "keyof TRow & string",
+      "optional": false,
+      "comment": "A row whose value is not a number above zero draws no segment."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "optional": true,
+      "default": "DEFAULT_CHART_COLORS",
+      "comment": "Any CSS colors, cycled over the segments. Defaults to the theme's chart colors."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "optional": true,
+      "default": "200",
+      "comment": "In pixels. Defaults to 200."
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    },
+    {
+      "name": "bare",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Leaves out the card and the title."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

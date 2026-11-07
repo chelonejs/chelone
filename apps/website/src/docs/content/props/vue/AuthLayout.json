@@ -1,0 +1,35 @@
+{
+  "name": "AuthLayout",
+  "props": [
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "Heading shown above the main-pane content."
+    },
+    {
+      "name": "subtitle",
+      "type": "string",
+      "optional": true,
+      "comment": "Subtitle shown below the heading."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": "Main-pane content — typically a login / signup / password-reset form."
+    },
+    {
+      "name": "aside",
+      "type": "{}",
+      "comment": "Left-pane brand content; when filled, the layout becomes two-column."
+    },
+    {
+      "name": "notification",
+      "type": "{}",
+      "comment": "Replaces the default `<Notification />` toast region."
+    }
+  ]
+}

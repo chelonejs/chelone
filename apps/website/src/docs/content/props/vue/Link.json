@@ -1,0 +1,55 @@
+{
+  "name": "Link",
+  "props": [
+    {
+      "name": "custom",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Whether RouterLink should not wrap its content in an `a` tag. Useful when\nusing `v-slot` to create a custom RouterLink"
+    },
+    {
+      "name": "activeClass",
+      "type": "string",
+      "optional": true,
+      "comment": "Class to apply when the link is active"
+    },
+    {
+      "name": "exactActiveClass",
+      "type": "string",
+      "optional": true,
+      "comment": "Class to apply when the link is exact active"
+    },
+    {
+      "name": "ariaCurrentValue",
+      "type": "\"time\" | \"page\" | \"step\" | \"location\" | \"date\" | \"true\" | \"false\"",
+      "optional": true,
+      "comment": "Value passed to the attribute `aria-current` when the link is exact active."
+    },
+    {
+      "name": "viewTransition",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Pass the returned promise of `router.push()` to `document.startViewTransition()` if supported."
+    },
+    {
+      "name": "to",
+      "type": "string | et | X",
+      "optional": false,
+      "comment": "Route Location the link should navigate to when clicked on."
+    },
+    {
+      "name": "replace",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Calls `router.replace` instead of `router.push`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{ route: _t; href: string; isActive: boolean; isExactActive: boolean; navigate: (e?: MouseEvent | undefined) => Promise<void | jr>; }",
+      "comment": ""
+    }
+  ]
+}

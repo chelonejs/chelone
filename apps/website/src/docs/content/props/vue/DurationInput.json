@@ -1,0 +1,51 @@
+{
+  "name": "DurationInput",
+  "props": [
+    {
+      "name": "units",
+      "type": "readonly Unit[]",
+      "optional": true,
+      "default": "[...DEFAULT_UNITS]",
+      "comment": "Which units to expose. Default `[\"d\",\"h\",\"m\",\"s\"]`."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The field path (dot/bracket), relative to the ambient source scope."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "defaultValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Input-level default (seeds only into a hole), typed as the value at `source`."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

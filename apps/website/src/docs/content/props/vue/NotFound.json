@@ -1,0 +1,19 @@
+{
+  "name": "NotFound",
+  "props": [
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "Overrides the page title shown in the app bar. Translated if a key."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": "Replaces the default search-x glyph."
+    }
+  ]
+}

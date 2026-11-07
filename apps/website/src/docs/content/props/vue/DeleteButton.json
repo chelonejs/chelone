@@ -1,0 +1,66 @@
+{
+  "name": "DeleteButton",
+  "props": [
+    {
+      "name": "record",
+      "type": "LooseRecord | TRecord",
+      "optional": true,
+      "comment": "Override the ambient record."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>`."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated label."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "`\"undoable\"` deletes optimistically with an Undo notification (no confirm\ndialog): the record vanishes now, the list redirect happens immediately, and\nthe server call is deferred until the Undo window closes. Default\n(`\"pessimistic\"`) is confirm-gated."
+    },
+    {
+      "name": "redirect",
+      "type": "DeleteRedirect",
+      "optional": true,
+      "default": "\"list\"",
+      "comment": "Where to navigate after deleting. Default `\"list\"`; `false` = stay."
+    },
+    {
+      "name": "confirmTitle",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.delete_title\"",
+      "comment": "Confirmation-dialog title. Default `\"ra.message.delete_title\"`."
+    },
+    {
+      "name": "confirmContent",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.delete_content\"",
+      "comment": "Confirmation-dialog body copy. Default `\"ra.message.delete_content\"`."
+    },
+    {
+      "name": "confirmColor",
+      "type": "\"warning\" | \"primary\"",
+      "optional": true,
+      "default": "\"warning\"",
+      "comment": "`\"warning\"` tints the confirm button destructive. Default `\"warning\"`."
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"link\" | \"outline\" | \"secondary\" | \"destructive\" | \"ghost\"",
+      "optional": true,
+      "default": "\"outline\"",
+      "comment": "Button variant. Default `\"outline\"` with a destructive tint."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

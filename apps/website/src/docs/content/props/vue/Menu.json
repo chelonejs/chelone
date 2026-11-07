@@ -1,0 +1,12 @@
+{
+  "name": "Menu",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": "Custom nav entries that REPLACE the auto resource list."
+    }
+  ]
+}

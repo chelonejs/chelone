@@ -1,0 +1,63 @@
+{
+  "name": "Labeled",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "isRequired",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    },
+    {
+      "name": "htmlFor",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "fullWidth",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    },
+    {
+      "name": "as",
+      "type": "string",
+      "optional": true,
+      "default": "\"div\"",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,13 @@
+{
+  "name": "LoginForm",
+  "props": [
+    {
+      "name": "redirectTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Path the user is redirected to after a successful sign in. Passed through\nto `authProvider.login({ ...values, redirectTo })`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

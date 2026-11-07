@@ -1,0 +1,19 @@
+{
+  "name": "SortableFieldsSelector",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource, used to label columns. Defaults to the ambient resource."
+    },
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": false,
+      "comment": "The store key the table uses."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

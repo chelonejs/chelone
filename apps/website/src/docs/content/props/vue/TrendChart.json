@@ -1,0 +1,91 @@
+{
+  "name": "TrendChart",
+  "props": [
+    {
+      "name": "area",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Fills the area under the line with a gradient."
+    },
+    {
+      "name": "smooth",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Draws a smooth curve instead of straight segments."
+    },
+    {
+      "name": "xTickFormatter",
+      "type": "((value: TRow[TX]) => string)",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "yTickFormatter",
+      "type": "((value: number) => string)",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "tooltipFormatter",
+      "type": "((value: number, name: string) => string)",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "data",
+      "type": "readonly TRow[]",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "xField",
+      "type": "TX",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "yField",
+      "type": "keyof TRow & string",
+      "optional": false,
+      "comment": "A row whose value is not a finite number draws no point or bar."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "optional": true,
+      "default": "\"var(--primary)\"",
+      "comment": "Any CSS color. Defaults to `var(--primary)`."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "optional": true,
+      "default": "200",
+      "comment": "In pixels. Defaults to 200."
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    },
+    {
+      "name": "bare",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Leaves out the card and the title."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

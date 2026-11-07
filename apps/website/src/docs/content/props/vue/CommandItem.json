@@ -1,0 +1,42 @@
+{
+  "name": "CommandItem",
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "keywords",
+      "type": "string[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "forceMount",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [
+    {
+      "name": "select",
+      "type": "[value: string]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

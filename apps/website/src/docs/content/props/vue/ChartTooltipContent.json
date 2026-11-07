@@ -1,0 +1,63 @@
+{
+  "name": "ChartTooltipContent",
+  "props": [
+    {
+      "name": "hideLabel",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "hideIndicator",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "indicator",
+      "type": "\"dot\" | \"line\" | \"dashed\"",
+      "optional": true,
+      "default": "\"dot\"",
+      "comment": ""
+    },
+    {
+      "name": "nameKey",
+      "type": "string",
+      "optional": true,
+      "comment": "Payload key whose value names each row; defaults to the key itself."
+    },
+    {
+      "name": "labelKey",
+      "type": "string",
+      "optional": true,
+      "comment": "Payload key shown as the heading in place of `x`."
+    },
+    {
+      "name": "labelFormatter",
+      "type": "((x: number | Date) => string | number)",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "payload",
+      "type": "ChartDatum",
+      "optional": true,
+      "default": "{}",
+      "comment": ""
+    },
+    {
+      "name": "x",
+      "type": "number | Date",
+      "optional": true,
+      "comment": "The hovered x value."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

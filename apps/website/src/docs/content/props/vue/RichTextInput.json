@@ -1,0 +1,90 @@
+{
+  "name": "RichTextInput",
+  "props": [
+    {
+      "name": "helperText",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": "Shown while the editor is empty."
+    },
+    {
+      "name": "images",
+      "type": "boolean | RichTextImageOptions",
+      "optional": true,
+      "default": "true",
+      "comment": "Image insertion and upload settings. False leaves images out of the default schema."
+    },
+    {
+      "name": "colors",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Text color: `false` leaves out the color extension and the toolbar's Text\ncolor button. A color is stored as a `style` attribute with a palette\n`var(--rich-text-color-*)` value. Default `true`."
+    },
+    {
+      "name": "codeHighlight",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Highlights code blocks in the editor with lowlight. `false` shows them\nplain. The stored HTML never has highlight markup either way. Default `true`."
+    },
+    {
+      "name": "editorOptions",
+      "type": "Partial<EditorOptions>",
+      "optional": true,
+      "comment": "Extra tiptap editor options, spread last: `extensions` here replaces the\ndefault set. `onUpdate` and `onBlur` run after the input's own."
+    },
+    {
+      "name": "source",
+      "type": "TPath",
+      "optional": false,
+      "comment": "The field path (dot/bracket), relative to the ambient source scope."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "defaultValue",
+      "type": "NoInfer<SourceValue<RecordType, TPath>>",
+      "optional": true,
+      "comment": "Input-level default (seeds only into a hole), typed as the value at `source`."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "toolbar",
+      "type": "RichTextInputToolbarSlotProps",
+      "comment": ""
+    }
+  ]
+}

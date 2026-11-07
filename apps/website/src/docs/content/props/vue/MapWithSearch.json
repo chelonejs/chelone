@@ -1,0 +1,45 @@
+{
+  "name": "MapWithSearch",
+  "props": [
+    {
+      "name": "latSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the latitude."
+    },
+    {
+      "name": "lngSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the longitude."
+    },
+    {
+      "name": "addressSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the address text."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "default": "400",
+      "comment": "In pixels, or any CSS length. Defaults to 400."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_MAP_ZOOM",
+      "comment": "Read once at mount. Defaults to 13."
+    },
+    {
+      "name": "provider",
+      "type": "GeocodingProvider",
+      "optional": true,
+      "comment": "Defaults to the `geocoder` of `MapsProvider`. One of the two is required."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

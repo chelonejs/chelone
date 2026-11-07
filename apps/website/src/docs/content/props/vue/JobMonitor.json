@@ -1,0 +1,112 @@
+{
+  "name": "JobMonitor",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The jobs resource. Defaults to the resource context; with neither, nothing renders."
+    },
+    {
+      "name": "pollInterval",
+      "type": "number",
+      "optional": true,
+      "default": "5000",
+      "comment": "Milliseconds between reads. Default 5000, `0` turns polling off."
+    },
+    {
+      "name": "tabs",
+      "type": "readonly string[]",
+      "optional": true,
+      "comment": "The statuses to show, one tab each and in this order. A job whose status has no tab is not shown."
+    },
+    {
+      "name": "statusSource",
+      "type": "SourceKey<TRecord>",
+      "optional": true,
+      "comment": "Record field holding the job status, a top-level key. Default `\"status\"`."
+    },
+    {
+      "name": "typeSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field shown as the job's type. Default `\"type\"`."
+    },
+    {
+      "name": "payloadSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field holding the payload. Default `\"payload\"`."
+    },
+    {
+      "name": "errorSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field holding the last error. Default `\"lastError\"`."
+    },
+    {
+      "name": "attemptsSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field holding the attempt count. Default `\"attempts\"`."
+    },
+    {
+      "name": "createdAtSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field holding the creation time. Default `\"createdAt\"`."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "default": "200",
+      "comment": "Jobs read per poll. Default 200."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": "Default `createdAtSource` descending."
+    },
+    {
+      "name": "actions",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Show Retry and Cancel where the job allows them and the user has `edit` access. Default true."
+    },
+    {
+      "name": "retryFrom",
+      "type": "readonly string[]",
+      "optional": true,
+      "comment": "Statuses a job can be retried from. Default `[\"failed\"]`."
+    },
+    {
+      "name": "cancelFrom",
+      "type": "readonly string[]",
+      "optional": true,
+      "comment": "Statuses a job can be cancelled from. Default `[\"running\", \"queued\"]`."
+    },
+    {
+      "name": "retryValue",
+      "type": "string",
+      "optional": true,
+      "comment": "Status Retry writes. Default `\"queued\"`."
+    },
+    {
+      "name": "cancelValue",
+      "type": "string",
+      "optional": true,
+      "comment": "Status Cancel writes. Default `\"cancelled\"`."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "Default `translate(\"chelone.job_monitor.title\")`, \"Jobs\"."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

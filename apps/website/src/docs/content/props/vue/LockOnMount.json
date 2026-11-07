@@ -1,0 +1,53 @@
+{
+  "name": "LockOnMount",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "identity",
+      "type": "Identifier",
+      "optional": true,
+      "comment": "Defaults to the auth provider's identity."
+    },
+    {
+      "name": "meta",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "onLockError",
+      "type": "((error: Error) => void)",
+      "optional": true,
+      "comment": "Called with a failed lock or release, a conflict included."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "loading",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "locked-by",
+      "type": "{ lock: Lock; }",
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "name": "ThemeProvider",
+  "props": [
+    {
+      "name": "defaultTheme",
+      "type": "Theme",
+      "optional": true,
+      "default": "\"system\"",
+      "comment": "Initial mode when nothing is persisted yet. Defaults to `system`."
+    },
+    {
+      "name": "storageKey",
+      "type": "string",
+      "optional": true,
+      "default": "DEFAULT_THEME_STORAGE_KEY",
+      "comment": "localStorage key the mode is persisted under. Defaults to `chelone-theme`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

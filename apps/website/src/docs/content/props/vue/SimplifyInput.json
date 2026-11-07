@@ -1,0 +1,97 @@
+{
+  "name": "SimplifyInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding a Geometry, Feature or FeatureCollection."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The legend. A string is translated; `false` renders none."
+    },
+    {
+      "name": "helperText",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_MAP_ZOOM",
+      "comment": "Read once at mount. Defaults to 13."
+    },
+    {
+      "name": "defaultCenter",
+      "type": "readonly [lat: number, lng: number]",
+      "optional": true,
+      "default": "[0, 0]",
+      "comment": "`[lat, lng]`. Read once at mount. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "default": "400",
+      "comment": "In pixels, or any CSS length. Defaults to 400."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "shapeStyle",
+      "type": "ShapeStyle",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Partial over `DEFAULT_SHAPE_STYLE`."
+    },
+    {
+      "name": "tolerance",
+      "type": "number",
+      "optional": true,
+      "default": "0.01",
+      "comment": "The range input's initial value, in degrees. Defaults to 0.01."
+    },
+    {
+      "name": "minTolerance",
+      "type": "number",
+      "optional": true,
+      "default": "0",
+      "comment": "Defaults to 0."
+    },
+    {
+      "name": "maxTolerance",
+      "type": "number",
+      "optional": true,
+      "default": "0.05",
+      "comment": "Defaults to 0.05."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "optional": true,
+      "default": "0.001",
+      "comment": "Defaults to 0.001."
+    },
+    {
+      "name": "quality",
+      "type": "SimplifyQuality",
+      "optional": true,
+      "default": "\"Default\"",
+      "comment": "The initial algorithm. `High` is slower and keeps more detail. Defaults to `Default`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

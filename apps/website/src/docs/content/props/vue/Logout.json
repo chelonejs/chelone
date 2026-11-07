@@ -1,0 +1,13 @@
+{
+  "name": "Logout",
+  "props": [
+    {
+      "name": "redirectTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Path the user is redirected to after logout. Passed through to the\nauthProvider's `logout` params."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

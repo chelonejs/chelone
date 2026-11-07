@@ -1,0 +1,107 @@
+{
+  "name": "CalendarList",
+  "props": [
+    {
+      "name": "startSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The field holding the start of an event; a dotted path reads a nested value."
+    },
+    {
+      "name": "endSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The field holding the end. An event with none, or one before its start, covers its start day only."
+    },
+    {
+      "name": "titleSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The string field shown as the event title; the record representation otherwise."
+    },
+    {
+      "name": "colorSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The field whose value picks a color from `colorMap`."
+    },
+    {
+      "name": "colorMap",
+      "type": "Record<string, string>",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "defaultView",
+      "type": "CalendarView",
+      "optional": true,
+      "default": "\"month\"",
+      "comment": "The view shown first. Default `month`."
+    },
+    {
+      "name": "views",
+      "type": "CalendarView[]",
+      "optional": true,
+      "default": "[\"month\", \"week\", \"agenda\"]",
+      "comment": "The views offered. The first one is shown when `defaultView` is not among\nthem. Default `[\"month\", \"week\", \"agenda\"]`."
+    },
+    {
+      "name": "weekStartsOn",
+      "type": "CalendarWeekStart",
+      "optional": true,
+      "default": "0",
+      "comment": "0 is Sunday, as in `Date#getDay`. Default 0."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "default": "1000",
+      "comment": "How many records one fetch asks for. Default 1000."
+    },
+    {
+      "name": "rangeFilter",
+      "type": "((range: CalendarRange) => Record<string, unknown>)",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The list filter that asks for the visible range. By default records whose\n`startSource` falls in it: `${startSource}_gte` and `${startSource}_lte`.\nWith `endSource` set, records that end in it or after it instead:\n`${startSource}_lte` and `${endSource}_gte`, which also fetches an event\nthat starts before the range. A record with an empty end is then left out,\nso such data needs a custom `rangeFilter`. The keys it returns replace\nthose."
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"edit\" | \"show\"",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Where an event links to when nothing listens to `select-event`. `edit` by\ndefault, `show` when the resource has no edit view, and an inert event when\nit has neither. `false` leaves events inert."
+    }
+  ],
+  "emits": [
+    {
+      "name": "selectEvent",
+      "type": "[record: TRecord]"
+    },
+    {
+      "name": "selectSlot",
+      "type": "[slot: CalendarSlot]"
+    },
+    {
+      "name": "drop",
+      "type": "[record: TRecord, range: CalendarDrop]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "event",
+      "type": "CalendarEventSlotProps<TRecord>",
+      "comment": "Replaces an event in its day cell."
+    },
+    {
+      "name": "header",
+      "type": "CalendarHeaderSlotProps",
+      "comment": "Replaces the title and the navigation."
+    }
+  ]
+}

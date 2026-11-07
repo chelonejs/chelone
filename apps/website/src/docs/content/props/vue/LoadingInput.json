@@ -1,0 +1,39 @@
+{
+  "name": "LoadingInput",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "timeout",
+      "type": "number",
+      "optional": true,
+      "default": "1000",
+      "comment": "Milliseconds before the spinner replaces the empty placeholder. Defaults to 1000."
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\"",
+      "optional": true,
+      "default": "\"default\"",
+      "comment": ""
+    },
+    {
+      "name": "fullWidth",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

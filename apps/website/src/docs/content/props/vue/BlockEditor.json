@@ -1,0 +1,44 @@
+{
+  "name": "BlockEditor",
+  "props": [
+    {
+      "name": "value",
+      "type": "BlockDocNode | null",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The document, as tiptap JSON. `null` or `undefined` is an empty document."
+    },
+    {
+      "name": "blocks",
+      "type": "readonly BlockDefinition<Attrs>[]",
+      "optional": true,
+      "default": "defaultBlocks",
+      "comment": "Read once, when the editor mounts. Names must be unique. Defaults to `defaultBlocks`."
+    },
+    {
+      "name": "editable",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Shown in an empty paragraph."
+    }
+  ],
+  "emits": [
+    {
+      "name": "change",
+      "type": "[value: BlockDocNode]"
+    },
+    {
+      "name": "blur",
+      "type": "[event: FocusEvent]"
+    }
+  ],
+  "slots": []
+}

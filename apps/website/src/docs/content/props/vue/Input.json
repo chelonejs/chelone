@@ -1,0 +1,68 @@
+{
+  "name": "Input",
+  "props": [
+    {
+      "name": "modelValue",
+      "type": "string | number | null",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "readonly",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "autocomplete",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "autofocus",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ariaInvalid",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [
+    {
+      "name": "blur",
+      "type": "[event: FocusEvent]"
+    },
+    {
+      "name": "update:modelValue",
+      "type": "[value: string]"
+    },
+    {
+      "name": "focus",
+      "type": "[event: FocusEvent]"
+    }
+  ],
+  "slots": []
+}

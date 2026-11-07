@@ -11,7 +11,8 @@
     "test": "vitest run",
     "typedoc": "typedoc --options scripts/typedoc.json",
     "props:generate": "node scripts/split-typedoc.mjs",
-    "props": "pnpm typedoc && pnpm props:generate"
+    "props:vue": "node scripts/vue-props.mjs",
+    "props": "pnpm typedoc && pnpm props:generate && pnpm props:vue"
   },
   "dependencies": {
     "@chelone/core": "workspace:*",
@@ -60,6 +61,8 @@
     "typescript": "^6.0.3",
     "unist-util-visit": "^5.2.0",
     "vite": "^8.3.6",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "vue": "^3.5.45",
+    "vue-component-meta": "^3.3.14"
   }
 }

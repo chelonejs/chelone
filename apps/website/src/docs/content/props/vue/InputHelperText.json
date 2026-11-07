@@ -1,0 +1,19 @@
+{
+  "name": "InputHelperText",
+  "props": [
+    {
+      "name": "helperText",
+      "type": "string | false",
+      "optional": true,
+      "comment": "A string is translated + wrapped in `<FieldDescription>`; `false`/`null` renders nothing."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

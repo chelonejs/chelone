@@ -1,0 +1,85 @@
+{
+  "name": "UpdateButton",
+  "props": [
+    {
+      "name": "data",
+      "type": "Partial<NoInfer<TRecord>>",
+      "optional": false,
+      "comment": "The fields to patch onto the record."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "default": "\"undoable\"",
+      "comment": "Read once at setup. `\"undoable\"` (default) patches the record now with an\nUndo notification and no dialog; the server call is deferred until the Undo\nwindow closes. `\"pessimistic\"` and `\"optimistic\"` ask for confirmation\nfirst, and `\"optimistic\"` closes the dialog on confirm."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated label."
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"link\" | \"outline\" | \"secondary\" | \"destructive\" | \"ghost\"",
+      "optional": true,
+      "default": "\"outline\"",
+      "comment": "Button variant. Default `\"outline\"`."
+    },
+    {
+      "name": "record",
+      "type": "TRecord",
+      "optional": true,
+      "comment": "Override the ambient record."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>`."
+    },
+    {
+      "name": "confirmTitle",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.bulk_update_title\"",
+      "comment": "Confirmation-dialog title. Default `\"ra.message.bulk_update_title\"`."
+    },
+    {
+      "name": "confirmContent",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.bulk_update_content\"",
+      "comment": "Confirmation-dialog body copy. Default `\"ra.message.bulk_update_content\"`."
+    },
+    {
+      "name": "confirmColor",
+      "type": "\"warning\" | \"primary\"",
+      "optional": true,
+      "default": "\"primary\"",
+      "comment": "`\"warning\"` tints the confirm button destructive. Default `\"primary\"`."
+    }
+  ],
+  "emits": [
+    {
+      "name": "click",
+      "type": "[MouseEvent | undefined]"
+    },
+    {
+      "name": "success",
+      "type": "[TRecord]"
+    },
+    {
+      "name": "error",
+      "type": "[unknown]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

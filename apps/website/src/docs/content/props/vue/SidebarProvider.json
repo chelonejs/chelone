@@ -1,0 +1,20 @@
+{
+  "name": "SidebarProvider",
+  "props": [
+    {
+      "name": "defaultOpen",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Initial open state of the desktop sidebar. Defaults to `true`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

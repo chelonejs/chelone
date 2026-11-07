@@ -1,0 +1,46 @@
+{
+  "name": "BulkDeleteButton",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>`."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated label."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "`\"undoable\"` deletes optimistically with an Undo notification (no confirm\ndialog): the rows vanish now and the server call is deferred until the Undo\nwindow closes. Default (`\"pessimistic\"`) is confirm-gated."
+    },
+    {
+      "name": "confirmTitle",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.bulk_delete_title\"",
+      "comment": "Confirmation-dialog title. Default `\"ra.message.bulk_delete_title\"`."
+    },
+    {
+      "name": "confirmContent",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.message.bulk_delete_content\"",
+      "comment": "Confirmation-dialog body copy. Default `\"ra.message.bulk_delete_content\"`."
+    },
+    {
+      "name": "confirmColor",
+      "type": "\"warning\" | \"primary\"",
+      "optional": true,
+      "default": "\"warning\"",
+      "comment": "`\"warning\"` tints the confirm button destructive. Default `\"warning\"`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

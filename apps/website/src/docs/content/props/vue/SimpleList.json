@@ -1,0 +1,55 @@
+{
+  "name": "SimpleList",
+  "props": [
+    {
+      "name": "linkType",
+      "type": "false | \"edit\" | \"show\"",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Where each row links to; see `SimpleListItem`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "primary-text",
+      "type": "SimpleListSlotProps<TRecord>",
+      "comment": ""
+    },
+    {
+      "name": "secondary-text",
+      "type": "SimpleListSlotProps<TRecord>",
+      "comment": ""
+    },
+    {
+      "name": "tertiary-text",
+      "type": "SimpleListSlotProps<TRecord>",
+      "comment": ""
+    },
+    {
+      "name": "left-avatar",
+      "type": "SimpleListSlotProps<TRecord>",
+      "comment": ""
+    },
+    {
+      "name": "left-icon",
+      "type": "SimpleListSlotProps<TRecord>",
+      "comment": ""
+    },
+    {
+      "name": "right-icon",
+      "type": "SimpleListSlotProps<TRecord>",
+      "comment": ""
+    },
+    {
+      "name": "loading",
+      "type": "{}",
+      "comment": "Rendered while the list is pending, in place of `SimpleListLoading`."
+    },
+    {
+      "name": "empty",
+      "type": "{}",
+      "comment": "Rendered with no records, in place of `ListNoResults`."
+    }
+  ]
+}

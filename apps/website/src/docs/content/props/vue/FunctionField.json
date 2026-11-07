@@ -1,0 +1,25 @@
+{
+  "name": "FunctionField",
+  "props": [
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": true,
+      "comment": "Optional source, forwarded to the default slot for convenience."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{ record: RecordType; source?: string | undefined; }",
+      "comment": "Receives the resolved record + optional source; renders the derived value."
+    }
+  ]
+}

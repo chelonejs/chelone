@@ -1,0 +1,25 @@
+{
+  "name": "FilterForm",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "filters",
+      "type": "FilterFormEntry[]",
+      "optional": true,
+      "comment": "Filters rendered before the slot while shown: `alwaysOn`, in\n`displayedFilters`, or holding a value in the list filter."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

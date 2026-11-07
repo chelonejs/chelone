@@ -1,0 +1,19 @@
+{
+  "name": "SavedQueriesList",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to the ambient resource."
+    },
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": true,
+      "comment": "KV namespace for the saved queries. Default: the resource name."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

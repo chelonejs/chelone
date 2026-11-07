@@ -1,0 +1,25 @@
+{
+  "name": "DashboardMenuItem",
+  "props": [
+    {
+      "name": "icon",
+      "type": "Component",
+      "optional": true,
+      "comment": "Replaces the default `House` icon."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Replaces the default translated label (`ra.page.dashboard`, default \"Dashboard\")."
+    },
+    {
+      "name": "onClick",
+      "type": "(() => void)",
+      "optional": true,
+      "comment": "Click handler invoked alongside the default navigation (e.g. close the drawer)."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

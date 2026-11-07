@@ -1,0 +1,55 @@
+{
+  "name": "SelectField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "choices",
+      "type": "readonly TChoice[]",
+      "optional": true,
+      "comment": "The list of choices to map the value against."
+    },
+    {
+      "name": "optionValue",
+      "type": "SourcePath<TChoice>",
+      "optional": true,
+      "comment": "The value path on a choice. Default `'id'`."
+    },
+    {
+      "name": "optionText",
+      "type": "OptionText<TChoice>",
+      "optional": true,
+      "comment": "The display path or a formatter. Default `'name'`."
+    },
+    {
+      "name": "translateChoice",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Translate a string-path text through the catalog. Default `true`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

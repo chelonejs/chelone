@@ -1,0 +1,49 @@
+{
+  "name": "TranslatableFields",
+  "props": [
+    {
+      "name": "locales",
+      "type": "readonly string[]",
+      "optional": false,
+      "comment": "The locales to show, one tab each. Must not be empty."
+    },
+    {
+      "name": "defaultLocale",
+      "type": "string",
+      "optional": true,
+      "comment": "The locale selected first. Ignored when it is not one of `locales`; without\nit the app locale is used when listed, else the first locale."
+    },
+    {
+      "name": "groupKey",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": "Prefix that keeps the ids of two groups apart. Defaults to `\"\"`."
+    },
+    {
+      "name": "record",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "comment": "The record to show. Defaults to the ambient record."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource the fields belong to. Defaults to the ambient resource."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "selector",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

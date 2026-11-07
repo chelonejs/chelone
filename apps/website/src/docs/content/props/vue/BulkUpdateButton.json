@@ -1,0 +1,44 @@
+{
+  "name": "BulkUpdateButton",
+  "props": [
+    {
+      "name": "data",
+      "type": "Partial<NoInfer<TRecord>>",
+      "optional": true,
+      "comment": "The fixed patch applied to every selected record. Default `{}`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>`."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated label."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "comment": "`\"undoable\"` updates optimistically with an Undo notification (no confirm\ndialog): the rows patch now and the server call is deferred until the Undo\nwindow closes. Default (`\"pessimistic\"`) is confirm-gated."
+    },
+    {
+      "name": "confirmContent",
+      "type": "string",
+      "optional": true,
+      "comment": "Confirmation-dialog body copy (the V3-c `<Confirm>` upgrade will use this)."
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"link\" | \"outline\" | \"secondary\" | \"destructive\" | \"ghost\"",
+      "optional": true,
+      "default": "\"outline\"",
+      "comment": "Button variant. Default `\"outline\"`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

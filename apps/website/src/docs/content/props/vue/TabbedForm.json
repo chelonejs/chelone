@@ -1,0 +1,69 @@
+{
+  "name": "TabbedForm",
+  "props": [
+    {
+      "name": "save",
+      "type": "FormSubmit<TFormData>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "TFormData",
+      "optional": true,
+      "comment": "Seed values → the form's `defaultValues` (ra's \"the record\"): an edit view\npasses the fetched record, a create view its seed. Post-save `reset`\nrebaselines against the saved values."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Target resource for the DEFAULT schema validator; defaults to the ambient\n`<Resource>` name. Only used to look up the registry schema — a form\nwithout a resource simply has no default schema."
+    },
+    {
+      "name": "schema",
+      "type": "StandardSchemaV1<TFormData, unknown>",
+      "optional": true,
+      "comment": "Explicit Standard Schema override (else the resource-registry schema)."
+    },
+    {
+      "name": "validate",
+      "type": "FormLevelValidate<TFormData>",
+      "optional": true,
+      "comment": "Form-level validate fn (ra contract)."
+    },
+    {
+      "name": "sanitizeEmptyValues",
+      "type": "boolean",
+      "optional": true,
+      "comment": "ra parity: nullify/strip empty top-level values before save. Default false."
+    },
+    {
+      "name": "getRecord",
+      "type": "(() => Partial<TFormData> | undefined)",
+      "optional": true,
+      "comment": "The sanitize baseline (ra: \"the record\"): an emptied key that exists on it\nis sent as `null`, any other is omitted. Read live at save time, so an edit\nview can return the record that hydrated after setup."
+    },
+    {
+      "name": "resetOnSuccess",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Rebaseline the form from the saved values on success (D5). Default true."
+    },
+    {
+      "name": "syncWithLocation",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Sync the active tab with the URL (default `true`): each tab is a path under\nthe form's base, so a tab can be deep-linked and Back restores the previous\none. `false` holds the tab locally and leaves the URL alone. Read once at\nsetup."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "name": "RefreshIconButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "default": "defaultLabel",
+      "comment": "A message key, translated with itself as the fallback."
+    }
+  ],
+  "emits": [
+    {
+      "name": "click",
+      "type": "[event: MouseEvent]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}
