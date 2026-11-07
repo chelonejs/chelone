@@ -108,7 +108,24 @@
   "calendar-header": {
     "shownBy": "calendar-list"
   },
-  "calendar-list": null,
+  "calendar-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/calendar-list",
+        "see": "[data-slot=\"calendar-list\"]"
+      },
+      "demo": {
+        "path": "/demo/order-calendar",
+        "see": "[data-slot=\"calendar-list\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/OrderCalendar",
+        "see": "[data-slot=\"calendar-list\"]"
+      }
+    }
+  },
   "calendar-month-view": {
     "shownBy": "calendar-list"
   },
@@ -351,7 +368,24 @@
   "kanban": {
     "shownBy": "kanban-board"
   },
-  "kanban-board": null,
+  "kanban-board": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/kanban-board",
+        "see": "[data-slot=\"kanban-board\"]"
+      },
+      "demo": {
+        "path": "/demo/order-board",
+        "see": "[data-slot=\"kanban-board\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/OrderBoard",
+        "see": "[data-slot=\"kanban-board\"]"
+      }
+    }
+  },
   "kanban-draggable-card": {
     "shownBy": "kanban-board"
   },
@@ -611,7 +645,24 @@
   "spinner": {
     "shownBy": "loading"
   },
-  "status-transition-button": null,
+  "status-transition-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/status-transition-button",
+        "see": "[data-slot=\"status-transition-trigger\"]"
+      },
+      "demo": {
+        "path": "/demo/order-board",
+        "see": "[data-slot=\"status-transition-trigger\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/OrderBoard",
+        "see": "[data-slot=\"status-transition-trigger\"]"
+      }
+    }
+  },
   "subscription-plan-field": null,
   "subscription-plan-picker": null,
   "supabase-login-page": null,
