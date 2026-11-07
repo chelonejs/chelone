@@ -86,6 +86,14 @@ const FRAME_FLOOR = 64;
  * measure the frame's document and grow the frame to it. `load` fires before
  * the demo mounts (the frame loads the demo itself), so re-measure on each
  * change to that document.
+ *
+ * Two observers, because a demo changes height two ways: a node appears inside
+ * the frame (mutation), or the frame gets narrower and the labels or table
+ * cells wrap onto more lines (a size change with no node change). Watching only
+ * mutations leaves the frame at the old height after a reader narrows the
+ * window, clipping the Save toolbar or the pagination behind an inner
+ * scrollbar. The frame's own box is watched from this document, so the re-wrap
+ * is caught even though it happens in the other one.
  */
 function VueDemoFrame({ name }: { name: string }) {
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -93,17 +101,26 @@ function VueDemoFrame({ name }: { name: string }) {
   const [height, setHeight] = useState(FRAME_FLOOR);
 
   useEffect(() => {
-    const body = frameRef.current?.contentDocument?.body;
-    if (!body) return;
+    const frame = frameRef.current;
+    if (!frame) return;
+    // The frame's document as of this run: `load` re-runs this effect, so a
+    // frame that navigates to the demo is measured after the demo arrives.
+    const body = frame.contentDocument?.body;
     const measure = () => {
-      const next = Math.max(FRAME_FLOOR, body.scrollHeight);
+      const next = Math.max(FRAME_FLOOR, body?.scrollHeight ?? 0);
       setHeight((current) => (Math.abs(current - next) > 1 ? next : current));
     };
-    const observer = new MutationObserver(measure);
-    observer.observe(body, { childList: true, subtree: true });
+    const sizes = new ResizeObserver(measure);
+    sizes.observe(frame);
+    let mutations: MutationObserver | undefined;
+    if (body) {
+      mutations = new MutationObserver(measure);
+      mutations.observe(body, { childList: true, subtree: true });
+    }
     measure();
     return () => {
-      observer.disconnect();
+      sizes.disconnect();
+      mutations?.disconnect();
     };
   }, [name, frameLoads]);
 

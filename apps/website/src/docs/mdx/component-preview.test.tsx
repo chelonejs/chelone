@@ -144,6 +144,32 @@ describe("every Vue demo a docs page ships", () => {
   );
 });
 
+// A frame that only re-measures on node changes keeps its old height when a
+// reader narrows the window and the demo re-wraps, clipping its bottom. jsdom
+// has no layout, so what is asserted here is the watching itself.
+describe("the Vue frame's height", () => {
+  it("watches the frame's document for size changes, not only node changes", () => {
+    const observed: Element[] = [];
+    class RecordingResizeObserver {
+      observe(target: Element): void {
+        observed.push(target);
+      }
+      unobserve(): void {}
+      disconnect(): void {}
+    }
+    vi.stubGlobal("ResizeObserver", RecordingResizeObserver);
+
+    renderPreview(BOTH, "/docs/editing?framework=vue");
+    const frame = screen.getByTitle(/Vue demo/);
+
+    expect(observed).toContain(frame);
+    // Nothing has a height in jsdom, so the frame sits at its floor.
+    expect(frame.style.height).toBe("64px");
+
+    vi.unstubAllGlobals();
+  });
+});
+
 describe("ComponentPreview with a name that matches no demo", () => {
   it("renders no switch, preview or iframe", () => {
     const { container } = renderPreview(
