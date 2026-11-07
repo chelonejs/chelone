@@ -8,18 +8,20 @@
  */
 
 import { createNotificationStore } from "@chelone/core";
-import { demoAuthProvider, makeDemoStore, makeI18n } from "@chelone/demo-data";
+import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import {
   Admin,
   CustomRoutes,
   EditGuesser,
   ListGuesser,
+  NotFound,
   Resource,
   ShowGuesser,
 } from "@chelone/react";
 import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Route } from "react-router";
+import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { pages } from "./pages";
 import { dataProvider } from "./realtime";
@@ -66,12 +68,13 @@ const queryClient = new QueryClient({
   },
 });
 
-// The i18n instance, notification store (the Layout toaster reads it), and the
-// KV store (list scroll / preferences, whether the tour is done) — the
-// services a real app configures.
-const i18n = makeI18n();
+// The notification store (the Layout toaster reads it), the KV store (list
+// scroll / preferences, whether the tour is done, who the Team page browses as)
+// and the auth provider that answers from it — the services a real app
+// configures. The i18n instance is in ./i18n.
 const notifications = createNotificationStore();
 const store = makeDemoStore();
+const authProvider = makeDemoAuthProvider(store);
 
 export function App() {
   return (
@@ -88,13 +91,18 @@ export function App() {
           i18n={i18n}
           notifications={notifications}
           store={store}
-          authProvider={demoAuthProvider}
+          authProvider={authProvider}
           resources={resources}
         >
           {/* Opt-in shadcn shell (sidebar + app bar + toaster). */}
           <Admin.Layout>
             <Shell />
           </Admin.Layout>
+
+          {/* A URL no route owns, such as /nowhere. */}
+          <Admin.CatchAll>
+            <NotFound />
+          </Admin.CatchAll>
 
           {/* QUICKSTART: `posts` carries a Zod schema (see resources/index.ts →
             resources/posts.tsx). The Edit/Create forms validate against it

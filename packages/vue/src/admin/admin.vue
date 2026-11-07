@@ -114,6 +114,7 @@ import AdminShell from "./admin-shell.vue";
 import type { ErrorFallbackProps } from "./default-error-fallback.vue";
 import { provideCheloneContext } from "../context";
 import { type CustomRoute, toRouteRecord } from "./custom-routes";
+import { resourceView } from "./resource-view";
 import { CATCH_ALL_META, createSlotRoutes } from "./slot-routes";
 import { provideVueRouterAdapter } from "../router/vue-router-adapter";
 import { provideHasDashboard } from "./has-dashboard";
@@ -207,7 +208,7 @@ function addResourceRoutes(
       router.addRoute({
         path: joinBasename(`/${name}/create/:pathMatch(.*)*`, basename),
         name: `chelone-${name}-create`,
-        component: definition.create,
+        component: resourceView(name, definition.create),
       }),
     );
   }
@@ -216,7 +217,7 @@ function addResourceRoutes(
       router.addRoute({
         path: joinBasename(`/${name}/:id/show/:pathMatch(.*)*`, basename),
         name: `chelone-${name}-show`,
-        component: definition.show,
+        component: resourceView(name, definition.show),
       }),
     );
   }
@@ -225,7 +226,7 @@ function addResourceRoutes(
       router.addRoute({
         path: joinBasename(`/${name}/:id/:pathMatch(.*)*`, basename),
         name: `chelone-${name}-edit`,
-        component: definition.edit,
+        component: resourceView(name, definition.edit),
       }),
     );
   }
@@ -234,7 +235,7 @@ function addResourceRoutes(
       router.addRoute({
         path: joinBasename(`/${name}`, basename),
         name: `chelone-${name}-list`,
-        component: definition.list,
+        component: resourceView(name, definition.list),
       }),
     );
   }

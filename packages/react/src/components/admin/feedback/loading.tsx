@@ -42,7 +42,9 @@ function Loading(props: LoadingProps) {
       {...rest}
     >
       <div className="text-center font-sans text-muted-foreground py-1">
-        <Spinner size="large" className="size-9" />
+        <div className="flex justify-center">
+          <Spinner size="large" className="size-9" />
+        </div>
         <h5 className="mt-3 text-2xl text-secondary-foreground">
           {translate(loadingPrimary, { _: loadingPrimary })}
         </h5>

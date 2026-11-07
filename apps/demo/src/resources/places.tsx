@@ -10,10 +10,12 @@ import {
   useListContext,
 } from "@chelone/react";
 import {
+  BBoxField,
   GeoJsonField,
   LatLngField,
   MapCanvas,
   MapMarker,
+  PolygonField,
 } from "@chelone/react/maps";
 import {
   BBoxInput,
@@ -65,19 +67,29 @@ export function PlaceList() {
 export function PlaceShow() {
   return (
     <Show>
-      <RecordField source="name" />
-      <RecordField label="Location">
-        <LatLngField latSource="lat" lngSource="lng" />
-      </RecordField>
-      <RecordField label="Address">
-        <ReverseGeocodeField latSource="lat" lngSource="lng" />
-      </RecordField>
-      <RecordField label="Area">
-        <GeoJsonField source="area" />
-      </RecordField>
-      <RecordField label="Route">
-        <GeoJsonField source="route" />
-      </RecordField>
+      <div className="flex flex-col gap-4 max-w-xl">
+        <RecordField source="name" />
+        <RecordField label="Location">
+          <LatLngField latSource="lat" lngSource="lng" />
+        </RecordField>
+        <RecordField label="Address">
+          <ReverseGeocodeField latSource="lat" lngSource="lng" />
+        </RecordField>
+        {/* The `data-field` attributes let a showcase shot tell the four
+            `geo-json-field` maps apart. */}
+        <RecordField label="Delivery zone" data-field="zone">
+          <PolygonField source="zone" />
+        </RecordField>
+        <RecordField label="Bounding box" data-field="bbox">
+          <BBoxField source="bbox" />
+        </RecordField>
+        <RecordField label="Area" data-field="area">
+          <GeoJsonField source="area" />
+        </RecordField>
+        <RecordField label="Route" data-field="route">
+          <GeoJsonField source="route" />
+        </RecordField>
+      </div>
     </Show>
   );
 }

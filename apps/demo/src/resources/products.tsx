@@ -2,36 +2,55 @@ import type { FileSelection } from "@chelone/core";
 import {
   categoryChoices,
   channelChoices,
+  type Product,
   shippingClassChoices,
   tagChoices,
 } from "@chelone/demo-data";
 import {
+  CardContentInner,
   CheckboxGroupInput,
+  ChipField,
+  CloneButton,
+  ColorField,
   ColorInput,
   Create,
+  CurrencyField,
   CurrencyInput,
   DataTable,
+  DeleteButton,
   Edit,
   FileField,
   FileInput,
+  FunctionField,
+  ImageField,
   ImageInput,
+  JsonField,
+  Labeled,
   List,
+  ListButton,
   NullableBooleanInput,
   NumberField,
   NumberInput,
+  PrevNextButtons,
   RadioButtonGroupInput,
+  RatingField,
   RatingInput,
-  RecordField,
   ResettableTextInput,
   SaveButton,
   SelectArrayInput,
+  SelectField,
   SelectInput,
   Show,
+  ShowButton,
+  TabbedShowLayout,
+  TextArrayField,
   TextArrayInput,
-  TextField,
   TextInput,
   Toolbar,
+  UrlField,
+  WrapperField,
 } from "@chelone/react";
+import { Card } from "@/components/ui/card";
 
 export function ProductList() {
   return (
@@ -88,9 +107,27 @@ function ProductInputs() {
   );
 }
 
+/** Previous and next sit first so they stay put while the other actions come and go. */
+function ProductShowActions() {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <PrevNextButtons linkType="show" />
+      <ListButton />
+      <CloneButton />
+      <DeleteButton />
+    </div>
+  );
+}
+
+/** What a shopper is told about `stock`. */
+function availability(stock: number): string {
+  if (stock === 0) return "Out of stock";
+  return stock < 10 ? `Low stock: ${stock} left` : "In stock";
+}
+
 export function ProductEdit() {
   return (
-    <Edit>
+    <Edit actions={<ShowButton />}>
       <ProductInputs />
       <Toolbar />
     </Edit>
@@ -110,20 +147,60 @@ export function ProductCreate() {
 
 export function ProductShow() {
   return (
-    <Show>
-      <RecordField source="name" />
-      <RecordField source="sku" />
-      <RecordField source="category" />
-      <RecordField label="Price">
-        <NumberField
-          source="price"
-          options={{ style: "currency", currency: "USD" }}
-        />
-      </RecordField>
-      <RecordField label="Stock">
-        <NumberField source="stock" />
-      </RecordField>
-      <TextField source="name" />
+    <Show actions={<ProductShowActions />}>
+      <Card className="max-w-3xl">
+        <CardContentInner className="flex flex-wrap items-end gap-x-6 gap-y-2">
+          <Labeled>
+            <CurrencyField
+              source="price"
+              currency="USD"
+              className="text-2xl font-semibold"
+            />
+          </Labeled>
+          <Labeled>
+            <RatingField source="rating" allowHalf />
+          </Labeled>
+          <ChipField source="sku" />
+          <FunctionField<Product>
+            source="stock"
+            render={(record) => availability(record.stock)}
+            className="text-sm text-muted-foreground"
+          />
+        </CardContentInner>
+        <CardContentInner>
+          <TabbedShowLayout>
+            <TabbedShowLayout.Tab label="Overview">
+              <SelectField source="category" choices={categoryChoices} />
+              <NumberField source="stock" />
+              <WrapperField label="Fulfilment">
+                <div className="flex flex-wrap items-center gap-2">
+                  <SelectField
+                    source="shipping_class"
+                    choices={shippingClassChoices}
+                  />
+                  <TextArrayField source="channels" />
+                </div>
+              </WrapperField>
+              <TextArrayField source="keywords" />
+            </TabbedShowLayout.Tab>
+            <TabbedShowLayout.Tab label="Media">
+              <ImageField
+                title="Product photo"
+                source="image"
+                className="[&_img]:max-w-xs [&_img]:rounded-md"
+              />
+              <ColorField source="color" />
+              <FileField source="spec_sheet" title="Download PDF" />
+              <Labeled label="URL">
+                <UrlField source="url" />
+              </Labeled>
+            </TabbedShowLayout.Tab>
+            <TabbedShowLayout.Tab label="Raw data">
+              <JsonField source="variants" />
+            </TabbedShowLayout.Tab>
+          </TabbedShowLayout>
+        </CardContentInner>
+      </Card>
     </Show>
   );
 }
