@@ -1,8 +1,8 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link DateField}. */
-export interface DateFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface DateFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   source: SourceProp<RecordType>;
   record?: RecordType;
   defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
@@ -20,7 +20,7 @@ export interface DateFieldProps<RecordType extends LooseRecord = LooseRecord> {
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<DateField>` — displays a date value with locale-specific formatting, the
  * Vue analog of `@chelone/react`'s `fields/date-field.tsx`. Reads the value at
