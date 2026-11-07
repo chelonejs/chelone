@@ -49,7 +49,7 @@ function PasswordInput(props: PasswordInputProps) {
         size="icon"
         className={cn(
           "absolute right-1 size-7 text-muted-foreground",
-          hasLabel ? "top-6" : "top-1",
+          hasLabel ? "top-9" : "top-1",
         )}
         onClick={() => setVisible((v) => !v)}
         aria-label={translate(

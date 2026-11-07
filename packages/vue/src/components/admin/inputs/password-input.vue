@@ -70,7 +70,7 @@ const toggleLabel = computed(() =>
       type="button"
       variant="ghost"
       size="icon"
-      :class="cn('absolute right-1 size-7 text-muted-foreground', hasLabel ? 'top-6' : 'top-1')"
+      :class="cn('absolute right-1 size-7 text-muted-foreground', hasLabel ? 'top-5.5' : 'top-0')"
       :aria-label="toggleLabel"
       :tabindex="-1"
       @click="visible = !visible"
