@@ -7,10 +7,12 @@ import {
   NumberField,
   NumberInput,
   RecordField,
+  SaveButton,
   SelectInput,
   Show,
   TextField,
   TextInput,
+  Toolbar,
 } from "@chelone/react";
 
 export function ProductList() {
@@ -20,12 +22,10 @@ export function ProductList() {
         <DataTable.Col source="name" />
         <DataTable.Col source="sku" />
         <DataTable.Col source="category" />
-        <DataTable.NumberCol source="price">
-          <NumberField
-            source="price"
-            options={{ style: "currency", currency: "USD" }}
-          />
-        </DataTable.NumberCol>
+        <DataTable.NumberCol
+          source="price"
+          options={{ style: "currency", currency: "USD" }}
+        />
         <DataTable.NumberCol source="stock" />
       </DataTable>
     </List>
@@ -35,11 +35,14 @@ export function ProductList() {
 export function ProductEdit() {
   return (
     <Edit>
-      <TextInput source="name" />
-      <TextInput source="sku" />
-      <SelectInput source="category" choices={categoryChoices} />
-      <NumberInput source="price" step={0.01} min={0} />
-      <NumberInput source="stock" min={0} />
+      <div className="flex max-w-xl flex-col gap-4">
+        <TextInput source="name" />
+        <TextInput source="sku" />
+        <SelectInput source="category" choices={categoryChoices} />
+        <NumberInput source="price" step={0.01} min={0} />
+        <NumberInput source="stock" min={0} />
+      </div>
+      <Toolbar />
     </Edit>
   );
 }
@@ -47,11 +50,16 @@ export function ProductEdit() {
 export function ProductCreate() {
   return (
     <Create>
-      <TextInput source="name" />
-      <TextInput source="sku" />
-      <SelectInput source="category" choices={categoryChoices} />
-      <NumberInput source="price" step={0.01} min={0} defaultValue={0} />
-      <NumberInput source="stock" min={0} defaultValue={0} />
+      <div className="flex max-w-xl flex-col gap-4">
+        <TextInput source="name" />
+        <TextInput source="sku" />
+        <SelectInput source="category" choices={categoryChoices} />
+        <NumberInput source="price" step={0.01} min={0} defaultValue={0} />
+        <NumberInput source="stock" min={0} defaultValue={0} />
+      </div>
+      <Toolbar>
+        <SaveButton />
+      </Toolbar>
     </Create>
   );
 }
