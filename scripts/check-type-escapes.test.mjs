@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 
-import { classify, startsFromUnknown } from "./check-type-escapes.mjs";
+import { classify, fileSites, startsFromUnknown } from "./check-type-escapes.mjs";
 
 const ts = createRequire(import.meta.url)("typescript");
 
@@ -37,4 +37,47 @@ test("a fallback hides nothing: the checker reads `raw ?? {}` as `{}`, but the v
 
 test("a fallback on a typed value passes", () => {
   assert.equal(castStartsFromUnknown(`${declarations} const meta = (known ?? {}) as Meta;`), false);
+});
+
+/** The `loose-bound` sites in one file's text. */
+const bounds = (file, text) => fileSites(file, text).filter((site) => site.kind === "loose-bound");
+
+test("a LooseRecord bound is counted", () => {
+  assert.deepEqual(
+    bounds("field.ts", "export function Field<TRecord extends LooseRecord>(record: TRecord): TRecord {\n  return record;\n}\n"),
+    [{ line: 1, kind: "loose-bound" }],
+  );
+});
+
+test("a LooseRecord default is not counted", () => {
+  assert.deepEqual(bounds("types.ts", "export interface List<TRecord = LooseRecord> { data: TRecord[] }\n"), []);
+  assert.deepEqual(
+    bounds("ops.ts", "export function patch<TRecord extends ResourceRecord = LooseRecord>(row: TRecord): TRecord {\n  return row;\n}\n"),
+    [],
+  );
+  assert.deepEqual(bounds("chart.vue", '<script setup lang="ts" generic="TRow extends object = LooseRecord">\n</script>\n'), []);
+});
+
+test("a bound in a Vue generic attribute is counted", () => {
+  assert.deepEqual(
+    bounds(
+      "board.vue",
+      '<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">\nimport type { LooseRecord } from "@chelone/core";\n</script>\n',
+    ),
+    [{ line: 1, kind: "loose-bound" }],
+  );
+  assert.deepEqual(
+    bounds("lazy.vue", '<script setup lang="ts"\n  generic="RecordType extends LooseRecord"\n>\n</script>\n'),
+    [{ line: 2, kind: "loose-bound" }],
+  );
+});
+
+test("a comment does not excuse a bound", () => {
+  assert.deepEqual(
+    bounds(
+      "field.ts",
+      "// type-escape: the app names no record\nexport function Field<TRecord extends LooseRecord>(record: TRecord): TRecord {\n  return record;\n}\n",
+    ),
+    [{ line: 2, kind: "loose-bound" }],
+  );
 });

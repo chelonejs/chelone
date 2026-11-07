@@ -12,6 +12,12 @@
 // installed dependencies (the pre-push hook's) skips that half with a warning. `.vue` files are
 // outside those programs, so there only the cast to a function is seen.
 //
+// `loose-bound` is the other exception: a type parameter bounded by `LooseRecord`,
+// `<TRecord extends LooseRecord>`. The bound demands an index signature, so an app's `interface`
+// fails it, and new code copies the bound from its neighbours. A `= LooseRecord` default is the
+// fallback for an app that registered no schema and is not counted. Vue files are read through their
+// `generic="..."` attribute as well as their script blocks, since most Vue bounds sit there.
+//
 //   pnpm check:type-escapes                compare with where HEAD left origin/main
 //   pnpm check:type-escapes --base <ref>   compare with <ref> (CI passes HEAD^1)
 import { execFileSync } from "node:child_process";
@@ -26,7 +32,7 @@ const ts = createRequire(import.meta.url)(process.env.TYPESCRIPT_PATH ?? "typesc
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-const KINDS = ["double-cast", "unknown-cast", "as-never", "as-any", "cast", "non-null", "any", "unknown", "ts-comment"];
+const KINDS = ["double-cast", "unknown-cast", "as-never", "as-any", "cast", "non-null", "any", "unknown", "loose-bound", "ts-comment"];
 const SKIP = /(^|\/)(node_modules|dist|build|coverage|\.react-router|\.turbo)(\/|$)/;
 const JUSTIFIED = /\/\/\s*type-escape:\s*\S/;
 // @ts-expect-error is how a type test proves a call fails, so it is only counted outside tests.
@@ -53,7 +59,7 @@ function listFiles(tree) {
   return files.sort(byCodeUnit);
 }
 
-/** Each script block of a file, with the line it starts on. */
+/** Each block of a file the checker reads, with the line its first line sits on. */
 function scripts(file, text) {
   if (!file.endsWith(".vue")) {
     return [{ text, line0: 0, kind: file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS }];
@@ -62,6 +68,15 @@ function scripts(file, text) {
   for (const match of text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)) {
     const start = match.index + match[0].indexOf(">") + 1;
     blocks.push({ text: match[1], line0: text.slice(0, start).split("\n").length - 1, kind: ts.ScriptKind.TS });
+    // An SFC declares its type parameters in the tag's `generic` attribute, outside every script block.
+    const generic = /\bgeneric\s*=\s*"([^"]*)"/.exec(match[0]);
+    if (!generic) continue;
+    const at = match.index + match[0].indexOf(generic[0]);
+    blocks.push({
+      text: `type __generic<${generic[1]}> = never;`,
+      line0: text.slice(0, at).split("\n").length - 1,
+      kind: ts.ScriptKind.TS,
+    });
   }
   return blocks;
 }
@@ -135,7 +150,16 @@ function castOperand(node) {
 
 export const startsFromUnknown = (cast, checker) => Boolean(checker.getTypeAtLocation(castOperand(cast.expression)).flags & ts.TypeFlags.Unknown);
 
+/** Whether a type parameter is bounded by `LooseRecord`, which asks for an index signature. */
+function boundsLooseRecord(constraint) {
+  if (constraint === undefined) return false;
+  if (ts.isTypeReferenceNode(constraint)) return constraint.typeName.getText() === "LooseRecord";
+  if (ts.isUnionTypeNode(constraint) || ts.isIntersectionTypeNode(constraint)) return constraint.types.some(boundsLooseRecord);
+  return false;
+}
+
 export function classify(node) {
+  if (ts.isTypeParameterDeclaration(node)) return boundsLooseRecord(node.constraint) ? "loose-bound" : null;
   if (ts.isAsExpression(node) || ts.isTypeAssertionExpression(node)) {
     const type = node.type;
     if (ts.isTypeReferenceNode(type) && type.typeName.getText() === "const") return null;
@@ -154,31 +178,41 @@ export function classify(node) {
   return null;
 }
 
+/**
+ * Every site in one file's text, by line. `file` is the path the report shows, and is also what
+ * decides how the text is read: a `.vue` file by its blocks, a `.tsx` file as JSX.
+ */
+export function fileSites(file, text) {
+  const sites = [];
+  const lines = text.split("\n");
+  const justified = (line) => JUSTIFIED.test(lines[line - 1] ?? "") || JUSTIFIED.test(lines[line - 2] ?? "");
+  for (const block of scripts(file, text)) {
+    const source = ts.createSourceFile(file, block.text, ts.ScriptTarget.Latest, true, block.kind);
+    const visit = (node) => {
+      const kind = classify(node);
+      if (kind) {
+        const line = block.line0 + source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
+        // A bound is a shape every caller answers for, not an escape a comment can excuse.
+        if (kind === "loose-bound" || !justified(line)) sites.push({ line, kind });
+        if (kind === "cast" && castsToUnknownParameter(node.type)) sites.push({ line, kind: "unknown-cast" });
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
+  lines.forEach((content, index) => {
+    const comment = /\/\/\s*@ts-(ignore|nocheck|expect-error)\b/.exec(content);
+    if (!comment || (comment[1] === "expect-error" && TEST_FILE.test(file))) return;
+    if (!justified(index + 1)) sites.push({ line: index + 1, kind: "ts-comment" });
+  });
+  return sites;
+}
+
 function readEscapes(tree) {
   const sites = [];
   for (const file of listFiles(tree)) {
     const rel = path.relative(tree, file);
-    const text = readFileSync(file, "utf8");
-    const lines = text.split("\n");
-    const justified = (line) => JUSTIFIED.test(lines[line - 1] ?? "") || JUSTIFIED.test(lines[line - 2] ?? "");
-    for (const block of scripts(file, text)) {
-      const source = ts.createSourceFile(file, block.text, ts.ScriptTarget.Latest, true, block.kind);
-      const visit = (node) => {
-        const kind = classify(node);
-        if (kind) {
-          const line = block.line0 + source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
-          if (!justified(line)) sites.push({ file: rel, line, kind });
-          if (kind === "cast" && castsToUnknownParameter(node.type)) sites.push({ file: rel, line, kind: "unknown-cast" });
-        }
-        ts.forEachChild(node, visit);
-      };
-      visit(source);
-    }
-    lines.forEach((content, index) => {
-      const comment = /\/\/\s*@ts-(ignore|nocheck|expect-error)\b/.exec(content);
-      if (!comment || (comment[1] === "expect-error" && TEST_FILE.test(rel))) return;
-      if (!justified(index + 1)) sites.push({ file: rel, line: index + 1, kind: "ts-comment" });
-    });
+    for (const site of fileSites(rel, readFileSync(file, "utf8"))) sites.push({ file: rel, ...site });
   }
   return [...sites, ...readUnknownCasts(tree)];
 }
@@ -274,7 +308,7 @@ function main() {
   }
 
   if (added.length > 0) {
-    console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard.\n");
+    console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard. A `LooseRecord` bound takes none either: bound the type parameter on `ResourceRecord`.\n");
     for (const { file, kind, found, allowed } of added) {
       console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
       for (const site of sites.filter((s) => s.file === file && s.kind === kind)) console.error(`  ${site.file}:${site.line}`);
