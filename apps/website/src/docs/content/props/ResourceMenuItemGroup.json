@@ -2,6 +2,12 @@
   "name": "ResourceMenuItemGroup",
   "props": [
     {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Extra entries after the resources, inside the group, so a collapse hides them too."
+    },
+    {
       "name": "className",
       "type": "string",
       "optional": true,

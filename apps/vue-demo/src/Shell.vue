@@ -29,7 +29,6 @@ import {
   Layout,
   LoadingIndicator,
   LocalesMenuButton,
-  Menu,
   MenuItemLink,
   MenuLive,
   OnboardingTour,
@@ -103,53 +102,45 @@ function openDocs() {
               <div class="px-4 py-2">
                 <SimulateOtherUser />
               </div>
-              <section v-for="{ area, resources, pages } in areas" :key="area">
-                <ResourceMenuItemGroup
-                  v-if="resources"
-                  :label="area"
-                  :resources="resources"
-                />
-                <h2
-                  v-else
-                  class="px-4 pt-2 text-xs font-medium text-muted-foreground"
+              <ResourceMenuItemGroup
+                v-for="{ area, resources, pages } in areas"
+                :key="area"
+                :label="area"
+                :resources="resources ?? []"
+              >
+                <MenuItemLink
+                  v-for="{ path, title } in pages"
+                  :key="path"
+                  :to="`/${path}`"
+                  :label="title"
+                  :keyboard-shortcut="shortcuts.get(path)"
                 >
-                  {{ area }}
-                </h2>
-                <Menu>
-                  <MenuItemLink
-                    v-for="{ path, title } in pages"
-                    :key="path"
-                    :to="`/${path}`"
-                    :label="title"
-                    :keyboard-shortcut="shortcuts.get(path)"
-                  >
-                    <template #icon>
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
-                        />
-                        <path d="M14 2v5a1 1 0 0 0 1 1h5" />
-                        <path d="M10 9H8" />
-                        <path d="M16 13H8" />
-                        <path d="M16 17H8" />
-                      </svg>
-                    </template>
-                  </MenuItemLink>
-                </Menu>
-              </section>
+                  <template #icon>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+                      />
+                      <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                      <path d="M10 9H8" />
+                      <path d="M16 13H8" />
+                      <path d="M16 17H8" />
+                    </svg>
+                  </template>
+                </MenuItemLink>
+              </ResourceMenuItemGroup>
             </AppSidebar>
           </template>
           <template #app-bar>
-            <!-- Sticky, so that hiding the bar on scroll has something to hide. -->
-            <HideOnScroll class="sticky top-0 z-20 bg-background">
+            <!-- Sticky, so that hiding the bar on scroll has something to hide. index.css lets the page scroll under it. -->
+            <HideOnScroll class="demo-app-bar sticky top-0 z-20 bg-background">
               <AppBar>
                 <template #start>
                   <SidebarToggleButton />

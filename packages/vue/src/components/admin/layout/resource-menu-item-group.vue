@@ -27,7 +27,8 @@ export interface ResourceMenuItemGroupProps {
  * `options.group` bag yet, so there is no auto-grouping and a labeled group
  * renders a plain `<SidebarGroupLabel>` rather than a collapsible section (the
  * React twin's `<Collapsible>` has no Vue twin in this wave). The `label`/
- * `resources` props still let an author build explicit sections by hand.
+ * `resources` props still let an author build explicit sections by hand. The
+ * default slot adds entries after the resources, inside the group.
  */
 
 import { computed } from "vue";
@@ -56,11 +57,12 @@ const names = computed(
 </script>
 
 <template>
-  <SidebarGroup v-if="names.length > 0" :class="props.class">
+  <SidebarGroup v-if="names.length > 0 || $slots.default" :class="props.class">
     <SidebarGroupLabel v-if="label">{{ label }}</SidebarGroupLabel>
     <SidebarGroupContent>
       <SidebarMenu :class="menuClass">
         <ResourceMenuItem v-for="name in names" :key="name" :name="name" />
+        <slot />
       </SidebarMenu>
     </SidebarGroupContent>
   </SidebarGroup>

@@ -87,29 +87,23 @@ function DemoMenu() {
         <SimulateOtherUser />
       </div>
       {areas.map((area) => {
-        const resources = resourceAreas[area];
         const pages = pageGroups.find((g) => g.group === area)?.pages ?? [];
         return (
-          <section key={area}>
-            {resources ? (
-              <ResourceMenuItemGroup label={area} resources={resources} />
-            ) : (
-              <h2 className="px-4 pt-2 text-xs font-medium text-muted-foreground">
-                {area}
-              </h2>
-            )}
-            <Menu>
-              {pages.map(({ path, title }) => (
-                <Menu.Item
-                  key={path}
-                  to={`/${path}`}
-                  label={title}
-                  icon={<PageIcon />}
-                  keyboardShortcut={shortcuts.get(path)}
-                />
-              ))}
-            </Menu>
-          </section>
+          <ResourceMenuItemGroup
+            key={area}
+            label={area}
+            resources={resourceAreas[area] ?? []}
+          >
+            {pages.map(({ path, title }) => (
+              <Menu.Item
+                key={path}
+                to={`/${path}`}
+                label={title}
+                icon={<PageIcon />}
+                keyboardShortcut={shortcuts.get(path)}
+              />
+            ))}
+          </ResourceMenuItemGroup>
         );
       })}
     </>
@@ -193,10 +187,10 @@ function DocsButton() {
   );
 }
 
-// The bar is sticky so that hiding it on scroll has something to hide.
+// The bar is sticky so that hiding it on scroll has something to hide. index.css lets the page scroll under it.
 function DemoAppBar() {
   return (
-    <HideOnScroll className="sticky top-0 z-20 bg-background">
+    <HideOnScroll className="demo-app-bar sticky top-0 z-20 bg-background">
       <DemoBar />
     </HideOnScroll>
   );
