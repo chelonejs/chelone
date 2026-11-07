@@ -121,6 +121,23 @@ describe("<BarChart>", () => {
     );
   });
 
+  it("gives each bar a different theme colour by default", () => {
+    expect(accessedOver(mountChart(), VisGroupedBar, "color")).toEqual([
+      "var(--chart-1)",
+      "var(--chart-2)",
+      "var(--chart-3)",
+    ]);
+  });
+
+  it("cycles the given colors over the bars", () => {
+    const wrapper = mountChart({ colors: ["red", "green"] });
+    expect(accessedOver(wrapper, VisGroupedBar, "color")).toEqual([
+      "red",
+      "green",
+      "red",
+    ]);
+  });
+
   it("bare, loading and the empty text behave as in TrendChart", () => {
     const bare = mountChart({ title: "Visits", bare: true });
     expect(bare.find('[data-slot="card"]').exists()).toBe(false);
@@ -165,6 +182,8 @@ describe("<BarChart>", () => {
     expect(html).toContain("Tue");
     expect(html).toContain("visits");
     expect(html).toContain("7");
+    // The indicator is the second bar's own color, not one color for all rows.
+    expect(html).toContain("var(--chart-2)");
   });
 
   it("the tooltip renders x values that hold markup as text", () => {

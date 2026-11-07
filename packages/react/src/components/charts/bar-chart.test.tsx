@@ -41,6 +41,18 @@ function mount(props: Partial<BarChartProps<Row>> = {}) {
   );
 }
 
+/** How each drawn bar is filled: the attribute recharts writes and the style that paints. */
+function barFills(container: HTMLElement) {
+  return [
+    ...container.querySelectorAll<SVGPathElement>(
+      ".recharts-bar-rectangle path",
+    ),
+  ].map((bar) => ({
+    attribute: bar.getAttribute("fill"),
+    style: bar.style.fill,
+  }));
+}
+
 describe("<BarChart>", () => {
   it("draws a bar per row with a number", () => {
     const { container } = mount({
@@ -61,10 +73,32 @@ describe("<BarChart>", () => {
     expect(xTicks).toEqual(["Mon", "Tue", "Wed", "Thu"]);
   });
 
-  it("fills the bars with the given color", () => {
+  it("fills every bar with the given color", () => {
     const { container } = mount({ color: "red" });
-    const bar = container.querySelector(".recharts-bar-rectangle path");
-    expect(bar?.getAttribute("fill")).toBe("red");
+    expect(barFills(container)).toEqual([
+      { attribute: "red", style: "red" },
+      { attribute: "red", style: "red" },
+      { attribute: "red", style: "red" },
+    ]);
+  });
+
+  it("gives each bar a different theme colour by default", () => {
+    const { container } = mount();
+    // recharts writes the attribute; the style is the declaration that paints.
+    expect(barFills(container)).toEqual([
+      { attribute: "var(--chart-1)", style: "var(--chart-1)" },
+      { attribute: "var(--chart-2)", style: "var(--chart-2)" },
+      { attribute: "var(--chart-3)", style: "var(--chart-3)" },
+    ]);
+  });
+
+  it("cycles the given colors over the bars", () => {
+    const { container } = mount({ colors: ["red", "green"] });
+    expect(barFills(container).map((bar) => bar.attribute)).toEqual([
+      "red",
+      "green",
+      "red",
+    ]);
   });
 
   it("bare, loading and the empty text behave as in TrendChart", () => {
