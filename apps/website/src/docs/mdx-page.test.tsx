@@ -7,8 +7,73 @@ import {
   within,
 } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterEach, beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeAll, beforeEach, expect, it, vi } from "vitest";
 import MdxPage from "./mdx-page";
+
+// The same glob `component-preview.tsx` loads a demo through, so a preview test
+// waits on a render and not on a module load that a busy runner can stretch
+// past `asyncUtilTimeout`.
+const demoModules = import.meta.glob("./content/**/demos/*.tsx");
+
+const supabasePreviews = [
+  ["supabase/supabase-login-page", "heading", "Sign in"],
+  ["supabase/forgot-password-page", "heading", "Forgot your password?"],
+  ["supabase/set-password-page", "button", "Save"],
+  ["supabase/social-auth-button", "button", "Sign in with Github"],
+] as const;
+
+const realtimeDemos = [
+  ["edit-live", "Another user renames post 1"],
+  ["list-live", "Another user adds a post"],
+  ["lock-on-mount", "Grace opens post 1"],
+  ["lock-status", "Another user locks post 1"],
+  ["menu-live", "Another user adds a post"],
+] as const;
+
+// Every demo a test below waits on, named as `<ComponentPreview name>` names
+// it: "<component-dir>/<demo-file>". A page in an auto-demo section shows
+// `<slug>/basic`, and the quick start guide places its own by hand. A test that
+// renders a page with a preview needs its demo here.
+const previewDemos = [
+  "viewing/text-field/basic",
+  "viewing/boolean-field/basic",
+  "viewing/fields-selector/basic",
+  "viewing/rich-text-field/basic",
+  "viewing/block-doc-field/basic",
+  "editing/configurable-inputs/basic",
+  "editing/rich-text-input/basic",
+  "editing/block-editor-input/basic",
+  "ui-layout/menu/basic",
+  "ui-layout/app-bar/basic",
+  "ui-layout/auth-callback/basic",
+  "ui-layout/inspector/basic",
+  "page-components/create/basic",
+  "page-components/csv-import/basic",
+  ...supabasePreviews.map(([slug]) => `${slug}/basic`),
+  ...realtimeDemos.map(([slug]) => `realtime/${slug}/basic`),
+  "react/quick-start-guide/post-list",
+  "react/quick-start-guide/text-field",
+  "react/quick-start-guide/reference-field",
+  "react/quick-start-guide/boolean-field",
+  "react/quick-start-guide/text-input",
+  "react/quick-start-guide/post-edit",
+];
+
+beforeAll(
+  async () => {
+    await Promise.all(
+      previewDemos.map((name) => {
+        const demoFile = name.slice(name.lastIndexOf("/") + 1);
+        const dir = name.slice(0, name.lastIndexOf("/"));
+        const load = demoModules[`./content/${dir}/demos/${demoFile}.tsx`];
+        if (!load) throw new Error(`No demo for ${name}`);
+        return load();
+      }),
+    );
+  },
+  // Its own budget: the load is what a slow runner stretches.
+  120_000,
+);
 
 // Shiki decompresses its bundled WASM through Blob.stream(), absent in jsdom.
 beforeEach(() => vi.stubGlobal("Blob", Blob));
@@ -343,12 +408,7 @@ it.each([
 );
 
 // Each of these pages lists a preview.
-it.each([
-  ["supabase/supabase-login-page", "heading", "Sign in"],
-  ["supabase/forgot-password-page", "heading", "Forgot your password?"],
-  ["supabase/set-password-page", "button", "Save"],
-  ["supabase/social-auth-button", "button", "Sign in with Github"],
-] as const)(
+it.each(supabasePreviews)(
   "shows the %s live preview on its reference page",
   async (slug, role, name) => {
     render(
@@ -364,23 +424,20 @@ it.each([
   },
 );
 
-it.each([
-  ["edit-live", "Another user renames post 1"],
-  ["list-live", "Another user adds a post"],
-  ["lock-on-mount", "Grace opens post 1"],
-  ["lock-status", "Another user locks post 1"],
-  ["menu-live", "Another user adds a post"],
-])("shows the live demo on the realtime %s page", async (slug, button) => {
-  render(
-    <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
-      <Routes>
-        <Route path="/docs/*" element={<MdxPage />} />
-      </Routes>
-    </MemoryRouter>,
-  );
+it.each(realtimeDemos)(
+  "shows the live demo on the realtime %s page",
+  async (slug, button) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
 
-  expect(await screen.findByRole("button", { name: button })).toBeTruthy();
-});
+    expect(await screen.findByRole("button", { name: button })).toBeTruthy();
+  },
+);
 
 it("renders the h2 and h3 headings of a docs page as links to their own anchors", async () => {
   render(
