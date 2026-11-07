@@ -5,7 +5,7 @@
  * cannot use JSX, so the call is made directly.
  */
 
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import type { ResourceRecord } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import { CanAccess, type CanAccessProps } from "./can-access";
 
@@ -19,7 +19,7 @@ const ownPost: Post = { id: 1, author: "rin" };
 describe("<CanAccess> record prop", () => {
   it("floors at a record: id is required", () => {
     expectTypeOf<CanAccessProps["record"]>().toEqualTypeOf<
-      ResourceRecord | LooseRecord | undefined
+      ResourceRecord | undefined
     >();
   });
 

@@ -12,6 +12,7 @@ import {
   defineResources,
   type Exporter,
   fakeDataProvider,
+  type LooseRecord,
 } from "@chelone/core";
 import { defined } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
@@ -101,6 +102,8 @@ beforeEach(() => {
 afterEach(() => {
   confirmSpy.mockRestore();
 });
+
+const viewsReset: Partial<LooseRecord> = { views: 0 };
 
 describe("<BulkDeleteButton>", () => {
   it("opens the <Confirm> dialog then deletes on confirm + clears the selection", async () => {
@@ -194,7 +197,7 @@ describe("<BulkUpdateButton>", () => {
         {
           default: () => [
             h(listProbe(capture)),
-            h(BulkUpdateButton, { resource: "posts", data: { views: 0 } }),
+            h(BulkUpdateButton, { resource: "posts", data: viewsReset }),
           ],
         },
       ),

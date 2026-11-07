@@ -1,10 +1,12 @@
-<script lang="ts">
-import type { LooseRecord, MutationMode } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, MutationMode, ResourceRecord } from "@chelone/core";
 
 /** Props for {@link BulkUpdateButton}. */
-export interface BulkUpdateButtonProps {
+export interface BulkUpdateButtonProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** The fixed patch applied to every selected record. Default `{}`. */
-  data?: Partial<LooseRecord>;
+  data?: Partial<NoInfer<TRecord>>;
   /** Override the ambient `<Resource>`. */
   resource?: string;
   /** Override the auto-translated label. */
@@ -30,7 +32,7 @@ export interface BulkUpdateButtonProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<BulkUpdateButton>` — patches the selected rows with a fixed `data` payload,
  * after a confirmation. The Vue twin of `@chelone/react`'s
@@ -59,7 +61,7 @@ import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
 import { RefreshCwIcon } from "./icons";
 
-const props = withDefaults(defineProps<BulkUpdateButtonProps>(), {
+const props = withDefaults(defineProps<BulkUpdateButtonProps<TRecord>>(), {
   variant: "outline",
 });
 

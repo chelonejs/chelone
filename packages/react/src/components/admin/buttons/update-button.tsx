@@ -15,7 +15,12 @@
  * - `useCanAccess` → the no-throw `useMenuAccess`.
  */
 
-import type { LooseRecord, MutationMode } from "@chelone/core";
+import type {
+  LooseRecord,
+  MutationMode,
+  RecordResources,
+  ResourceRecord,
+} from "@chelone/core";
 import { RefreshCw } from "lucide-react";
 import type { ReactNode, Ref } from "react";
 import { Fragment, useState } from "react";
@@ -30,9 +35,9 @@ import { useResourceContext } from "../../../resource";
 import { Confirm, type ConfirmProps } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-interface UpdateButtonProps {
+interface UpdateButtonProps<TRecord extends ResourceRecord = LooseRecord> {
   /** The fields to patch onto the record. */
-  data: Partial<LooseRecord>;
+  data: Partial<NoInfer<TRecord>>;
   /**
    * `"undoable"` (default) patches the record now with an Undo notification and
    * no dialog; the server call is deferred until the Undo window closes.
@@ -51,10 +56,10 @@ interface UpdateButtonProps {
     | "link";
   className?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
-  record?: LooseRecord;
+  record?: TRecord;
   resource?: string;
   /** Receives the updated record. Runs only for a confirmed update, not for an undoable one. */
-  onSuccess?: (data: LooseRecord) => void;
+  onSuccess?: (data: TRecord) => void;
   /** Receives the error of a failed confirmed update. */
   onError?: (error: unknown) => void;
   confirmTitle?: ReactNode;
@@ -81,7 +86,9 @@ const defaultIcon = <RefreshCw />;
  *   </Edit>
  * );
  */
-function UpdateButton(props: UpdateButtonProps) {
+function UpdateButton<TRecord extends ResourceRecord = LooseRecord>(
+  props: UpdateButtonProps<TRecord>,
+) {
   const {
     data,
     mutationMode = "undoable",
@@ -99,7 +106,7 @@ function UpdateButton(props: UpdateButtonProps) {
     contentTranslateOptions,
     ref,
   } = props;
-  const record = useRecordContext(props);
+  const record = useRecordContext<TRecord>(props);
   const resource = useResourceContext(props);
   const [isOpen, setOpen] = useState(false);
   const translate = useTranslate();
@@ -111,9 +118,10 @@ function UpdateButton(props: UpdateButtonProps) {
   });
   // `useUpdate` binds the resource at hook-call time; a missing one renders
   // nothing below, so the call is never dispatched.
-  const { mutateAsync, isPending } = useUpdate(resource ?? "", {
-    mutationMode,
-  });
+  const { mutateAsync, isPending } = useUpdate<
+    RecordResources<TRecord>,
+    string
+  >(resource ?? "", { mutationMode });
 
   const label = useResourceTranslation({
     resourceI18nKey: resource
@@ -137,7 +145,7 @@ function UpdateButton(props: UpdateButtonProps) {
     }),
   };
 
-  const params = (current: LooseRecord) => ({
+  const params = (current: TRecord) => ({
     id: current.id,
     data,
     previousData: current,

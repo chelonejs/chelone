@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import type { ResourceRecord } from "@chelone/core";
 
 /** Props for {@link CanAccess}. */
 export interface CanAccessProps {
@@ -12,7 +12,7 @@ export interface CanAccessProps {
    * the floor; the rest is whatever the grant's predicate reads, so a record of
    * the caller's own shape and an inline record both fit.
    */
-  record?: ResourceRecord | LooseRecord;
+  record?: ResourceRecord;
 }
 </script>
 

@@ -5,7 +5,7 @@
  * `@chelone/react`'s `auth/can-access.test-d.ts`.
  */
 
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import type { ResourceRecord } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 
 import type CanAccess from "./can-access.vue";
@@ -22,7 +22,7 @@ type MountedProps = InstanceType<typeof CanAccess>["$props"];
 describe("<CanAccess> record prop", () => {
   it("floors at a record: id is required", () => {
     expectTypeOf<CanAccessProps["record"]>().toEqualTypeOf<
-      ResourceRecord | LooseRecord | undefined
+      ResourceRecord | undefined
     >();
   });
 
@@ -39,20 +39,17 @@ describe("<CanAccess> record prop", () => {
       resource: "posts",
       record: draft,
     };
-    expectTypeOf(gate.record).toEqualTypeOf<
-      ResourceRecord | LooseRecord | undefined
-    >();
+    expectTypeOf(gate.record).toEqualTypeOf<ResourceRecord | undefined>();
   });
 
-  it("takes an inline record, fields and all", () => {
+  it("takes a record with fields beyond the id", () => {
+    const record = { id: 7, author: "rin" };
     const gate: CanAccessProps = {
       action: "edit",
       resource: "posts",
-      record: { id: 7, author: "rin" },
+      record,
     };
-    expectTypeOf(gate.record).toEqualTypeOf<
-      ResourceRecord | LooseRecord | undefined
-    >();
+    expectTypeOf(gate.record).toEqualTypeOf<ResourceRecord | undefined>();
   });
 
   it("rejects a value with no id", () => {
