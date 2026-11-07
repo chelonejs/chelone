@@ -2,6 +2,7 @@ import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import { parsePhoneNumber } from "libphonenumber-js";
 import type { HTMLAttributes } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
+import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
@@ -75,7 +76,11 @@ function PhoneField<RecordType extends ResourceRecord = LooseRecord>({
   }
 
   return (
-    <a {...sanitizeFieldRestProps(rest)} href={href} className={className}>
+    <a
+      {...sanitizeFieldRestProps(rest)}
+      href={href}
+      className={cn("underline hover:no-underline", className)}
+    >
       {formatted}
     </a>
   );
