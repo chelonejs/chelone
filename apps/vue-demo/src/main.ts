@@ -17,7 +17,7 @@ import App from "./App.vue";
 import "./index.css";
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [],
 });
 

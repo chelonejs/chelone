@@ -3,7 +3,7 @@
   "globalDependencies": ["tsconfig.base.json"],
   "tasks": {
     "transit": { "dependsOn": ["^transit"] },
-    "build": { "dependsOn": ["^build"], "outputs": ["dist/**"] },
+    "build": { "dependsOn": ["^build"], "outputs": ["dist/**", "build/**"] },
     "test": { "dependsOn": ["transit"], "outputs": [] },
     "typecheck": { "dependsOn": ["transit"], "outputs": [] }
   }
