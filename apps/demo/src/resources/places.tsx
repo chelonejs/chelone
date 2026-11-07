@@ -13,6 +13,7 @@ import {
   BBoxField,
   GeoJsonField,
   LatLngField,
+  LatLngInput,
   MapCanvas,
   MapMarker,
   PolygonField,
@@ -21,13 +22,18 @@ import {
   BBoxInput,
   LineStringInput,
   PolygonInput,
+  ShapeInput,
+  SimplifyInput,
 } from "@chelone/react/maps/draw";
 import {
+  GeocodingInput,
   MapWithSearch,
   OsmFeatureAdd,
+  OsmFeatureOperator,
   OsmFeatureSubtract,
   ReverseGeocodeField,
 } from "@chelone/react/maps/osm";
+import type { ReactNode } from "react";
 
 // One marker per place on the current page. The canvas reads its centre at
 // mount, so it waits for the first page of records.
@@ -94,26 +100,82 @@ export function PlaceShow() {
   );
 }
 
-// The fields are children of Edit/Create, so the shared form is a fragment of
-// inputs rather than a wrapper component.
-const placeInputs = (
-  <>
-    <TextInput source="name" />
-    <MapWithSearch latSource="lat" lngSource="lng" addressSource="address" />
-    <PolygonInput source="area" label="Area" />
-    <div className="flex gap-2">
-      <OsmFeatureSubtract source="area" presets={["water"]} />
-      <OsmFeatureAdd source="area" presets={["buildings"]} />
+/**
+ * The place form, shared by Edit and Create: `children` find the place, then
+ * the delivery zone is drawn and thinned, with the shapes around it. The
+ * `data-field` attributes let a showcase shot tell the inputs apart, since
+ * `bbox-input` and `shape-input` both render a `shape-input` and the
+ * `osm-feature-*` buttons all render an `osm-feature-operator`.
+ */
+function PlaceForm({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex max-w-xl flex-col gap-4">
+      {children}
+      <div data-field="zone">
+        <ShapeInput source="zone" kind="Polygon" label="Delivery zone" />
+      </div>
+      {/* Draw the zone above, then thin it here: a drawn value becomes the
+        original the slider simplifies from. A zone spans about a hundredth of
+        a degree, so the slider is scaled to it and starts at 0, which leaves
+        the zone as it was until moved. */}
+      <SimplifyInput
+        source="zone"
+        label="Simplify the delivery zone"
+        tolerance={0}
+        maxTolerance={0.002}
+        step={0.0001}
+      />
+      <div data-field="zone-water">
+        <OsmFeatureOperator
+          source="zone"
+          mode="subtract"
+          presets={["water"]}
+          label="Remove water from the zone"
+        />
+      </div>
+      <PolygonInput source="area" label="Area" />
+      <div className="flex gap-2">
+        <OsmFeatureSubtract source="area" presets={["water"]} />
+        <OsmFeatureAdd source="area" presets={["buildings"]} />
+      </div>
+      <LineStringInput source="route" label="Route" snapToRoads />
+      <div data-field="bbox">
+        <BBoxInput source="bbox" label="Bounding box" />
+      </div>
     </div>
-    <LineStringInput source="route" label="Route" snapToRoads />
-    <BBoxInput source="bbox" label="Bounding box" />
-  </>
-);
-
-export function PlaceEdit() {
-  return <Edit>{placeInputs}</Edit>;
+  );
 }
 
+export function PlaceEdit() {
+  return (
+    <Edit>
+      <PlaceForm>
+        <TextInput source="name" />
+        <MapWithSearch
+          latSource="lat"
+          lngSource="lng"
+          addressSource="address"
+        />
+      </PlaceForm>
+    </Edit>
+  );
+}
+
+// A new place starts from an address: the search fills the address, the
+// coordinates and the box, and the pin below fine-tunes them.
 export function PlaceCreate() {
-  return <Create>{placeInputs}</Create>;
+  return (
+    <Create>
+      <PlaceForm>
+        <TextInput source="name" />
+        <GeocodingInput
+          source="address"
+          latSource="lat"
+          lngSource="lng"
+          bboxSource="bbox"
+        />
+        <LatLngInput latSource="lat" lngSource="lng" />
+      </PlaceForm>
+    </Create>
+  );
 }
