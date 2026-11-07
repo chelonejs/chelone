@@ -403,7 +403,9 @@ describe("<MenuLive> outside a sidebar", () => {
     const { Providers } = setup();
     render(
       <Providers>
-        <MenuLive items={[{ to: "/posts", resource: "posts", label: "Posts" }]} />
+        <MenuLive
+          items={[{ to: "/posts", resource: "posts", label: "Posts" }]}
+        />
       </Providers>,
     );
     const link = screen.getByRole("link", { name: /posts/i });

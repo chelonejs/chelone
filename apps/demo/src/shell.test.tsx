@@ -10,7 +10,14 @@ import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import { Admin } from "@chelone/react";
 import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, waitFor, within } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, expect, test } from "vitest";
 import { App } from "./App";
@@ -107,4 +114,72 @@ test("no two sidebar entries render the same icon", async () => {
     );
     owners.set(icon, href);
   }
+});
+
+/** The app, signed in, with its sidebar menu listed. */
+async function renderApp() {
+  window.history.pushState({}, "", "/demo/posts");
+  render(<App />);
+  return waitFor(() => {
+    const found = elementOf(
+      document.querySelector('[data-slot="sidebar-content"]'),
+      HTMLElement,
+    );
+    expect(within(found).getAllByRole("link").length).toBeGreaterThan(20);
+    return found;
+  });
+}
+
+const addPost = "Another user adds a post";
+const lockPost = "Another user locks post 1";
+
+test("the Realtime group follows the dashboard item and holds the posts entry, then the simulation buttons", async () => {
+  const content = await renderApp();
+
+  const entries = [
+    ...content.querySelectorAll(
+      '[data-slot="sidebar-menu-button"], [data-slot="sidebar-group-label"]',
+    ),
+  ].map((entry) => entry.textContent);
+  expect(entries.slice(0, 5)).toEqual([
+    "Dashboard",
+    "Realtime",
+    "Posts",
+    addPost,
+    lockPost,
+  ]);
+});
+
+test("the simulation buttons keep their text while the sidebar is open", async () => {
+  const content = await renderApp();
+
+  for (const name of [addPost, lockPost]) {
+    const button = within(content).getByRole("button", { name });
+    expect(button.textContent).toBe(name);
+  }
+});
+
+test("a collapsed sidebar turns the simulation buttons into named icon buttons with tooltips", async () => {
+  const content = await renderApp();
+
+  fireEvent.keyDown(window, { key: "b", ctrlKey: true });
+
+  for (const name of [addPost, lockPost]) {
+    const button = within(content).getByRole("button", { name });
+    expect(button.textContent).toBe("");
+    expect(button.querySelector("svg")).toBeTruthy();
+  }
+  fireEvent.focus(within(content).getByRole("button", { name: addPost }));
+  expect((await screen.findByRole("tooltip")).textContent).toBe(addPost);
+});
+
+test("a collapsed sidebar keeps the posts entry's name, and shows it as a tooltip", async () => {
+  const content = await renderApp();
+
+  fireEvent.keyDown(window, { key: "b", ctrlKey: true });
+
+  const posts = within(content).getByRole("link", { name: "Posts" });
+  expect(posts.getAttribute("href")).toBe("/demo/posts");
+  fireEvent.focus(posts);
+  expect((await screen.findByRole("tooltip")).textContent).toBe("Posts");
 });
