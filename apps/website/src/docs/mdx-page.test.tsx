@@ -293,7 +293,8 @@ it.each([
     expect(
       screen.getByText("pnpm dlx shadcn@latest add @chelone/block-editor"),
     ).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Vue" })).toBeTruthy();
+    // One "Vue" button in the install block, one in the preview's switch.
+    expect(screen.getAllByRole("button", { name: "Vue" })).toHaveLength(2);
     expect(screen.getByRole("button", { name: "preview" })).toBeTruthy();
   },
 );
