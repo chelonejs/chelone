@@ -1,5 +1,41 @@
 # @chelone/react
 
+## [0.9.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.8.0...@chelone/react@0.9.0) (2026-11-07)
+
+
+### Features
+
+* **charts:** cycle the theme chart colors over BarChart bars ([dfb48da](https://github.com/chelonejs/chelone/commit/dfb48daf3ce496d3e3a57eefd7205a4d89159379))
+* **command-menu:** one centred dialog on every screen size ([2c50c67](https://github.com/chelonejs/chelone/commit/2c50c674ef179f8d03a7b35e8a00c85e59fa403b))
+* **react:** add brandHref to AppSidebar ([4041258](https://github.com/chelonejs/chelone/commit/4041258fb610c231c2c837823dfdccd7afee84b0))
+* **vue:** add brandHref and a #brand slot to AppSidebar, drop the demos' sidebar copies ([ef97d37](https://github.com/chelonejs/chelone/commit/ef97d37e0591c4c18fd36f64c33808be389da175))
+
+
+### Bug Fixes
+
+* **charts:** paint every donut slice with its own fill ([44648d5](https://github.com/chelonejs/chelone/commit/44648d5d11999e2e78c2c687ed926ccdcd66bd3d))
+* darken the light-mode sidebar accent so the selected item shows ([e3a4783](https://github.com/chelonejs/chelone/commit/e3a4783c70f12b0098816ac8c44455bb733c8af3))
+* **list:** give ListPagination a default top margin in both adapters ([6c192ee](https://github.com/chelonejs/chelone/commit/6c192eeca3f3a7830534ed70b68c8942a4e5978f))
+* **react:** anchor the geocoding results as a combobox overlay ([f448be8](https://github.com/chelonejs/chelone/commit/f448be82471e7f2a156607c60093f40febbf06b3))
+* **react:** land ArrowUp on the last option when nothing is highlighted ([7332784](https://github.com/chelonejs/chelone/commit/733278491ac79e50ba02a0ae79330e2c888de408))
+* round table borders in calendar views and docs prose tables ([fa75a7f](https://github.com/chelonejs/chelone/commit/fa75a7fcf327bb00f1c1ed2ee88d78db6b7f7159))
+* **sidebar:** centre the icons and clear the app bar when collapsed ([458efc6](https://github.com/chelonejs/chelone/commit/458efc6ad0675777a917a6ce98a4133b6eaf9adb))
+* **sidebar:** keep a one-line menu row at its 2rem height ([fc3e9a8](https://github.com/chelonejs/chelone/commit/fc3e9a881c791eccc515745ddcd295f03d70e8e0))
+* **sidebar:** let the menu button height grow with a wrapped label ([b79ecd8](https://github.com/chelonejs/chelone/commit/b79ecd86ca19d2f3dd3257b19039682f00848bea))
+* **sidebar:** size the in-flow gap and the app column from the same vars as the panel ([9d1a071](https://github.com/chelonejs/chelone/commit/9d1a0717a9ce569a5acfbbcd198bca4ec614f378))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.9.0
+    * @chelone/utils bumped to 0.9.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.9.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.9.0
+
 ## [0.8.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.7.0...@chelone/react@0.8.0) (2026-11-07)
 
 

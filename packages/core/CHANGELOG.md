@@ -1,5 +1,12 @@
 # @chelone/core
 
+## [0.9.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.8.0...@chelone/core@0.9.0) (2026-11-07)
+
+
+### Chores
+
+* **@chelone/core:** Synchronize chelone versions
+
 ## [0.8.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.7.0...@chelone/core@0.8.0) (2026-11-07)
 
 
