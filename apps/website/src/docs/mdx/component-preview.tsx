@@ -81,6 +81,16 @@ type LoadedDemo =
     }
   | { key: string; status: "error" };
 
+/**
+ * Narrower than this and the admin sidebar becomes a drawer (`useIsMobile`), so
+ * a shell demo (Layout, Menu, AppBar) shows no sidebar at all. The docs column
+ * is narrower than this on a normal page, so the frame is laid out at this
+ * width and zoomed down to fit the panel. It sits above the breakpoint, not on
+ * it: a demo that overflows its frame by a pixel gets a scrollbar, which takes
+ * a pixel off the frame's viewport and puts it back under the breakpoint.
+ */
+const FRAME_MIN_WIDTH = 800;
+
 export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [loaded, setLoaded] = useState<LoadedDemo>();
@@ -92,6 +102,9 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const framework =
     reactKey && vueKey ? chosen : vueKey ? "vue" : ("react" as const);
   const key = framework === "vue" ? vueKey : reactKey;
+  const frameBoxRef = useRef<HTMLDivElement>(null);
+  // The panel the frame has to fit, which is narrower than the frame itself.
+  const [frameBoxWidth, setFrameBoxWidth] = useState(0);
 
   // Effects run only after hydration, keeping the admin runtime out of SSG.
   useEffect(() => {
@@ -152,6 +165,20 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
     };
   }, [framework, key, tab]);
 
+  // The frame is laid out wider than the panel it sits in (FRAME_MIN_WIDTH), so
+  // the panel is measured to get the factor the frame is zoomed down by.
+  useEffect(() => {
+    const box = frameBoxRef.current;
+    if (!box) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setFrameBoxWidth(entry.contentRect.width);
+    });
+    observer.observe(box);
+    return () => {
+      observer.disconnect();
+    };
+  }, [framework, tab]);
+
   if (!key) {
     return (
       <div className="my-4 rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
@@ -166,6 +193,10 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   // Unknown until the demo module loads, which is while the placeholder shows.
   const mode: PreviewMode = demo?.module?.mode ?? "view";
   const inputMode = mode === "input";
+  // A Vue frame is at least FRAME_MIN_WIDTH wide, and `zoom` scales its layout
+  // box, so it fits the panel while the demo inside sees a desktop viewport.
+  const frameWidth = Math.max(FRAME_MIN_WIDTH, frameBoxWidth);
+  const frameZoom = frameBoxWidth === 0 ? 1 : frameBoxWidth / frameWidth;
 
   return (
     <div
@@ -211,12 +242,22 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
           )}
         >
           {framework === "vue" ? (
-            <iframe
-              ref={frameRef}
-              title={`Vue demo: ${name}`}
-              src={`/vue-demo/docs-preview/${name}`}
-              className="min-h-56 w-full border-0"
-            />
+            // Laid out at desktop width and zoomed down to the panel, so the
+            // demo sees a desktop viewport and its sidebar is a sidebar, not a
+            // drawer. The frame box is the panel's width, which is what the zoom
+            // factor is measured against. The frame carries no height floor of
+            // its own: the panel's `min-h-32` is the floor, and a `min-h-56` on
+            // the frame would hold it at 224px of a 800px-wide viewport, which
+            // is a blank band under a short demo once the frame is zoomed.
+            <div ref={frameBoxRef} className="w-full min-w-0">
+              <iframe
+                ref={frameRef}
+                title={`Vue demo: ${name}`}
+                src={`/vue-demo/docs-preview/${name}`}
+                style={{ width: `${frameWidth}px`, zoom: frameZoom }}
+                className="border-0"
+              />
+            </div>
           ) : DemoComponent ? (
             // `min-w-0`: the panel is a flex row, and a flex item may not shrink
             // below its min-content size by default. A table with a long-text

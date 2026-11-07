@@ -29,9 +29,14 @@ import { SidebarProvider } from "../../ui/sidebar";
     <slot name="sidebar">
       <AppSidebar />
     </slot>
+    <!-- `min-w-0`: a flex item's minimum is its content's, so a `<DataTable>`
+         whose cells refuse to wrap would hold this column at its min-content and
+         push the shell past the viewport, cutting the app bar's right-hand
+         buttons off. With it the column takes what the sidebar leaves and the
+         table scrolls inside its own wrapper. -->
     <main
       data-slot="layout-main"
-      class="ml-auto flex h-svh w-full max-w-full flex-1 flex-col"
+      class="ml-auto flex h-svh w-full max-w-full min-w-0 flex-1 flex-col"
     >
       <slot name="app-bar">
         <AppBar />
