@@ -253,7 +253,9 @@ it.each([
     expect(
       screen.getByText("pnpm dlx shadcn@latest add @chelone/rich-text-input"),
     ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Vue" }));
+    // The install block comes first; a page with a Vue demo has a second
+    // "Vue" button, the preview's framework switch.
+    fireEvent.click(screen.getAllByRole("button", { name: "Vue" })[0]);
     expect(
       screen.getByText(
         "pnpm dlx shadcn-vue@latest add @chelone/rich-text-input",
@@ -291,7 +293,8 @@ it.each([
     expect(
       screen.getByText("pnpm dlx shadcn@latest add @chelone/block-editor"),
     ).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Vue" })).toBeTruthy();
+    // One "Vue" button in the install block, one in the preview's switch.
+    expect(screen.getAllByRole("button", { name: "Vue" })).toHaveLength(2);
     expect(screen.getByRole("button", { name: "preview" })).toBeTruthy();
   },
 );
