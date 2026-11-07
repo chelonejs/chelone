@@ -4,6 +4,7 @@ import {
   getAtPath,
   type Pagination,
   type ResourceMap,
+  type ResourceRecord,
 } from "@chelone/core";
 
 export interface TextSearchFields {
@@ -67,7 +68,7 @@ export function withTextSearch<TResources extends ResourceMap>(
   };
 }
 
-function paginate<TRecord extends object>(
+function paginate<TRecord extends ResourceRecord>(
   matches: TRecord[],
   pagination: Pagination | undefined,
 ): GetListResult<TRecord> {
