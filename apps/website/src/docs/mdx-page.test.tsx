@@ -30,17 +30,43 @@ const realtimeDemos = [
   ["menu-live", "Another user adds a post"],
 ] as const;
 
+// Every demo a test below waits on, named as `<ComponentPreview name>` names
+// it: "<component-dir>/<demo-file>". A page in an auto-demo section shows
+// `<slug>/basic`, and the quick start guide places its own by hand. A test that
+// renders a page with a preview needs its demo here.
+const previewDemos = [
+  "viewing/text-field/basic",
+  "viewing/boolean-field/basic",
+  "viewing/fields-selector/basic",
+  "viewing/rich-text-field/basic",
+  "viewing/block-doc-field/basic",
+  "editing/configurable-inputs/basic",
+  "editing/rich-text-input/basic",
+  "editing/block-editor-input/basic",
+  "ui-layout/menu/basic",
+  "ui-layout/app-bar/basic",
+  "ui-layout/auth-callback/basic",
+  "ui-layout/inspector/basic",
+  "page-components/create/basic",
+  "page-components/csv-import/basic",
+  ...supabasePreviews.map(([slug]) => `${slug}/basic`),
+  ...realtimeDemos.map(([slug]) => `realtime/${slug}/basic`),
+  "react/quick-start-guide/post-list",
+  "react/quick-start-guide/text-field",
+  "react/quick-start-guide/reference-field",
+  "react/quick-start-guide/boolean-field",
+  "react/quick-start-guide/text-input",
+  "react/quick-start-guide/post-edit",
+];
+
 beforeAll(
   async () => {
-    const pages = [
-      "ui-layout/app-bar",
-      ...supabasePreviews.map(([slug]) => slug),
-      ...realtimeDemos.map(([slug]) => `realtime/${slug}`),
-    ];
     await Promise.all(
-      pages.map((page) => {
-        const load = demoModules[`./content/${page}/demos/basic.tsx`];
-        if (!load) throw new Error(`No basic demo for ${page}`);
+      previewDemos.map((name) => {
+        const demoFile = name.slice(name.lastIndexOf("/") + 1);
+        const dir = name.slice(0, name.lastIndexOf("/"));
+        const load = demoModules[`./content/${dir}/demos/${demoFile}.tsx`];
+        if (!load) throw new Error(`No demo for ${name}`);
         return load();
       }),
     );
