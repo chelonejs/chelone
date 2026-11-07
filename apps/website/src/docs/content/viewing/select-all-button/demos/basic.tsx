@@ -21,7 +21,7 @@ function SelectFirstPage() {
   );
 }
 
-/** `<SelectAllButton>` appears once every row of the page is checked, and checks the other 25 posts on click. The table's own checkboxes and the "5 rows selected" bar make the selection visible. */
+/** `<SelectAllButton>` appears once every row of the page is checked, and checks the other seven posts on click. The table's own checkboxes and the "5 items selected" bar make the selection visible. */
 export default function SelectAllButtonDemo() {
   return (
     <div className="w-full pb-24 [transform:translateZ(0)]">
