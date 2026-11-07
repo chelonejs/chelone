@@ -1,3 +1,4 @@
+import { type FileEntry, fileEntryImage } from "@chelone/core";
 import {
   FileInput,
   type FileInputProps,
@@ -54,20 +55,20 @@ function ImageInput(props: ImageInputProps) {
 
 /**
  * Default per-file image preview for `<ImageInput>` — reads the ambient file
- * record (`{ src, title }`) that `<FileInput>` publishes and renders it as a
- * thumbnail `<img>`. A stand-in for shadmin's `<ImageField>` default child until
+ * entry (`{ src, title }` or a stored URL) that `<FileInput>` publishes and
+ * renders it as a thumbnail `<img>`. A stand-in for shadmin's `<ImageField>` default child until
  * fields are ported.
  *
  * @internal
  */
 function ImageInputThumbnail() {
-  const record = useRecordContext<{ src?: string; title?: string }>();
-  if (!record?.src) return null;
+  const image = fileEntryImage(useRecordContext<FileEntry>());
+  if (!image) return null;
   return (
     <img
-      src={record.src}
-      title={record.title}
-      alt={record.title}
+      src={image.src}
+      title={image.title}
+      alt={image.title}
       className="h-24 w-24 rounded-md object-cover"
     />
   );
