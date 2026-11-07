@@ -80,7 +80,7 @@ const labelFor = computed(() =>
 );
 
 const inputClass =
-  "flex h-9 w-16 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive";
+  "flex h-9 w-16 rounded-md border border-input bg-transparent px-3 py-1 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive";
 
 function writeBack(next: Record<Unit, string>) {
   const dayPart = next.d ? `${+next.d}D` : "";

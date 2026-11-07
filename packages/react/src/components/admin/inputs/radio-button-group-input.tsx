@@ -129,7 +129,7 @@ function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
 
   return (
     <FieldSet className={className} data-invalid={invalid || undefined}>
-      {label && (
+      {label !== false && label !== "" && (
         <FieldLegend variant="label">
           <FieldLabelText
             label={label}

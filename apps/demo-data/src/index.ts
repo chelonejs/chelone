@@ -1,6 +1,7 @@
 export { demoAssistantTools, demoAssistantTransport } from "./assistant";
 export { demoAuthProvider } from "./auth";
 export { makeI18n } from "./i18n";
+export { landingPageDocument } from "./landing-page";
 export type {
   Activity,
   ActivityResource,
@@ -23,7 +24,14 @@ export type {
   Variant,
   Webhook,
 } from "./seed";
-export { categoryChoices, seedData, statusChoices } from "./seed";
+export {
+  categoryChoices,
+  channelChoices,
+  seedData,
+  shippingClassChoices,
+  statusChoices,
+  tagChoices,
+} from "./seed";
 export { makeDemoStore } from "./store";
 export {
   type StubSupabaseAuthProvider,

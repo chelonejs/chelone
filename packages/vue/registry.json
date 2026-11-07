@@ -3862,6 +3862,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/lib-utils",
         "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
@@ -3884,6 +3885,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/lib-utils",
         "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
@@ -3974,7 +3976,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4392,6 +4394,7 @@
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
+        "@chelone/lib-utils",
         "@chelone/source-input-props",
         "@chelone/validation-error"
       ],
@@ -5695,6 +5698,7 @@
         "@chelone/badge",
         "@chelone/button",
         "@chelone/card",
+        "@chelone/lib-utils",
         "@chelone/textarea"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],

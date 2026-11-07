@@ -507,4 +507,45 @@ describe("<ImageInput>", () => {
     expect(img.attributes("src")).toBe("https://example.org/pic.png");
     expect(img.attributes("title")).toBe("Pic");
   });
+
+  it("labels the input with the humanized source", async () => {
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1 },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("label").text()).toBe("Avatar");
+  });
+
+  it("renders a stored URL string as a thumbnail titled by its file name", async () => {
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1, avatar: "https://example.org/photos/keyboard.png" },
+    });
+    await flushPromises();
+
+    const img = wrapper.find("img");
+    expect(img.attributes("src")).toBe(
+      "https://example.org/photos/keyboard.png",
+    );
+    expect(img.attributes("alt")).toBe("keyboard.png");
+  });
+
+  it("renders a stored raster data URL as a thumbnail", async () => {
+    const png = "data:image/png;base64,iVBORw0KGgo=";
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1, avatar: png },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("img").attributes("src")).toBe(png);
+  });
+
+  it("renders no img for a stored javascript: URL", async () => {
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1, avatar: "javascript:alert(1)" },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("img").exists()).toBe(false);
+  });
 });
