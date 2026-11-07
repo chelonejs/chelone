@@ -1,10 +1,10 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface ColorFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface ColorFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   /** When false, hides the textual color value next to the chip. */
   showLabel?: boolean;
@@ -27,7 +27,7 @@ interface ColorFieldProps<RecordType extends LooseRecord = LooseRecord>
  *   </Show>
  * );
  */
-function ColorField<RecordType extends LooseRecord = LooseRecord>({
+function ColorField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
