@@ -13,6 +13,7 @@ import {
   BBoxField,
   GeoJsonField,
   LatLngField,
+  LatLngInput,
   MapCanvas,
   MapMarker,
   PolygonField,
@@ -21,10 +22,14 @@ import {
   BBoxInput,
   LineStringInput,
   PolygonInput,
+  ShapeInput,
+  SimplifyInput,
 } from "@chelone/react/maps/draw";
 import {
+  GeocodingInput,
   MapWithSearch,
   OsmFeatureAdd,
+  OsmFeatureOperator,
   OsmFeatureSubtract,
   ReverseGeocodeField,
 } from "@chelone/react/maps/osm";
@@ -94,26 +99,64 @@ export function PlaceShow() {
   );
 }
 
-// The fields are children of Edit/Create, so the shared form is a fragment of
-// inputs rather than a wrapper component.
-const placeInputs = (
+// The delivery zone, drawn and then thinned, then the shapes around it. The
+// `data-field` attributes let a showcase shot tell the inputs apart, since
+// `bbox-input` and `shape-input` both render a `shape-input` and the
+// `osm-feature-*` buttons all render an `osm-feature-operator`.
+const placeShapeInputs = (
   <>
-    <TextInput source="name" />
-    <MapWithSearch latSource="lat" lngSource="lng" addressSource="address" />
+    <div data-field="zone">
+      <ShapeInput source="zone" kind="Polygon" label="Delivery zone" />
+    </div>
+    {/* Draw the zone above, then thin it here: a drawn value becomes the
+        original the slider simplifies from. */}
+    <SimplifyInput source="zone" label="Simplify the delivery zone" />
+    <div data-field="zone-water">
+      <OsmFeatureOperator
+        source="zone"
+        mode="subtract"
+        presets={["water"]}
+        label="Remove water from the zone"
+      />
+    </div>
     <PolygonInput source="area" label="Area" />
     <div className="flex gap-2">
       <OsmFeatureSubtract source="area" presets={["water"]} />
       <OsmFeatureAdd source="area" presets={["buildings"]} />
     </div>
     <LineStringInput source="route" label="Route" snapToRoads />
-    <BBoxInput source="bbox" label="Bounding box" />
+    <div data-field="bbox">
+      <BBoxInput source="bbox" label="Bounding box" />
+    </div>
   </>
 );
 
+// The page is a form of its own inputs, so the shared shapes are a fragment
+// rather than a wrapper component.
 export function PlaceEdit() {
-  return <Edit>{placeInputs}</Edit>;
+  return (
+    <Edit>
+      <TextInput source="name" />
+      <MapWithSearch latSource="lat" lngSource="lng" addressSource="address" />
+      {placeShapeInputs}
+    </Edit>
+  );
 }
 
+// A new place starts from an address: the search fills the address, the
+// coordinates and the box, and the pin below fine-tunes them.
 export function PlaceCreate() {
-  return <Create>{placeInputs}</Create>;
+  return (
+    <Create>
+      <TextInput source="name" />
+      <GeocodingInput
+        source="address"
+        latSource="lat"
+        lngSource="lng"
+        bboxSource="bbox"
+      />
+      <LatLngInput latSource="lat" lngSource="lng" />
+      {placeShapeInputs}
+    </Create>
+  );
 }
