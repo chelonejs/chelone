@@ -1,6 +1,7 @@
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
@@ -11,7 +12,9 @@ import { RecordContextProvider } from "../../../record/record-context";
 import { useReferenceOneFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
-interface ReferenceOneFieldProps<RecordType extends LooseRecord = LooseRecord> {
+interface ReferenceOneFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+> {
   /** The referenced resource holding the one-to-one record (e.g. `"bios"`). */
   reference: string;
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
@@ -66,7 +69,7 @@ interface ReferenceOneFieldProps<RecordType extends LooseRecord = LooseRecord> {
  *   </Show>
  * );
  */
-function ReferenceOneField<RecordType extends LooseRecord = LooseRecord>(
+function ReferenceOneField<RecordType extends ResourceRecord = LooseRecord>(
   props: ReferenceOneFieldProps<RecordType>,
 ) {
   const {

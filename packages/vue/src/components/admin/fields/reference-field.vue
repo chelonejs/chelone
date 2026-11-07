@@ -1,12 +1,12 @@
-<script lang="ts">
-import type { SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 import type { LinkToType } from "../../../router";
 
 /** Props for {@link ReferenceField}. */
-export interface ReferenceFieldProps {
-  source: SourceProp;
+export interface ReferenceFieldProps<RecordType extends ResourceRecord = LooseRecord> {
+  source: SourceProp<RecordType>;
   reference: string;
-  record?: LooseRecord;
+  record?: RecordType;
   empty?: string;
   /**
    * Where the value links. Omit to infer the referenced record's show page, else
@@ -16,7 +16,7 @@ export interface ReferenceFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ReferenceField>` — follows a foreign key to a related record and displays
  * it. The Vue analog of `@chelone/react`'s `fields/reference-field.tsx`. Reads
@@ -38,7 +38,7 @@ export interface ReferenceFieldProps {
  * `<DataTable>` row click does not also fire.
  */
 
-import { isIdentifier, type LooseRecord } from "@chelone/core";
+import { isIdentifier } from "@chelone/core";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useGetManyAggregate } from "../../../data/queries";
@@ -49,7 +49,7 @@ import { useGetPathForRecord } from "../../../router";
 
 // An explicit `undefined` default keeps Vue from casting an absent `link` to
 // `false` (the prop's type includes a boolean), which would disable inference.
-const props = withDefaults(defineProps<ReferenceFieldProps>(), {
+const props = withDefaults(defineProps<ReferenceFieldProps<RecordType>>(), {
   link: undefined,
 });
 

@@ -1,19 +1,20 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceArrayField}. */
-export interface ReferenceArrayFieldProps {
+export interface ReferenceArrayFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
-  source: SourceProp;
+  source: SourceProp<RecordType>;
   /** The referenced resource the ids point at (e.g. `"tags"`). */
   reference: string;
   /** The record to read the FK array off. Defaults to the ambient record. */
-  record?: LooseRecord;
+  record?: RecordType;
   /** Client-side sort for the resolved list. */
   sort?: SortPayload;
   /** Client-side filter for the resolved list. */
@@ -23,7 +24,7 @@ export interface ReferenceArrayFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ReferenceArrayField>` — displays multiple related records by following an
  * array of foreign keys. The Vue port of `@chelone/react`'s
@@ -44,7 +45,7 @@ import { provideListContext } from "../../../list/list-context";
 import { provideResourceContext } from "../../../resource-context";
 import { useList } from "../../../list/use-list";
 
-const props = defineProps<ReferenceArrayFieldProps>();
+const props = defineProps<ReferenceArrayFieldProps<RecordType>>();
 
 const value = useFieldValue({ source: props.source, record: props.record });
 

@@ -1,6 +1,7 @@
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
@@ -10,7 +11,7 @@ import { useReferenceManyFieldController } from "../../../reference-hooks";
 import { ResourceContextProvider } from "../../../resource";
 
 interface ReferenceManyFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   /** The referenced resource holding the reverse FK (e.g. `"books"`). */
   reference: string;
@@ -64,7 +65,7 @@ interface ReferenceManyFieldProps<
  *   </Show>
  * );
  */
-function ReferenceManyField<RecordType extends LooseRecord = LooseRecord>(
+function ReferenceManyField<RecordType extends ResourceRecord = LooseRecord>(
   props: ReferenceManyFieldProps<RecordType>,
 ) {
   const {

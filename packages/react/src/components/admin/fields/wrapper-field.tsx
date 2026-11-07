@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { ReactNode } from "react";
 import type { FieldProps } from "@/lib/field-types";
 
@@ -23,7 +23,7 @@ import type { FieldProps } from "@/lib/field-types";
  *   </Show>
  * );
  */
-function WrapperField<RecordType extends LooseRecord = LooseRecord>({
+function WrapperField<RecordType extends ResourceRecord = LooseRecord>({
   children,
 }: WrapperFieldProps<RecordType>) {
   return <>{children}</>;
@@ -31,7 +31,7 @@ function WrapperField<RecordType extends LooseRecord = LooseRecord>({
 
 WrapperField.displayName = "WrapperField";
 
-interface WrapperFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface WrapperFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends Omit<FieldProps<RecordType>, "source"> {
   source?: FieldProps<RecordType>["source"];
   children: ReactNode;
