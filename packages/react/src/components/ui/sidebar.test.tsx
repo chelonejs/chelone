@@ -8,9 +8,17 @@
  */
 
 import { elementOf } from "@chelone/test-utils";
-import { cleanup, render } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { SidebarMenuButton, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
 afterEach(cleanup);
 
@@ -41,5 +49,59 @@ describe("<SidebarMenuButton> sizes", () => {
 
   it("keeps the fixed height of the lg app-header size", () => {
     expect(menuButton("lg").classList.contains("h-12")).toBe(true);
+  });
+});
+
+/**
+ * The icon-collapsed floating sidebar (#1784). jsdom has no layout, so the
+ * symmetry of the icons and the app bar clearing the panel are checked in a
+ * browser; these pin the structure that layout hangs on.
+ */
+describe("<Sidebar> collapsed to icons", () => {
+  function renderFloatingSidebar() {
+    render(
+      <SidebarProvider>
+        <Sidebar variant="floating" collapsible="icon">
+          <SidebarContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>Posts</SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarContent>
+        </Sidebar>
+        <SidebarTrigger />
+        <main>Content</main>
+      </SidebarProvider>,
+    );
+    return elementOf(
+      document.querySelector('[data-slot="sidebar"]'),
+      HTMLDivElement,
+    );
+  }
+
+  it("collapses to icon mode and keeps each entry reachable by name", () => {
+    const sidebar = renderFloatingSidebar();
+    expect(sidebar.dataset.state).toBe("expanded");
+
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Sidebar" }));
+
+    expect(sidebar.dataset.state).toBe("collapsed");
+    expect(sidebar.dataset.collapsible).toBe("icon");
+    expect(sidebar.dataset.variant).toBe("floating");
+    expect(screen.getByRole("button", { name: "Posts" })).toBeTruthy();
+  });
+
+  it("reserves the sidebar's space ahead of the content it floats beside", () => {
+    const sidebar = renderFloatingSidebar();
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Sidebar" }));
+
+    const [gap, container] = Array.from(sidebar.children);
+    expect(gap?.getAttribute("data-slot")).toBe("sidebar-gap");
+    expect(container?.getAttribute("data-slot")).toBe("sidebar-container");
+    expect(
+      sidebar.compareDocumentPosition(screen.getByRole("main")) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 });
