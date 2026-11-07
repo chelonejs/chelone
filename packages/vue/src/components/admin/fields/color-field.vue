@@ -1,8 +1,8 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link ColorField}. */
-export interface ColorFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface ColorFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   source: SourceProp<RecordType>;
   record?: RecordType;
   defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
@@ -13,7 +13,7 @@ export interface ColorFieldProps<RecordType extends LooseRecord = LooseRecord> {
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ColorField>` — displays a color value as a colored chip plus its string
  * label, the Vue analog of `@chelone/react`'s `fields/color-field.tsx`. Accepts

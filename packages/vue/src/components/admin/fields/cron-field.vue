@@ -1,8 +1,8 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link CronField}. */
-export interface CronFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface CronFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   source: SourceProp<RecordType>;
   record?: RecordType;
   defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
@@ -13,7 +13,7 @@ export interface CronFieldProps<RecordType extends LooseRecord = LooseRecord> {
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<CronField>` — displays a 5-field cron expression as a human-readable phrase
  * (via `cronstrue`, through the shared `describeCron` helper). The Vue analog of
