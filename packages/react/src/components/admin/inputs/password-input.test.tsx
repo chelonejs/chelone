@@ -76,6 +76,15 @@ describe("<PasswordInput>", () => {
     expect(input.getAttribute("type")).toBe("text");
   });
 
+  it("puts the toggle in the input's own row, so a label never moves it off the input", () => {
+    setup(<PasswordInput source="password" label="Password" />, {
+      password: "secret",
+    });
+    const row = screen.getByLabelText("Password").parentElement;
+    expect(row?.querySelector("button")).not.toBeNull();
+    expect(row?.querySelector("label")).toBeNull();
+  });
+
   it("renders visible text first when initiallyVisible is set", () => {
     setup(<PasswordInput source="password" initiallyVisible />, {
       password: "secret",
