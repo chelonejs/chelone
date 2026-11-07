@@ -36,6 +36,9 @@ import AuthorCreate from "./resources/AuthorCreate.vue";
 import AuthorEdit from "./resources/AuthorEdit.vue";
 import AuthorList from "./resources/AuthorList.vue";
 import AuthorShow from "./resources/AuthorShow.vue";
+import CategoryEdit from "./resources/CategoryEdit.vue";
+import CategoryList from "./resources/CategoryList.vue";
+import CategoryShow from "./resources/CategoryShow.vue";
 import CustomerCreate from "./resources/CustomerCreate.vue";
 import CustomerEdit from "./resources/CustomerEdit.vue";
 import CustomerList from "./resources/CustomerList.vue";
@@ -68,7 +71,7 @@ const customRoutes = [...authRoutes, ...pageRoutes];
 
 // No hand-written views yet: the guessers build them from the schemas in
 // resources/schema.ts.
-const guessedResources = ["categories", "tags"];
+const guessedResources = ["tags"];
 
 // A retry-off query client and a notification store
 // (the simulated user's failed lock reports through it) — the services a real
@@ -156,6 +159,13 @@ const authProvider = makeDemoAuthProvider(store);
         :list="PageList"
         :edit="PageEdit"
         :show="PageShow"
+      />
+      <Resource
+        name="categories"
+        record-representation="name.en"
+        :list="CategoryList"
+        :edit="CategoryEdit"
+        :show="CategoryShow"
       />
       <Resource
         v-for="name in guessedResources"

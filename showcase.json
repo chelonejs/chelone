@@ -3851,7 +3851,24 @@
       }
     }
   },
-  "translatable-fields": null,
+  "translatable-fields": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/translatable-fields",
+        "see": ".not-prose [role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      },
+      "demo": {
+        "path": "/demo/categories/1/show",
+        "see": "[role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/categories/1/show",
+        "see": "[data-slot=\"translatable-fields-tabs\"]"
+      }
+    }
+  },
   "translatable-fields-tab": {
     "shownBy": "translatable-fields"
   },
@@ -3861,7 +3878,24 @@
   "translatable-fields-tabs": {
     "shownBy": "translatable-fields"
   },
-  "translatable-inputs": null,
+  "translatable-inputs": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/translatable-inputs",
+        "see": ".not-prose [role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      },
+      "demo": {
+        "path": "/demo/categories/1",
+        "see": "[role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/categories/1",
+        "see": "[data-slot=\"translatable-inputs-tabs\"]"
+      }
+    }
+  },
   "translatable-inputs-tab": {
     "shownBy": "translatable-inputs"
   },
@@ -3871,7 +3905,24 @@
   "translatable-inputs-tabs": {
     "shownBy": "translatable-inputs"
   },
-  "tree-list": null,
+  "tree-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/tree-list",
+        "see": ".not-prose [role=\"tree\"]"
+      },
+      "demo": {
+        "path": "/demo/categories",
+        "see": "[role=\"tree\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/categories",
+        "see": "[role=\"tree\"]"
+      }
+    }
+  },
   "tree-list-node": {
     "shownBy": "tree-list"
   },
