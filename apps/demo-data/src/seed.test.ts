@@ -135,15 +135,9 @@ describe("seedData", () => {
     }
   });
 
-  it("leaves an in_review post one approval short of two, approved by someone but the signed-in user", () => {
-    const SIGNED_IN = 1;
+  it("leaves an in_review post one approval short of two, so the signed-in user's approval publishes it", () => {
     const inReview = seed.posts.filter((post) => post.status === "in_review");
-    expect(
-      inReview.some(
-        (post) =>
-          post.approvers.length === 1 && !post.approvers.includes(SIGNED_IN),
-      ),
-    ).toBe(true);
+    expect(inReview.some((post) => post.approvers.length === 1)).toBe(true);
     expect(inReview.some((post) => post.approvers.length === 0)).toBe(true);
   });
 

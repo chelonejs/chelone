@@ -32,7 +32,9 @@ export type PreviewPost = {
   author_id: number;
   views: number;
   published: boolean;
-  status: "draft" | "in_review" | "published";
+  status: "draft" | "review" | "published";
+  /** ISO datetime inside the current month, for the calendar demo. */
+  publish_at: string;
   /** Ids of the authors who approved the post; `<DualApprovalButton>` writes it. */
   approvers: number[];
   revisions: PreviewRevision[];
@@ -98,26 +100,32 @@ const hoursAgo = (hours: number) =>
 
 const revisionSummaries = ["First draft", "Fix typos", "Tighten the intro"];
 
-/** The first three posts wait for review; post 2 already has Alan's approval. */
-const posts: PreviewPost[] = postTitles.map((title, i) => {
-  const status = i < 3 ? "in_review" : i % 3 !== 0 ? "published" : "draft";
-  return {
-    id: i + 1,
-    title,
-    body: `Body copy for "${title}". This record lives entirely in the in-memory fakeDataProvider.`,
-    author_id: authors[i % authors.length].id,
-    views: 50 + ((i * 137) % 900),
-    published: i % 3 !== 0,
-    status,
-    approvers: i === 1 ? [2] : [],
-    revisions: revisionSummaries.map((summary, r) => ({
-      id: r + 1,
-      at: hoursAgo((revisionSummaries.length - r) * 20 + i),
-      author_id: authors[(i + r) % authors.length].id,
-      summary,
-    })),
-  };
-});
+const postStatuses = ["draft", "review", "published"] as const;
+const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+/** Post 2 is in review and already has Alan's approval. */
+const posts: PreviewPost[] = postTitles.map((title, i) => ({
+  id: i + 1,
+  title,
+  body: `Body copy for "${title}". This record lives entirely in the in-memory fakeDataProvider.`,
+  author_id: authors[i % authors.length].id,
+  views: 50 + ((i * 137) % 900),
+  published: i % 3 !== 0,
+  status: postStatuses[i % postStatuses.length],
+  publish_at: new Date(
+    monthStart.getFullYear(),
+    monthStart.getMonth(),
+    1 + ((i * 5) % 28),
+    9 + (i % 8),
+  ).toISOString(),
+  approvers: i === 1 ? [2] : [],
+  revisions: revisionSummaries.map((summary, r) => ({
+    id: r + 1,
+    at: hoursAgo((revisionSummaries.length - r) * 20 + i),
+    author_id: authors[(i + r) % authors.length].id,
+    summary,
+  })),
+}));
 
 const comments: PreviewComment[] = [
   {

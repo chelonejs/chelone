@@ -9,7 +9,7 @@ export const mode = "view";
 /** The in-review posts. A decided post leaves the queue on the next refetch. */
 export default function ApprovalQueueDemo() {
   const list = useListController("posts", {
-    filter: { status: "in_review" },
+    filter: { status: "review" },
     syncWithLocation: false,
   });
   return (
@@ -18,7 +18,7 @@ export default function ApprovalQueueDemo() {
         titleSource="title"
         subtitleSource="body"
         required={2}
-        pendingValue="in_review"
+        pendingValue="review"
         approvedValue="published"
       />
     </ListContextProvider>

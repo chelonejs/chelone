@@ -11,7 +11,7 @@ const before = {
 const after = {
   id: 1,
   title: "On Computable Numbers, revised",
-  status: "in_review",
+  status: "review",
   views: 120,
 };
 

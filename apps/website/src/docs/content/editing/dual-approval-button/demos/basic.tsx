@@ -8,7 +8,7 @@ export default function DualApprovalButtonDemo() {
     <Show id={2} title={false}>
       <DualApprovalButton
         required={2}
-        pendingValue="in_review"
+        pendingValue="review"
         approvedValue="published"
       />
     </Show>

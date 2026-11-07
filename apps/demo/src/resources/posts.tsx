@@ -47,6 +47,7 @@ import {
   useParams,
   useRecordContext,
 } from "@chelone/react";
+import { ConfigurableInputs } from "@chelone/react/inspector";
 import { type ReactNode, useMemo, useState } from "react";
 import { z } from "zod";
 import { SimulatedViewer, SimulateOtherUser } from "../realtime-sim";
@@ -61,7 +62,7 @@ export const postSchema = z.object({
   published: z.boolean().optional(),
   status: z.enum(["draft", "in_review", "published", "rejected"]).optional(),
   /** The ids of the users who approved the post, written by `<DualApprovalButton>`. */
-  approvers: z.array(z.number()).optional(),
+  approvers: z.array(z.union([z.number(), z.string()])).optional(),
   /** Unused by the forms; gives `register-proof` an array for a bracket path. */
   tags: z.array(z.object({ label: z.string() })).optional(),
 });
@@ -93,13 +94,17 @@ export function PostEdit() {
     <EditLive>
       <LockStatus />
       <LockOnMount identity="you">
-        <TextInput source="title" />
-        <TextInput source="body" multiline />
-        <ReferenceInput source="author_id" reference="authors">
-          <SelectInput optionText="name" />
-        </ReferenceInput>
-        <NumberInput source="views" min={0} />
-        <BooleanInput source="published" />
+        {/* The user hides the inputs they never fill from the inspector. A
+            hidden input keeps its loaded value, so the schema still passes. */}
+        <ConfigurableInputs className="flex flex-col gap-4">
+          <TextInput source="title" />
+          <TextInput source="body" multiline />
+          <ReferenceInput source="author_id" reference="authors">
+            <SelectInput optionText="name" />
+          </ReferenceInput>
+          <NumberInput source="views" min={0} />
+          <BooleanInput source="published" />
+        </ConfigurableInputs>
         <Toolbar />
       </LockOnMount>
     </EditLive>

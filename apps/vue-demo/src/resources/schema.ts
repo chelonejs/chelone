@@ -24,7 +24,7 @@ export const postSchema = z.object({
   published: z.boolean().optional(),
   status: z.enum(["draft", "in_review", "published", "rejected"]).optional(),
   /** The ids of the users who approved the post, written by `<DualApprovalButton>`. */
-  approvers: z.array(z.number()).optional(),
+  approvers: z.array(z.union([z.number(), z.string()])).optional(),
   /** Unused by the forms; gives `register-proof` an array for a bracket path. */
   tags: z.array(z.object({ label: z.string() })).optional(),
 });
