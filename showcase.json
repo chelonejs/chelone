@@ -21,7 +21,27 @@
   "array-input-row": {
     "shownBy": "array-input"
   },
-  "assistant": null,
+  "assistant": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/assistant",
+        "see": "[data-slot='assistant-panel']",
+        "click": ["[data-slot='assistant-trigger']"]
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot='assistant-panel']",
+        "click": ["[data-slot='assistant-trigger']"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot='assistant-panel']",
+        "click": ["[data-slot='assistant-trigger']"]
+      }
+    }
+  },
   "auth-callback": null,
   "auth-error": null,
   "auth-layout": null,
@@ -72,7 +92,24 @@
   "calendar-header": {
     "shownBy": "calendar-list"
   },
-  "calendar-list": null,
+  "calendar-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/calendar-list",
+        "see": "[data-slot=\"calendar-list\"]"
+      },
+      "demo": {
+        "path": "/demo/order-calendar",
+        "see": "[data-slot=\"calendar-list\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/OrderCalendar",
+        "see": "[data-slot=\"calendar-list\"]"
+      }
+    }
+  },
   "calendar-month-view": {
     "shownBy": "calendar-list"
   },
@@ -104,7 +141,27 @@
   "color-field": null,
   "color-input": null,
   "columns-button": null,
-  "command-menu": null,
+  "command-menu": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/command-menu",
+        "see": "role=dialog >> role=combobox",
+        "click": ["role=button[name=\"Search Ctrl+K\"]"]
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=dialog >> role=combobox",
+        "click": ["[data-tour='search']"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=dialog >> role=combobox",
+        "click": ["[data-tour='search']"]
+      }
+    }
+  },
   "command-menu-content": {
     "shownBy": "command-menu"
   },
@@ -121,7 +178,39 @@
   "configurable": {
     "shownBy": "inspector"
   },
-  "configurable-inputs": null,
+  "configurable-inputs": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/configurable-inputs",
+        "see": "role=dialog[name=\"Form\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "[data-slot='configurable']",
+          "role=button[name=\"Customize\"]"
+        ]
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=dialog[name=\"Form\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "[data-slot='configurable']",
+          "role=button[name=\"Customize\"]"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=dialog[name=\"Form\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "[data-slot='configurable']",
+          "role=button[name=\"Customize\"]"
+        ]
+      }
+    }
+  },
   "confirm": null,
   "count": null,
   "count-spinner": {
@@ -153,7 +242,24 @@
   "data-blocks": {
     "shownBy": "block-editor-input"
   },
-  "data-provider-devtools": null,
+  "data-provider-devtools": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/data-provider-devtools",
+        "see": "[data-slot='data-provider-devtools']"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot='data-provider-devtools']"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot='data-provider-devtools']"
+      }
+    }
+  },
   "data-provider-devtools-entry": {
     "shownBy": "data-provider-devtools"
   },
@@ -262,12 +368,66 @@
   "in-place-editor-form": {
     "shownBy": "in-place-editor"
   },
-  "infinite-list": null,
-  "infinite-pagination": null,
+  "infinite-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/list/infinite-list",
+        "see": ".not-prose >> role=heading[name=\"Latest posts\"]"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> role=heading[name=\"Activity\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> role=heading[name=\"Activity\"]"
+      }
+    }
+  },
+  "infinite-pagination": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/infinite-pagination",
+        "see": ".not-prose >> role=button[name=\"Load more\"]"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> text=/Load more|No more rows/"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> text=/Load more|No more rows/"
+      }
+    }
+  },
   "input-helper-text": {
     "shownBy": "text-input"
   },
-  "inspector": null,
+  "inspector": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/inspector",
+        "see": "role=dialog[name=\"Inspector\"]",
+        "click": ["role=button[name=\"Configure mode\"]"]
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=dialog[name=\"Inspector\"]",
+        "click": ["role=button[name=\"Configure mode\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=dialog[name=\"Inspector\"]",
+        "click": ["role=button[name=\"Configure mode\"]"]
+      }
+    }
+  },
   "inspector-button": {
     "shownBy": "inspector"
   },
@@ -279,7 +439,24 @@
   "kanban": {
     "shownBy": "kanban-board"
   },
-  "kanban-board": null,
+  "kanban-board": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/kanban-board",
+        "see": "[data-slot=\"kanban-board\"]"
+      },
+      "demo": {
+        "path": "/demo/order-board",
+        "see": "[data-slot=\"kanban-board\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/OrderBoard",
+        "see": "[data-slot=\"kanban-board\"]"
+      }
+    }
+  },
   "kanban-draggable-card": {
     "shownBy": "kanban-board"
   },
@@ -432,7 +609,33 @@
   "number-field": null,
   "number-input": null,
   "offline": null,
-  "onboarding-tour": null,
+  "onboarding-tour": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/onboarding-tour",
+        "see": "role=dialog[name=\"Your posts\"]",
+        "click": ["role=button[name=\"Start the tour\"]"]
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=dialog[name=\"Find anything\"]",
+        "click": [
+          "role=button[name=\"Demo User\"]",
+          "role=menuitem[name=\"Take the tour\"]"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=dialog[name=\"Find anything\"]",
+        "click": [
+          "role=button[name=\"Demo User\"]",
+          "role=menuitem[name=\"Take the tour\"]"
+        ]
+      }
+    }
+  },
   "onboarding-tour-host": {
     "shownBy": "onboarding-tour"
   },
@@ -527,11 +730,62 @@
   "show-live": null,
   "sidebar-toggle-button": null,
   "simple-form-iterator": null,
-  "simple-list": null,
-  "simple-list-item": null,
+  "simple-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/simple-list",
+        "see": ".not-prose >> role=list"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=list"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=list"
+      }
+    }
+  },
+  "simple-list-item": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/simple-list-item",
+        "see": ".not-prose >> text=On Computable Numbers"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=link[name=/River Stone/]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=link[name=/River Stone/]"
+      }
+    }
+  },
   "simple-list-loading": null,
   "simplify-input": null,
-  "single-field-list": null,
+  "single-field-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/single-field-list",
+        "see": ".not-prose >> [data-slot=badge]"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> text=ORD-2001"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> text=ORD-2001"
+      }
+    }
+  },
   "single-field-list-record": {
     "shownBy": "single-field-list"
   },
@@ -547,7 +801,24 @@
   "spinner": {
     "shownBy": "loading"
   },
-  "status-transition-button": null,
+  "status-transition-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/status-transition-button",
+        "see": "[data-slot=\"status-transition-trigger\"]"
+      },
+      "demo": {
+        "path": "/demo/order-board",
+        "see": "[data-slot=\"status-transition-trigger\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/OrderBoard",
+        "see": "[data-slot=\"status-transition-trigger\"]"
+      }
+    }
+  },
   "subscription-plan-field": null,
   "subscription-plan-picker": null,
   "supabase-login-page": null,
