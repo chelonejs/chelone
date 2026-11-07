@@ -42,6 +42,7 @@ import {
   OrderList,
   OrderShow,
 } from "./resources/orders";
+import { PageEdit, PageList, PageShow } from "./resources/pages";
 import {
   PlaceCreate,
   PlaceEdit,
@@ -140,9 +141,15 @@ export function App() {
             create={PlaceCreate}
             show={PlaceShow}
           />
+          <Resource
+            name="pages"
+            list={PageList}
+            edit={PageEdit}
+            show={PageShow}
+          />
           {/* No hand-written views yet: the guessers build them from the
               schemas in resources/index.ts. */}
-          {["pages", "categories", "tags"].map((name) => (
+          {["categories", "tags"].map((name) => (
             <Resource
               key={name}
               name={name}

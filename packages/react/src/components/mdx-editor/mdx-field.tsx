@@ -39,7 +39,7 @@ interface MdxFieldProps<RecordType extends ResourceRecord = LooseRecord>
  *
  * Needs the optional `@mdxeditor/editor` peer, and its stylesheet imported once
  * in the app (`@mdxeditor/editor/style.css`). From npm, also import
- * `@chelone/react/mdx-editor.css` for the dark theme; the registry item ships
+ * `@chelone/react/mdx-editor.css` for the dark theme and content styles; the registry item ships
  * that file with the component.
  *
  * @example

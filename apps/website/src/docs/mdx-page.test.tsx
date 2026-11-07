@@ -263,7 +263,8 @@ it.each([
       screen.getByRole("heading", { level: 2, name: "Props" }),
     ).toBeTruthy();
     expect(screen.getByRole("cell", { name: prop })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+    // Each page ships a demos/basic.tsx, so it has a live preview.
+    expect(screen.getByRole("button", { name: "preview" })).toBeTruthy();
   },
 );
 
