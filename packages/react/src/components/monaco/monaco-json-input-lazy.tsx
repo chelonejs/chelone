@@ -120,7 +120,7 @@ export default function MonacoJsonInputLazy({
     const { parseError } = parseText(textRef.current, "object");
     return parseError
       ? translate("chelone.validation.invalid_json", {
-          _: "Invalid JSON: %{message}",
+          _: "Invalid JSON: {message}",
           message: parseError.message,
         })
       : undefined;
