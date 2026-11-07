@@ -12,11 +12,13 @@
 import {
   createReferenceOneController,
   type FilterPayload,
+  type LooseRecord,
   type MicroStore,
   type RecordOf,
   type ReferenceOneController,
   type ReferenceOneControllerState,
   type ResourceMap,
+  type ResourceRecord,
   type SortPayload,
 } from "@chelone/core";
 import {
@@ -33,6 +35,7 @@ import { foreignKeyOf, useControllerForId } from "./use-controller-for-id";
 
 export interface UseReferenceOneFieldControllerOptions<
   TName extends string = string,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   /** The resource whose rows point at the record. */
   reference: TName;
@@ -41,7 +44,7 @@ export interface UseReferenceOneFieldControllerOptions<
   /** The field on the record whose value `target` must equal. Default `"id"`. */
   source?: string;
   /** Defaults to the ambient record. */
-  record?: MaybeRefOrGetter<RecordValue>;
+  record?: MaybeRefOrGetter<RecordValue<RecordType>>;
   /** Decides which row is first when several match. */
   sort?: SortPayload | SortPayload[];
   /** Narrows the lookup. */
@@ -65,8 +68,9 @@ export type UseReferenceOneFieldControllerReturn<TRecord> =
 export function useReferenceOneFieldController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
+  RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceOneFieldControllerOptions<TName>,
+  options: UseReferenceOneFieldControllerOptions<TName, RecordType>,
 ): UseReferenceOneFieldControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();

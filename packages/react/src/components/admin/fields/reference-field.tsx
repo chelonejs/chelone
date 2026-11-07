@@ -1,4 +1,9 @@
-import { isIdentifier, type LooseRecord, type SourceProp } from "@chelone/core";
+import {
+  isIdentifier,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourceProp,
+} from "@chelone/core";
 import type { MouseEvent, ReactNode } from "react";
 import { useGetManyAggregate } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
@@ -9,7 +14,7 @@ import { useResourceDefinition } from "../../../resource";
 import { type LinkToType, useGetPathForRecord } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 
-interface ReferenceFieldProps<RecordType extends LooseRecord = LooseRecord> {
+interface ReferenceFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The FK field on the current record (e.g. `"author_id"`). */
   source: SourceProp<RecordType>;
   /** The referenced resource the FK points at (e.g. `"authors"`). */
@@ -70,7 +75,7 @@ const stopPropagation = (e: MouseEvent<HTMLAnchorElement>) =>
  *   </List>
  * );
  */
-function ReferenceField<RecordType extends LooseRecord = LooseRecord>(
+function ReferenceField<RecordType extends ResourceRecord = LooseRecord>(
   props: ReferenceFieldProps<RecordType>,
 ) {
   const {

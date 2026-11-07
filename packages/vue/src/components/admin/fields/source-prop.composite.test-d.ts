@@ -43,7 +43,7 @@ describe("composite field sources", () => {
   });
 
   it("the WrapperField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof WrapperField>["$props"];
+    type Props = Parameters<typeof WrapperField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp | undefined>();
   });
 });

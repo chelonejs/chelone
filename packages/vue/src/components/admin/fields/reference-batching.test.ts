@@ -1,4 +1,4 @@
-import { fakeDataProvider } from "@chelone/core";
+import { fakeDataProvider, type LooseRecord } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { enableAutoUnmount, mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -23,6 +23,12 @@ const tags = [
 ];
 
 const queryClients: QueryClient[] = [];
+
+// A literal record passed to a generic field through `h` is checked against
+// `ResourceRecord`, which has no `author_id`. Typed loose, it is not.
+function loose(record: LooseRecord): LooseRecord {
+  return record;
+}
 
 function makeProvider() {
   return fakeDataProvider({
@@ -115,7 +121,7 @@ describe("ReferenceField", () => {
             {
               source: "author_id",
               reference: "authors",
-              record: { id: 10, author_id: 99 },
+              record: loose({ id: 10, author_id: 99 }),
             },
             {
               default: () => h("span", "Resolved author"),
@@ -125,7 +131,7 @@ describe("ReferenceField", () => {
         h(ReferenceField, {
           source: "author_id",
           reference: "authors",
-          record: { id: 10, author_id: 99 },
+          record: loose({ id: 10, author_id: 99 }),
           empty: "No author",
         }),
       ],
@@ -208,7 +214,7 @@ describe("ReferenceArrayField", () => {
           {
             source: "tag_ids",
             reference: "tags",
-            record: { id: 10, tag_ids: [1, 99] },
+            record: loose({ id: 10, tag_ids: [1, 99] }),
           },
           { default: () => h(ListStatus) },
         ),
@@ -245,7 +251,7 @@ describe("ReferenceArrayField", () => {
             {
               source: "tag_ids",
               reference: "tags",
-              record: { id: 10, ...record },
+              record: loose({ id: 10, ...record }),
             },
             { default: () => h(ListStatus) },
           ),
@@ -253,7 +259,7 @@ describe("ReferenceArrayField", () => {
         h(ReferenceField, {
           source: "tag_id",
           reference: "tags",
-          record: { id: 10, tag_id: 3 },
+          record: loose({ id: 10, tag_id: 3 }),
         }),
       ],
       dataProvider,
@@ -315,7 +321,7 @@ describe("ReferenceArrayField", () => {
             {
               source: "tag_ids",
               reference: "tags",
-              record: { id: 10, tag_ids: [1, 1, 2] },
+              record: loose({ id: 10, tag_ids: [1, 1, 2] }),
             },
             { default: () => h(ListStatus) },
           ),
@@ -326,7 +332,7 @@ describe("ReferenceArrayField", () => {
             {
               source: "other_tag_ids",
               reference: "tags",
-              record: { id: 10, other_tag_ids: [2, 3] },
+              record: loose({ id: 10, other_tag_ids: [2, 3] }),
             },
             { default: () => h(TagList) },
           ),
@@ -335,7 +341,7 @@ describe("ReferenceArrayField", () => {
           h(ReferenceField, {
             source: "tag_id",
             reference: "tags",
-            record: { id: 10, tag_id: 3 },
+            record: loose({ id: 10, tag_id: 3 }),
           }),
         ]),
         h("section", { "aria-label": "Authors" }, [
@@ -344,7 +350,7 @@ describe("ReferenceArrayField", () => {
             {
               source: "author_ids",
               reference: "authors",
-              record: { id: 10, author_ids: [1] },
+              record: loose({ id: 10, author_ids: [1] }),
             },
             { default: () => h(TagList) },
           ),
@@ -399,7 +405,7 @@ describe("ReferenceArrayField", () => {
           {
             source: "tag_ids",
             reference: "tags",
-            record: { id: 10, tag_ids: [1, 1, 2] },
+            record: loose({ id: 10, tag_ids: [1, 1, 2] }),
           },
           {
             default: () => h(TagList),
@@ -410,7 +416,7 @@ describe("ReferenceArrayField", () => {
           {
             source: "tag_ids",
             reference: "tags",
-            record: { id: 11, tag_ids: [2, 3] },
+            record: loose({ id: 11, tag_ids: [2, 3] }),
           },
           {
             default: () => h(TagList),

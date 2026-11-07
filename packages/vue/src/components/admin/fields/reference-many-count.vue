@@ -1,20 +1,21 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceManyCount}. */
-export interface ReferenceManyCountProps {
+export interface ReferenceManyCountProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The referenced resource holding the reverse FK (e.g. `"books"`). */
   reference: string;
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: SourceProp;
+  source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
-  record?: LooseRecord;
+  record?: RecordType;
   /** Permanent filter merged into the lookup, so only matching rows are counted. */
   filter?: FilterPayload;
   /** Shown while the count is loading. Nothing by default. */
@@ -26,7 +27,7 @@ export interface ReferenceManyCountProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ReferenceManyCount>` — how many rows of `reference` point back at the
  * current record, without loading them. The Vue port of `@chelone/react`'s
@@ -41,12 +42,12 @@ import { computed } from "vue";
 import { useGetManyReference } from "../../../data/queries";
 import { useFieldValue } from "../../../record/use-field-value";
 
-const props = defineProps<ReferenceManyCountProps>();
+const props = defineProps<ReferenceManyCountProps<RecordType>>();
 
 // `useFieldValue` reads `record` inside its computed, so the getter makes a
 // `record` prop land live; with no prop it falls back to the ambient record,
 // which is a ref and lands live too. `source` follows deep paths, as in React.
-const fieldValue = useFieldValue({
+const fieldValue = useFieldValue<ResourceRecord>({
   source: props.source ?? "id",
   get record() {
     return props.record;

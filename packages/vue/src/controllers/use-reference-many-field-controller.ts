@@ -17,10 +17,12 @@ import {
   type Identifier,
   type ListControllerState,
   type ListParamsPatch,
+  type LooseRecord,
   type MicroStore,
   type RecordOf,
   type ReferenceManyController,
   type ResourceMap,
+  type ResourceRecord,
   type SortPayload,
 } from "@chelone/core";
 import {
@@ -37,6 +39,7 @@ import { foreignKeyOf, useControllerForId } from "./use-controller-for-id";
 
 export interface UseReferenceManyFieldControllerOptions<
   TName extends string = string,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   /** The resource whose rows point at the record. */
   reference: TName;
@@ -45,7 +48,7 @@ export interface UseReferenceManyFieldControllerOptions<
   /** The field on the record whose value `target` must equal. Default `"id"`. */
   source?: string;
   /** Defaults to the ambient record. */
-  record?: MaybeRefOrGetter<RecordValue>;
+  record?: MaybeRefOrGetter<RecordValue<RecordType>>;
   /** Permanent filter, merged over the user filter for every fetch. */
   filter?: FilterPayload;
   /** Initial sort when nothing is persisted. Default id ascending. */
@@ -77,8 +80,9 @@ export type UseReferenceManyFieldControllerReturn<TRecord> =
 export function useReferenceManyFieldController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
+  RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceManyFieldControllerOptions<TName>,
+  options: UseReferenceManyFieldControllerOptions<TName, RecordType>,
 ): UseReferenceManyFieldControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();

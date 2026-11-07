@@ -15,27 +15,27 @@ import type ReferenceOneField from "./reference-one-field.vue";
 
 describe("reference field sources", () => {
   it("the ReferenceField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ReferenceField>["$props"];
+    type Props = Parameters<typeof ReferenceField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the ReferenceArrayField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ReferenceArrayField>["$props"];
+    type Props = Parameters<typeof ReferenceArrayField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the ReferenceOneField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ReferenceOneField>["$props"];
+    type Props = Parameters<typeof ReferenceOneField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp | undefined>();
   });
 
   it("the ReferenceManyField source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ReferenceManyField>["$props"];
+    type Props = Parameters<typeof ReferenceManyField>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp | undefined>();
   });
 
   it("the ReferenceManyCount source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ReferenceManyCount>["$props"];
+    type Props = Parameters<typeof ReferenceManyCount>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp | undefined>();
   });
 });
