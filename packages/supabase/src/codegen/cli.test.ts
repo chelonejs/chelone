@@ -2,7 +2,15 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 import { runGen } from "./cli";
 
 // The shape `supabase gen types typescript` writes, trimmed to what matters.
@@ -97,6 +105,21 @@ const exists = (path: string) =>
 
 describe("runGen", () => {
   let dir: string;
+
+  // `runGen` reaches `supazod` and `./database-relations` (which imports
+  // `typescript`) through dynamic imports on its first call, so the first test
+  // pays for those cold loads. Release's Check runs every package's tests
+  // uncached and in parallel, which outran vitest's 5s default there. Warm them
+  // in a hook, where a slow load has room; Node's own module cache keeps the two
+  // packages loaded across the `vi.resetModules()` below, and re-evaluating
+  // `./database-relations` after a reset is cheap.
+  beforeAll(async () => {
+    await Promise.all([
+      import("supazod"),
+      import("typescript"),
+      import("./database-relations"),
+    ]);
+  }, 30_000);
 
   beforeEach(async () => {
     await mkdir(scratchRoot, { recursive: true });
