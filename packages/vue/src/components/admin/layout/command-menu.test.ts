@@ -16,6 +16,8 @@ import {
   fakeDataProvider,
   type GetListParams,
   type GetListResult,
+  type RecentEntry,
+  recentsKey,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
@@ -355,6 +357,26 @@ describe("CommandMenu resources", () => {
     // A typed query hides the Recent group.
     await type("com");
     expect(headings()).not.toContain("Recent");
+  });
+});
+
+describe("CommandMenu recents", () => {
+  it("ten recent picks are kept by default", async () => {
+    const store = createStore();
+    const entries: RecentEntry[] = Array.from({ length: 12 }, (_, i) => ({
+      type: "record",
+      resource: "posts",
+      id: i + 1,
+      label: `Post ${i + 1}`,
+    }));
+    store.setItem(recentsKey, entries);
+    await mountMenu({ store });
+    await openMenu();
+
+    const recent = [
+      ...document.body.querySelectorAll('[data-slot="command-group"]'),
+    ].find((group) => group.textContent?.startsWith("Recent"));
+    expect(recent?.querySelectorAll('[role="option"]')).toHaveLength(10);
   });
 });
 

@@ -14,7 +14,7 @@ export interface CommandMenuProps {
   searchFields?: Record<string, string>;
   /** Most record hits per resource. Default `5`. */
   perResourceLimit?: number;
-  /** Most pages kept under Recent. Default `5`. */
+  /** Most pages kept under Recent. Default `10`. */
   recentsLimit?: number;
   /** Commands to list beside the built-in ones. */
   actions?: CommandMenuAction[];
@@ -70,7 +70,7 @@ const props = withDefaults(defineProps<CommandMenuProps>(), {
   resources: undefined,
   searchFields: () => ({}),
   perResourceLimit: 5,
-  recentsLimit: 5,
+  recentsLimit: 10,
   actions: () => [],
   placeholder: undefined,
   searchDebounceMs: 250,

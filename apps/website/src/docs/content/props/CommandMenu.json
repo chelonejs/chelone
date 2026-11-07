@@ -35,7 +35,7 @@
       "name": "recentsLimit",
       "type": "number",
       "optional": true,
-      "comment": "Recent picks kept."
+      "comment": "Recent picks kept. Default `10`."
     },
     {
       "name": "resources",
@@ -47,7 +47,7 @@
       "name": "searchDebounceMs",
       "type": "number",
       "optional": true,
-      "comment": "Wait after the last keystroke before records are searched."
+      "comment": "Wait after the last keystroke before records are searched. Default `250`."
     },
     {
       "name": "searchFields",
