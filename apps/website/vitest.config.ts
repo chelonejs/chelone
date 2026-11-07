@@ -49,6 +49,12 @@ export default defineConfig({
       // safe for the render test.
       { find: /^@\/lib\//, replacement: `${reactPkgSrc}/lib/` },
       { find: /^@\//, replacement: `${wwwSrc}/` },
+      // jsdom has no WebGL, so the maps demos mount against the stand-in the
+      // package's own maps tests mock `maplibre-gl` with.
+      {
+        find: /^maplibre-gl$/,
+        replacement: `${reactPkgSrc}/components/maps/__fixtures__/fake-maplibre.ts`,
+      },
     ],
     dedupe: ["react", "react-dom", "react/jsx-runtime"],
   },
