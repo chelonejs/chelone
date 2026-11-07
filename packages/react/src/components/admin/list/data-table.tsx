@@ -732,7 +732,9 @@ function DataTableCell(props: DataTableColumnProps) {
   return (
     <TableCell
       className={cn(
-        size === "small" ? "px-2 py-1" : "px-3 py-2",
+        // px-2 lines the cell text up with its header, whose sort button
+        // pulls itself back over the header's own px-2.
+        size === "small" ? "px-2 py-1" : "px-2 py-2",
         className,
         cellClassName,
         record && conditionalClassName?.(record),
