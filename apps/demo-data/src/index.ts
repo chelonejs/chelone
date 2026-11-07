@@ -1,6 +1,7 @@
 export { demoAssistantTools, demoAssistantTransport } from "./assistant";
 export { demoAuthProvider } from "./auth";
 export { makeI18n } from "./i18n";
+export { landingPageDocument } from "./landing-page";
 export type {
   Activity,
   ActivityResource,
@@ -10,6 +11,8 @@ export type {
   Category,
   Comment,
   Customer,
+  DeliveryStatus,
+  IntegrationSettings,
   Job,
   Locale,
   Order,
@@ -22,6 +25,7 @@ export type {
   Tag,
   Variant,
   Webhook,
+  WebhookEndpoint,
 } from "./seed";
 export {
   categoryChoices,
