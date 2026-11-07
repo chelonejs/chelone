@@ -1,0 +1,26 @@
+{
+  "core": {
+    "Instantiations": 677000,
+    "Types": 216000
+  },
+  "utils": {
+    "Instantiations": 78000,
+    "Types": 41000
+  },
+  "rest": {
+    "Instantiations": 76000,
+    "Types": 41000
+  },
+  "supabase": {
+    "Instantiations": 172000,
+    "Types": 66000
+  },
+  "react": {
+    "Instantiations": 1877000,
+    "Types": 447000
+  },
+  "vue": {
+    "Instantiations": 2206000,
+    "Types": 490000
+  }
+}

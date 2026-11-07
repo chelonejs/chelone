@@ -44,6 +44,8 @@ jobs:
         run: pnpm check:type-escapes --base HEAD^1
       - name: Typecheck
         run: pnpm typecheck
+      - name: Type cost within budget
+        run: pnpm check:type-cost
       - name: Build
         run: pnpm build
       - name: Props pages are up to date
