@@ -20,6 +20,7 @@ import {
   TextInput,
   Toolbar,
 } from "@chelone/vue";
+import { ConfigurableInputs } from "@chelone/vue/inspector";
 </script>
 
 <template>
@@ -28,13 +29,15 @@ import {
       <LockStatus />
     </template>
     <LockOnMount identity="you">
-      <div class="flex flex-col gap-4 max-w-xl">
+      <!-- The user hides the inputs they never fill from the inspector. A
+           hidden input keeps its loaded value, so the schema still passes. -->
+      <ConfigurableInputs class="flex flex-col gap-4 max-w-xl">
         <TextInput source="title" />
         <TextInput source="body" />
         <ReferenceInput source="author_id" reference="authors" />
         <NumberInput source="views" />
         <BooleanInput source="published" />
-      </div>
+      </ConfigurableInputs>
       <Toolbar />
     </LockOnMount>
   </EditLive>
