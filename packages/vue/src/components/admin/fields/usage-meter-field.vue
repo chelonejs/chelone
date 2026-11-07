@@ -1,9 +1,11 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type {
-  LooseRecord,
-  SourceKey,
-  SourceProp,
-  SourceValue,
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import {
+  getAtPath,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourceKey,
+  type SourceProp,
+  type SourceValue,
 } from "@chelone/core";
 
 /** Ratio thresholds toggling the warning / critical bar color. */
@@ -14,7 +16,7 @@ export interface UsageMeterThresholds {
 
 /** Props for {@link UsageMeterField}. */
 export interface UsageMeterFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   source: SourceProp<RecordType>;
   /** The record to render. Defaults to the ambient `RecordContext` value. */
@@ -33,7 +35,7 @@ export interface UsageMeterFieldProps<
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<UsageMeterField>` — displays a numeric usage value relative to an optional
  * limit, rendering a progress bar that shifts color at configurable thresholds.
@@ -48,9 +50,9 @@ export interface UsageMeterFieldProps<
  * the derived `state` — same visual contract, zero new primitive.
  */
 
-import { computed, inject } from "vue";
+import { computed } from "vue";
 import { cn } from "../../../lib/utils";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 
 const props = defineProps<UsageMeterFieldProps<RecordType>>();
@@ -67,17 +69,12 @@ const used = computed<number | undefined>(() =>
   typeof value.value === "number" ? value.value : undefined,
 );
 
-// The limit is a plain own-key read of a sibling field, not a path walk, so the
-// record is read as a loose one.
-const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed<LooseRecord | undefined>(
-  () => props.record ?? injectedRecord?.value,
-);
+const ctxRecord = useRecordContextRef<RecordType>(() => props.record);
 
 const limit = computed<number | undefined>(() => {
   const rec = ctxRecord.value;
   if (!props.limitSource || !rec) return undefined;
-  const l = rec[props.limitSource];
+  const l = getAtPath(rec, props.limitSource);
   return typeof l === "number" ? l : undefined;
 });
 
