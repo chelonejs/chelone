@@ -4,6 +4,7 @@ import {
   formatDiffValue,
   type LooseRecord,
   type RecordDiffRow,
+  type ResourceRecord,
   type SourceProp,
 } from "@chelone/core";
 import { ArrowRightIcon } from "lucide-react";
@@ -24,7 +25,7 @@ type DiffViewerMode = "side-by-side" | "inline";
  * @example
  * <DiffViewer before={v1} after={v2} sources={["title", "body"]} mode="inline" />
  */
-function DiffViewer<TRecord extends LooseRecord = LooseRecord>({
+function DiffViewer<TRecord extends ResourceRecord = LooseRecord>({
   before,
   after,
   sources,
@@ -37,7 +38,7 @@ function DiffViewer<TRecord extends LooseRecord = LooseRecord>({
   const translate = useTranslate();
   const translateLabel = useTranslateLabel();
   const rows = useMemo(
-    () => diffRecords<LooseRecord>(before, after, sources),
+    () => diffRecords<TRecord>(before, after, sources),
     [before, after, sources],
   );
 
@@ -161,7 +162,7 @@ function inlineValues(
   }
 }
 
-interface DiffViewerProps<TRecord extends LooseRecord = LooseRecord> {
+interface DiffViewerProps<TRecord extends ResourceRecord = LooseRecord> {
   /** The earlier version. */
   before: TRecord;
   /** The later version. */

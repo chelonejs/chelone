@@ -175,6 +175,7 @@
   "packages/vue/src/components/admin/layout/command-menu.vue <-> packages/vue/src/components/admin/layout/command-menu.vue": 1,
   "packages/vue/src/components/admin/list/calendar-event.vue <-> packages/vue/src/components/admin/list/calendar-month-view.vue": 1,
   "packages/vue/src/components/admin/list/calendar-list.vue <-> packages/vue/src/components/admin/list/calendar-month-view.vue": 1,
+  "packages/vue/src/components/admin/list/calendar-list.vue <-> packages/vue/src/components/admin/list/tree-list.vue": 1,
   "packages/vue/src/components/admin/list/calendar-month-view.vue <-> packages/vue/src/components/admin/list/calendar-week-view.vue": 1,
   "packages/vue/src/components/admin/list/calendar-month-view.vue <-> packages/vue/src/components/admin/list/tree-list-node.vue": 1,
   "packages/vue/src/components/admin/list/tree-list.vue <-> packages/vue/src/components/kanban/kanban-board.vue": 1,

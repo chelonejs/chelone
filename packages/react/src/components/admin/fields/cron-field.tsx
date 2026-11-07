@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
@@ -6,7 +6,7 @@ import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 import { describeCron } from "../inputs/cron-utils";
 
-interface CronFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface CronFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   /** When true, render the raw cron expression below the human phrase. */
   showExpression?: boolean;
@@ -20,7 +20,7 @@ interface CronFieldProps<RecordType extends LooseRecord = LooseRecord>
  * <CronField source="schedule" />
  * <CronField source="schedule" showExpression />
  */
-function CronField<RecordType extends LooseRecord = LooseRecord>({
+function CronField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,

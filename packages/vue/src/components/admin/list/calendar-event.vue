@@ -1,9 +1,11 @@
-<script lang="ts">
-import type { CalendarEvent, LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { CalendarEvent, LooseRecord, ResourceRecord } from "@chelone/core";
 
 /** Props for {@link CalendarEventButton}. */
-export interface CalendarEventProps {
-  event: CalendarEvent<LooseRecord>;
+export interface CalendarEventProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  event: CalendarEvent<TRecord>;
   /** The link the event is, when it navigates. */
   href?: string;
   /** Whether activating the event does anything: it is inert otherwise. */
@@ -11,7 +13,11 @@ export interface CalendarEventProps {
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="TRecord extends ResourceRecord = LooseRecord"
+>
 /**
  * `<CalendarEventButton>` — one event as a link, a button or an inert label.
  * The week and agenda views render their events with it; the month view keeps
@@ -20,8 +26,8 @@ export interface CalendarEventProps {
 
 import { computed } from "vue";
 
-const props = defineProps<CalendarEventProps>();
-const emit = defineEmits<{ select: [record: LooseRecord] }>();
+const props = defineProps<CalendarEventProps<TRecord>>();
+const emit = defineEmits<{ select: [record: TRecord] }>();
 
 const tag = computed(() =>
   props.href ? "a" : props.selectable ? "button" : "span",

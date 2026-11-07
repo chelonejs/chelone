@@ -5,7 +5,7 @@
 
 import { isPlainObject, isRecord } from "../guards";
 import { getAtPath } from "../resource/get-at-path";
-import type { SourcePath } from "../resource/source-path";
+import type { SourceProp } from "../resource/source-path";
 import { deepEqual } from "./deep-equal";
 
 export type DiffStatus = "unchanged" | "added" | "removed" | "changed";
@@ -43,7 +43,7 @@ function statusOf(before: unknown, after: unknown): DiffStatus {
 export function diffRecords<R>(
   before: R,
   after: R,
-  sources?: readonly SourcePath<R>[],
+  sources?: readonly SourceProp<R>[],
 ): RecordDiffRow[] {
   const beforeKeys = topLevelKeys(before);
   const keys: readonly string[] = sources ?? [
