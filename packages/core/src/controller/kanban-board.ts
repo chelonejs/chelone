@@ -8,7 +8,6 @@
  * beside {@link moveCalendarEvent}.
  */
 
-import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
 import type { SourceKey } from "../resource/source-path";
@@ -40,14 +39,14 @@ export interface KanbanMove<R> {
  * The column key a record sits under: its group value as a string, with a
  * missing or null value reading as `""`. A top-level key, because a move can
  * only write `{ [source]: value }` — as in {@link getAllowedTransitions}.
- * Read through {@link getAtPath}: `SourceKey<R>` of a generic record is a
+ * Read through `Reflect.get`: `SourceKey<R>` of a generic record is a
  * deferred type, so `record[groupSource]` would not typecheck.
  */
 function bucketKey<R extends ResourceRecord>(
   record: R,
   groupSource: SourceKey<R>,
 ): string {
-  return String(getAtPath(record, groupSource) ?? "");
+  return String(Reflect.get(record, groupSource) ?? "");
 }
 
 /**
