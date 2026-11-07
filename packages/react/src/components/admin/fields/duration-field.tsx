@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -9,7 +9,7 @@ import {
   relativeDuration,
 } from "../inputs/duration-utils";
 
-interface DurationFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface DurationFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   /** 'compact' renders `2h 30m`; 'relative' renders `2 hours 30 minutes`. */
   displayFormat?: "compact" | "relative";
@@ -26,7 +26,7 @@ interface DurationFieldProps<RecordType extends LooseRecord = LooseRecord>
  * <DurationField source="duration" displayFormat="relative" />
  * <DurationField source="duration" empty="—" />
  */
-function DurationField<RecordType extends LooseRecord = LooseRecord>({
+function DurationField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,

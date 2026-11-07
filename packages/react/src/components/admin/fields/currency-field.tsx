@@ -1,10 +1,10 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useLocale, useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface CurrencyFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface CurrencyFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   /** ISO-4217 currency code (e.g. 'USD'). Required when value is a plain number. */
   currency?: string;
@@ -29,7 +29,7 @@ interface CurrencyFieldProps<RecordType extends LooseRecord = LooseRecord>
  * <CurrencyField source="price" currency="USD" />
  * <CurrencyField source="cost" storeAsMinorUnits />
  */
-function CurrencyField<RecordType extends LooseRecord = LooseRecord>({
+function CurrencyField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
