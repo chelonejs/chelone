@@ -25,6 +25,7 @@ import { authRoutes } from "./auth-routes";
 import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { pages } from "./pages";
+import Dashboard from "./pages/dashboard";
 import { dataProvider } from "./realtime";
 import { resources } from "./resources";
 import {
@@ -104,6 +105,11 @@ export function App() {
           <Admin.Layout>
             <Shell />
           </Admin.Layout>
+
+          {/* The index route, and the menu's Dashboard entry. */}
+          <Admin.Dashboard>
+            <Dashboard />
+          </Admin.Dashboard>
 
           {/* A URL no route owns, such as /nowhere. */}
           <Admin.CatchAll>

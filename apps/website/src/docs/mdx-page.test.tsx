@@ -63,7 +63,7 @@ it("shows the BooleanField preview and its demo source", async () => {
 
 it.each([
   ["editing/wizard-form", "WizardForm"],
-  ["ui-layout/bar-chart", "BarChart"],
+  ["maps/line-string-field", "LineStringField"],
 ])("shows no preview on %s when no basic demo exists", (slug, title) => {
   render(
     <MemoryRouter initialEntries={[`/docs/${slug}`]}>

@@ -8,6 +8,9 @@
  * the page as its default export. Groups sort alphabetically, then pages by
  * title.
  *
+ * `Dashboard.vue` is left out: it is the index route (the `#dashboard` slot in
+ * `App.vue`), and the menu links it through `<DashboardMenuItem>`.
+ *
  * The glob is eager: the menu needs every title before any page opens, so each
  * page and its add-on peers load with the app.
  */
@@ -35,7 +38,10 @@ export interface PageGroup {
   pages: DemoPage[];
 }
 
-const modules = import.meta.glob<PageModule>("./pages/*.vue", { eager: true });
+const modules = import.meta.glob<PageModule>(
+  ["./pages/*.vue", "!./pages/Dashboard.vue"],
+  { eager: true },
+);
 
 function toPage(file: string, module: PageModule): DemoPage {
   const path = file.replace(/^\.\/pages\/(.+)\.vue$/, "$1");
