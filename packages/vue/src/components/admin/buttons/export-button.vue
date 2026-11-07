@@ -37,7 +37,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import { useListContext } from "../../../list/list-context";
 import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
-import { defaultExporter } from "@chelone/core";
+import { DEFAULT_EXPORT_MAX_RESULTS, defaultExporter } from "@chelone/core";
 import { DownloadIcon } from "./icons";
 
 const props = defineProps<ExportButtonProps>();
@@ -65,7 +65,7 @@ async function onClick(): Promise<void> {
     const { data } = await dataProvider.getList(resource, {
       sort: list.sort?.[0],
       filter: list.filter ?? {},
-      pagination: { page: 1, perPage: props.maxResults ?? 1000 },
+      pagination: { page: 1, perPage: props.maxResults ?? DEFAULT_EXPORT_MAX_RESULTS },
       meta: props.meta,
     });
     await exporter(data, dataProvider, resource);

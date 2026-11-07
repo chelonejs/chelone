@@ -34,6 +34,15 @@ describe("@chelone/core barrel", () => {
     expect(barrel.noop()).toBeUndefined();
   });
 
+  it("exports the shared UI defaults", () => {
+    expect(barrel.SEARCH_THRESHOLD).toBe(5);
+    expect(barrel.DEVTOOLS_MAX_VALUE_LENGTH).toBe(2000);
+    expect(barrel.TITLE_PORTAL_ID).toBe("chelone-title-portal");
+    expect(barrel.UNDO_AUTO_HIDE_MS).toBe(5000);
+    expect(barrel.DEFAULT_EXPORT_MAX_RESULTS).toBe(1000);
+    expect(barrel.MOBILE_BREAKPOINT).toBe(768);
+  });
+
   it("exports the date format helpers", () => {
     expect(barrel.formatDate).toBeTypeOf("function");
     expect(barrel.formatDateTime).toBeTypeOf("function");
