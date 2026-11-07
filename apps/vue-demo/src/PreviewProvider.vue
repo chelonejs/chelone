@@ -18,7 +18,12 @@ export type PreviewMode = "view" | "record" | "input";
  * - `input`: the demo sits in a `<Create>` form, titleless, for a bare input.
  */
 
-import { createNotificationStore, createStore, fakeDataProvider } from "@chelone/core";
+import {
+  type AuthProvider,
+  createNotificationStore,
+  createStore,
+  fakeDataProvider,
+} from "@chelone/core";
 import { makeI18n, seedData } from "@chelone/demo-data";
 import {
   Admin,
@@ -48,6 +53,16 @@ const notifications = createNotificationStore();
 // `<ColumnsButton>` / `<FieldsSelector>` read the table's column choice from here.
 const store = createStore();
 
+// Signs every preview in as the first fixture author, so the components that act
+// as a user (approve, reject) have someone to act as — as the React preview does.
+const authProvider: AuthProvider = {
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+  getIdentity: async () => ({ id: 1, fullName: "Ada Lovelace" }),
+};
+
 provideResourceContext("posts");
 if (props.mode === "record") provideRecordContext(seed.posts[0]);
 </script>
@@ -55,6 +70,7 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
 <template>
   <Admin
     :data-provider="dataProvider"
+    :auth-provider="authProvider"
     :query-client="queryClient"
     :registry="resources"
     :i18n="i18n"

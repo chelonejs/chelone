@@ -7,6 +7,9 @@
  * heading, one per area of the shop admin) and the page as its default export.
  * Groups sort alphabetically, then pages by title.
  *
+ * `dashboard.tsx` is left out: it is the index route (`<Admin.Dashboard>` in
+ * `App.tsx`), and the menu links it through `<Menu.DashboardItem>`.
+ *
  * The glob is eager: the menu needs every title before any page opens, so each
  * page and its add-on peers load with the app.
  */
@@ -33,7 +36,10 @@ export interface PageGroup {
   pages: DemoPage[];
 }
 
-const modules = import.meta.glob<PageModule>("./pages/*.tsx", { eager: true });
+const modules = import.meta.glob<PageModule>(
+  ["./pages/*.tsx", "!./pages/dashboard.tsx"],
+  { eager: true },
+);
 
 function toPage(file: string, module: PageModule): DemoPage {
   const path = file.replace(/^\.\/pages\/(.+)\.tsx$/, "$1");

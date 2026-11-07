@@ -86,6 +86,9 @@ function DemoMenu() {
       <div className="px-4 py-2">
         <SimulateOtherUser />
       </div>
+      <Menu>
+        <Menu.DashboardItem />
+      </Menu>
       {areas.map((area) => {
         const pages = pageGroups.find((g) => g.group === area)?.pages ?? [];
         return (
