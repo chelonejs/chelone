@@ -1,8 +1,10 @@
 import {
+  DEFAULT_PIN_COLOR,
   type GeocodingProvider,
   latLngToLngLat,
   type MapStyleInput,
   type OverpassProvider,
+  PIN_NS,
   type RoutingProvider,
 } from "@chelone/core";
 import { type Map as MapLibreMap, Marker } from "maplibre-gl";
@@ -97,9 +99,6 @@ export interface MapMarkerOptions {
   /** Any CSS color. Defaults to red. */
   color?: string;
 }
-
-const PIN_NS = "http://www.w3.org/2000/svg";
-const DEFAULT_PIN_COLOR = "#dc2626";
 
 /** A pin whose tip is the bottom edge of the element. */
 function createPin(color: string) {

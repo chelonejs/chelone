@@ -1,4 +1,5 @@
 import {
+  DEFAULT_MAP_ZOOM,
   type GeocodingProvider,
   type LooseRecord,
   reverseGeocodeQueryOptions,
@@ -50,7 +51,7 @@ export function MapWithSearch<TRecord = LooseRecord>({
   lngSource,
   addressSource,
   height = 400,
-  zoom = 13,
+  zoom = DEFAULT_MAP_ZOOM,
   provider,
   className,
 }: MapWithSearchProps<TRecord>) {

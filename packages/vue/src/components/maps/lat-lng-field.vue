@@ -29,6 +29,11 @@ export interface LatLngFieldProps<TRecord = unknown> {
  * <LatLngField lat-source="latitude" lng-source="longitude" />
  */
 
+import {
+  DEFAULT_MAP_HEIGHT,
+  LATITUDE_LIMIT,
+  LONGITUDE_LIMIT,
+} from "@chelone/core";
 import { computed } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
@@ -46,10 +51,10 @@ function inRange(value: number | null, limit: number): number | null {
   return value !== null && Math.abs(value) <= limit ? value : null;
 }
 
-const lat = computed(() => inRange(coordinates.lat.value, 90));
-const lng = computed(() => inRange(coordinates.lng.value, 180));
+const lat = computed(() => inRange(coordinates.lat.value, LATITUDE_LIMIT));
+const lng = computed(() => inRange(coordinates.lng.value, LONGITUDE_LIMIT));
 const cssHeight = computed(() => {
-  const height = props.height ?? 300;
+  const height = props.height ?? DEFAULT_MAP_HEIGHT;
   return typeof height === "number" ? `${height}px` : height;
 });
 </script>
