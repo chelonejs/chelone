@@ -60,7 +60,7 @@ provideRecordContext(computed(() => show.record));
       </h2>
       <slot name="actions" />
     </div>
-    <div v-if="show.record" class="my-2">
+    <div v-if="show.record" class="my-2 space-y-4">
       <slot />
     </div>
   </div>
