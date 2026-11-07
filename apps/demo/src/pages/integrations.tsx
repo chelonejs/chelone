@@ -15,6 +15,7 @@ import {
   DateField,
   Edit,
   List,
+  ListPagination,
   PasswordInput,
   RecordField,
   ResourceContextProvider,
@@ -60,7 +61,7 @@ export default function IntegrationsPage() {
     <div className="flex flex-col gap-8">
       <section aria-label="API keys">
         <ResourceContextProvider value="api_keys">
-          <List perPage={5} title="API keys" actions={false}>
+          <List perPage={5} title="API keys">
             <DataTable rowClick={false}>
               <DataTable.Col source="name" />
               <DataTable.Col label="Key">
@@ -81,6 +82,7 @@ export default function IntegrationsPage() {
                 />
               </DataTable.Col>
             </DataTable>
+            <ListPagination />
           </List>
         </ResourceContextProvider>
       </section>
