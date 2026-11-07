@@ -14,6 +14,7 @@ import {
   ColorField,
   ColorInput,
   Create,
+  CreateButton,
   CurrencyField,
   CurrencyInput,
   DataTable,
@@ -21,6 +22,10 @@ import {
   Edit,
   FileField,
   FileInput,
+  FilterList,
+  FilterListItem,
+  FilterListSection,
+  FilterLiveSearch,
   FunctionField,
   ImageField,
   ImageInput,
@@ -28,6 +33,8 @@ import {
   Labeled,
   List,
   ListButton,
+  ListPagination,
+  ListToolbar,
   NullableBooleanInput,
   NumberField,
   NumberInput,
@@ -37,34 +44,122 @@ import {
   RatingInput,
   ResettableTextInput,
   SaveButton,
+  SavedQueriesList,
+  SearchInput,
   SelectArrayInput,
   SelectField,
   SelectInput,
   Show,
   ShowButton,
+  SortButton,
   TabbedShowLayout,
   TextArrayField,
   TextArrayInput,
   TextInput,
+  ToggleFilterButton,
   Toolbar,
+  TopToolbar,
   UrlField,
   WrapperField,
 } from "@chelone/react";
 import { Card } from "@/components/ui/card";
 
+/**
+ * The toolbar's filters: a SKU lookup that is always on, and a shipping class
+ * the Add filter menu can bring in.
+ */
+const toolbarFilters = [
+  <SearchInput
+    key="sku"
+    source="sku"
+    placeholder="Find by SKU"
+    alwaysOn
+    className="w-56"
+  />,
+  <SelectInput
+    key="shipping_class"
+    source="shipping_class"
+    label="Shipping class"
+    choices={shippingClassChoices}
+  />,
+];
+
+/** Sort and create sit in the page header, beside the title. */
+function ProductListActions() {
+  return (
+    <TopToolbar className="mb-0">
+      <SortButton
+        fields={["name", "price", "stock", "rating"]}
+        label="Sort by {field} ({order})"
+      />
+      <CreateButton />
+    </TopToolbar>
+  );
+}
+
+/** Live search, one-click filters and saved queries, in the column beside the table. */
+function ProductSidebar() {
+  return (
+    <aside className="flex w-56 shrink-0 flex-col gap-6">
+      <FilterLiveSearch placeholder="Search products" />
+      <FilterList label="Category">
+        {categoryChoices.map((choice) => (
+          <FilterListItem
+            key={choice.id}
+            label={choice.name}
+            value={{ category: choice.id }}
+          />
+        ))}
+      </FilterList>
+      <FilterList label="Shipping">
+        {shippingClassChoices.map((choice) => (
+          <FilterListItem
+            key={choice.id}
+            label={choice.name}
+            value={{ shipping_class: choice.id }}
+          />
+        ))}
+      </FilterList>
+      <FilterListSection label="Availability">
+        <div className="flex flex-wrap gap-2 px-2">
+          <ToggleFilterButton label="Out of stock" value={{ stock: 0 }} />
+          <ToggleFilterButton label="Featured" value={{ featured: true }} />
+        </div>
+      </FilterListSection>
+      <FilterListSection label="Saved queries">
+        <div className="px-2">
+          <SavedQueriesList />
+        </div>
+      </FilterListSection>
+    </aside>
+  );
+}
+
 export function ProductList() {
   return (
-    <List>
-      <DataTable>
-        <DataTable.Col source="name" />
-        <DataTable.Col source="sku" />
-        <DataTable.Col source="category" />
-        <DataTable.NumberCol
-          source="price"
-          options={{ style: "currency", currency: "USD" }}
-        />
-        <DataTable.NumberCol source="stock" />
-      </DataTable>
+    <List actions={<ProductListActions />} perPage={10}>
+      <div className="flex items-start gap-6">
+        <ProductSidebar />
+        <div className="min-w-0 flex-1">
+          <ListToolbar
+            filters={toolbarFilters}
+            hasCreate={false}
+            exporter={false}
+            className="mb-4"
+          />
+          <DataTable>
+            <DataTable.Col source="name" />
+            <DataTable.Col source="sku" />
+            <DataTable.Col source="category" />
+            <DataTable.NumberCol
+              source="price"
+              options={{ style: "currency", currency: "USD" }}
+            />
+            <DataTable.NumberCol source="stock" />
+          </DataTable>
+          <ListPagination />
+        </div>
+      </div>
     </List>
   );
 }

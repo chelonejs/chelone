@@ -49,4 +49,5 @@ export {
   TEAM_RESOURCES,
   TEAM_ROLES,
 } from "./team";
+export { withTextSearch } from "./text-search";
 export { type DemoTourStep, TOUR_ID, tourSteps } from "./tour";

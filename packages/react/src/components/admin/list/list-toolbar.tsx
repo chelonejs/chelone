@@ -85,7 +85,10 @@ function ListToolbar(props: ListToolbarProps) {
     );
 
   const content = (
-    <div className={cn("flex items-start justify-between gap-2", className)}>
+    <div
+      data-slot="list-toolbar"
+      className={cn("flex items-start justify-between gap-2", className)}
+    >
       {filters ? <FilterForm filters={filters} /> : <span />}
       {actionsElement}
     </div>

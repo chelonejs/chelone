@@ -879,7 +879,24 @@
       }
     }
   },
-  "create-button": null,
+  "create-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/create-button",
+        "see": ".not-prose >> role=link[name=\"Create\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "role=link[name=\"Create\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "role=link[name=\"Create\"]"
+      }
+    }
+  },
   "crepe-editor": {
     "shownBy": "mdx-input"
   },
@@ -1408,12 +1425,114 @@
   "file-input-preview": {
     "shownBy": "file-input"
   },
-  "filter-button": null,
-  "filter-form": null,
-  "filter-list": null,
-  "filter-list-item": null,
-  "filter-list-section": null,
-  "filter-live-search": null,
+  "filter-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-button",
+        "see": ".not-prose >> role=button[name=\"Add filter\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "role=button[name=\"Add filter\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "role=button[name=\"Add filter\"]"
+      }
+    }
+  },
+  "filter-form": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/filter-form",
+        "see": ".not-prose [data-slot=\"filter-form\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-form\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"list-toolbar\"] [data-slot=\"filter-form\"]"
+      }
+    }
+  },
+  "filter-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-list",
+        "see": ".not-prose [data-slot=\"filter-list-section\"]:has(> ul)"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has(> ul)"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has(> ul)"
+      }
+    }
+  },
+  "filter-list-item": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-list-item",
+        "see": ".not-prose [data-slot=\"filter-list-item\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-list-item\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"filter-list-item\"]"
+      }
+    }
+  },
+  "filter-list-section": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-list-section",
+        "see": ".not-prose [data-slot=\"filter-list-section\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has-text(\"Availability\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has-text(\"Availability\")"
+      }
+    }
+  },
+  "filter-live-search": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-live-search",
+        "see": ".not-prose input[placeholder=\"Search posts\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "input[placeholder=\"Search products\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "input[placeholder=\"Search products\"]"
+      }
+    }
+  },
   "forgot-password-form": {
     "shownBy": "forgot-password-page"
   },
@@ -1812,7 +1931,24 @@
       }
     }
   },
-  "list-actions": null,
+  "list-actions": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/list-actions",
+        "see": ".not-prose [data-slot=\"list-actions\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"list-actions\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"list-actions\"]"
+      }
+    }
+  },
   "list-button": {
     "react": {
       "docs": {
@@ -1888,7 +2024,24 @@
       }
     }
   },
-  "list-toolbar": null,
+  "list-toolbar": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/list-toolbar",
+        "see": ".not-prose [data-slot=\"list-toolbar\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"list-toolbar\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"list-toolbar\"]"
+      }
+    }
+  },
   "loading": {
     "react": {
       "docs": {
@@ -2847,8 +3000,45 @@
       }
     }
   },
-  "saved-queries-list": null,
-  "search-input": null,
+  "saved-queries-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/saved-queries-list",
+        "see": ".not-prose [data-slot=\"saved-queries-list\"]",
+        "click": [".not-prose [data-slot=\"filter-list-item\"] button"]
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"saved-queries-list\"]",
+        "click": ["[data-slot=\"filter-list-item\"] button"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"saved-queries-list\"]",
+        "click": ["[data-slot=\"filter-list-item\"] button"]
+      }
+    }
+  },
+  "search-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/search-input",
+        "see": ".not-prose input[name=\"q\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "input[placeholder=\"Find by SKU\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "input[placeholder=\"Find by SKU\"]"
+      }
+    }
+  },
   "select-all-button": {
     "react": {
       "docs": {
@@ -3168,7 +3358,24 @@
   "social-icons": {
     "shownBy": "social-auth-button"
   },
-  "sort-button": null,
+  "sort-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/sort-button",
+        "see": ".not-prose button[aria-label^=\"Sort by\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "button[aria-label^=\"Sort by\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "button[aria-label^=\"Sort by\"]"
+      }
+    }
+  },
   "sortable-fields-selector": {
     "shownBy": "configurable-inputs"
   },
@@ -3386,7 +3593,24 @@
   "toggle-block": {
     "shownBy": "block-editor-input"
   },
-  "toggle-filter-button": null,
+  "toggle-filter-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/toggle-filter-button",
+        "see": ".not-prose [data-slot=\"toggle-filter-button\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"toggle-filter-button\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"toggle-filter-button\"]"
+      }
+    }
+  },
   "toolbar": {
     "react": {
       "docs": {
@@ -3405,7 +3629,24 @@
       }
     }
   },
-  "top-toolbar": null,
+  "top-toolbar": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/top-toolbar",
+        "see": ".not-prose [data-slot=\"top-toolbar\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"top-toolbar\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"top-toolbar\"]"
+      }
+    }
+  },
   "translatable-fields": null,
   "translatable-fields-tab": {
     "shownBy": "translatable-fields"
