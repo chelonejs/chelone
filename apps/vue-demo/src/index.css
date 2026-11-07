@@ -11,10 +11,10 @@
 @source "../../../packages/vue/src/components";
 
 /*
- * The docs demos compile here (the website has no Vue compiler), and they are
- * outside this app's folder, so Tailwind would not see the classes only they
- * use. Point `@source` at the Vue ones, and only those: the React twins beside
- * them would otherwise add their classes to this app's bundle.
+ * The docs demos render here in an iframe (the website has no Vue compiler), and
+ * they are outside this app's folder, so Tailwind would not see the classes only
+ * they use. Name the Vue ones: the React twins beside them would otherwise add
+ * their classes to this app's bundle.
  */
 @source "../../website/src/docs/content/**/demos/*.vue";
 
@@ -135,4 +135,19 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/*
+ * HideOnScroll listens to the window, but the layout fixes <main> to one screen
+ * (and, in Vue, scrolls #main-content inside it). With the sticky app bar in
+ * place, <main> grows with its content so the page scrolls and the bar can
+ * stay stuck, hide on the way down and come back on the way up.
+ */
+main:has(> .demo-app-bar) {
+  height: auto;
+  min-height: 100svh;
+}
+
+main:has(> .demo-app-bar) > #main-content {
+  overflow: visible;
 }

@@ -18,11 +18,7 @@ export type PreviewMode = "view" | "record" | "input";
  * - `input`: the demo sits in a `<Create>` form, titleless, for a bare input.
  */
 
-import {
-  createNotificationStore,
-  createStore,
-  fakeDataProvider,
-} from "@chelone/core";
+import { createNotificationStore, createStore, fakeDataProvider } from "@chelone/core";
 import { makeI18n, seedData } from "@chelone/demo-data";
 import {
   Admin,
@@ -49,8 +45,7 @@ const queryClient = new QueryClient({
 });
 const i18n = makeI18n();
 const notifications = createNotificationStore();
-// The React preview hands its demos a store too, and the ones that store a
-// choice (`<ConfigurableInputs>`, the inspector's panel position) need one.
+// `<ColumnsButton>` / `<FieldsSelector>` read the table's column choice from here.
 const store = createStore();
 
 provideResourceContext("posts");

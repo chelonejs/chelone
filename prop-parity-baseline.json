@@ -450,7 +450,6 @@
   "react.MdxInput.resource",
   "react.MdxInput.type",
   "vue.MdxInput.crepeConfig",
-  "react.MenuItemLink.keyboardShortcut",
   "react.MenuItemLink.keyboardShortcutRepresentation",
   "react.MenuItemLink.tooltipProps",
   "react.MonacoJsonField.cellClassName",

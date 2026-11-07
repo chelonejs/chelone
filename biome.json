@@ -1971,11 +1971,13 @@
       },
       "linter": {
         "domains": {
-          "vue": "none",
-          "react": "none"
+          "vue": "none"
         },
         "rules": {
-          "preset": "none"
+          "preset": "none",
+          "correctness": {
+            "useHookAtTopLevel": "off"
+          }
         }
       }
     }

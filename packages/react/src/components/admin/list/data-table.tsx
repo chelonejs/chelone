@@ -671,7 +671,7 @@ function DataTableHeadCell(props: DataTableColumnProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="-ml-3 -mr-3 h-8 data-[state=open]:bg-accent cursor-pointer"
+              className="-ml-2 -mr-2 h-8 data-[state=open]:bg-accent cursor-pointer"
               data-field={source}
               onClick={handleSort}
             >

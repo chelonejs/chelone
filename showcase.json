@@ -78,7 +78,24 @@
       }
     }
   },
-  "app-sidebar": null,
+  "app-sidebar": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/app-sidebar",
+        "see": ".not-prose [data-slot=\"sidebar-inner\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-inner\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-inner\"]"
+      }
+    }
+  },
   "application-updated-notification": {
     "react": {
       "docs": {
@@ -1617,7 +1634,24 @@
   "guesser-empty": {
     "shownBy": "list-guesser"
   },
-  "hide-on-scroll": null,
+  "hide-on-scroll": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/hide-on-scroll",
+        "see": ".not-prose [data-state]:has-text(\"Posts toolbar\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "main > [data-state]:has(> header)"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"layout-main\"] > [data-state]:has(> [data-slot=\"app-bar\"])"
+      }
+    }
+  },
   "i18n-key-editor": {
     "react": {
       "docs": {
@@ -1636,7 +1670,24 @@
       }
     }
   },
-  "icon-button-with-tooltip": null,
+  "icon-button-with-tooltip": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/icon-button-with-tooltip",
+        "see": ".not-prose [aria-label=\"Posts are stored in memory\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[aria-label=\"Documentation\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[aria-label=\"Documentation\"]"
+      }
+    }
+  },
   "image-block": {
     "shownBy": "block-editor-input"
   },
@@ -1819,7 +1870,24 @@
   "kanban-drop-area": {
     "shownBy": "kanban-board"
   },
-  "keyboard-shortcut": null,
+  "keyboard-shortcut": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/keyboard-shortcut",
+        "see": ".not-prose kbd:has-text(\"⌘\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"⌘\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"⌘\")"
+      }
+    }
+  },
   "labeled": {
     "react": {
       "docs": {
@@ -1912,7 +1980,24 @@
       }
     }
   },
-  "link": null,
+  "link": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/link",
+        "see": ".not-prose a:has-text(\"Explore the admin layout\")"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "a:has-text(\"Open a wrong URL\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "a:has-text(\"Open a wrong URL\")"
+      }
+    }
+  },
   "list": {
     "react": {
       "docs": {
@@ -2062,7 +2147,24 @@
       }
     }
   },
-  "loading-indicator": null,
+  "loading-indicator": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/loading-indicator",
+        "see": ".not-prose [aria-label=\"ra.action.refresh\"]"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "[aria-label=\"Refresh\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "[aria-label=\"Refresh\"]"
+      }
+    }
+  },
   "loading-input": {
     "react": {
       "docs": {
@@ -2234,7 +2336,24 @@
       }
     }
   },
-  "menu-item-link": null,
+  "menu-item-link": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/menu-item-link",
+        "see": ".not-prose [data-slot=\"sidebar-menu-button\"]:has-text(\"MenuItemLink\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\")"
+      }
+    }
+  },
   "menu-live": {
     "react": {
       "docs": {
@@ -2902,8 +3021,42 @@
       }
     }
   },
-  "resource-menu-item": null,
-  "resource-menu-item-group": null,
+  "resource-menu-item": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/resource-menu-item",
+        "see": ".not-prose [data-slot=\"sidebar-menu-button\"]:has-text(\"Posts\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Products\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Products\")"
+      }
+    }
+  },
+  "resource-menu-item-group": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/resource-menu-item-group",
+        "see": ".not-prose [data-slot=\"sidebar-group-label\"]:has-text(\"Content\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-group-label\"]:has-text(\"Content\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-group-label\"]:has-text(\"Content\")"
+      }
+    }
+  },
   "reverse-geocode-field": {
     "react": {
       "docs": {
@@ -3245,7 +3398,24 @@
       }
     }
   },
-  "sidebar-toggle-button": null,
+  "sidebar-toggle-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/sidebar-toggle-button",
+        "see": ".not-prose [data-sidebar=\"trigger\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-sidebar=\"trigger\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-toggle-button\"]"
+      }
+    }
+  },
   "simple-form-iterator": {
     "react": {
       "docs": {
@@ -3336,7 +3506,24 @@
   "single-field-list-record": {
     "shownBy": "single-field-list"
   },
-  "skip-navigation-button": null,
+  "skip-navigation-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/skip-navigation-button",
+        "see": ".not-prose >> role=button[name=\"Skip to content\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=button[name=\"Skip to content\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=button[name=\"Skip to content\"]"
+      }
+    }
+  },
   "social-auth-button": {
     "react": {
       "docs": {
@@ -3547,7 +3734,24 @@
       }
     }
   },
-  "theme-mode-toggle": null,
+  "theme-mode-toggle": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/theme-mode-toggle",
+        "see": ".not-prose >> role=button[name=\"Toggle theme\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=button[name=\"Toggle light/dark mode\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=button[name=\"Toggle light/dark mode\"]"
+      }
+    }
+  },
   "theme-provider": {
     "shownBy": "theme-mode-toggle"
   },
