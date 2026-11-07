@@ -22,12 +22,13 @@ export interface ThemeProviderProps {
  * whenever it changes; the mode is seeded from `localStorage` on setup.
  */
 
+import { DEFAULT_THEME_STORAGE_KEY } from "@chelone/core";
 import { provide, ref, watchEffect } from "vue";
 import { ThemeContextKey, resolveTheme } from "./theme-context";
 
 const props = withDefaults(defineProps<ThemeProviderProps>(), {
   defaultTheme: "system",
-  storageKey: "chelone-theme",
+  storageKey: DEFAULT_THEME_STORAGE_KEY,
 });
 
 function readStored(): Theme {

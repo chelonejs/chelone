@@ -10,6 +10,7 @@
  * CSS (the `ui/` layer + registry `cssVars`), so this only manages the MODE.
  */
 
+import { DEFAULT_THEME_STORAGE_KEY } from "@chelone/core";
 import {
   useCallback,
   useEffect,
@@ -166,7 +167,7 @@ function ModeContext({
 function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "chelone-theme",
+  storageKey = DEFAULT_THEME_STORAGE_KEY,
 }: ThemeProviderProps) {
   const [mode, setMode] = useMode(storageKey, defaultTheme);
   return (

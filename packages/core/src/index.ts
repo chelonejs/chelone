@@ -104,7 +104,12 @@ export {
   shouldHandleHotkey,
 } from "./command-menu/hotkey";
 export type { RecentEntry } from "./command-menu/recents";
-export { recentsKey, rememberRecent } from "./command-menu/recents";
+export {
+  DEFAULT_RECENTS_LIMIT,
+  DEFAULT_SEARCH_DEBOUNCE_MS,
+  recentsKey,
+  rememberRecent,
+} from "./command-menu/recents";
 export type {
   CommandAction,
   CommandRegistry,
@@ -1125,6 +1130,7 @@ export type { CheloneStore, StoreAdapter } from "./store/store";
 export { createStore } from "./store/store";
 export {
   DEFAULT_EXPORT_MAX_RESULTS,
+  DEFAULT_THEME_STORAGE_KEY,
   DEVTOOLS_MAX_VALUE_LENGTH,
   MOBILE_BREAKPOINT,
   SEARCH_THRESHOLD,

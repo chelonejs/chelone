@@ -20,6 +20,8 @@
 import {
   canAccessQueryOptions,
   createCommandRegistry,
+  DEFAULT_RECENTS_LIMIT,
+  DEFAULT_SEARCH_DEBOUNCE_MS,
   getVisibleCommands,
   groupCommands,
   type RecentEntry,
@@ -151,10 +153,10 @@ function CommandMenu({
   resources,
   searchFields,
   perResourceLimit = 5,
-  recentsLimit = 10,
+  recentsLimit = DEFAULT_RECENTS_LIMIT,
   actions,
   placeholder,
-  searchDebounceMs = 250,
+  searchDebounceMs = DEFAULT_SEARCH_DEBOUNCE_MS,
   children,
 }: CommandMenuProps) {
   const translate = useTranslate();
