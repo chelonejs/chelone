@@ -9,6 +9,7 @@ import { Link } from "react-router";
 import { Callout } from "./callout";
 import { Card, Cards } from "./cards";
 import { ComponentPreview } from "./component-preview";
+import { HeadingLink } from "./heading-link";
 import { PropsTable } from "./props-table";
 import { TabItem, Tabs } from "./tabs";
 
@@ -81,6 +82,24 @@ function MdxCode({
   );
 }
 
+// ── Headings: h2/h3 link to themselves (the "On this page" rail's entries) ──
+
+function MdxH2({ id, children }: React.ComponentPropsWithoutRef<"h2">) {
+  return (
+    <HeadingLink level={2} id={id}>
+      {children}
+    </HeadingLink>
+  );
+}
+
+function MdxH3({ id, children }: React.ComponentPropsWithoutRef<"h3">) {
+  return (
+    <HeadingLink level={3} id={id}>
+      {children}
+    </HeadingLink>
+  );
+}
+
 // ── Component map ────────────────────────────────────────────────────────────
 
 const components: MDXComponents = {
@@ -88,6 +107,8 @@ const components: MDXComponents = {
   a: MdxLink,
   img: MdxImg,
   code: MdxCode,
+  h2: MdxH2,
+  h3: MdxH3,
   // Starlight-compat global components
   Tabs,
   TabItem,
