@@ -6,7 +6,24 @@
   "addon-supabase": {
     "shownBy": "supabase-login-page"
   },
-  "admin": null,
+  "admin": {
+    "react": {
+      "docs": {
+        "path": "/docs/app-config/admin",
+        "see": "iframe[title=\"The reference admin\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-wrapper\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-wrapper\"]"
+      }
+    }
+  },
   "api-key-field": {
     "react": {
       "docs": {
@@ -43,7 +60,24 @@
       }
     }
   },
-  "app-bar": null,
+  "app-bar": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/app-bar",
+        "see": ".not-prose header"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "main > header"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"app-bar\"]"
+      }
+    }
+  },
   "app-sidebar": null,
   "application-updated-notification": null,
   "approval-queue": {
@@ -172,7 +206,24 @@
       }
     }
   },
-  "badge-field": null,
+  "badge-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/badge-field",
+        "see": ".not-prose [data-slot=\"badge\"]"
+      },
+      "demo": {
+        "path": "/demo/orders",
+        "see": "td [data-slot=\"badge\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders",
+        "see": "td [data-slot=\"badge\"]"
+      }
+    }
+  },
   "bar-chart": null,
   "bbox-field": {
     "react": {
@@ -282,8 +333,42 @@
   "block-toolbar": {
     "shownBy": "block-editor-input"
   },
-  "boolean-field": null,
-  "boolean-input": null,
+  "boolean-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/boolean-field",
+        "see": ".not-prose svg[data-slot=\"tooltip-trigger\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "div:has(> div > span:text-is(\"Published\")) svg"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"boolean-field\"]"
+      }
+    }
+  },
+  "boolean-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/boolean-input",
+        "see": ".not-prose [role=\"switch\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/create",
+        "see": "role=switch[name=\"Published\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/create",
+        "see": "[data-slot=\"switch\"]"
+      }
+    }
+  },
   "bulk-actions-toolbar": {
     "react": {
       "docs": {
@@ -426,7 +511,24 @@
   "callout-block": {
     "shownBy": "block-editor-input"
   },
-  "can-access": null,
+  "can-access": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/can-access",
+        "see": "role=region[name=\"Post tools\"]"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "role=region[name=\"Role matrix\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "role=region[name=\"Role matrix\"]"
+      }
+    }
+  },
   "cancel-button": null,
   "card-content-inner": null,
   "chart-block": {
@@ -617,7 +719,24 @@
   "count-spinner": {
     "shownBy": "count"
   },
-  "create": null,
+  "create": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/create",
+        "see": ".not-prose h2:text-is(\"Create Post\")"
+      },
+      "demo": {
+        "path": "/demo/posts/create",
+        "see": "#main-content h2:text-is(\"Create Post\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/create",
+        "see": "[data-slot=\"create\"]"
+      }
+    }
+  },
   "create-button": null,
   "crepe-editor": {
     "shownBy": "mdx-input"
@@ -734,7 +853,24 @@
   "data-provider-devtools-entry": {
     "shownBy": "data-provider-devtools"
   },
-  "data-table": null,
+  "data-table": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/data-table",
+        "see": ".not-prose [data-slot=\"table-container\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"table-container\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"data-table\"]"
+      }
+    }
+  },
   "data-table-col": {
     "shownBy": "data-table"
   },
@@ -867,11 +1003,62 @@
       }
     }
   },
-  "edit": null,
-  "edit-button": null,
+  "edit": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/edit",
+        "see": ".not-prose h2"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "#main-content h2"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "[data-slot=\"edit\"]"
+      }
+    }
+  },
+  "edit-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/edit-button",
+        "see": ".not-prose a[aria-label=\"Edit\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "td a[aria-label=\"Edit\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"edit-button\"]"
+      }
+    }
+  },
   "edit-guesser": null,
   "edit-live": null,
-  "email-field": null,
+  "email-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/email-field",
+        "see": ".not-prose a[href^=\"mailto:\"]"
+      },
+      "demo": {
+        "path": "/demo/authors/1/show",
+        "see": "a[href^=\"mailto:\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/authors/1/show",
+        "see": "a[href^=\"mailto:\"]"
+      }
+    }
+  },
   "embed-block": {
     "shownBy": "block-editor-input"
   },
@@ -996,7 +1183,24 @@
     "shownBy": "list-guesser"
   },
   "hide-on-scroll": null,
-  "i18n-key-editor": null,
+  "i18n-key-editor": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/i18n-key-editor",
+        "see": "[data-slot='i18n-key-editor']"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "[data-slot='i18n-key-editor']"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "[data-slot='i18n-key-editor']"
+      }
+    }
+  },
   "icon-button-with-tooltip": null,
   "image-block": {
     "shownBy": "block-editor-input"
@@ -1180,10 +1384,44 @@
       }
     }
   },
-  "layout": null,
+  "layout": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/layout",
+        "see": ".not-prose #main-content"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "#main-content"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "#main-content"
+      }
+    }
+  },
   "linear-progress": null,
   "link": null,
-  "list": null,
+  "list": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/list",
+        "see": ".not-prose h2"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "#main-content h2:text-is(\"Posts\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"list\"]"
+      }
+    }
+  },
   "list-actions": null,
   "list-button": null,
   "list-guesser": null,
@@ -1191,7 +1429,24 @@
   "list-no-results": {
     "shownBy": "simple-list"
   },
-  "list-pagination": null,
+  "list-pagination": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/list-pagination",
+        "see": ".not-prose nav[aria-label=\"pagination\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "nav[aria-label=\"pagination\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"list-pagination\"]"
+      }
+    }
+  },
   "list-toolbar": null,
   "loading": null,
   "loading-indicator": null,
@@ -1199,7 +1454,24 @@
   "locales-menu": {
     "shownBy": "locales-menu-button"
   },
-  "locales-menu-button": null,
+  "locales-menu-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/locales-menu-button",
+        "see": "role=button[name=\"Change locale\"]"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "role=button[name=\"Change locale\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "role=button[name=\"Change locale\"]"
+      }
+    }
+  },
   "lock-on-mount": null,
   "lock-status": null,
   "login-form": null,
@@ -1278,7 +1550,24 @@
       }
     }
   },
-  "menu": null,
+  "menu": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/menu",
+        "see": ".not-prose [data-slot=\"sidebar-menu\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-menu\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-menu\"]"
+      }
+    }
+  },
   "menu-item-link": null,
   "menu-live": null,
   "metric-card": null,
@@ -1353,8 +1642,42 @@
       }
     }
   },
-  "number-field": null,
-  "number-input": null,
+  "number-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/number-field",
+        "see": ".not-prose .min-h-32 > span:not(.text-muted-foreground)"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "div:has(> div > span:text-is(\"Views\")) > span > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"number-field\"]"
+      }
+    }
+  },
+  "number-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/number-input",
+        "see": ".not-prose input[type=\"number\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/create",
+        "see": "role=spinbutton[name=\"Views\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/create",
+        "see": "role=spinbutton[name=\"Views\"]"
+      }
+    }
+  },
   "offline": null,
   "onboarding-tour": {
     "react": {
@@ -1425,7 +1748,24 @@
       }
     }
   },
-  "permission-matrix": null,
+  "permission-matrix": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/permission-matrix",
+        "see": "[data-slot='permission-matrix']"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "[data-slot='permission-matrix']"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "[data-slot='permission-matrix']"
+      }
+    }
+  },
   "phone-field": null,
   "phone-input": null,
   "pivot-grid": null,
@@ -1487,7 +1827,24 @@
     }
   },
   "ready": null,
-  "record-field": null,
+  "record-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/record-field",
+        "see": ".not-prose div:has(> div > span:text-is(\"Title\"))"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "div:has(> div > span:text-is(\"Title\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"record-field\"]:has(> div:text-is(\"Title\"))"
+      }
+    }
+  },
   "record-list-block": {
     "shownBy": "block-editor-input"
   },
@@ -1548,10 +1905,61 @@
       }
     }
   },
-  "reference-field": null,
-  "reference-input": null,
+  "reference-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-field",
+        "see": ".not-prose p:has-text(\"Author:\") > span"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "td a[href*=\"/authors/\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "td a[href*=\"/authors/\"]"
+      }
+    }
+  },
+  "reference-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/reference-input",
+        "see": ".not-prose [role=\"combobox\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/create",
+        "see": "role=combobox[name=\"Author\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/create",
+        "see": "role=combobox[name=\"Author\"]"
+      }
+    }
+  },
   "reference-many-count": null,
-  "reference-many-field": null,
+  "reference-many-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-many-field",
+        "see": ".not-prose [data-slot=\"table-container\"]"
+      },
+      "demo": {
+        "path": "/demo/authors/1/show",
+        "see": "div:has(> div > span:text-is(\"Posts\")) [data-slot=\"table-container\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/authors/1/show",
+        "see": "[data-slot=\"record-field\"]:has(> div:text-is(\"Posts\")) [data-slot=\"data-table\"]"
+      }
+    }
+  },
   "reference-one-field": {
     "react": {
       "docs": {
@@ -1710,7 +2118,24 @@
   "rich-text-url-form": {
     "shownBy": "rich-text-input"
   },
-  "save-button": null,
+  "save-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/save-button",
+        "see": ".not-prose button[aria-label=\"Save\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/create",
+        "see": "button[aria-label=\"Save\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/create",
+        "see": "button[aria-label=\"Save\"]"
+      }
+    }
+  },
   "saved-queries-list": null,
   "search-input": null,
   "select-all-button": {
@@ -1752,7 +2177,24 @@
     }
   },
   "select-field": null,
-  "select-input": null,
+  "select-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/select-input",
+        "see": ".not-prose [role=\"combobox\"]"
+      },
+      "demo": {
+        "path": "/demo/orders/create",
+        "see": "role=combobox[name=\"Status\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/create",
+        "see": "role=combobox[name=\"Status\"]"
+      }
+    }
+  },
   "set-password-form": {
     "shownBy": "set-password-page"
   },
@@ -1796,7 +2238,24 @@
   "shape-inputs": {
     "shownBy": "shape-input"
   },
-  "show": null,
+  "show": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/show",
+        "see": ".not-prose h2"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"show\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"show\"]"
+      }
+    }
+  },
   "show-button": null,
   "show-guesser": null,
   "show-live": {
@@ -1964,7 +2423,24 @@
       }
     }
   },
-  "text-field": null,
+  "text-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/text-field",
+        "see": ".not-prose .min-h-32 > span:not(.text-muted-foreground)"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "div:has(> div > span:text-is(\"Body\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"record-field\"]:has(> div:text-is(\"Body\")) [data-slot=\"text-field\"]"
+      }
+    }
+  },
   "text-input": {
     "react": {
       "docs": {
@@ -2005,7 +2481,24 @@
       }
     }
   },
-  "title": null,
+  "title": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/title",
+        "see": ".not-prose #chelone-title-portal h1"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "#chelone-title-portal h1"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"title-portal\"] h1"
+      }
+    }
+  },
   "title-portal": {
     "shownBy": "title"
   },
@@ -2013,7 +2506,24 @@
     "shownBy": "block-editor-input"
   },
   "toggle-filter-button": null,
-  "toolbar": null,
+  "toolbar": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/toolbar",
+        "see": ".not-prose [role=\"toolbar\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "[role=\"toolbar\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "[role=\"toolbar\"]"
+      }
+    }
+  },
   "top-toolbar": null,
   "translatable-fields": null,
   "translatable-fields-tab": {
@@ -2046,7 +2556,24 @@
   "update-button": null,
   "url-field": null,
   "usage-meter-field": null,
-  "user-menu": null,
+  "user-menu": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/user-menu",
+        "see": ".not-prose button[aria-label=\"Ada Lovelace\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "button[aria-label=\"Demo User\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "button[aria-label=\"Demo User\"]"
+      }
+    }
+  },
   "user-menu-inner": {
     "shownBy": "user-menu"
   },

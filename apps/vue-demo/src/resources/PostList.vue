@@ -9,6 +9,7 @@
  */
 
 import {
+  BooleanField,
   DataTable,
   DataTableCol,
   DataTableNumberCol,
@@ -33,7 +34,9 @@ import SimulateOtherUser from "../realtime-sim.vue";
         </ReferenceField>
       </DataTableCol>
       <DataTableNumberCol source="views" label="Views" />
-      <DataTableCol source="published" label="Published" />
+      <DataTableCol source="published" label="Published">
+        <BooleanField source="published" />
+      </DataTableCol>
       <DataTableCol label="">
         <EditButton />
       </DataTableCol>

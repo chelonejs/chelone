@@ -62,6 +62,7 @@ export default [
   {
     category: "Lists & show layouts",
     slugs: [
+      "data-table",
       "simple-list",
       "simple-list-item",
       "simple-list-loading",

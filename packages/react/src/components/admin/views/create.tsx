@@ -228,7 +228,7 @@ function CreateView(props: CreateViewProps) {
         )}
         {resolvedActions}
       </div>
-      <Wrapper className="my-2">{children}</Wrapper>
+      <Wrapper className="my-2 space-y-4">{children}</Wrapper>
     </>
   );
 }
