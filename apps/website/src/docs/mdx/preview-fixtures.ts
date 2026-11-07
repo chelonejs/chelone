@@ -33,6 +33,9 @@ export type PreviewPost = {
   author_id: number;
   views: number;
   published: boolean;
+  status: "draft" | "review" | "published";
+  /** ISO datetime inside the current month, for the calendar demo. */
+  publish_at: string;
 };
 
 const authors: PreviewAuthor[] = [
@@ -74,6 +77,9 @@ const postTitles = [
   "Turing Machines Made Concrete",
 ];
 
+const postStatuses = ["draft", "review", "published"] as const;
+const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
 const posts: PreviewPost[] = postTitles.map((title, i) => ({
   id: i + 1,
   title,
@@ -81,6 +87,13 @@ const posts: PreviewPost[] = postTitles.map((title, i) => ({
   author_id: authors[i % authors.length].id,
   views: 50 + ((i * 137) % 900),
   published: i % 3 !== 0,
+  status: postStatuses[i % postStatuses.length],
+  publish_at: new Date(
+    monthStart.getFullYear(),
+    monthStart.getMonth(),
+    1 + ((i * 5) % 28),
+    9 + (i % 8),
+  ).toISOString(),
 }));
 
 /** Build a fresh seed object (fakeDataProvider mutates its data in place). */
