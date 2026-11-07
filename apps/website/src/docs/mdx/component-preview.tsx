@@ -44,7 +44,7 @@ const vueSources = import.meta.glob<string>("../content/**/demos/*.vue", {
 
 /** name "<component-dir>/<demo>" → the glob key of that demo in `files`, if there is one. */
 function keyFor(
-  files: Record<string, unknown>,
+  files: object,
   name: string,
   extension: "tsx" | "vue",
 ): string | undefined {
@@ -54,6 +54,14 @@ function keyFor(
   if (demoFile === undefined) return undefined;
   const key = `../content/${parts.join("/")}/demos/${demoFile}.${extension}`;
   return key in files ? key : undefined;
+}
+
+/** Whether `name` has a demo in either framework; reads only the glob keys, so no demo loads. */
+export function hasDemo(name: string): boolean {
+  return (
+    keyFor(demoModules, name, "tsx") !== undefined ||
+    keyFor(vueSources, name, "vue") !== undefined
+  );
 }
 
 interface ComponentPreviewProps {

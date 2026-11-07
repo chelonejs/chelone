@@ -9,10 +9,9 @@ interface FrameworkSwitchProps {
 /** The React and Vue buttons every docs block with both frameworks shows. */
 export function FrameworkSwitch({ framework, onChange }: FrameworkSwitchProps) {
   return (
-    <div
-      role="group"
+    <fieldset
       aria-label="Framework"
-      className="flex items-center gap-1"
+      className="m-0 flex min-w-0 items-center gap-1 border-0 p-0"
     >
       {FRAMEWORKS.map((f) => (
         <button
@@ -30,6 +29,6 @@ export function FrameworkSwitch({ framework, onChange }: FrameworkSwitchProps) {
           {f.label}
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }
