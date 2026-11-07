@@ -55,17 +55,29 @@ function endOfBrace(text, start) {
   return text.length;
 }
 
+/** Whether a value can start at `i`: the character before it ends a token. */
+function afterBreak(text, i) {
+  return i === 0 || !/[\w$]/.test(text[i - 1]);
+}
+
+/** Whether a line comment can start at `i`: markup text like `https://x` is not one. */
+function afterSpace(text, i) {
+  return i === 0 || /\s/.test(text[i - 1]);
+}
+
 /**
- * `[start, end)` for every comment in `text`, so a `%{name}` in prose is not
- * read as a string. Strings are skipped first: a `//` inside one is not a
- * comment. `htmlComments` covers a `.vue` template's `<!-- -->`.
+ * `[start, end)` for every comment in `text`. Strings are read first, so a `//`
+ * inside one is no comment. A `//` starts a comment only where a value could
+ * start, and a quote opens a string only there too, so markup text keeps its
+ * own reading: a URL is no comment and `Don't` is no string. `htmlComments`
+ * covers a `.vue` template's `<!-- -->`.
  */
 export function commentRanges(text, { htmlComments = false } = {}) {
   const ranges = [];
   for (let i = 0; i < text.length; ) {
     const char = text[i];
     const next = text[i + 1];
-    if (char === "/" && next === "/") {
+    if (char === "/" && next === "/" && afterSpace(text, i)) {
       const end = text.indexOf("\n", i);
       const stop = end === -1 ? text.length : end;
       ranges.push([i, stop]);
@@ -80,7 +92,7 @@ export function commentRanges(text, { htmlComments = false } = {}) {
       const stop = end === -1 ? text.length : end + 3;
       ranges.push([i, stop]);
       i = stop;
-    } else if (char === '"' || char === "'" || char === "`") {
+    } else if (char === "`" || ((char === '"' || char === "'") && afterBreak(text, i))) {
       i = endOfString(text, i);
     } else {
       i += 1;
@@ -190,6 +202,45 @@ describe("percentPlaceholders", () => {
         { line: 3, text: "<p>Run %{name}?</p>" },
         { line: 4, text: `<span :title="'Delete %{name}'" />` },
       ],
+    );
+  });
+
+  it("reads markup text after a URL, whose // is no comment there", () => {
+    assert.deepEqual(
+      percentPlaceholders(
+        '<template>\n  <p>See https://example.com, then run %{name}</p>\n</template>\n',
+        { htmlComments: true },
+      ),
+      [{ line: 2, text: "<p>See https://example.com, then run %{name}</p>" }],
+    );
+  });
+
+  it("reads a template apostrophe as text, not as the start of a string", () => {
+    assert.deepEqual(
+      percentPlaceholders("<template>\n  <p>Don't run %{name}?</p>\n</template>\n", {
+        htmlComments: true,
+      }),
+      [{ line: 2, text: "<p>Don't run %{name}?</p>" }],
+    );
+  });
+
+  it("does not let a template apostrophe swallow the comments after it", () => {
+    assert.deepEqual(
+      percentPlaceholders(
+        "<template>\n  <p>Don't run it</p>\n  <!-- react-admin writes %{name} -->\n</template>\n",
+        { htmlComments: true },
+      ),
+      [],
+    );
+  });
+
+  it("leaves a line comment in a Vue script alone", () => {
+    assert.deepEqual(
+      percentPlaceholders(
+        '<script setup lang="ts">\n// react-admin writes %{name}\nconst ok = "Run {name}?";\n</script>\n',
+        { htmlComments: true },
+      ),
+      [],
     );
   });
 });
