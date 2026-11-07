@@ -19,7 +19,7 @@
  */
 
 import type { DataProvider } from "../data/types";
-import type { LooseRecord } from "../resource/record";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { CsvRow } from "./types";
 
 /**
@@ -27,7 +27,7 @@ import type { CsvRow } from "./types";
  * with the fetched rows, the raw dataProvider (for follow-up fetches), and the
  * resource name.
  */
-export type Exporter<TRecord extends LooseRecord = LooseRecord> = (
+export type Exporter<TRecord extends ResourceRecord = LooseRecord> = (
   data: TRecord[],
   dataProvider: DataProvider,
   resource: string,
