@@ -1,9 +1,14 @@
-<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
-import type { LooseRecord, MutationMode, SourceProp } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type {
+  LooseRecord,
+  MutationMode,
+  ResourceRecord,
+  SourceProp,
+} from "@chelone/core";
 
 /** Props for {@link InPlaceEditor}. */
 export interface InPlaceEditorProps<
-  TRecord extends LooseRecord = LooseRecord,
+  TRecord extends ResourceRecord = LooseRecord,
 > {
   /**
    * The field to show and edit. Required unless both the default slot and the
@@ -27,7 +32,7 @@ export interface InPlaceEditorProps<
 }
 </script>
 
-<script setup lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<InPlaceEditor>` — shows a record value and turns it into an input on
  * click. The Vue twin of `@chelone/react`'s `inputs/in-place-editor.tsx`. The
@@ -58,6 +63,7 @@ import {
   type InPlaceEditorState,
   nextInPlaceEditorState,
   planInPlaceSave,
+  type RecordResources,
 } from "@chelone/core";
 import { computed, shallowRef, useSlots } from "vue";
 import { useCheloneNotifications } from "../../../context";
@@ -105,8 +111,8 @@ const record = useRecordContextRef<TRecord>();
 const resource = useResourceContext({ resource: props.resource });
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
-const state = shallowRef<InPlaceEditorState>({ status: "reading" });
-const dispatch = (event: InPlaceEditorEvent) => {
+const state = shallowRef<InPlaceEditorState<TRecord>>({ status: "reading" });
+const dispatch = (event: InPlaceEditorEvent<TRecord>) => {
   state.value = nextInPlaceEditorState(state.value, event);
 };
 const { canAccess, isPending: isAccessPending } = useMenuAccess(
@@ -118,15 +124,17 @@ const { canAccess, isPending: isAccessPending } = useMenuAccess(
 );
 // useUpdate picks its runner once, so the notify rules below read the same mode.
 const mutationMode = props.mutationMode;
-const { mutate } = useUpdate(resource ?? "", { mutationMode });
+const { mutate } = useUpdate<RecordResources<TRecord>, string>(
+  resource ?? "",
+  { mutationMode },
+);
 
 // The saving state shows the record with the edits over it, to every field below.
-provideRecordContext<LooseRecord>(
+provideRecordContext<TRecord>(
   computed(() => {
     const current = state.value;
     if (current.status !== "saving") return record.value;
-    // type-escape: the preview is the record with its changed fields over it, which is still a record
-    return current.preview as LooseRecord;
+    return current.preview;
   }),
 );
 
@@ -155,8 +163,7 @@ function save(before: TRecord, dirty: Partial<TRecord>) {
             messageArgs: { smart_count: 1 },
           });
         }
-        // type-escape: the update returns the record of the resource this editor shows, which is `TRecord`
-        emit("success", saved as TRecord);
+        emit("success", saved);
       },
       onError: (error) => {
         dispatch({ type: "settled" });

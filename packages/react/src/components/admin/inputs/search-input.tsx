@@ -1,4 +1,4 @@
-import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 import { Search, X } from "lucide-react";
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ import { TextInput, type TextInputProps } from "./text-input";
  *   </List>
  * );
  */
-export const SearchInput = <RecordType extends LooseRecord = LooseRecord>(
+export const SearchInput = <RecordType extends ResourceRecord = LooseRecord>(
   inProps: SearchInputProps<RecordType>,
 ) => {
   const { label, className, disableClearable, source = "q", ...rest } = inProps;
@@ -83,7 +83,7 @@ export const SearchInput = <RecordType extends LooseRecord = LooseRecord>(
   );
 };
 
-export type SearchInputProps<RecordType extends LooseRecord = LooseRecord> =
+export type SearchInputProps<RecordType extends ResourceRecord = LooseRecord> =
   Omit<TextInputProps, "source"> & {
     /** Full-text search source. Defaults to `"q"`. */
     source?: SourceProp<RecordType>;

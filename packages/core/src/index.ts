@@ -197,6 +197,7 @@ export type {
 export {
   DEFAULT_JOB_TABS,
   getJobActions,
+  jobStatusSource,
   planJobCancel,
   planJobRetry,
 } from "./controller/job-monitor";

@@ -7,13 +7,11 @@ import type { SourceProp } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { InPlaceEditorProps } from "./in-place-editor.vue";
 
-// A type alias: an interface has no index signature, so it does not satisfy
-// the record constraint.
-type Article = {
+interface Article {
   id: string;
   headline: string;
   author: { name: string; email: string };
-};
+}
 
 type ArticleProps = InPlaceEditorProps<Article>;
 
