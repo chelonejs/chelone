@@ -68,3 +68,19 @@ sizes.observe(document.body);
     </PreviewProvider>
   </div>
 </template>
+
+<style scoped>
+/* The React panel centres its demo; this one is a box as wide as the panel, so
+   a bare field sits at its left edge instead. Auto margins centre a demo that
+   caps its own width and do nothing to one that fills the panel; `text-align`
+   centres a bare field, which renders inline (a `<BadgeField>` is a span), and
+   is reset inside every demo so a table's cells stay left-aligned. */
+.flow-root {
+  text-align: center;
+}
+
+.flow-root > :deep(*) {
+  margin-inline: auto;
+  text-align: start;
+}
+</style>
