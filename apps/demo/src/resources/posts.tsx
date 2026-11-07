@@ -35,6 +35,7 @@ import {
   TextInput,
   Toolbar,
 } from "@chelone/react";
+import { ConfigurableInputs } from "@chelone/react/inspector";
 import { z } from "zod";
 import { SimulateOtherUser } from "../realtime-sim";
 
@@ -77,13 +78,17 @@ export function PostEdit() {
     <EditLive>
       <LockStatus />
       <LockOnMount identity="you">
-        <TextInput source="title" />
-        <TextInput source="body" multiline />
-        <ReferenceInput source="author_id" reference="authors">
-          <SelectInput optionText="name" />
-        </ReferenceInput>
-        <NumberInput source="views" min={0} />
-        <BooleanInput source="published" />
+        {/* The user hides the inputs they never fill from the inspector. A
+            hidden input keeps its loaded value, so the schema still passes. */}
+        <ConfigurableInputs className="flex flex-col gap-4">
+          <TextInput source="title" />
+          <TextInput source="body" multiline />
+          <ReferenceInput source="author_id" reference="authors">
+            <SelectInput optionText="name" />
+          </ReferenceInput>
+          <NumberInput source="views" min={0} />
+          <BooleanInput source="published" />
+        </ConfigurableInputs>
         <Toolbar />
       </LockOnMount>
     </EditLive>
