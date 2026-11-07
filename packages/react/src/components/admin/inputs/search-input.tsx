@@ -1,10 +1,8 @@
 import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 import { Search, X } from "lucide-react";
-import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useWatch } from "../../../form";
-import { useCheloneFormContext, useWrappedSource } from "../../../form-context";
+import { useClearableFieldValue } from "../../../form/use-clearable-field-value";
 import { useTranslate } from "../../../i18n-hooks";
 import { TextInput, type TextInputProps } from "./text-input";
 
@@ -35,15 +33,8 @@ export const SearchInput = <RecordType extends ResourceRecord = LooseRecord>(
 ) => {
   const { label, className, disableClearable, source = "q", ...rest } = inProps;
 
-  const wrappedSource = useWrappedSource(source);
   const translate = useTranslate();
-  const { ambient } = useCheloneFormContext().form;
-  const fieldValue = useWatch({ name: source });
-  const hasValue = fieldValue != null && fieldValue !== "";
-
-  const handleClear = useCallback(() => {
-    ambient.setFieldValue(wrappedSource, "");
-  }, [ambient, wrappedSource]);
+  const { hasValue, clearFieldValue } = useClearableFieldValue(source);
 
   if (label) {
     throw new Error(
@@ -70,7 +61,7 @@ export const SearchInput = <RecordType extends ResourceRecord = LooseRecord>(
           type="button"
           variant="ghost"
           size="sm"
-          onClick={handleClear}
+          onClick={clearFieldValue}
           className="-translate-y-1/2 absolute top-1/2 right-8 size-6 transform rounded-full p-0 text-muted-foreground"
           aria-label={translate("ra.action.clear_search", {
             _: "Clear search",

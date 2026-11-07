@@ -1,9 +1,7 @@
 import { X } from "lucide-react";
-import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useWatch } from "../../../form/rhf-shim";
-import { useCheloneFormContext, useWrappedSource } from "../../../form-context";
+import { useClearableFieldValue } from "../../../form/use-clearable-field-value";
 import { useTranslate } from "../../../i18n-hooks";
 import { TextInput, type TextInputProps } from "./text-input";
 
@@ -23,10 +21,11 @@ type ResettableTextInputProps = TextInputProps & {
 /**
  * Text input with a clear (×) button that resets the field value.
  *
- * Wraps `<TextInput>` and adds a small ghost button absolutely positioned on
- * the right side of the input. The button appears only when the field has a
- * value (unless `clearAlwaysVisible` is set). Clicking it sets the value back
- * to an empty string.
+ * Wraps `<TextInput>` and overlays a small ghost button on the input through its
+ * `controlSuffix`, so the button is centred on the input with or without a label,
+ * helper text or an error. The button appears only when the field has a value
+ * (unless `clearAlwaysVisible` is set). Clicking it sets the value back to an
+ * empty string.
  *
  * Rebridge note: shadmin read `useFormContext().setValue` + `useWatch` (RHF);
  * chelone reads the live value through the `useWatch` shim and clears via
@@ -56,15 +55,7 @@ function ResettableTextInput(props: ResettableTextInputProps) {
   } = props;
 
   const translate = useTranslate();
-  const { ambient } = useCheloneFormContext().form;
-  const wrappedSource = useWrappedSource(source);
-  const fieldValue = useWatch({ name: source });
-  const hasValue = fieldValue != null && fieldValue !== "";
-  const hasLabel = rest.label !== false;
-
-  const handleClear = useCallback(() => {
-    ambient.setFieldValue(wrappedSource, "");
-  }, [ambient, wrappedSource]);
+  const { hasValue, clearFieldValue } = useClearableFieldValue(source);
 
   const showClearButton = resettable && (clearAlwaysVisible || hasValue);
   const clearLabel = translate("ra.action.clear_input_value", {
@@ -72,33 +63,31 @@ function ResettableTextInput(props: ResettableTextInputProps) {
   });
 
   return (
-    <div className={cn("relative", className)}>
-      <TextInput
-        {...rest}
-        source={source}
-        disabled={disabled}
-        readOnly={readOnly}
-        inputClassName={cn(resettable ? "pr-9" : undefined, inputClassName)}
-      />
-      {showClearButton ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className={cn(
-            "absolute right-1 size-7 text-muted-foreground",
-            hasLabel ? "top-6" : "top-1",
-          )}
-          onClick={handleClear}
-          disabled={disabled || readOnly || !hasValue}
-          aria-label={clearLabel}
-          title={clearLabel}
-          tabIndex={-1}
-        >
-          <X className="size-4" aria-hidden="true" />
-        </Button>
-      ) : null}
-    </div>
+    <TextInput
+      {...rest}
+      source={source}
+      disabled={disabled}
+      readOnly={readOnly}
+      className={className}
+      inputClassName={cn(resettable ? "pr-9" : undefined, inputClassName)}
+      controlSuffix={
+        showClearButton ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="absolute right-1 top-1/2 size-7 -translate-y-1/2 text-muted-foreground"
+            onClick={clearFieldValue}
+            disabled={disabled || readOnly || !hasValue}
+            aria-label={clearLabel}
+            title={clearLabel}
+            tabIndex={-1}
+          >
+            <X className="size-4" aria-hidden="true" />
+          </Button>
+        ) : null
+      }
+    />
   );
 }
 

@@ -89,6 +89,28 @@ describe("<ResettableTextInput>", () => {
     expect(screen.queryByRole("button", { name: /clear value/i })).toBeNull();
   });
 
+  it("puts the clear button in the input's own row, beside the input and nothing else", () => {
+    setup(<ResettableTextInput source="title" />, {
+      title: "War and Peace",
+    });
+    const input = elementOf(screen.getByLabelText("Title"), HTMLInputElement);
+    const clear = screen.getByRole("button", { name: /clear value/i });
+    // The row is what the button's `absolute` position resolves against, so it
+    // must hold the input and the button alone: a label, helper text or error
+    // above or below would shift the button off the input's centre.
+    expect(clear.parentElement).toBe(input.parentElement);
+    expect(input.parentElement?.querySelector("label")).toBeNull();
+  });
+
+  it("puts the clear button in the input's own row when the field has no label", () => {
+    setup(<ResettableTextInput source="title" label={false} />, {
+      title: "War and Peace",
+    });
+    const input = elementOf(screen.getByRole("textbox"), HTMLInputElement);
+    const clear = screen.getByRole("button", { name: /clear value/i });
+    expect(clear.parentElement).toBe(input.parentElement);
+  });
+
   it("respects the disabled prop", () => {
     setup(<ResettableTextInput source="title" disabled />, {
       title: "x",
