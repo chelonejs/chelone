@@ -1,3 +1,4 @@
+import { categoryChoices } from "@chelone/demo-data";
 import {
   Create,
   DataTable,
@@ -11,7 +12,6 @@ import {
   TextField,
   TextInput,
 } from "@chelone/react";
-import { categoryChoices } from "../seed";
 
 export function ProductList() {
   return (

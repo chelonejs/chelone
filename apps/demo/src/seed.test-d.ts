@@ -1,5 +1,12 @@
 import type { LooseRecord } from "@chelone/core";
-import type { Author, Customer, Order, Place, Post, Product } from "./seed";
+import type {
+  Author,
+  Customer,
+  Order,
+  Place,
+  Post,
+  Product,
+} from "@chelone/demo-data";
 
 // The data provider types every row as a `LooseRecord`. Each seed type must
 // stay assignable to it without an index signature. `tsc` checks this file.
