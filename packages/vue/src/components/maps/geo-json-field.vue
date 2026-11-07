@@ -30,7 +30,9 @@ export interface GeoJsonFieldProps<TRecord = unknown>
  */
 
 import {
+  DEFAULT_FIT_PADDING,
   DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAX_FIT_ZOOM,
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
@@ -43,8 +45,8 @@ import GeoJsonView from "./geo-json-view.vue";
 
 const props = withDefaults(defineProps<GeoJsonFieldProps<TRecord>>(), {
   fitBounds: true,
-  fitPadding: 20,
-  maxFitZoom: 18,
+  fitPadding: DEFAULT_FIT_PADDING,
+  maxFitZoom: DEFAULT_MAX_FIT_ZOOM,
   height: DEFAULT_MAP_HEIGHT,
   scrollZoom: false,
 });

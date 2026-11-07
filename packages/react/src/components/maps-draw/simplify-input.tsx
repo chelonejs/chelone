@@ -1,6 +1,8 @@
 import {
   asFeatureCollection,
+  DEFAULT_FIT_PADDING,
   DEFAULT_MAP_ZOOM,
+  DEFAULT_MAX_FIT_ZOOM,
   deepEqual,
   geoBounds,
   isGeoJsonValue,
@@ -85,7 +87,11 @@ function Preview({
   // biome-ignore lint/correctness/useExhaustiveDependencies: boxKey stands for the box
   useEffect(() => {
     if (!isLngLatBox(latest.current)) return;
-    map.fitBounds(latest.current, { padding: 20, maxZoom: 18, duration: 0 });
+    map.fitBounds(latest.current, {
+      padding: DEFAULT_FIT_PADDING,
+      maxZoom: DEFAULT_MAX_FIT_ZOOM,
+      duration: 0,
+    });
   }, [map, boxKey]);
   return null;
 }

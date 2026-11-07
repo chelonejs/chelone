@@ -280,6 +280,8 @@ describe("@chelone/core barrel", () => {
     expect(barrel.DEFAULT_MAP_ZOOM).toBe(13);
     expect(barrel.DEFAULT_MAP_HEIGHT).toBe(300);
     expect(barrel.DEFAULT_PIN_COLOR).toBe("#dc2626");
+    expect(barrel.DEFAULT_FIT_PADDING).toBe(20);
+    expect(barrel.DEFAULT_MAX_FIT_ZOOM).toBe(18);
     expect(barrel.PIN_NS).toBe("http://www.w3.org/2000/svg");
     // `PIN_NS` is an XML namespace and reads like a URL: core still names no tile server.
     const urls = Object.values(barrel).filter(
