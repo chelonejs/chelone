@@ -121,6 +121,19 @@ describe("PreviewProvider — live admin previews render against the fixture pro
     expect(await screen.findByLabelText(/title/i)).toBeTruthy();
   });
 
+  it("renders an input-mode demo as the input alone, with no page heading", async () => {
+    const { container } = renderInHostRouter(
+      <PreviewProvider mode="input">
+        <TextInputDemo />
+      </PreviewProvider>,
+    );
+    expect(await screen.findByLabelText(/title/i)).toBeTruthy();
+    // The form context comes from `<Create>`, but its page chrome does not: a
+    // bare input in the docs must not be titled "Create Post".
+    expect(container.querySelector("h1, h2, h3")).toBeNull();
+    expect(screen.queryByText(/create post/i)).toBeNull();
+  });
+
   // ── P7g3 page-components + overview demos ──────────────────────────────────
 
   it("renders the page-components <List> demo (view mode)", async () => {
@@ -167,6 +180,18 @@ describe("PreviewProvider — live admin previews render against the fixture pro
     );
     // A fresh create form renders an empty title input + a Save button.
     expect(await screen.findByLabelText(/title/i)).toBeTruthy();
+  });
+
+  it("keeps the page heading for a whole-view demo", async () => {
+    renderInHostRouter(
+      <PreviewProvider mode="view">
+        <CreateBasicDemo />
+      </PreviewProvider>,
+    );
+    // A view demo IS a page, so its own title stays.
+    expect(
+      await screen.findByRole("heading", { name: "Create Post" }),
+    ).toBeTruthy();
   });
 
   it("renders the page-components <Show> demo for id=1 (view mode)", async () => {

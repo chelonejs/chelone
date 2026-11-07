@@ -92,6 +92,9 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const current = loaded?.key === key ? loaded : undefined;
   const demo = current?.status === "loaded" ? current : undefined;
   const DemoComponent = demo?.module.default;
+  // Unknown until the demo module loads, which is while the placeholder shows.
+  const mode: PreviewMode = demo?.module.mode ?? "view";
+  const inputMode = mode === "input";
 
   return (
     <div
@@ -121,11 +124,18 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
 
       {/* Preview panel — the demo renders inside the shared admin context
           stack (PreviewProvider) so bare @chelone/react components resolve.
-          The prerendered HTML shows a placeholder until the module loads. */}
+          The prerendered HTML shows a placeholder until the module loads.
+          An input demo lays out as a block: the centered flex row is what put
+          the input in the same row as its form's title and squeezed it there. */}
       {tab === "preview" && (
-        <div className="flex min-h-32 items-center justify-center p-8">
+        <div
+          className={cn(
+            "min-h-32 p-8",
+            inputMode ? "block" : "flex items-center justify-center",
+          )}
+        >
           {DemoComponent ? (
-            <PreviewProvider mode={demo?.module.mode}>
+            <PreviewProvider mode={mode}>
               <DemoComponent />
             </PreviewProvider>
           ) : (
