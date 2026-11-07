@@ -334,7 +334,7 @@ describe("<CalendarList> month view", () => {
   });
 
   it("removes its range filter and restores perPage on unmount", async () => {
-    const { provider } = mount(<Toggled />);
+    const { provider } = mount(<Toggled perPage={25} />);
     await screen.findByText("Standup");
     expect(screen.getByTestId("params").textContent).toBe(
       JSON.stringify({
@@ -361,7 +361,7 @@ describe("<CalendarList> month view", () => {
   });
 
   it("keeps the filters the user set", async () => {
-    const { provider } = mount(<Toggled />);
+    const { provider } = mount(<Toggled perPage={25} />);
     await screen.findAllByText("Offsite");
 
     fireEvent.click(screen.getByRole("button", { name: "work only" }));
@@ -391,7 +391,7 @@ describe("<CalendarList> month view", () => {
   });
 
   it("restores the list's own perPage when the URL already carried the calendar's own", async () => {
-    mount(<Toggled />, { url: "/?perPage=1000" });
+    mount(<Toggled perPage={25} />, { url: "/?perPage=1000" });
     await screen.findByText("Standup");
 
     fireEvent.click(screen.getByRole("button", { name: "hide calendar" }));
@@ -399,6 +399,19 @@ describe("<CalendarList> month view", () => {
     await waitFor(() =>
       expect(screen.getByTestId("params").textContent).toBe(
         JSON.stringify({ perPage: 25, filter: {} }),
+      ),
+    );
+  });
+
+  it("restores core's list default when the list set no perPage of its own", async () => {
+    mount(<Toggled />, { url: "/?perPage=1000" });
+    await screen.findByText("Standup");
+
+    fireEvent.click(screen.getByRole("button", { name: "hide calendar" }));
+
+    await waitFor(() =>
+      expect(screen.getByTestId("params").textContent).toBe(
+        JSON.stringify({ perPage: 10, filter: {} }),
       ),
     );
   });
@@ -421,7 +434,7 @@ describe("<CalendarList> month view", () => {
         end_gte: start.toISOString(),
         start_lte: end.toISOString(),
       });
-      mount(<Toggled />, {
+      mount(<Toggled perPage={25} />, {
         url: `/?filter=${encodeURIComponent(filter)}&perPage=1000`,
       });
       await screen.findByText("Standup");
@@ -442,7 +455,7 @@ describe("<CalendarList> month view", () => {
       start_lte: new Date(2026, 5, 6, 23, 59, 59, 999).toISOString(),
       kind: "work",
     });
-    mount(<Toggled />, {
+    mount(<Toggled perPage={25} />, {
       url: `/?filter=${encodeURIComponent(stale)}&perPage=1000`,
     });
     await screen.findByText("Standup");
@@ -1032,11 +1045,11 @@ describe("<CalendarList> drag", () => {
   });
 });
 
-/** Shows the list params the calendar sets, and can drop the calendar to see them restored. */
-function Toggled() {
+/** Shows the list params the calendar sets, and can drop the calendar to see them restored. `perPage` is the `<List>`'s own; omit it to leave the list at core's default. */
+function Toggled({ perPage }: { perPage?: number }) {
   const [shown, setShown] = useState(true);
   return (
-    <List title={false} perPage={25}>
+    <List title={false} perPage={perPage}>
       {shown ? (
         <CalendarList startSource="start" endSource="end" titleSource="title" />
       ) : null}

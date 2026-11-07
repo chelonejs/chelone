@@ -354,6 +354,33 @@ describe("<CalendarList> month view", () => {
     expect(listContext?.perPage).toBe(25);
   });
 
+  it("restores core's list default when the list set no perPage of its own", async () => {
+    let listContext: ReturnType<typeof useListContext> | undefined;
+    const show = ref(true);
+    const Toggle = defineComponent({
+      setup() {
+        listContext = useListContext();
+        return () =>
+          show.value
+            ? h(CalendarList, {
+                startSource: "starts_at",
+                endSource: "ends_at",
+              })
+            : null;
+      },
+    });
+    const { wrapper } = await mountList({
+      list: () => h(Toggle),
+      path: "/meetings?perPage=1000",
+    });
+    expect(listContext?.perPage).toBe(1000);
+
+    show.value = false;
+    await flushPromises();
+    expect(wrapper.find("[data-slot=calendar-header]").exists()).toBe(false);
+    expect(listContext?.perPage).toBe(10);
+  });
+
   it("drops a starts_at_gte a list URL kept from before endSource bounded the end", async () => {
     const stale = JSON.stringify({
       starts_at_gte: new Date(2026, 3, 26).toISOString(),
