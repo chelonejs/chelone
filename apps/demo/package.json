@@ -39,6 +39,7 @@
     "dompurify": "^3.4.17",
     "highlight.js": "^11.11.1",
     "lowlight": "^3.3.0",
+    "lucide-react": "^1.69.0",
     "maplibre-gl": "^6.16.0",
     "monaco-editor": "^0.57.0",
     "osm2geojson-lite": "^2.0.1",

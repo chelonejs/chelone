@@ -10,9 +10,10 @@ import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import { Admin } from "@chelone/vue";
 import { QueryClient } from "@tanstack/vue-query";
 import { enableAutoUnmount, flushPromises, mount } from "@vue/test-utils";
-import { afterEach, expect, it } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
+import App from "./App.vue";
 import { i18n } from "./i18n";
 import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
@@ -90,4 +91,33 @@ it("the custom sidebar keeps the demo's own menu", async () => {
     .findAll("a")
     .map((link) => link.attributes("href"));
   expect(links).toContain("/vue-demo/posts");
+});
+
+// The resources' icons are the `<Resource icon>` props in `App.vue`, so this
+// mounts the app itself rather than the shell over the bare registry.
+it("no two sidebar entries render the same icon", async () => {
+  const router = makeRouter();
+  await router.push("/posts");
+  const wrapper = mount(App, { global: { plugins: [router] } });
+
+  // The app signs in and checks access before the menu lists its resources.
+  await vi.waitFor(async () => {
+    await flushPromises();
+    expect(
+      wrapper.find('[data-slot="sidebar-content"]').findAll("a").length,
+    ).toBeGreaterThan(20);
+  });
+
+  const owners = new Map<string, string | undefined>();
+  for (const link of wrapper
+    .find('[data-slot="sidebar-content"]')
+    .findAll("a")) {
+    const href = link.attributes("href");
+    const icon = link.find("svg").exists() ? link.get("svg").html() : "";
+    expect(icon, `${href} has no icon`).not.toBe("");
+    expect(owners.get(icon), `${href} repeats another entry's icon`).toBe(
+      undefined,
+    );
+    owners.set(icon, href);
+  }
 });
