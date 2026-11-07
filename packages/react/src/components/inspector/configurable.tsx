@@ -5,6 +5,7 @@
  * Without an `<Inspector>` it renders its children and nothing else.
  */
 
+import { INSPECTOR_OPEN_LABEL } from "@chelone/core";
 import { SlidersHorizontal } from "lucide-react";
 import { type ReactNode, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -29,8 +30,6 @@ interface ConfigurableProps {
   openButtonLabel?: string;
   className?: string;
 }
-
-const defaultOpenLabel = "chelone.inspector.customize";
 
 function Selectable({
   inspector,
@@ -74,7 +73,7 @@ function Selectable({
           onClick={() => select({ key: preferenceKey, title, editor: null })}
         >
           <SlidersHorizontal />
-          {translate(openButtonLabel ?? defaultOpenLabel, {
+          {translate(openButtonLabel ?? INSPECTOR_OPEN_LABEL, {
             _: openButtonLabel ?? "Customize",
           })}
         </Button>

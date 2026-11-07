@@ -63,6 +63,15 @@ export function createInspector<TEditor = unknown>(): Inspector<TEditor> {
 
 export const inspectorPositionKey = "chelone.inspector.position";
 
+/** The panel's width in pixels. */
+export const PANEL_WIDTH = 320;
+
+/** How far one arrow key moves the panel, in pixels. */
+export const INSPECTOR_KEY_STEP = 16;
+
+/** The message key a `<Configurable>`'s open button falls back to. */
+export const INSPECTOR_OPEN_LABEL = "chelone.inspector.customize";
+
 export interface InspectorPosition {
   x: number;
   y: number;
