@@ -40,7 +40,7 @@ import { useList } from "../../../use-list";
  *   </Show>
  * );
  */
-function ArrayField<RecordType extends LooseRecord = LooseRecord>(
+function ArrayField<RecordType extends ResourceRecord = LooseRecord>(
   props: ArrayFieldProps<RecordType>,
 ) {
   const { children, perPage, sort, filter, source, record, defaultValue } =
@@ -64,7 +64,7 @@ function ArrayField<RecordType extends LooseRecord = LooseRecord>(
 
 const emptyArray: ResourceRecord[] = [];
 
-interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
+interface ArrayFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The field path to the array on the current record. */
   source: SourceProp<RecordType>;
   /** The record to read. Defaults to the ambient `RecordContext` value. */
