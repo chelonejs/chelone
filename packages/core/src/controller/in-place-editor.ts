@@ -3,21 +3,19 @@
  * adapters step through the same states and send the same fields on a save.
  */
 
-import type { ResourceRecord } from "../resource/record";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
 import { isLooseRecord } from "../resource/record";
 import { deepEqual } from "./deep-equal";
 
-export type InPlaceEditorState =
+export type InPlaceEditorState<R extends ResourceRecord = LooseRecord> =
   | { status: "reading" }
   | { status: "editing" }
-  // type-escape: a preview is the record with its edits over it, whose type the editor has erased
-  | { status: "saving"; preview: Record<string, unknown> };
+  | { status: "saving"; preview: R };
 
-export type InPlaceEditorEvent =
+export type InPlaceEditorEvent<R extends ResourceRecord = LooseRecord> =
   | { type: "edit" }
   | { type: "cancel" }
-  // type-escape: a preview is the record with its edits over it, whose type the editor has erased
-  | { type: "save"; preview: Record<string, unknown> }
+  | { type: "save"; preview: R }
   | { type: "settled" };
 
 /**
@@ -25,10 +23,10 @@ export type InPlaceEditorEvent =
  * `cancel`, editing to saving on `save`, saving to reading on `settled`. Any
  * other pair returns the same state object, so a click while saving does nothing.
  */
-export function nextInPlaceEditorState(
-  state: InPlaceEditorState,
-  event: InPlaceEditorEvent,
-): InPlaceEditorState {
+export function nextInPlaceEditorState<R extends ResourceRecord = LooseRecord>(
+  state: InPlaceEditorState<R>,
+  event: InPlaceEditorEvent<R>,
+): InPlaceEditorState<R> {
   switch (state.status) {
     case "reading":
       return event.type === "edit" ? { status: "editing" } : state;
@@ -45,11 +43,10 @@ export function nextInPlaceEditorState(
 
 export interface InPlaceSave<R extends ResourceRecord> {
   id: R["id"];
-  // type-escape: the changed fields are whatever the form held, keyed by name
-  data: Record<string, unknown>;
+  data: Partial<R>;
   previousData: R;
-  // type-escape: the preview is the record with the changed fields over it
-  preview: Record<string, unknown>;
+  /** The record with the changed fields over it. */
+  preview: R;
 }
 
 /**
@@ -64,12 +61,12 @@ export function planInPlaceSave<R extends ResourceRecord>(
   dirty: Record<string, unknown>,
 ): InPlaceSave<R> | null {
   if (!isLooseRecord(record)) return null;
-  const data = Object.fromEntries(
-    Object.entries(dirty).filter(
-      ([key, value]) => !deepEqual(record[key], value),
-    ),
+  const changed = Object.entries(dirty).filter(
+    ([key, value]) => !deepEqual(record[key], value),
   );
-  if (Object.keys(data).length === 0) return null;
+  if (changed.length === 0) return null;
+  // type-escape: the form holds the record's own fields, so the changed ones are a patch of it
+  const data = Object.fromEntries(changed) as Partial<R>;
   return {
     id: record.id,
     data,

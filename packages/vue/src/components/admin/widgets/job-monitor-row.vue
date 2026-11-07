@@ -1,9 +1,9 @@
-<script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 
 /** The record fields a job row reads, each a path. */
-export interface JobFields {
-  statusSource: string;
+export interface JobFields<TRecord extends ResourceRecord = LooseRecord> {
+  statusSource: keyof TRecord & string;
   typeSource: string;
   payloadSource: string;
   errorSource: string;
@@ -20,17 +20,19 @@ export interface JobRules {
 }
 
 /** Props for {@link JobMonitorRow}. */
-export interface JobMonitorRowProps {
-  job: LooseRecord;
+export interface JobMonitorRowProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  job: TRecord;
   resource: string;
-  fields: JobFields;
+  fields: JobFields<TRecord>;
   rules: JobRules;
   actions: boolean;
   busy: boolean;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * One job of a `<JobMonitor>`. It owns the payload toggle and the access check
  * for its job; the write itself is the monitor's, so it survives this row
@@ -53,9 +55,9 @@ import JsonField from "../fields/json-field.vue";
 import { provideRecordContext } from "../../../record/record-context";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-const props = defineProps<JobMonitorRowProps>();
+const props = defineProps<JobMonitorRowProps<TRecord>>();
 const emit = defineEmits<{
-  (event: "plan", plan: JobPlan<LooseRecord> | null): void;
+  (event: "plan", plan: JobPlan<TRecord> | null): void;
 }>();
 
 // The fields read the job from context, so a poll that changes a reused row's
@@ -71,7 +73,7 @@ const { canAccess, isPending: isAccessPending } = useMenuAccess(
   })),
 );
 
-const options = computed<JobActionOptions<LooseRecord>>(() => ({
+const options = computed<JobActionOptions<TRecord>>(() => ({
   statusSource: props.fields.statusSource,
   ...props.rules,
 }));
@@ -148,7 +150,7 @@ const hasPayload = computed(
           size="sm"
           data-slot="job-monitor-retry"
           :disabled="busy"
-          @click="emit('plan', planJobRetry<LooseRecord>(job, options))"
+          @click="emit('plan', planJobRetry<TRecord>(job, options))"
         >
           {{ translate("chelone.job_monitor.retry", { _: "Retry" }) }}
         </Button>
@@ -159,7 +161,7 @@ const hasPayload = computed(
           size="sm"
           data-slot="job-monitor-cancel"
           :disabled="busy"
-          @click="emit('plan', planJobCancel<LooseRecord>(job, options))"
+          @click="emit('plan', planJobCancel<TRecord>(job, options))"
         >
           {{ translate("ra.action.cancel", { _: "Cancel" }) }}
         </Button>

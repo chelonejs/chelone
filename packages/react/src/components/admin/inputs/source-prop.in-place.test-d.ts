@@ -7,13 +7,11 @@ import type { SourceProp } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { InPlaceEditorProps } from "./in-place-editor";
 
-// A type alias: an interface has no index signature, so it does not satisfy
-// the record constraint.
-type Post = {
+interface Post {
   id: number;
   title: string;
   settings: { theme: string };
-};
+}
 
 describe("<InPlaceEditor> source", () => {
   it("source is SourceProp", () => {

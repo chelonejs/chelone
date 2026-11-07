@@ -1,6 +1,7 @@
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
@@ -15,7 +16,7 @@ import { ResourceContextProvider } from "../../../resource";
 import { AutocompleteArrayInput } from "./autocomplete-array-input";
 
 interface ReferenceArrayInputProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
   source: SourceProp<RecordType>;
@@ -71,7 +72,7 @@ interface ReferenceArrayInputProps<
  *   </Edit>
  * );
  */
-function ReferenceArrayInput<RecordType extends LooseRecord = LooseRecord>(
+function ReferenceArrayInput<RecordType extends ResourceRecord = LooseRecord>(
   props: ReferenceArrayInputProps<RecordType>,
 ): ReactNode {
   const {

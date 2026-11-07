@@ -1,13 +1,16 @@
-<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type {
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceKey,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link JobMonitor}. */
-export interface JobMonitorProps<TRecord extends LooseRecord = LooseRecord> {
+export interface JobMonitorProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** The jobs resource. Defaults to the resource context; with neither, nothing renders. */
   resource?: string;
   /** Milliseconds between reads. Default 5000, `0` turns polling off. */
@@ -46,7 +49,7 @@ export interface JobMonitorProps<TRecord extends LooseRecord = LooseRecord> {
 }
 </script>
 
-<script setup lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<JobMonitor>`: the jobs of a resource in one tab per status, with a count on
  * each tab. The Vue twin of `@chelone/react`'s `widgets/job-monitor.tsx`. It
@@ -63,6 +66,8 @@ import {
   buildKanbanBuckets,
   DEFAULT_JOB_TABS,
   type JobPlan,
+  jobStatusSource,
+  type RecordResources,
 } from "@chelone/core";
 import { computed } from "vue";
 import { useCheloneNotifications } from "../../../context";
@@ -90,11 +95,12 @@ const notifications = useCheloneNotifications();
 // moves the job, and an unmounted observer drops the notifications below.
 // One write at a time, so a second job's write cannot displace the first's.
 // A missing resource renders nothing below, so the call is never dispatched.
-const { mutate, isPending: isWriting } = useUpdate(resource ?? "", {
-  mutationMode: "pessimistic",
-});
+const { mutate, isPending: isWriting } = useUpdate<RecordResources<TRecord>, string>(
+  resource ?? "",
+  { mutationMode: "pessimistic" },
+);
 const fields = computed(() => ({
-  statusSource: props.statusSource ?? "status",
+  statusSource: jobStatusSource<TRecord>(props.statusSource),
   typeSource: props.typeSource ?? "type",
   payloadSource: props.payloadSource ?? "payload",
   errorSource: props.errorSource ?? "lastError",
@@ -107,7 +113,7 @@ const rules = computed(() => ({
   retryValue: props.retryValue,
   cancelValue: props.cancelValue,
 }));
-const { data, isError } = useGetList(
+const { data, isError } = useGetList<RecordResources<TRecord>, string>(
   resource ?? "",
   computed(() => ({
     pagination: { page: 1, perPage: props.perPage },
@@ -119,7 +125,7 @@ const { data, isError } = useGetList(
   { refetchInterval: computed(() => props.pollInterval), enabled: !!resource },
 );
 
-function write(plan: JobPlan<LooseRecord> | null): void {
+function write(plan: JobPlan<TRecord> | null): void {
   if (!plan) return;
   mutate(plan, {
     onSuccess: () =>
@@ -137,7 +143,7 @@ function write(plan: JobPlan<LooseRecord> | null): void {
 }
 
 const buckets = computed(() =>
-  buildKanbanBuckets<LooseRecord>(
+  buildKanbanBuckets(
     data.value?.data ?? [],
     fields.value.statusSource,
     (props.tabs ?? DEFAULT_JOB_TABS).map((id) => ({
