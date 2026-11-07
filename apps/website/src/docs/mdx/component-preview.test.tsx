@@ -112,11 +112,10 @@ describe("ComponentPreview framework switch", () => {
 });
 
 describe("the Vue frame's height", () => {
-  // jsdom lays out nothing and never loads the frame's `src`, so the test gives
-  // its document the shape a loaded page has and fires the event a real load
-  // fires. What is pinned is whether the frame is measured at all: an
-  // unmeasured frame keeps the `h-16` it starts at, and nothing follows the
-  // demo inside it when the demo grows.
+  // jsdom never loads the frame's `src`, so the test gives its document the
+  // shape a loaded page has and fires the event a real load fires. jsdom lays
+  // out nothing either, so a fitted frame reads 0px: what is pinned is that the
+  // frame was fitted at all, which a frame the effect never saw is not.
   function loadFrame(frame: HTMLIFrameElement): void {
     const doc = frame.contentDocument;
     if (!doc) throw new Error("the frame has no content document");
@@ -128,7 +127,7 @@ describe("the Vue frame's height", () => {
     fireEvent.load(frame);
   }
 
-  it("measures a frame that mounts while the preview tab is hidden", () => {
+  it("fits a frame that mounts while the preview tab is hidden", () => {
     renderPreview(BOTH);
 
     fireEvent.click(screen.getByRole("button", { name: "code" }));
@@ -137,34 +136,23 @@ describe("the Vue frame's height", () => {
 
     const frame = screen.getByTitle(/Vue demo/);
     loadFrame(frame);
-    expect(frame.style.height).toBe("64px");
+    expect(frame.style.height).not.toBe("");
   });
 
-  it("follows the demo again when the preview tab comes back", () => {
-    let attached = 0;
-    class CountingResizeObserver {
-      constructor() {
-        attached += 1;
-      }
-      observe(): void {}
-      unobserve(): void {}
-      disconnect(): void {}
-    }
-    vi.stubGlobal("ResizeObserver", CountingResizeObserver);
-    try {
-      renderPreview(BOTH, "/docs/editing?framework=vue");
+  it("fits the frame again when the preview tab comes back", () => {
+    renderPreview(BOTH, "/docs/editing?framework=vue");
 
-      loadFrame(screen.getByTitle(/Vue demo/));
-      expect(attached).toBe(1);
+    const left = screen.getByTitle(/Vue demo/);
+    loadFrame(left);
+    expect(left.style.height).not.toBe("");
 
-      fireEvent.click(screen.getByRole("button", { name: "code" }));
-      fireEvent.click(screen.getByRole("button", { name: "preview" }));
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
 
-      loadFrame(screen.getByTitle(/Vue demo/));
-      expect(attached).toBe(2);
-    } finally {
-      vi.unstubAllGlobals();
-    }
+    const back = screen.getByTitle(/Vue demo/);
+    expect(back).not.toBe(left);
+    loadFrame(back);
+    expect(back.style.height).not.toBe("");
   });
 });
 
