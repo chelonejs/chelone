@@ -50,7 +50,8 @@ const assistantTools = demoAssistantTools(dataProvider);
 
 // Posts get a live unread badge; the other resources keep their plain links.
 // The panel is repeated here because the badge clears while /posts is open:
-// adding a post from any other page is the only way to see it.
+// adding a post from any other page is the only way to see it. It sits at the
+// top of the sidebar: at the bottom it scrolls under the devtools panel.
 const definitions = useResourceDefinitions();
 const others = computed(() =>
   Object.keys(definitions).filter(
@@ -71,6 +72,9 @@ const others = computed(() =>
                   :items="[{ to: '/posts', resource: 'posts', label: 'Posts' }]"
                 />
               </div>
+              <div class="px-4 py-2">
+                <SimulateOtherUser />
+              </div>
               <ResourceMenuItemGroup :resources="others" />
               <section v-for="{ group, pages } in pageGroups" :key="group">
                 <h2 class="px-4 pt-2 text-xs font-medium text-muted-foreground">
@@ -85,9 +89,6 @@ const others = computed(() =>
                   />
                 </Menu>
               </section>
-              <div class="px-4 pt-2">
-                <SimulateOtherUser />
-              </div>
             </AppSidebar>
           </template>
           <template #app-bar>
