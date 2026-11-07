@@ -18,7 +18,7 @@ export type PreviewMode = "view" | "record" | "input";
  * - `input`: the demo sits in a `<Create>` form, titleless, for a bare input.
  */
 
-import { createNotificationStore, fakeDataProvider } from "@chelone/core";
+import { createNotificationStore, createStore, fakeDataProvider } from "@chelone/core";
 import { makeI18n, seedData } from "@chelone/demo-data";
 import {
   Admin,
@@ -45,6 +45,8 @@ const queryClient = new QueryClient({
 });
 const i18n = makeI18n();
 const notifications = createNotificationStore();
+// `<ColumnsButton>` / `<FieldsSelector>` read the table's column choice from here.
+const store = createStore();
 
 provideResourceContext("posts");
 if (props.mode === "record") provideRecordContext(seed.posts[0]);
@@ -57,6 +59,7 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
     :registry="resources"
     :i18n="i18n"
     :notifications="notifications"
+    :store="store"
   >
     <Resource name="posts" record-representation="title" />
     <Resource name="authors" record-representation="name" />

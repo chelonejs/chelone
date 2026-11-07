@@ -147,26 +147,17 @@ describe("every Vue demo a docs page ships", () => {
 // A frame that only re-measures on node changes keeps its old height when a
 // reader narrows the window and the demo re-wraps, clipping its bottom. jsdom
 // has no layout, so what is asserted here is the watching itself.
-describe("the Vue frame's height", () => {
-  it("watches the frame's document for size changes, not only node changes", () => {
-    const observed: Element[] = [];
-    class RecordingResizeObserver {
-      observe(target: Element): void {
-        observed.push(target);
-      }
-      unobserve(): void {}
-      disconnect(): void {}
-    }
-    vi.stubGlobal("ResizeObserver", RecordingResizeObserver);
-
+describe("the Vue frame's floor", () => {
+  // The frame is fitted to its demo by an effect jsdom cannot drive: no layout,
+  // and an iframe jsdom never loads has no body to measure. What can be pinned
+  // is the floor the fit cannot fall below.
+  it("keeps a short Vue demo's panel the height its React twin's panel is", () => {
     renderPreview(BOTH, "/docs/editing?framework=vue");
-    const frame = screen.getByTitle(/Vue demo/);
 
-    expect(observed).toContain(frame);
-    // Nothing has a height in jsdom, so the frame sits at its floor.
-    expect(frame.style.height).toBe("64px");
-
-    vi.unstubAllGlobals();
+    // The panel is `min-h-32 p-8`: a 64px frame makes it 128px, which is what a
+    // React demo of its own gets. A taller floor leaves an empty band under a
+    // short demo.
+    expect(screen.getByTitle(/Vue demo/).className).toContain("min-h-16");
   });
 });
 

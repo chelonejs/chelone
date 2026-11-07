@@ -100,7 +100,7 @@ const cellClasses = computed(() =>
       v-if="isSortable"
       variant="ghost"
       size="sm"
-      class="-mx-3 h-8"
+      class="-mx-2 h-8"
       :data-field="source"
       @click="onSort"
     >

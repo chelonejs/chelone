@@ -45,8 +45,13 @@ void load?.().then((loaded) => {
        centered for a view or a bare field, full width for a bare input (see
        `ComponentPreview`'s preview panel). -->
   <div v-if="demo" :class="demo.mode === 'input' ? 'block' : 'flex justify-center'">
-    <PreviewProvider :mode="demo.mode ?? 'view'">
-      <component :is="demo.default" />
-    </PreviewProvider>
+    <!-- `min-w-0`: a flex item may not shrink below its min-content size, so a
+         wide table pushed the frame's body sideways instead of scrolling inside
+         the table. The React panel wraps its demo the same way. -->
+    <div class="min-w-0 w-full">
+      <PreviewProvider :mode="demo.mode ?? 'view'">
+        <component :is="demo.default" />
+      </PreviewProvider>
+    </div>
   </div>
 </template>
