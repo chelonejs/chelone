@@ -11,7 +11,7 @@
  * Records flow into `fakeDataProvider`, which types every row as a
  * `LooseRecord`. The seed shapes are object type aliases rather than
  * interfaces: an alias is implicitly indexable, so it stays assignable to the
- * provider's row type without an open index signature (`seed.test-d.ts` pins
+ * provider's row type without an open index signature (`apps/demo/src/seed.test-d.ts` pins
  * it).
  */
 export type Author = {

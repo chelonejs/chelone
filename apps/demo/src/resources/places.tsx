@@ -1,3 +1,4 @@
+import type { Place } from "@chelone/demo-data";
 import {
   Create,
   DataTable,
@@ -25,7 +26,6 @@ import {
   OsmFeatureSubtract,
   ReverseGeocodeField,
 } from "@chelone/react/maps/osm";
-import type { Place } from "../seed";
 
 // One marker per place on the current page. The canvas reads its centre at
 // mount, so it waits for the first page of records.
