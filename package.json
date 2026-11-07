@@ -13,7 +13,7 @@
     "check:type-cost": "node scripts/check-type-cost.mjs",
     "check:release-notes": "node scripts/check-release-notes.mjs",
     "check:showcase": "node scripts/showcase.mjs",
-    "test:scripts": "node --test \"scripts/*.test.mjs\"",
+    "test:scripts": "node --test \"scripts/*.test.mjs\" \"apps/website/scripts/*.test.mjs\"",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
     "release:check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm --filter \"./packages/*\" run check:pack"
   },
