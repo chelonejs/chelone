@@ -12,6 +12,7 @@ import { type CanAccessParams, onboardingTourKey } from "@chelone/core";
 import {
   demoAssistantTools,
   demoAssistantTransport,
+  demoMenuKey,
   routeAccess,
   TOUR_ID,
   tourSteps,
@@ -35,9 +36,11 @@ import {
   UserMenu,
   useCanAccess,
   useCommandMenu,
+  useGetResourceLabel,
   useLocation,
   useRedirect,
   useStore,
+  useTranslate,
 } from "@chelone/react";
 import { Inspector, InspectorButton } from "@chelone/react/inspector";
 import { type ReactNode, useEffect } from "react";
@@ -132,11 +135,19 @@ function DemoSidebar({ children }: { children?: ReactNode }) {
 // adding a post from any other page is the only way to see it. It sits at the
 // top of the sidebar: at the bottom it scrolls under the devtools panel.
 function DemoMenu() {
+  const translate = useTranslate();
+  const getResourceLabel = useGetResourceLabel();
   return (
     <>
       <div className="px-2 pt-2">
         <MenuLive
-          items={[{ to: "/posts", resource: "posts", label: "Posts" }]}
+          items={[
+            {
+              to: "/posts",
+              resource: "posts",
+              label: getResourceLabel("posts"),
+            },
+          ]}
         />
       </div>
       <div className="px-4 py-2">
@@ -150,14 +161,14 @@ function DemoMenu() {
         return (
           <ResourceMenuItemGroup
             key={area}
-            label={area}
+            label={translate(demoMenuKey("group", area), { _: area })}
             resources={resourceAreas[area] ?? []}
           >
             {pages.map(({ path, title }) => (
               <Menu.Item
                 key={path}
                 to={`/${path}`}
-                label={title}
+                label={translate(demoMenuKey("page", path), { _: title })}
                 icon={<PageIcon />}
                 keyboardShortcut={shortcuts.get(path)}
               />
