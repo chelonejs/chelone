@@ -3,7 +3,11 @@ import {
   QueryObserver,
   type QueryObserverResult,
 } from "@tanstack/query-core";
-import { notifyFetchError } from "../controller/list-controller";
+import {
+  DEFAULT_DEBOUNCE_MS,
+  notifyFetchError,
+} from "../controller/list-controller";
+import { DEFAULT_REFERENCE_PER_PAGE } from "../controller/reference-many-controller";
 import {
   type DataContext,
   getListOptions,
@@ -114,8 +118,6 @@ export interface ChoicesControllerOptions<
 }
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PER_PAGE = 25;
-const DEFAULT_DEBOUNCE_MS = 500;
 const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
 /** perPage for the non-id selected getList — generous, real values sets are small. */
 const SELECTED_LIST_PER_PAGE = 1000;
@@ -164,7 +166,7 @@ export function createChoicesController<
   const store = createMicroStore<ChoicesControllerState<TRecord>>(
     {
       page: options.page ?? DEFAULT_PAGE,
-      perPage: options.perPage ?? DEFAULT_PER_PAGE,
+      perPage: options.perPage ?? DEFAULT_REFERENCE_PER_PAGE,
       sort: { ...(options.sort ?? DEFAULT_SORT) },
       filter: {},
       allChoices: [],
