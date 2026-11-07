@@ -4,10 +4,12 @@ import { fileName, MARKER, section } from "./showcase-shots.mjs";
 import { componentsIn, owner, problems, targets } from "./showcase.mjs";
 
 const shot = (path) => ({ path, see: "role=textbox" });
+// `vue.docs` is never written: it is the React docs shot with `?framework=vue`.
 const complete = {
   react: { docs: shot("/docs/editing/text-input"), demo: shot("/demo/posts/create") },
   vue: { demo: shot("/vue-demo/posts/create") },
 };
+const vueDocs = "/docs/editing/text-input?framework=vue";
 const components = {
   react: new Map([["text-input", ["packages/react/src/components/admin/inputs/text-input.tsx"]]]),
   vue: new Map([["text-input", ["packages/vue/src/components/admin/inputs/text-input.vue"]]]),
@@ -61,6 +63,14 @@ describe("problems", () => {
     assert.deepEqual(check({ "text-input": entry }), ["text-input: vue.demo is missing"]);
   });
 
+  it("fails a docs shot in either adapter with nothing to derive it from", () => {
+    const entry = { react: { demo: shot("/demo/posts/create") }, vue: { demo: shot("/vue-demo/posts/create") } };
+    assert.deepEqual(check({ "text-input": entry }), [
+      "text-input: react.docs is missing",
+      "text-input: vue.docs is missing",
+    ]);
+  });
+
   it("asks for no adapter the component is not in", () => {
     const reactOnly = { react: components.react, vue: new Map() };
     const manifest = { "text-input": { react: complete.react } };
@@ -72,10 +82,24 @@ describe("problems", () => {
     assert.match(check({ "text-input": entry })[0], /needs `see`/);
   });
 
-  it("fails a docs page with no demo", () => {
+  it("fails a docs page with no demo for the adapter it is shot for", () => {
     const manifest = { "text-input": complete };
     const found = problems({ manifest, previous: manifest, components, hasDemo: () => false });
-    assert.match(found[0], /has no demo/);
+    assert.deepEqual(found, [
+      "text-input: react.docs: /docs/editing/text-input has no react demo in its demos folder",
+      `text-input: vue.docs: ${vueDocs} has no vue demo in its demos folder`,
+    ]);
+  });
+
+  it("fails a Vue component whose docs page has no Vue demo", () => {
+    const manifest = { "text-input": complete };
+    const found = problems({
+      manifest,
+      previous: manifest,
+      components,
+      hasDemo: (_page, adapter) => adapter === "react",
+    });
+    assert.deepEqual(found, [`text-input: vue.docs: ${vueDocs} has no vue demo in its demos folder`]);
   });
 
   it("accepts a part shown by a component that has an entry", () => {
@@ -121,7 +145,15 @@ describe("targets", () => {
     const { shots } = run([], { "text-input": null });
     assert.deepEqual(
       shots.map((s) => `${s.adapter}.${s.view}`),
-      ["react.docs", "react.demo", "vue.demo"],
+      ["react.docs", "react.demo", "vue.docs", "vue.demo"],
+    );
+  });
+
+  it("shoots the Vue docs page as the React docs page with the framework set", () => {
+    const { shots } = run(["packages/vue/src/components/admin/inputs/text-input.vue"]);
+    assert.deepEqual(
+      shots.map((s) => `${s.adapter}.${s.view} ${s.path}`),
+      [`vue.docs ${vueDocs}`, "vue.demo /vue-demo/posts/create"],
     );
   });
 
@@ -158,9 +190,11 @@ describe("section", () => {
     assert.ok(text.includes("failed: `/demo/posts: Timeout`"));
   });
 
-  it("marks the Vue docs page as not required yet", () => {
-    const vue = { ...demo, adapter: "vue" };
-    assert.ok(section({ results: [vue], owed: [] }).includes("not required yet"));
+  it("photographs a Vue docs page beside its demo", () => {
+    const vue = { ...docs, adapter: "vue" };
+    const text = section({ results: [vue, { ...vue, view: "demo" }], owed: [] });
+    assert.ok(text.includes("![docs]({{shots}}/text-input-vue-docs.png)"));
+    assert.ok(text.includes("![demo]({{shots}}/text-input-vue-demo.png)"));
   });
 
   it("names what is owed", () => {
