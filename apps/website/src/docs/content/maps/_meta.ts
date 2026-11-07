@@ -11,6 +11,7 @@ export default [
   {
     category: "Shape fields",
     slugs: [
+      "shape-fields",
       "point-field",
       "multi-point-field",
       "line-string-field",
