@@ -11,7 +11,8 @@ const meta = read("../src/docs/content/getting-started/_meta.ts");
 it("the MCP page gives clients the Chelone registry and example prompts", () => {
   expect(page).toMatch(/^title: "MCP Server"$/m);
   expect(page).toMatch(/^description: ".+"$/m);
-  expect(page).toContain("](/docs/getting-started/install)");
+  // The React install and shadcn steps live on the React section's setup page.
+  expect(page).toContain("](/docs/react/setup)");
   for (const client of ["claude", "cursor", "vscode"]) {
     expect(page).toContain(`npx shadcn@latest mcp init --client ${client}`);
   }

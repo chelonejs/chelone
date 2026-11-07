@@ -1,0 +1,126 @@
+---
+title: "Setup"
+description: "Install @chelone/react with react-router, pull the admin components from the registry, and mount an admin."
+---
+
+This page sets up the React adapter. What Chelone is and how the shadcn registry
+works is covered once, on the [install page](/docs/getting-started/install); the
+Vue adapter has its own [setup page](/docs/vue/setup).
+
+## Install the engine
+
+Add the React adapter, its required router and TanStack peers, and Zod for
+resource schemas (Zod 3.25 or later, or Zod 4; either major works). `@chelone/react` depends on `@chelone/core`, whose required
+TanStack peers are included here for package managers that do not install peers
+automatically:
+
+```bash
+npm install @chelone/react zod \
+  react-router@^8.0.0 \
+  @tanstack/react-query@^5.0.0 @tanstack/react-store@^0.11.0 \
+  @tanstack/form-core@^1.33.0 @tanstack/query-core@^5.0.0
+```
+
+Your app must also have React and React DOM installed. The peer ranges declared
+by `@chelone/react` are:
+
+| Peer | Range | Required |
+| --- | --- | --- |
+| `react` | `^18 \|\| ^19` | Yes |
+| `react-dom` | `^18 \|\| ^19` | Yes |
+| `react-router` | `^7.0.0 \|\| ^8.0.0` | Yes |
+| `@tanstack/react-query` | `^5.0.0` | Yes |
+| `@tanstack/react-store` | `^0.11.0` | Yes |
+| `@tanstack/react-router` | `^1.0.0` | Only for the optional reference adapter |
+
+`@chelone/core` also requires these peers:
+
+| Peer | Range |
+| --- | --- |
+| `@tanstack/form-core` | `^1.33.0` |
+| `@tanstack/query-core` | `^5.0.0` |
+
+## Add the UI components
+
+Chelone's admin components (List, DataTable, the fields and inputs, the layout
+shell) are distributed as a shadcn registry, so you pull the source into your own
+project and can edit it freely. Initialise shadcn if you haven't:
+
+```bash
+npx shadcn@latest init
+```
+
+Add the Chelone registry to your `components.json`, keeping the rest of your
+shadcn configuration:
+
+```json title="components.json"
+{
+  "registries": {
+    "@chelone": "https://chelone.dev/r/{name}.json"
+  }
+}
+```
+
+Then add the full admin surface:
+
+```bash
+npx shadcn@latest add @chelone/admin
+```
+
+This writes the admin components into `components/admin` and the supporting
+helpers into `lib/`. The admin block declares the shadcn primitives it composes
+(`button`, `card`, `field`, `sidebar`, `table`, and the rest) as registry
+dependencies, so the CLI resolves and writes those into `components/ui` and adds
+the `use-mobile` hook to `hooks/` automatically — nothing dangles.
+
+:::note
+The `shadcn` CLI has [known issues](https://github.com/shadcn-ui/ui/issues/8778)
+on Windows. If you hit problems, use a WSL terminal.
+:::
+
+## Mount an admin
+
+Chelone runs as a client-side single-page app. The example below imports
+`fakeDataProvider` from `@chelone/core`. Declare it as a direct dependency so
+that import resolves with pnpm and Yarn Plug'n'Play:
+
+```bash
+npm install @chelone/core
+```
+
+Wrap your admin in a router and the `<Admin>` provider, then declare a
+`<Resource>` per entity:
+
+```tsx title="src/App.tsx"
+import { fakeDataProvider } from "@chelone/core";
+import { Admin, Layout, Resource } from "@chelone/react";
+import { QueryClient } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router";
+import { PostList } from "./posts";
+
+const queryClient = new QueryClient();
+const dataProvider = fakeDataProvider({ posts: [] });
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <Admin dataProvider={dataProvider} queryClient={queryClient}>
+        <Admin.Layout>
+          <Layout />
+        </Admin.Layout>
+        <Resource name="posts" list={PostList} />
+      </Admin>
+    </BrowserRouter>
+  );
+}
+```
+
+## The router
+
+`<Admin>` joins the router above it, so the `<BrowserRouter>` wrapper is optional:
+with no host router it creates its own browser router. Pass another adapter on
+`router` to run under a different router — see
+[Admin](/docs/app-config/admin#swapping-the-router).
+
+Next: the [Quick Start](/docs/react/quick-start-guide/setup) builds a real CRUD
+admin from a Zod schema, and [Admin](/docs/app-config/admin) covers every prop.
