@@ -33,7 +33,9 @@
  *   - `record`: wraps the demo in a `RecordContextProvider` for a bare read-only
  *              field (e.g. `<TextField source="title" />`).
  *   - `input`:  wraps the demo in a `<Create>` form context for a bare input
- *              (e.g. `<TextInput source="title" />`) that registers into a form.
+ *              (e.g. `<TextInput source="title" />`) that registers into a form,
+ *              with `<Create>`'s page title off — the demo is an input, not a
+ *              create page.
  */
 import {
   computeDefinition,
@@ -125,7 +127,14 @@ export function PreviewProvider({
       </RecordContextProvider>
     );
   } else if (mode === "input") {
-    inner = <Create resource="posts">{children}</Create>;
+    // `title={false}`: the demo is one input, not a create page. `<Create>` is
+    // here for its form/save/record context only, so its "Create Post" heading
+    // never lands beside the input in the preview panel.
+    inner = (
+      <Create resource="posts" title={false}>
+        {children}
+      </Create>
+    );
   }
 
   return (
