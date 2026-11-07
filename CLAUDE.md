@@ -11,7 +11,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 
 ## Working on a ticket
 
-- One ticket, one pull request. Anything you notice outside the ticket goes in the pull request as a note, not in the diff. A visual defect in a component the pull request shows is inside the ticket: see The showcase.
+- One ticket, one pull request. Anything you notice outside the ticket goes in the pull request as a note, not in the diff.
 - Test first. Tests use vitest and run with `--typecheck`; a run passes only when the summary shows `Type Errors  no errors` and the command exits 0.
 - Test from the outside: mount the component under `<Admin>` (see the harnesses in `packages/vue/src/components/admin/inputs/*.test.ts` and `packages/react/src/components/admin/inputs/*.test.tsx`) and assert DOM, roles and data-provider calls. jsdom applies no CSS, so never assert styling.
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
@@ -27,17 +27,16 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 
 ## The showcase
 
-Every component has a full demo in the docs and a place in the demos, in both adapters, and every pull request that touches one shows both. `showcase.json` says where.
+Every component has a demo in the docs and a place in the demos, in both adapters. `showcase.json` says where, and `pnpm check:showcase` fails a new component with no complete entry.
 
-- A new component lands with a docs demo in `apps/website/src/docs/content/<section>/<name>/demos/`, a place in `apps/demo` and `apps/vue-demo` where it does real work, and a complete entry: `{ "react": { "docs": SHOT, "demo": SHOT }, "vue": { "demo": SHOT } }`. A component in one adapter has that adapter's side only.
-- A SHOT is `{ "path": "/demo/posts/create", "see": "role=textbox[name=\"Title\"]", "click": ["..."] }`: the page, a Playwright selector that proves the component is on it, and what to click first when it sits behind a dialog or a tab. The demos live under `/demo/` and `/vue-demo/`.
+- A new component lands with a docs demo in `apps/website/src/docs/content/<section>/<name>/demos/`, a place in `apps/demo` and `apps/vue-demo` where it does real work, and a complete entry: `{ "react": { "docs": PAGE, "demo": PAGE }, "vue": { "demo": PAGE } }`. A component in one adapter has that adapter's side only.
+- A PAGE is `{ "path": "/demo/posts/create" }`. The demos live under `/demo/` and `/vue-demo/`. Older entries also hold `see` and `click`, which nothing reads.
 - A part that only renders inside another component is `{ "shownBy": "<that component>" }`.
-- `null` is a component older than this rule, still owed. A ticket fills it in; nothing new gets one.
-- The Vue `docs` shot is the React `docs` shot with `?framework=vue`, so an entry names the docs page once and never writes that shot. A Vue docs demo is a `demos/<file>.vue` beside its React twin.
-- Look at the component in a browser before finishing, at the width and in the states it ships in. The `showcase` entry in `.claude/launch.json` serves the docs, `/demo/` and `/vue-demo/` on one port, and that is the dev server a kelpie worker's `browser_*` tools reach.
-- The shots exist so every component looks right. Take a screenshot with `browser_take_screenshot`, since a snapshot shows no position, and fix whatever looks out of place, such as a button off centre, in the component, in both adapters, in the same pull request, even when the ticket only asked for a demo and the file is not in its `Touches:`. A fix that needs a redesign goes in the pull request as a note.
-- CI photographs each changed component's docs page and demo and writes them into a section at the bottom of the pull request body (`scripts/showcase-shots.mjs`), replaced on every run. A `see` that never appears fails the `check` job. Pull request authors post nothing themselves.
-- A reviewer checks the diff for presence: a new component has its complete `showcase.json` entry, a docs demo file, and a use in `apps/demo` and `apps/vue-demo`, and a changed component's `see` still matches what it renders. Report each one missing. A visual fix to a component the pull request shows counts as asked for.
+- A Vue docs demo is a `demos/<file>.vue` beside its React twin, on the same page with `?framework=vue`, so an entry names the docs page once.
+
+## Looking at a change
+
+Look at a visual change in a browser once, when it is finished, at the width it ships in, rather than after each edit. A change with nothing to see needs no look, and nothing needs a screenshot. The `showcase` entry in `.claude/launch.json` serves the docs, `/demo/` and `/vue-demo/` on one port, and that is the dev server a kelpie worker's `browser_*` tools reach.
 
 ## Checks
 
