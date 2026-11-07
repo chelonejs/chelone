@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { makeDemoI18n } from "./i18n";
+import { makeDemoI18n, makeI18n } from "./i18n";
 
 const flush = () => new Promise<void>((resolve) => queueMicrotask(resolve));
 
@@ -70,5 +70,19 @@ describe("the demo i18n", () => {
     await flush();
 
     expect(i18n.translate("ra.action.refresh")).toBe("Refresh");
+  });
+
+  it("keeps an English translation typed here out of every other i18n", async () => {
+    const first = makeDemoI18n();
+    first.i18n.translate("demo.team.title", { _: "Team" });
+    first.missingKeys.setTranslation("en", "demo.team.title", "Crew");
+    await flush();
+    expect(first.i18n.translate("demo.team.title", { _: "Team" })).toBe("Crew");
+
+    const second = makeDemoI18n();
+    expect(second.i18n.translate("demo.team.title", { _: "Team" })).toBe(
+      "Team",
+    );
+    expect(makeI18n().translate("demo.team.title", { _: "Team" })).toBe("Team");
   });
 });

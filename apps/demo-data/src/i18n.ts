@@ -50,7 +50,8 @@ export function makeI18n() {
 }
 
 /**
- * The apps' i18n: `makeI18n`'s English with a French catalog beside it.
+ * The apps' i18n: `makeI18n`'s English with a French catalog beside it. Both
+ * are copies, since typed translations are written into them.
  * French is partial, with English as its fallback. A translation typed into
  * `<I18nKeyEditor>` goes into the French catalog, so the demo's own strings
  * change as it is typed; clearing the text puts the English back.
@@ -58,7 +59,7 @@ export function makeI18n() {
 export function makeDemoI18n(): DemoI18n {
   const missingKeys = createMissingKeyStore();
   const messages: Record<string, MessageCatalog> = {
-    en: englishMessages,
+    en: { ...englishMessages },
     fr: { ...frenchMessages },
   };
   const base: AnyCheloneI18n = createI18n({
