@@ -190,6 +190,9 @@ importers:
       '@chelone/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@chelone/demo-data':
+        specifier: workspace:*
+        version: link:../demo-data
       '@chelone/react':
         specifier: workspace:*
         version: link:../../packages/react
@@ -264,11 +267,24 @@ importers:
         specifier: ^8.3.6
         version: 8.3.6(@types/node@26.6.6)(esbuild@0.28.1)(jiti@2.7.0)(stylus@0.57.0(supports-color@8.1.1))(yaml@2.9.1)
 
+  apps/demo-data:
+    dependencies:
+      '@chelone/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+    devDependencies:
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   apps/vue-demo:
     dependencies:
       '@chelone/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@chelone/demo-data':
+        specifier: workspace:*
+        version: link:../demo-data
       '@chelone/vue':
         specifier: workspace:*
         version: link:../../packages/vue

@@ -12,7 +12,7 @@ import {
   memoryTransport,
   realtimeDataProvider,
 } from "@chelone/core";
-import { seedData } from "./seed";
+import { seedData } from "@chelone/demo-data";
 
 export const transport = memoryTransport();
 export const locks = inMemoryLockProvider({ publisher: transport });

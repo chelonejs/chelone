@@ -19,7 +19,7 @@ import { createNotificationStore } from "@chelone/core";
 import { Admin, Resource } from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
-import { makeI18n } from "./i18n";
+import { makeI18n } from "@chelone/demo-data";
 import { mapsConfig } from "./maps-services";
 import { dataProvider } from "./realtime";
 import AuthorList from "./resources/AuthorList.vue";
