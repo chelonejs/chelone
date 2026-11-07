@@ -10,6 +10,8 @@ export type {
   Category,
   Comment,
   Customer,
+  DeliveryStatus,
+  IntegrationSettings,
   Job,
   Locale,
   Order,
@@ -22,6 +24,7 @@ export type {
   Tag,
   Variant,
   Webhook,
+  WebhookEndpoint,
 } from "./seed";
 export { categoryChoices, seedData, statusChoices } from "./seed";
 export { makeDemoStore } from "./store";

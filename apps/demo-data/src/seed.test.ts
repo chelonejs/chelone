@@ -276,6 +276,34 @@ describe("seedData", () => {
     });
   });
 
+  describe("integration settings", () => {
+    const [settings] = seed.integration_settings;
+
+    it("is one record, the settings the Integrations page edits", () => {
+      expect(seed.integration_settings).toHaveLength(1);
+      expect(settings?.id).toBe(1);
+    });
+
+    it("holds a webhook endpoint the field and the input both read", () => {
+      expect(settings?.webhook.url).toMatch(/^https:\/\//);
+      expect(settings?.webhook.secret.length).toBeGreaterThan(0);
+      expect(settings?.webhook.eventTypes.length).toBeGreaterThan(0);
+      expect(settings?.webhook.lastDelivery.status).toBe("ok");
+      expect(Date.parse(settings?.webhook.lastDelivery.at ?? "")).toBeLessThan(
+        NOW.getTime(),
+      );
+    });
+
+    it("holds a five-field cron schedule and a JSON config object", () => {
+      expect(settings?.sync_schedule.split(" ")).toHaveLength(5);
+      expect(settings?.sync_config).toBeTypeOf("object");
+    });
+
+    it("has a mail password to hide behind a password input", () => {
+      expect(settings?.smtp_password.length).toBeGreaterThan(0);
+    });
+  });
+
   it("hands out a fresh object each call, since the data provider mutates in place", () => {
     const first = seedData(NOW);
     const second = seedData(NOW);

@@ -191,6 +191,32 @@ export type Webhook = {
   last_delivery_at: string | null;
 };
 
+/** Where a webhook endpoint's last delivery stands. */
+export type DeliveryStatus = "ok" | "failed" | "pending";
+
+/** One endpoint the shop notifies: the shape `<WebhookEndpointInput>` edits. */
+export type WebhookEndpoint = {
+  url: string;
+  secret: string;
+  eventTypes: string[];
+  lastDelivery: { status: DeliveryStatus; at: string };
+};
+
+/** The single record behind the Integrations page. */
+export type IntegrationSettings = {
+  id: number;
+  webhook: WebhookEndpoint;
+  /** A five-field cron expression. */
+  sync_schedule: string;
+  sync_config: {
+    batchSize: number;
+    retries: number;
+    regions: string[];
+    dryRun: boolean;
+  };
+  smtp_password: string;
+};
+
 export type ActivityResource =
   | "posts"
   | "orders"
@@ -658,6 +684,28 @@ function buildWebhooks(now: Date): Webhook[] {
   }));
 }
 
+function buildIntegrationSettings(now: Date): IntegrationSettings[] {
+  return [
+    {
+      id: 1,
+      webhook: {
+        url: "https://hooks.example.com/orders",
+        secret: "whsec_8f3a1c7d92e04b56",
+        eventTypes: webhookEvents.slice(0, 2),
+        lastDelivery: { status: "ok", at: from(now, -25 * MINUTE) },
+      },
+      sync_schedule: "*/15 * * * *",
+      sync_config: {
+        batchSize: 200,
+        retries: 3,
+        regions: ["us-east", "eu-west"],
+        dryRun: false,
+      },
+      smtp_password: "correct-horse-battery",
+    },
+  ];
+}
+
 const activityResources: ReadonlyArray<{
   resource: ActivityResource;
   size: number;
@@ -705,6 +753,7 @@ export function seedData(now: Date = new Date()) {
     jobs: buildJobs(now),
     api_keys: buildApiKeys(now),
     webhooks: buildWebhooks(now),
+    integration_settings: buildIntegrationSettings(now),
     activity: buildActivity(now),
   };
 }
