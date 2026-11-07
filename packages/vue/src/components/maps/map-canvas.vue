@@ -35,7 +35,11 @@ export interface MapCanvasProps {
  * </MapCanvas>
  */
 
-import { latLngToLngLat } from "@chelone/core";
+import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
+  latLngToLngLat,
+} from "@chelone/core";
 import { Map as MapLibreMap } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
@@ -45,8 +49,8 @@ import { provideMap, useMapsConfig } from "./use-map";
 
 const props = withDefaults(defineProps<MapCanvasProps>(), {
   center: () => [0, 0],
-  zoom: 13,
-  height: 300,
+  zoom: DEFAULT_MAP_ZOOM,
+  height: DEFAULT_MAP_HEIGHT,
   scrollZoom: true,
 });
 

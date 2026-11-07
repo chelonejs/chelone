@@ -1,4 +1,8 @@
 import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
+  LATITUDE_LIMIT,
+  LONGITUDE_LIMIT,
   type LooseRecord,
   latitude,
   longitude,
@@ -6,6 +10,7 @@ import {
   type SourceProp,
   toCoordinate,
   type Validator,
+  wrapLongitude,
 } from "@chelone/core";
 import { useEffect, useRef, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
@@ -54,10 +59,6 @@ const toText = (value: number | null) => (value === null ? "" : `${value}`);
 
 /** About 10 cm, so the text fields stay readable. */
 const round6 = (value: number) => Math.round(value * 1e6) / 1e6;
-
-/** A click on a repeated copy of the world reports a longitude past 180. */
-const wrapLng = (lng: number) =>
-  Math.abs(lng) <= 180 ? lng : ((((lng + 180) % 360) + 360) % 360) - 180;
 
 /** MapLibre throws on a coordinate outside its range. */
 function inRange(value: number | null, limit: number): value is number {
@@ -187,8 +188,8 @@ export function LatLngInput<TRecord = LooseRecord>({
   latValidate,
   lngValidate,
   defaultPosition = [0, 0],
-  zoom = 13,
-  height = 300,
+  zoom = DEFAULT_MAP_ZOOM,
+  height = DEFAULT_MAP_HEIGHT,
   mapStyle,
   disabled = false,
   onPositionChange,
@@ -198,7 +199,7 @@ export function LatLngInput<TRecord = LooseRecord>({
   const lng = useCoordinate(lngSource, toArray(lngValidate), longitude());
 
   const position =
-    inRange(lat.stored, 90) && inRange(lng.stored, 180)
+    inRange(lat.stored, LATITUDE_LIMIT) && inRange(lng.stored, LONGITUDE_LIMIT)
       ? ([lat.stored, lng.stored] as const)
       : null;
 
@@ -209,7 +210,7 @@ export function LatLngInput<TRecord = LooseRecord>({
 
   const place = (rawLat: number, rawLng: number) => {
     const nextLat = round6(rawLat);
-    const nextLng = round6(wrapLng(rawLng));
+    const nextLng = round6(wrapLongitude(rawLng));
     gesture.current = [nextLat, nextLng];
     const now = latest.current;
     now.lat.onChange(nextLat);

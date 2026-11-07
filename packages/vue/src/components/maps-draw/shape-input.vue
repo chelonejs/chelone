@@ -251,6 +251,8 @@ const Editor = defineComponent(
  */
 
 import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
   deepEqual,
   featuresToShape,
   heldFeatures,
@@ -282,8 +284,8 @@ const props = withDefaults(defineProps<ShapeInputProps>(), {
   snapDistance: 20,
   disabled: false,
   defaultCenter: () => [0, 0],
-  zoom: 13,
-  height: 300,
+  zoom: DEFAULT_MAP_ZOOM,
+  height: DEFAULT_MAP_HEIGHT,
   mapStyle: undefined,
   shapeStyle: undefined,
   aspectRatio: undefined,

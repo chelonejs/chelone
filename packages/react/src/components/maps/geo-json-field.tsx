@@ -1,5 +1,6 @@
 import {
   asFeatureCollection,
+  DEFAULT_MAP_HEIGHT,
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
@@ -210,7 +211,7 @@ export function GeoJsonFieldBody({
           "flex items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground",
           className,
         )}
-        style={{ height: height ?? 300 }}
+        style={{ height: height ?? DEFAULT_MAP_HEIGHT }}
       >
         {emptyText ??
           translate("chelone.map.no_geometry", {
