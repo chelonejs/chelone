@@ -222,7 +222,9 @@ function EditView(props: EditViewProps) {
         )}
         {resolvedActions}
       </div>
-      <Wrapper className="my-2">{context.record ? children : null}</Wrapper>
+      <Wrapper className="my-2 space-y-4">
+        {context.record ? children : null}
+      </Wrapper>
     </>
   );
 }
