@@ -81,7 +81,7 @@ onBeforeUnmount(() => {
       :aria-describedby="descriptionId"
       :class="
         cn(
-          'fixed top-1/3 left-1/2 w-full max-w-lg -translate-x-1/2 overflow-hidden rounded-lg border bg-background p-0 shadow-lg',
+          'fixed top-1/2 left-1/2 w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-lg border bg-background p-0 shadow-lg sm:max-w-lg',
           props.class,
         )
       "

@@ -170,7 +170,6 @@
   "packages/vue/src/components/admin/inputs/radio-button-group-input.vue <-> packages/vue/src/components/admin/inputs/select-array-input.vue": 1,
   "packages/vue/src/components/admin/inputs/radio-button-group-input.vue <-> packages/vue/src/components/admin/inputs/select-input.vue": 1,
   "packages/vue/src/components/admin/inputs/resettable-text-input.vue <-> packages/vue/src/components/admin/inputs/search-input.vue": 3,
-  "packages/vue/src/components/admin/layout/command-menu.vue <-> packages/vue/src/components/admin/layout/command-menu.vue": 1,
   "packages/vue/src/components/admin/list/calendar-event.vue <-> packages/vue/src/components/admin/list/calendar-month-view.vue": 1,
   "packages/vue/src/components/admin/list/calendar-list.vue <-> packages/vue/src/components/admin/list/calendar-month-view.vue": 1,
   "packages/vue/src/components/admin/list/calendar-list.vue <-> packages/vue/src/components/admin/list/tree-list.vue": 1,
