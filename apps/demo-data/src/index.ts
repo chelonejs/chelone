@@ -1,6 +1,7 @@
 export { demoAssistantTools, demoAssistantTransport } from "./assistant";
 export { demoAuthProvider } from "./auth";
 export { makeI18n } from "./i18n";
+export { landingPageDocument } from "./landing-page";
 export type {
   Activity,
   ActivityResource,
