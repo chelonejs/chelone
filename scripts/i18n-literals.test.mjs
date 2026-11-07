@@ -163,7 +163,7 @@ export function literalTranslationKeys(text, { htmlComments = false } = {}) {
   return keys;
 }
 
-/** Every key the catalogs define: each `defineMessages` call under `dir`. */
+/** Every key `text` defines: a catalog key is the one followed by a `:`. */
 function catalogKeys(text) {
   if (!text.includes("defineMessages(")) return [];
   return [...text.matchAll(catalogEntry)].map((match) => match[2]);

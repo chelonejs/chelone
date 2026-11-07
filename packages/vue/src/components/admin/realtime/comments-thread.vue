@@ -206,7 +206,11 @@ function timeOf(iso: string | null | undefined) {
       }}
     </p>
     <p v-else-if="isSuccess && items.length === 0" data-slot="comments-empty">
-      {{ translate("chelone.comments.empty", { _: "No comments yet. Be the first." }) }}
+      {{
+        translate("chelone.comments.empty", {
+          _: "No comments yet. Be the first.",
+        })
+      }}
     </p>
     <Card
       v-for="comment in items"
