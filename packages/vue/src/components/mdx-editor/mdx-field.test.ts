@@ -149,7 +149,9 @@ function mountField(
         i18n,
       });
       if (record) provideRecordContext(record);
-      return () => h(MdxField, props, slots);
+      // `MdxField` is generic in its record, so `h` only takes its props as a
+      // fresh object literal, which carries the implicit index signature.
+      return () => h(MdxField, { ...props }, slots);
     },
   });
   const wrapper = mount(Harness, { attachTo: document.body });

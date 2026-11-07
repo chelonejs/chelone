@@ -1,13 +1,20 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type {
+  LooseRecord,
+  ResourceRecord,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 import type { CrepeEditorConfig } from "./internal/crepe-editor.vue";
 
 /** Props for {@link MdxField}. */
-export interface MdxFieldProps {
-  source: SourceProp;
-  record?: LooseRecord;
+export interface MdxFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+> {
+  source: SourceProp<RecordType>;
+  record?: RecordType;
   /** Used when the record has no value at `source`. */
-  defaultValue?: unknown;
+  defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
   /** Shown as the markdown when the value is missing; translated if it is a message key. */
   empty?: string;
   /** Merged under the read-only defaults; `code-mirror` and `latex` stay off. */
@@ -16,7 +23,7 @@ export interface MdxFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<MdxField>` — shows a markdown field value in a read-only Crepe editor. The
  * Vue counterpart of `@chelone/react`'s `mdx-editor/mdx-field.tsx`; it wraps
@@ -39,12 +46,12 @@ import { cn } from "../../lib/utils";
 import { useFieldValue } from "../../record/use-field-value";
 import CrepeEditor from "./internal/crepe-editor.vue";
 
-const props = defineProps<MdxFieldProps>();
+const props = defineProps<MdxFieldProps<RecordType>>();
 
 defineSlots<{ empty?: () => VNode[] }>();
 
 const translate = useTranslate();
-const value = useFieldValue({
+const value = useFieldValue<RecordType>({
   source: props.source,
   get record() {
     return props.record;

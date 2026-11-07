@@ -1,4 +1,9 @@
-import { createI18n, defineMessages, fakeDataProvider } from "@chelone/core";
+import {
+  createI18n,
+  defineMessages,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
 import { defined, elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/vue-query";
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
@@ -60,6 +65,10 @@ export async function mountInput(
   } = {},
 ): Promise<MountedInput> {
   const created: { editor: Editor | null } = { editor: null };
+  // `RichTextField` is generic in its record, and `h` reads a generic component
+  // at its bound, so the field's record is named loose before it goes in.
+  const fieldRecord: LooseRecord | undefined =
+    fieldBody === undefined ? undefined : { id: 1, body: fieldBody };
   const live = reactive<Partial<RichTextInputProps>>({ ...props });
   const captured: { form?: UseFormReturn<FormValues> } = {};
   const onSubmit: Mock<(data: FormValues) => Promise<undefined>> = vi.fn(
@@ -92,12 +101,9 @@ export async function mountInput(
             },
             slots,
           ),
-          fieldBody === undefined
+          fieldRecord === undefined
             ? null
-            : h(RichTextField, {
-                source: "body",
-                record: { id: 1, body: fieldBody },
-              }),
+            : h(RichTextField, { source: "body", record: fieldRecord }),
         ]);
     },
   });
