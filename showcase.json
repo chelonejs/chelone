@@ -1,7 +1,11 @@
 {
   "access-denied": null,
-  "addon-csv-import": null,
-  "addon-supabase": null,
+  "addon-csv-import": {
+    "shownBy": "csv-import"
+  },
+  "addon-supabase": {
+    "shownBy": "supabase-login-page"
+  },
   "admin": null,
   "api-key-field": null,
   "api-key-input": null,
@@ -9,16 +13,22 @@
   "app-sidebar": null,
   "application-updated-notification": null,
   "approval-queue": null,
-  "approval-queue-row": null,
+  "approval-queue-row": {
+    "shownBy": "approval-queue"
+  },
   "array-field": null,
   "array-input": null,
-  "array-input-row": null,
+  "array-input-row": {
+    "shownBy": "array-input"
+  },
   "assistant": null,
   "auth-callback": null,
   "auth-error": null,
   "auth-layout": null,
   "authentication-error": null,
-  "auto-config-form": null,
+  "auto-config-form": {
+    "shownBy": "block-editor-input"
+  },
   "autocomplete-array-input": null,
   "autocomplete-input": null,
   "badge-field": null,
@@ -26,14 +36,26 @@
   "bbox-field": null,
   "bbox-input": null,
   "block-doc-field": null,
-  "block-drag-handle": null,
-  "block-drop-gap": null,
+  "block-drag-handle": {
+    "shownBy": "block-editor-input"
+  },
+  "block-drop-gap": {
+    "shownBy": "block-editor-input"
+  },
   "block-editor": null,
   "block-editor-input": null,
-  "block-editor-shell": null,
-  "block-nodes": null,
-  "block-picker": null,
-  "block-toolbar": null,
+  "block-editor-shell": {
+    "shownBy": "block-editor-input"
+  },
+  "block-nodes": {
+    "shownBy": "block-editor-input"
+  },
+  "block-picker": {
+    "shownBy": "block-editor-input"
+  },
+  "block-toolbar": {
+    "shownBy": "block-editor-input"
+  },
   "boolean-field": null,
   "boolean-input": null,
   "bulk-actions-toolbar": null,
@@ -41,20 +63,40 @@
   "bulk-edit-drawer": null,
   "bulk-export-button": null,
   "bulk-update-button": null,
-  "calendar-agenda-view": null,
-  "calendar-event": null,
-  "calendar-header": null,
+  "calendar-agenda-view": {
+    "shownBy": "calendar-list"
+  },
+  "calendar-event": {
+    "shownBy": "calendar-list"
+  },
+  "calendar-header": {
+    "shownBy": "calendar-list"
+  },
   "calendar-list": null,
-  "calendar-month-view": null,
-  "calendar-week-view": null,
-  "callout-block": null,
+  "calendar-month-view": {
+    "shownBy": "calendar-list"
+  },
+  "calendar-week-view": {
+    "shownBy": "calendar-list"
+  },
+  "callout-block": {
+    "shownBy": "block-editor-input"
+  },
   "can-access": null,
   "cancel-button": null,
   "card-content-inner": null,
-  "chart-block": null,
-  "chart-block-config": null,
-  "chart-frame": null,
-  "charts": null,
+  "chart-block": {
+    "shownBy": "block-editor-input"
+  },
+  "chart-block-config": {
+    "shownBy": "block-editor-input"
+  },
+  "chart-frame": {
+    "shownBy": "bar-chart"
+  },
+  "charts": {
+    "shownBy": "bar-chart"
+  },
   "check-for-application-update": null,
   "checkbox-group-input": null,
   "chip-field": null,
@@ -63,46 +105,84 @@
   "color-input": null,
   "columns-button": null,
   "command-menu": null,
-  "command-menu-content": null,
-  "command-menu-gate": null,
-  "command-menu-logout": null,
-  "command-menu-record-search": null,
+  "command-menu-content": {
+    "shownBy": "command-menu"
+  },
+  "command-menu-gate": {
+    "shownBy": "command-menu"
+  },
+  "command-menu-logout": {
+    "shownBy": "command-menu"
+  },
+  "command-menu-record-search": {
+    "shownBy": "command-menu"
+  },
   "comments-thread": null,
-  "configurable": null,
+  "configurable": {
+    "shownBy": "inspector"
+  },
   "configurable-inputs": null,
   "confirm": null,
   "count": null,
-  "count-spinner": null,
+  "count-spinner": {
+    "shownBy": "count"
+  },
   "create": null,
   "create-button": null,
-  "crepe-editor": null,
+  "crepe-editor": {
+    "shownBy": "mdx-input"
+  },
   "cron-field": null,
   "cron-input": null,
   "csv-import": null,
   "currency-field": null,
   "currency-input": null,
   "dashboard-menu-item": null,
-  "data-block-fields-input": null,
-  "data-block-parts": null,
-  "data-block-resource-select": null,
-  "data-block-state": null,
-  "data-blocks": null,
+  "data-block-fields-input": {
+    "shownBy": "block-editor-input"
+  },
+  "data-block-parts": {
+    "shownBy": "block-editor-input"
+  },
+  "data-block-resource-select": {
+    "shownBy": "block-editor-input"
+  },
+  "data-block-state": {
+    "shownBy": "block-editor-input"
+  },
+  "data-blocks": {
+    "shownBy": "block-editor-input"
+  },
   "data-provider-devtools": null,
-  "data-provider-devtools-entry": null,
+  "data-provider-devtools-entry": {
+    "shownBy": "data-provider-devtools"
+  },
   "data-table": null,
-  "data-table-col": null,
-  "data-table-number-col": null,
-  "data-table-row": null,
+  "data-table-col": {
+    "shownBy": "data-table"
+  },
+  "data-table-number-col": {
+    "shownBy": "data-table"
+  },
+  "data-table-row": {
+    "shownBy": "data-table"
+  },
   "datagrid-input": null,
   "date-field": null,
   "date-input": null,
   "date-time-input": null,
-  "default-blocks": null,
-  "default-plugins": null,
+  "default-blocks": {
+    "shownBy": "block-editor-input"
+  },
+  "default-plugins": {
+    "shownBy": "mdx-input"
+  },
   "delete-button": null,
   "diff-viewer": null,
   "donut-chart": null,
-  "draw-toolbar": null,
+  "draw-toolbar": {
+    "shownBy": "shape-input"
+  },
   "dual-approval-button": null,
   "duration-field": null,
   "duration-input": null,
@@ -111,50 +191,84 @@
   "edit-guesser": null,
   "edit-live": null,
   "email-field": null,
-  "embed-block": null,
+  "embed-block": {
+    "shownBy": "block-editor-input"
+  },
   "error": null,
   "export-button": null,
-  "field-label-text": null,
+  "field-label-text": {
+    "shownBy": "text-input"
+  },
   "fields-selector": null,
   "file-field": null,
   "file-input": null,
-  "file-input-preview": null,
+  "file-input-preview": {
+    "shownBy": "file-input"
+  },
   "filter-button": null,
   "filter-form": null,
   "filter-list": null,
   "filter-list-item": null,
   "filter-list-section": null,
   "filter-live-search": null,
-  "forgot-password-form": null,
+  "forgot-password-form": {
+    "shownBy": "forgot-password-page"
+  },
   "forgot-password-page": null,
   "function-field": null,
   "geo-json-field": null,
-  "geo-json-layers": null,
-  "geo-json-view": null,
+  "geo-json-layers": {
+    "shownBy": "geo-json-field"
+  },
+  "geo-json-view": {
+    "shownBy": "geo-json-field"
+  },
   "geocoding-input": null,
-  "guesser-empty": null,
+  "guesser-empty": {
+    "shownBy": "list-guesser"
+  },
   "hide-on-scroll": null,
   "i18n-key-editor": null,
   "icon-button-with-tooltip": null,
-  "image-block": null,
-  "image-block-config": null,
+  "image-block": {
+    "shownBy": "block-editor-input"
+  },
+  "image-block-config": {
+    "shownBy": "block-editor-input"
+  },
   "image-field": null,
   "image-input": null,
-  "image-input-thumbnail": null,
+  "image-input-thumbnail": {
+    "shownBy": "image-input"
+  },
   "in-place-editor": null,
-  "in-place-editor-form": null,
+  "in-place-editor-form": {
+    "shownBy": "in-place-editor"
+  },
   "infinite-list": null,
   "infinite-pagination": null,
-  "input-helper-text": null,
+  "input-helper-text": {
+    "shownBy": "text-input"
+  },
   "inspector": null,
-  "inspector-button": null,
+  "inspector-button": {
+    "shownBy": "inspector"
+  },
   "job-monitor": null,
-  "job-monitor-row": null,
+  "job-monitor-row": {
+    "shownBy": "job-monitor"
+  },
   "json-field": null,
-  "kanban": null,
+  "kanban": {
+    "shownBy": "kanban-board"
+  },
   "kanban-board": null,
-  "kanban-draggable-card": null,
-  "kanban-drop-area": null,
+  "kanban-draggable-card": {
+    "shownBy": "kanban-board"
+  },
+  "kanban-drop-area": {
+    "shownBy": "kanban-board"
+  },
   "keyboard-shortcut": null,
   "labeled": null,
   "lat-lng-field": null,
@@ -173,7 +287,9 @@
   "loading": null,
   "loading-indicator": null,
   "loading-input": null,
-  "locales-menu": null,
+  "locales-menu": {
+    "shownBy": "locales-menu-button"
+  },
   "locales-menu-button": null,
   "lock-on-mount": null,
   "lock-status": null,
@@ -181,26 +297,48 @@
   "login-page": null,
   "login-with-email": null,
   "logout": null,
-  "map-canvas": null,
+  "map-canvas": {
+    "shownBy": "geo-json-field"
+  },
   "map-with-search": null,
-  "maps": null,
-  "maps-draw": null,
-  "maps-osm": null,
-  "maps-provider": null,
-  "mdx-editor": null,
+  "maps": {
+    "shownBy": "geo-json-field"
+  },
+  "maps-draw": {
+    "shownBy": "shape-input"
+  },
+  "maps-osm": {
+    "shownBy": "map-with-search"
+  },
+  "maps-provider": {
+    "shownBy": "geo-json-field"
+  },
+  "mdx-editor": {
+    "shownBy": "mdx-input"
+  },
   "mdx-field": null,
   "mdx-input": null,
   "menu": null,
   "menu-item-link": null,
   "menu-live": null,
   "metric-card": null,
-  "monaco": null,
+  "monaco": {
+    "shownBy": "monaco-json-input"
+  },
   "monaco-json-field": null,
-  "monaco-json-field-lazy": null,
+  "monaco-json-field-lazy": {
+    "shownBy": "monaco-json-field"
+  },
   "monaco-json-input": null,
-  "monaco-json-input-lazy": null,
-  "monaco-shared": null,
-  "monaco-skeleton": null,
+  "monaco-json-input-lazy": {
+    "shownBy": "monaco-json-input"
+  },
+  "monaco-shared": {
+    "shownBy": "monaco-json-input"
+  },
+  "monaco-skeleton": {
+    "shownBy": "monaco-json-input"
+  },
   "not-found": null,
   "notification": null,
   "nullable-boolean-input": null,
@@ -208,8 +346,12 @@
   "number-input": null,
   "offline": null,
   "onboarding-tour": null,
-  "onboarding-tour-host": null,
-  "onboarding-tour-overlay": null,
+  "onboarding-tour-host": {
+    "shownBy": "onboarding-tour"
+  },
+  "onboarding-tour-overlay": {
+    "shownBy": "onboarding-tour"
+  },
   "osm-feature-operator": null,
   "password-input": null,
   "permission-matrix": null,
@@ -224,8 +366,12 @@
   "rating-input": null,
   "ready": null,
   "record-field": null,
-  "record-list-block": null,
-  "record-list-config": null,
+  "record-list-block": {
+    "shownBy": "block-editor-input"
+  },
+  "record-list-config": {
+    "shownBy": "block-editor-input"
+  },
   "record-timeline": null,
   "reference-array-field": null,
   "reference-array-input": null,
@@ -234,24 +380,44 @@
   "reference-many-count": null,
   "reference-many-field": null,
   "reference-one-field": null,
-  "reference-record-block": null,
-  "reference-record-config": null,
+  "reference-record-block": {
+    "shownBy": "block-editor-input"
+  },
+  "reference-record-config": {
+    "shownBy": "block-editor-input"
+  },
   "refresh-button": null,
   "refresh-icon-button": null,
   "resettable-text-input": null,
   "resource-menu-item": null,
   "resource-menu-item-group": null,
   "reverse-geocode-field": null,
-  "rich-text-color": null,
+  "rich-text-color": {
+    "shownBy": "rich-text-input"
+  },
   "rich-text-field": null,
-  "rich-text-image": null,
-  "rich-text-image-form": null,
-  "rich-text-image-view": null,
+  "rich-text-image": {
+    "shownBy": "rich-text-input"
+  },
+  "rich-text-image-form": {
+    "shownBy": "rich-text-input"
+  },
+  "rich-text-image-view": {
+    "shownBy": "rich-text-input"
+  },
   "rich-text-input": null,
-  "rich-text-input-editor": null,
-  "rich-text-link-form": null,
-  "rich-text-toolbar": null,
-  "rich-text-url-form": null,
+  "rich-text-input-editor": {
+    "shownBy": "rich-text-input"
+  },
+  "rich-text-link-form": {
+    "shownBy": "rich-text-input"
+  },
+  "rich-text-toolbar": {
+    "shownBy": "rich-text-input"
+  },
+  "rich-text-url-form": {
+    "shownBy": "rich-text-input"
+  },
   "save-button": null,
   "saved-queries-list": null,
   "search-input": null,
@@ -259,11 +425,15 @@
   "select-array-input": null,
   "select-field": null,
   "select-input": null,
-  "set-password-form": null,
+  "set-password-form": {
+    "shownBy": "set-password-page"
+  },
   "set-password-page": null,
   "shape-fields": null,
   "shape-input": null,
-  "shape-inputs": null,
+  "shape-inputs": {
+    "shownBy": "shape-input"
+  },
   "show": null,
   "show-button": null,
   "show-guesser": null,
@@ -275,19 +445,29 @@
   "simple-list-loading": null,
   "simplify-input": null,
   "single-field-list": null,
-  "single-field-list-record": null,
+  "single-field-list-record": {
+    "shownBy": "single-field-list"
+  },
   "skip-navigation-button": null,
   "social-auth-button": null,
-  "social-icons": null,
+  "social-icons": {
+    "shownBy": "social-auth-button"
+  },
   "sort-button": null,
-  "sortable-fields-selector": null,
-  "spinner": null,
+  "sortable-fields-selector": {
+    "shownBy": "configurable-inputs"
+  },
+  "spinner": {
+    "shownBy": "loading"
+  },
   "status-transition-button": null,
   "subscription-plan-field": null,
   "subscription-plan-picker": null,
   "supabase-login-page": null,
   "tabbed-show-layout": null,
-  "tabbed-show-layout-tab": null,
+  "tabbed-show-layout-tab": {
+    "shownBy": "tabbed-show-layout"
+  },
   "text-array-field": null,
   "text-array-input": null,
   "text-field": null,
@@ -310,32 +490,58 @@
     }
   },
   "theme-mode-toggle": null,
-  "theme-provider": null,
+  "theme-provider": {
+    "shownBy": "theme-mode-toggle"
+  },
   "time-input": null,
   "title": null,
-  "title-portal": null,
-  "toggle-block": null,
+  "title-portal": {
+    "shownBy": "title"
+  },
+  "toggle-block": {
+    "shownBy": "block-editor-input"
+  },
   "toggle-filter-button": null,
   "toolbar": null,
   "top-toolbar": null,
   "translatable-fields": null,
-  "translatable-fields-tab": null,
-  "translatable-fields-tab-content": null,
-  "translatable-fields-tabs": null,
+  "translatable-fields-tab": {
+    "shownBy": "translatable-fields"
+  },
+  "translatable-fields-tab-content": {
+    "shownBy": "translatable-fields"
+  },
+  "translatable-fields-tabs": {
+    "shownBy": "translatable-fields"
+  },
   "translatable-inputs": null,
-  "translatable-inputs-tab": null,
-  "translatable-inputs-tab-content": null,
-  "translatable-inputs-tabs": null,
+  "translatable-inputs-tab": {
+    "shownBy": "translatable-inputs"
+  },
+  "translatable-inputs-tab-content": {
+    "shownBy": "translatable-inputs"
+  },
+  "translatable-inputs-tabs": {
+    "shownBy": "translatable-inputs"
+  },
   "tree-list": null,
-  "tree-list-node": null,
+  "tree-list-node": {
+    "shownBy": "tree-list"
+  },
   "trend-chart": null,
-  "ui": null,
+  "ui": {
+    "shownBy": "layout"
+  },
   "update-button": null,
   "url-field": null,
   "usage-meter-field": null,
   "user-menu": null,
-  "user-menu-inner": null,
-  "validation-error": null,
+  "user-menu-inner": {
+    "shownBy": "user-menu"
+  },
+  "validation-error": {
+    "shownBy": "text-input"
+  },
   "webhook-endpoint-field": null,
   "webhook-endpoint-input": null,
   "wrapper-field": null

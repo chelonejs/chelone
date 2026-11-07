@@ -9,6 +9,7 @@ import {
   createI18n,
   defineMessages,
   fakeDataProvider,
+  MONACO_DIAGNOSTICS_DELAY_MS,
   type Validator,
 } from "@chelone/core";
 import { elementOf } from "@chelone/test-utils";
@@ -29,7 +30,6 @@ import { createMemoryHistory, createRouter } from "vue-router";
 import Admin from "../../admin/admin.vue";
 import { type UseFormReturn, useForm } from "../../form/use-form";
 import { useInput } from "../../form/use-input";
-import { MONACO_DIAGNOSTICS_DELAY_MS } from "./internal/use-monaco-markers";
 import MonacoJsonInput from "./monaco-json-input.vue";
 
 vi.mock("monaco-editor", () => ({}));

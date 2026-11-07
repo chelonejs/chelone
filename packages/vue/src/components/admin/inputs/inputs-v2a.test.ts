@@ -221,6 +221,34 @@ describe("<ResettableTextInput>", () => {
     // With no value, the clear button is gone.
     expect(wrapper.find('button[data-slot="reset"]').exists()).toBe(false);
   });
+
+  it("puts the clear button in the input's own row, beside the input and nothing else", async () => {
+    const { wrapper } = mountInForm(
+      () => h(ResettableTextInput, { source: "title" }),
+      { record: { id: 1, title: "War and Peace", author_id: 10, views: 0 } },
+    );
+    await flushPromises();
+
+    const input = wrapper.find('input[type="text"]').element;
+    const clear = wrapper.find('button[data-slot="reset"]').element;
+    // The row is what the button's `absolute` position resolves against, so it
+    // must hold the input and the button alone: a label, helper text or error
+    // above or below would shift the button off the input's centre.
+    expect(clear.parentElement).toBe(input.parentElement);
+    expect(input.parentElement?.querySelector("label")).toBeNull();
+  });
+
+  it("puts the clear button in the input's own row when the field has no label", async () => {
+    const { wrapper } = mountInForm(
+      () => h(ResettableTextInput, { source: "title", label: false }),
+      { record: { id: 1, title: "War and Peace", author_id: 10, views: 0 } },
+    );
+    await flushPromises();
+
+    const input = wrapper.find('input[type="text"]').element;
+    const clear = wrapper.find('button[data-slot="reset"]').element;
+    expect(clear.parentElement).toBe(input.parentElement);
+  });
 });
 
 // Each subscribes to the form store, which hands back a `Subscription` object;

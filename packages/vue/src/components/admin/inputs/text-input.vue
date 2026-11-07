@@ -27,6 +27,10 @@ export interface TextInputProps {
  * the shadcn `Field` + `Input` primitives. The error is the already-displayable
  * `string | TranslatableMessage` off `useInput` (rendered through
  * `<ValidationError>`), never an RHF `error.root.message`.
+ *
+ * The control sits in a row of its own with the `controlSuffix` slot, so a wrapper
+ * can overlay a button on it and have that button centred on the control whatever
+ * the field renders above or below the row.
  */
 
 import { toTextValue, type Validator } from "@chelone/core";
@@ -71,20 +75,23 @@ const labelText = computed(() =>
     <FieldLabel v-if="labelText != null" :html-for="id">
       {{ labelText }}<span v-if="isRequired"> *</span>
     </FieldLabel>
-    <Input
-      :id="id"
-      :type="type ?? 'text'"
-      :model-value="value"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :readonly="readonly"
-      :autocomplete="autocomplete"
-      :autofocus="autofocus"
-      :aria-invalid="invalid"
-      :class="inputClass"
-      @update:model-value="setValue"
-      @blur="blur"
-    />
+    <div class="relative flex items-center">
+      <Input
+        :id="id"
+        :type="type ?? 'text'"
+        :model-value="value"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :readonly="readonly"
+        :autocomplete="autocomplete"
+        :autofocus="autofocus"
+        :aria-invalid="invalid"
+        :class="inputClass"
+        @update:model-value="setValue"
+        @blur="blur"
+      />
+      <slot name="controlSuffix" />
+    </div>
     <FieldError v-if="invalid">
       <ValidationError :error="error" />
     </FieldError>
