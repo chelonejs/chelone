@@ -269,6 +269,26 @@ describe("<Assistant>", () => {
     expect(handler).toHaveBeenCalledWith({ id: 7 });
   });
 
+  it("the confirm title names the tool without a percent sign", async () => {
+    const handler = vi.fn(() => "deleted");
+    const { transport } = scripted([
+      toolCall("c1", "delete_post", { id: 7 }),
+      done,
+    ]);
+    mount({
+      transport,
+      tools: { delete_post: tool({ handler, confirm: true }) },
+    });
+    openPanel();
+
+    say("delete post 7");
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "Run delete_post?",
+    });
+    expect(dialog.textContent).not.toContain("%");
+  });
+
   it("Stop ends the stream and keeps the text so far", async () => {
     const { transport, sent } = scripted(hangAfterText);
     mount({ transport });

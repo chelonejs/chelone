@@ -163,7 +163,7 @@ function DeleteButton<TRecord extends ResourceRecord = LooseRecord>(
     resourceI18nKey: `resources.${resource}.message.delete_title`,
     baseI18nKey: "ra.message.delete_title",
     options: definedParams({
-      _: "Delete %{name} %{recordRepresentation}",
+      _: "Delete {name} {recordRepresentation}",
       recordRepresentation,
       name: resourceName,
       id: record?.id,

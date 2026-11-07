@@ -11,8 +11,8 @@ import {
   Create,
   NumberInput,
   ReferenceInput,
-  SaveButton,
   TextInput,
+  Toolbar,
 } from "@chelone/vue";
 </script>
 
@@ -26,7 +26,7 @@ import {
       <BooleanInput source="published" :default-value="false" />
     </div>
     <template #toolbar>
-      <SaveButton />
+      <Toolbar />
     </template>
   </Create>
 </template>
