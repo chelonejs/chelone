@@ -15,7 +15,7 @@
  * website has no Vue compiler, so the Vue demo renders in an iframe of the Vue
  * demo app (`apps/vue-demo/src/DocsPreview.vue`), which compiles it.
  */
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ShikiHighlighter } from "react-shiki";
 import { SHIKI_THEME } from "@/lib/shiki-theme";
 import { cn } from "@/lib/utils";
@@ -71,6 +71,38 @@ interface ComponentPreviewProps {
   className?: string;
 }
 
+/** What a Vue demo frame reports about the height its own content needs. */
+interface DemoHeightMessage {
+  type: "chelone-docs-demo-height";
+  height: number;
+}
+
+function isDemoHeightMessage(value: unknown): value is DemoHeightMessage {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "type" in value &&
+    value.type === "chelone-docs-demo-height" &&
+    "height" in value &&
+    typeof value.height === "number"
+  );
+}
+
+// The frame starts at this height and grows to what the demo reports, capped so
+// a runaway demo cannot push the docs page into a huge blank panel.
+const FRAME_MIN_HEIGHT = 128;
+const FRAME_DEFAULT_HEIGHT = 224;
+const FRAME_MAX_HEIGHT = 1000;
+/**
+ * Narrower than this and the admin sidebar becomes a drawer (`useIsMobile`), so
+ * a shell demo (Layout, Menu) would show no sidebar at all. The docs column is
+ * narrower than this on a normal page, so the frame is laid out at this width
+ * and zoomed down to fit the panel. It sits above the breakpoint, not on it: a
+ * demo that overflows its frame by a pixel gets a scrollbar, which takes a
+ * pixel off the frame's viewport and puts it back under the breakpoint.
+ */
+const FRAME_MIN_WIDTH = 800;
+
 type LoadedDemo =
   | {
       key: string;
@@ -91,9 +123,15 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const framework =
     reactKey && vueKey ? chosen : vueKey ? "vue" : ("react" as const);
   const key = framework === "vue" ? vueKey : reactKey;
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const frameBoxRef = useRef<HTMLDivElement>(null);
+  // A Vue demo sizes its own frame, so the panel never clips it (see DocsPreview).
+  const [frameHeight, setFrameHeight] = useState<number>();
+  const [frameBoxWidth, setFrameBoxWidth] = useState(0);
 
   // Effects run only after hydration, keeping the admin runtime out of SSG.
   useEffect(() => {
+    setFrameHeight(undefined);
     if (!key) return;
     const loadModule = framework === "react" ? demoModules[key] : undefined;
     const loadSource = (framework === "vue" ? vueSources : demoSources)[key];
@@ -112,6 +150,39 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
     };
   }, [key, framework]);
 
+  // The Vue demo lives in the Vue demo app, which knows what it rendered and
+  // posts that height here. Only its own frame counts, not any other frame.
+  useEffect(() => {
+    if (framework !== "vue") return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.source !== frameRef.current?.contentWindow) return;
+      if (!isDemoHeightMessage(event.data)) return;
+      setFrameHeight(
+        Math.min(
+          Math.max(event.data.height, FRAME_MIN_HEIGHT),
+          FRAME_MAX_HEIGHT,
+        ),
+      );
+    };
+    window.addEventListener("message", onMessage);
+    return () => {
+      window.removeEventListener("message", onMessage);
+    };
+  }, [framework]);
+
+  // The panel the frame sits in, so the frame can be zoomed to fit it.
+  useEffect(() => {
+    const box = frameBoxRef.current;
+    if (!box) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setFrameBoxWidth(entry.contentRect.width);
+    });
+    observer.observe(box);
+    return () => {
+      observer.disconnect();
+    };
+  }, [framework, tab]);
+
   if (!key) {
     return (
       <div className="my-4 rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm text-destructive">
@@ -126,6 +197,9 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   // Unknown until the demo module loads, which is while the placeholder shows.
   const mode: PreviewMode = demo?.module?.mode ?? "view";
   const inputMode = mode === "input";
+  // A Vue frame is at least FRAME_MIN_WIDTH wide and zoomed down to the panel.
+  const frameWidth = Math.max(FRAME_MIN_WIDTH, frameBoxWidth);
+  const frameZoom = frameBoxWidth === 0 ? 1 : frameBoxWidth / frameWidth;
 
   return (
     <div
@@ -171,11 +245,22 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
           )}
         >
           {framework === "vue" ? (
-            <iframe
-              title={`Vue demo: ${name}`}
-              src={`/vue-demo/docs-preview/${name}`}
-              className="h-56 w-full border-0"
-            />
+            // The frame is laid out at desktop width and zoomed to the panel, so
+            // the demo sees a desktop viewport and its sidebar is a sidebar, not
+            // a drawer. `zoom` scales the layout box, so the panel sizes to it.
+            <div ref={frameBoxRef} className="w-full min-w-0">
+              <iframe
+                ref={frameRef}
+                title={`Vue demo: ${name}`}
+                src={`/vue-demo/docs-preview/${name}`}
+                style={{
+                  width: frameWidth,
+                  height: frameHeight ?? FRAME_DEFAULT_HEIGHT,
+                  zoom: frameZoom,
+                }}
+                className="border-0"
+              />
+            </div>
           ) : DemoComponent ? (
             <PreviewProvider mode={mode}>
               <DemoComponent />
