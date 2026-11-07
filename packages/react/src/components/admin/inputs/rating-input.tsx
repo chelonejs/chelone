@@ -85,12 +85,14 @@ function RatingInput<
         role="radiogroup"
         aria-disabled={disabled}
         aria-invalid={invalid || undefined}
-        className={cn("flex items-center gap-1", className)}
+        className={cn("flex items-center", !allowHalf && "gap-1", className)}
         {...sanitizeInputRestProps(rest)}
       >
         {Array.from({ length: steps }).map((_, i) => {
           const v = (i + 1) * stepValue;
           const selected = currentValue >= v;
+          // With half steps a star is two buttons, each drawing its half.
+          const half = allowHalf ? (v % 1 !== 0 ? "left" : "right") : undefined;
           return (
             // biome-ignore lint/a11y/useSemanticElements: custom star visuals can't be rendered with native <input type="radio">; button[role=radio] inside the role="radiogroup" is the standard accessible rating pattern
             <button
@@ -103,11 +105,14 @@ function RatingInput<
               onClick={() => !disabled && field.onChange(v)}
               onBlur={field.onBlur}
               className={cn(
-                "p-0.5 leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "py-0.5 leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                half === "left" && "pl-0.5",
+                half === "right" && "pr-0.5 mr-1",
+                half === undefined && "px-0.5",
                 disabled && "cursor-not-allowed opacity-50",
               )}
             >
-              <Star filled={selected} half={allowHalf && v % 1 !== 0} />
+              <Star filled={selected} half={half} />
             </button>
           );
         })}
@@ -120,24 +125,33 @@ function RatingInput<
   );
 }
 
-const Star = ({ filled, half }: { filled: boolean; half: boolean }) => (
+const STAR = "12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9";
+
+/** The whole star, or one half of it cut at the vertical axis. */
+const Star = ({
+  filled,
+  half,
+}: {
+  filled: boolean;
+  half: "left" | "right" | undefined;
+}) => (
   <svg
-    width={20}
+    width={half ? 10 : 20}
     height={20}
-    viewBox="0 0 24 24"
+    viewBox={
+      half === "left"
+        ? "0 0 12 24"
+        : half === "right"
+          ? "12 0 12 24"
+          : "0 0 24 24"
+    }
     stroke="currentColor"
     strokeWidth={1.5}
     fill={filled ? "currentColor" : "none"}
     className="text-yellow-500"
     aria-hidden="true"
   >
-    <polygon
-      points={
-        half
-          ? "12 2 12 17 6 22 8 14 2 9 9 9"
-          : "12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9"
-      }
-    />
+    <polygon points={STAR} />
   </svg>
 );
 

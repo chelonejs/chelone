@@ -357,11 +357,45 @@
     "shownBy": "bar-chart"
   },
   "check-for-application-update": null,
-  "checkbox-group-input": null,
+  "checkbox-group-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/checkbox-group-input",
+        "see": "role=group[name=\"Tags\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=group[name=\"Channels\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=group[name=\"Channels\"]"
+      }
+    }
+  },
   "chip-field": null,
   "clone-button": null,
   "color-field": null,
-  "color-input": null,
+  "color-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/color-input",
+        "see": "role=button[name=\"Pick a color\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=button[name=\"Pick a color\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "[data-slot=\"color-input\"]"
+      }
+    }
+  },
   "columns-button": {
     "react": {
       "docs": {
@@ -509,7 +543,24 @@
     }
   },
   "currency-field": null,
-  "currency-input": null,
+  "currency-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/currency-input",
+        "see": "role=spinbutton[name=\"Total\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=spinbutton[name=\"Price\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=spinbutton[name=\"Price\"]"
+      }
+    }
+  },
   "dashboard-menu-item": null,
   "data-block-fields-input": {
     "shownBy": "block-editor-input"
@@ -697,7 +748,24 @@
     }
   },
   "file-field": null,
-  "file-input": null,
+  "file-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/file-input",
+        "see": "text=Drop some files to upload, or click to select one."
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "text=Drop a file to upload, or click to select it."
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "text=Drop a file to upload, or click to select it."
+      }
+    }
+  },
   "file-input-preview": {
     "shownBy": "file-input"
   },
@@ -733,7 +801,24 @@
     "shownBy": "block-editor-input"
   },
   "image-field": null,
-  "image-input": null,
+  "image-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/image-input",
+        "see": "text=Drop a picture to upload, or click to select it."
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "text=Drop a picture to upload, or click to select it."
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "text=Drop a picture to upload, or click to select it."
+      }
+    }
+  },
   "image-input-thumbnail": {
     "shownBy": "image-input"
   },
@@ -887,8 +972,14 @@
   },
   "mdx-field": {
     "react": {
-      "docs": { "path": "/docs/viewing/mdx-field", "see": ".mdxeditor" },
-      "demo": { "path": "/demo/pages/1/show", "see": ".mdxeditor" }
+      "docs": {
+        "path": "/docs/viewing/mdx-field",
+        "see": ".mdxeditor"
+      },
+      "demo": {
+        "path": "/demo/pages/1/show",
+        "see": ".mdxeditor"
+      }
     },
     "vue": {
       "demo": {
@@ -903,7 +994,10 @@
         "path": "/docs/editing/mdx-input",
         "see": ".mdxeditor [role=toolbar]"
       },
-      "demo": { "path": "/demo/pages/1", "see": ".mdxeditor [role=toolbar]" }
+      "demo": {
+        "path": "/demo/pages/1",
+        "see": ".mdxeditor [role=toolbar]"
+      }
     },
     "vue": {
       "demo": {
@@ -935,7 +1029,24 @@
   },
   "not-found": null,
   "notification": null,
-  "nullable-boolean-input": null,
+  "nullable-boolean-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/nullable-boolean-input",
+        "see": "role=combobox[name=\"Published\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=combobox[name=\"Featured\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=combobox[name=\"Featured\"]"
+      }
+    }
+  },
   "number-field": null,
   "number-input": null,
   "offline": null,
@@ -981,9 +1092,43 @@
   "placeholder": null,
   "presence-bar": null,
   "prev-next-buttons": null,
-  "radio-button-group-input": null,
+  "radio-button-group-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/radio-button-group-input",
+        "see": "role=group[name=\"Category\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=group[name=\"Shipping class\" i]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=group[name=\"Shipping class\" i]"
+      }
+    }
+  },
   "rating-field": null,
-  "rating-input": null,
+  "rating-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/rating-input",
+        "see": "role=group[name=\"Rating\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=group[name=\"Rating\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=group[name=\"Rating\"]"
+      }
+    }
+  },
   "ready": null,
   "record-field": null,
   "record-list-block": {
@@ -1093,7 +1238,24 @@
       }
     }
   },
-  "resettable-text-input": null,
+  "resettable-text-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/resettable-text-input",
+        "see": "role=textbox[name=\"Title\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=textbox[name=\"Sku\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=textbox[name=\"Sku\"]"
+      }
+    }
+  },
   "resource-menu-item": null,
   "resource-menu-item-group": null,
   "reverse-geocode-field": null,
@@ -1180,7 +1342,24 @@
       }
     }
   },
-  "select-array-input": null,
+  "select-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/select-array-input",
+        "see": "role=combobox[name=\"Tags\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=combobox[name=\"Tags\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=combobox[name=\"Tags\"]"
+      }
+    }
+  },
   "select-field": null,
   "select-input": null,
   "set-password-form": {
@@ -1308,7 +1487,24 @@
     "shownBy": "tabbed-show-layout"
   },
   "text-array-field": null,
-  "text-array-input": null,
+  "text-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/text-array-input",
+        "see": "role=textbox[name=\"Keywords\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=textbox[name=\"Keywords\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=textbox[name=\"Keywords\"]"
+      }
+    }
+  },
   "text-field": null,
   "text-input": {
     "react": {
