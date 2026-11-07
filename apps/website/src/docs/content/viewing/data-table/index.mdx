@@ -1,0 +1,57 @@
+---
+title: "DataTable"
+description: "The table a list renders: one column per field, sortable headers, row selection and row clicks, read from the list context."
+registry: "data-table"
+---
+
+`<DataTable>` renders the records of the surrounding `<List>` as a table. Each
+`<DataTable.Col>` is one column; its `source` picks the field and its children
+render the cell. Clicking a sortable header sorts the list through the list
+context, so the sort lands in the URL with the rest of the query.
+
+## A live table
+
+<ComponentPreview name="viewing/data-table/basic" />
+
+```tsx title="src/posts.tsx"
+import {
+  BooleanField,
+  DataTable,
+  List,
+  ReferenceField,
+  TextField,
+} from "@chelone/react";
+
+export function PostList() {
+  return (
+    <List perPage={5}>
+      <DataTable rowClick={false}>
+        <DataTable.Col source="title" />
+        <DataTable.Col label="Author">
+          <ReferenceField source="author_id" reference="authors">
+            <TextField source="name" />
+          </ReferenceField>
+        </DataTable.Col>
+        <DataTable.NumberCol source="views" />
+        <DataTable.Col source="published">
+          <BooleanField source="published" />
+        </DataTable.Col>
+      </DataTable>
+    </List>
+  );
+}
+```
+
+## Props
+
+<PropsTable name="DataTable" />
+
+## Tips
+
+- `<DataTable.NumberCol>` right-aligns its cells and formats the number.
+- A column with no `source` and no `label` has no header text; use it for row
+  actions such as `<EditButton>`.
+- `rowClick` defaults to `"edit"`. Pass `"show"`, a path, a function, or
+  `false` to change it.
+- Pair the table with [`<ListPagination>`](/docs/viewing/list-pagination) to
+  reach the other pages.

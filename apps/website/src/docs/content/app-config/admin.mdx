@@ -10,6 +10,14 @@ registry: "admin"
 and routes you declare as children. It joins the router your app already runs, or
 creates its own, so a wrapper router is optional.
 
+## A live admin
+
+The reference admin, running in a frame: a sidebar menu, an app bar, and the
+`posts` resource with its list, create, edit and show views. Everything in it
+comes from one `<Admin>` and a few `<Resource>` markers.
+
+<ComponentPreview name="app-config/admin/basic" />
+
 ## The minimal admin
 
 ```tsx title="src/App.tsx"

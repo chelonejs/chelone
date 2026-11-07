@@ -27,6 +27,7 @@ import {
   InPlaceEditor,
   ListContextProvider,
   ListLive,
+  ListPagination,
   LockOnMount,
   LockStatus,
   NumberField,
@@ -41,6 +42,7 @@ import {
   ShowLive,
   TextField,
   TextInput,
+  Title,
   Toolbar,
   useGetList,
   useList,
@@ -85,6 +87,7 @@ export function PostList() {
           <EditButton />
         </DataTable.Col>
       </DataTable>
+      <ListPagination />
     </ListLive>
   );
 }
@@ -206,6 +209,7 @@ export function PostShow() {
     // Keyed by id: React Router reuses this page between posts, and the page-open
     // diff belongs to one post.
     <ShowLive key={id}>
+      <Title title="Post details" />
       <div className="flex max-w-xl flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <PresenceBar />
