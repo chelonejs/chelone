@@ -75,7 +75,9 @@ async function save(values: LoginValues): Promise<undefined> {
 const { submit, submitting } = useForm<LoginValues>({
   record: { email: "", password: "" },
   onSubmit: save,
-  // Standalone auth form: don't rebaseline defaults on success.
+  // Standalone auth form: credentials, not the ambient resource's record, so
+  // no registry schema applies and nothing rebaselines on success.
+  recordForm: false,
   resetOnSuccess: false,
 });
 

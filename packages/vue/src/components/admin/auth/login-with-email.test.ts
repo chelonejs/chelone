@@ -5,8 +5,9 @@
  *
  * Asserts: the fields and button render; a submit calls `authProvider.login`
  * (with `redirectTo`) or the `onSubmit` handler instead; a rejection from
- * either pushes an error notification; an empty field blocks the submit; the
- * `loading` prop disables the button; `submitLabel` replaces the button text.
+ * either pushes an error notification; an empty field blocks the submit; an
+ * ambient resource schema does not gate the submit; the `loading` prop disables
+ * the button; `submitLabel` replaces the button text.
  */
 
 import {
@@ -14,6 +15,7 @@ import {
   createI18n,
   createNotificationStore,
   defineMessages,
+  defineResources,
   fakeDataProvider,
   type NotificationStore,
 } from "@chelone/core";
@@ -27,7 +29,9 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
+import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
+import { provideResourceContext } from "../../../resource-context";
 import LoginWithEmail, {
   type LoginWithEmailProps,
 } from "./login-with-email.vue";
@@ -48,12 +52,27 @@ function makeAuthProvider(over: Partial<AuthProvider> = {}): AuthProvider {
   };
 }
 
+/** A registry whose schema is nothing like credentials, for the ambient-resource test. */
+const postsRegistry = defineResources({
+  posts: {
+    schema: z.object({
+      id: z.number().optional(),
+      title: z.string().min(1, "Title is required"),
+      body: z.string().min(1, "Body is required"),
+    }),
+  },
+});
+
 /** Mount `<LoginWithEmail>` in `<Admin>`'s default slot. */
 function mountLogin(
   props: Partial<LoginWithEmailProps> = {},
   opts: {
     authProvider?: AuthProvider;
     notifications?: NotificationStore;
+    /** Register a zod schema so the registry-schema path is live. */
+    registry?: typeof postsRegistry;
+    /** Provide an ambient `<Resource>` name the form could read. */
+    resource?: string;
   } = {},
 ) {
   const router = createRouter({
@@ -63,11 +82,13 @@ function mountLogin(
   return mount(
     defineComponent({
       setup() {
+        if (opts.resource) provideResourceContext(opts.resource);
         return () =>
           h(
             Admin,
             {
               dataProvider: fakeDataProvider({}),
+              registry: opts.registry,
               queryClient: new QueryClient({
                 defaultOptions: {
                   queries: { retry: false },
@@ -185,6 +206,28 @@ describe("<LoginWithEmail>", () => {
       email: "user@example.com",
       password: "hunter2",
     });
+  });
+
+  it("ignores an ambient resource schema: credentials are not a post", async () => {
+    const onSubmit = vi.fn(async () => {});
+    const { notifications, errors } = makeRecordingStore();
+    const wrapper = mountLogin(
+      { onSubmit },
+      {
+        authProvider: makeAuthProvider(),
+        notifications,
+        registry: postsRegistry,
+        resource: "posts",
+      },
+    );
+    await flushPromises();
+    await fillAndSubmit(wrapper, "user@example.com", "hunter2");
+
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: "user@example.com",
+      password: "hunter2",
+    });
+    expect(errors()).toEqual([]);
   });
 
   it("notifies an error when login rejects", async () => {

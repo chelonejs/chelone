@@ -79,6 +79,8 @@ const { submit, submitting } = useForm<SetPasswordValues>({
   record: { password: "", confirmPassword: "" },
   validate: validateMatch,
   onSubmit: save,
+  // Standalone auth form: credentials, not the ambient resource's record.
+  recordForm: false,
   resetOnSuccess: false,
 });
 
