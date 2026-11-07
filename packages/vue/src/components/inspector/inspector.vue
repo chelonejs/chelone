@@ -31,6 +31,8 @@ import {
   createInspector,
   type InspectorPosition,
   inspectorPositionKey,
+  INSPECTOR_KEY_STEP,
+  PANEL_WIDTH,
 } from "@chelone/core";
 import {
   computed,
@@ -53,14 +55,11 @@ import {
   provideInspectorBody,
 } from "./inspector-context";
 
-const PANEL_WIDTH = 320;
-const KEY_STEP = 16;
-
 const ARROWS: Record<string, InspectorPosition> = {
-  ArrowLeft: { x: -KEY_STEP, y: 0 },
-  ArrowRight: { x: KEY_STEP, y: 0 },
-  ArrowUp: { x: 0, y: -KEY_STEP },
-  ArrowDown: { x: 0, y: KEY_STEP },
+  ArrowLeft: { x: -INSPECTOR_KEY_STEP, y: 0 },
+  ArrowRight: { x: INSPECTOR_KEY_STEP, y: 0 },
+  ArrowUp: { x: 0, y: -INSPECTOR_KEY_STEP },
+  ArrowDown: { x: 0, y: INSPECTOR_KEY_STEP },
 };
 
 const props = defineProps<InspectorProps>();

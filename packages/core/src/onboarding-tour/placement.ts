@@ -1,3 +1,6 @@
+/** How often an open tour re-measures its target and card, in milliseconds. */
+export const REMEASURE_MS = 250;
+
 /** A box in viewport pixels. The adapters measure it; core touches no DOM. */
 export interface TourRect {
   top: number;

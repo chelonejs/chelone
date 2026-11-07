@@ -1,8 +1,6 @@
 <script lang="ts">
 let nextTitleId = 0;
 
-const REMEASURE_MS = 250;
-
 function findTarget(selector: string): Element | null {
   try {
     return document.querySelector(selector);
@@ -23,6 +21,7 @@ function findTarget(selector: string): Element | null {
 
 import {
   placeTourCard,
+  REMEASURE_MS,
   type TourController,
   type TourPlacement,
   type TourRect,

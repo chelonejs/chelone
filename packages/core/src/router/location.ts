@@ -8,6 +8,9 @@
 
 import { isRecord } from "../guards";
 
+/** The Store key the login flow stashes the post-login target under. */
+export const NEXT_PATHNAME_KEY = "nextPathname";
+
 /**
  * What Chelone writes into history state. An interface, so an app adds its own
  * keys by augmenting `@chelone/core`.
