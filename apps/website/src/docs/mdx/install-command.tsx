@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router";
 import type { InstallCommands } from "@/docs/types";
 import { cn } from "@/lib/utils";
+import { FrameworkSwitch } from "./framework-switch";
+import { useFramework } from "./use-framework";
 
 export type { InstallCommands };
 
@@ -9,13 +11,6 @@ interface InstallCommandProps {
   install: InstallCommands;
   vue?: InstallCommands | null;
 }
-
-type Framework = "react" | "vue";
-
-const FRAMEWORKS: { key: Framework; label: string }[] = [
-  { key: "react", label: "React" },
-  { key: "vue", label: "Vue" },
-];
 
 type PackageManager = keyof InstallCommands;
 
@@ -27,7 +22,7 @@ const TABS: { key: PackageManager; label: string }[] = [
 ];
 
 export function InstallCommand({ install, vue }: InstallCommandProps) {
-  const [framework, setFramework] = useState<Framework>("react");
+  const [framework, setFramework] = useFramework();
   const [active, setActive] = useState<PackageManager>("pnpm");
   const [copied, setCopied] = useState(false);
 
@@ -45,22 +40,7 @@ export function InstallCommand({ install, vue }: InstallCommandProps) {
     <div className="rounded-xl overflow-hidden border border-border">
       {vue && (
         <div className="flex items-center gap-1 border-b border-border px-2 py-1.5">
-          {FRAMEWORKS.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              aria-pressed={framework === f.key}
-              onClick={() => setFramework(f.key)}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
-                framework === f.key
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
+          <FrameworkSwitch framework={framework} onChange={setFramework} />
         </div>
       )}
 
