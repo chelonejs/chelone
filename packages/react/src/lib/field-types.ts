@@ -15,13 +15,18 @@
  *   consumer is not part of this wave.
  */
 
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+import type {
+  LooseRecord,
+  ResourceRecord,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 import type { HTMLAttributes, ReactNode } from "react";
 
 export type SortOrder = "ASC" | "DESC";
 export type TextAlign = "left" | "center" | "right" | "justify" | "inherit";
 
-export interface FieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface FieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** Name of the property to display (dot/bracket path). */
   source: SourceProp<RecordType>;
 
@@ -71,7 +76,7 @@ export interface FieldProps<RecordType extends LooseRecord = LooseRecord> {
  * `string | number | readonly string[]`.
  */
 export type ElementFieldProps<
-  RecordType extends LooseRecord,
+  RecordType extends ResourceRecord,
   Attributes extends object,
 > = FieldProps<RecordType> &
   Omit<Attributes, "defaultValue"> & {
@@ -79,5 +84,5 @@ export type ElementFieldProps<
   };
 
 /** The props of a field that renders a `<span>`. */
-export type SpanFieldProps<RecordType extends LooseRecord = LooseRecord> =
+export type SpanFieldProps<RecordType extends ResourceRecord = LooseRecord> =
   ElementFieldProps<RecordType, HTMLAttributes<HTMLSpanElement>>;
