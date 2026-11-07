@@ -1971,7 +1971,8 @@
       },
       "linter": {
         "domains": {
-          "vue": "none"
+          "vue": "none",
+          "react": "none"
         },
         "rules": {
           "preset": "none"
