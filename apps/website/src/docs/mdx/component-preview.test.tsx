@@ -112,6 +112,23 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
+// A field can open a list over the content below it, and that list reaches past
+// the card it sits in. A card that clips its own content cuts the list off at
+// its edge, so the card must not clip, and the tab bar rounds its own top to
+// stay inside the card's corners.
+describe("the preview card", () => {
+  it("leaves a list a demo opens unclipped, and keeps the tab bar inside its corners", () => {
+    const { container } = renderPreview(BOTH);
+    const card = container.querySelector(".not-prose");
+    if (!(card instanceof HTMLElement)) throw new Error("no preview card");
+
+    expect(card.className).not.toContain("overflow-hidden");
+    expect(card.className).toContain("rounded-xl");
+    const tab = card.firstElementChild;
+    expect(tab?.className).toContain("rounded-t-xl");
+  });
+});
+
 // Every component given a Vue twin by these docs batches: the demo must exist
 // beside its React twin and preview in the Vue demo app when the page asks for
 // Vue.
