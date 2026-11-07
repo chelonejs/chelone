@@ -6,6 +6,7 @@
  */
 
 import { ChevronRightIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -35,6 +36,8 @@ export interface ResourceMenuItemGroupProps {
   menuClassName?: string;
   /** Initial open state for labeled (collapsible) groups. */
   defaultOpen?: boolean;
+  /** Extra entries after the resources, inside the group, so a collapse hides them too. */
+  children?: ReactNode;
 }
 
 /**
@@ -51,6 +54,7 @@ function ResourceMenuItemGroup({
   className,
   menuClassName,
   defaultOpen = true,
+  children,
 }: ResourceMenuItemGroupProps) {
   const resourceDefinitions = useResourceDefinitions();
   const resources =
@@ -59,7 +63,7 @@ function ResourceMenuItemGroup({
       (name) => resourceDefinitions[name]?.hasList,
     );
 
-  if (resources.length === 0) return null;
+  if (resources.length === 0 && !children) return null;
 
   const menu = (
     <SidebarGroupContent>
@@ -67,6 +71,7 @@ function ResourceMenuItemGroup({
         {resources.map((name) => (
           <ResourceMenuItem key={name} name={name} />
         ))}
+        {children}
       </SidebarMenu>
     </SidebarGroupContent>
   );
