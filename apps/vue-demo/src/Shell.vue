@@ -24,20 +24,21 @@ import {
   Assistant,
   CommandMenu,
   DataProviderDevtools,
+  HideOnScroll,
+  IconButtonWithTooltip,
   Layout,
+  LoadingIndicator,
   LocalesMenuButton,
-  Menu,
   MenuItemLink,
   MenuLive,
   OnboardingTour,
   ResourceMenuItemGroup,
+  SidebarToggleButton,
   ThemeModeToggle,
   ThemeProvider,
   UserMenu,
-  useResourceDefinitions,
 } from "@chelone/vue";
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
-import { computed } from "vue";
 import { pageGroups } from "./pages";
 import SimulateOtherUser from "./realtime-sim.vue";
 import { dataProvider, dataProviderLog } from "./realtime";
@@ -48,16 +49,42 @@ import TakeTheTour from "./TakeTheTour.vue";
 const assistantTransport = demoAssistantTransport();
 const assistantTools = demoAssistantTools(dataProvider);
 
-// Posts get a live unread badge; the other resources keep their plain links.
+// The area each resource sits under. A resource missing here is not in the menu.
+const resourceAreas: Record<string, string[]> = {
+  Catalog: ["products"],
+  Content: ["pages", "categories", "tags"],
+  Orders: ["orders"],
+  Shop: ["customers", "places"],
+  Team: ["authors"],
+};
+
+const areas = [
+  ...new Set([...Object.keys(resourceAreas), ...pageGroups.map((g) => g.group)]),
+]
+  .sort((a, b) => a.localeCompare(b))
+  .map((area) => ({
+    area,
+    resources: resourceAreas[area],
+    pages: pageGroups.find((g) => g.group === area)?.pages ?? [],
+  }));
+
+// Mod+1 to mod+9 open the first nine pages, in menu order.
+const shortcuts = new Map(
+  areas
+    .flatMap(({ pages }) => pages)
+    .slice(0, 9)
+    .map(({ path }, index) => [path, `mod+${index + 1}`]),
+);
+
+// The docs live beside the demo on the deployed site, so a new tab keeps the app open.
+function openDocs() {
+  window.open("/docs/", "_blank", "noopener");
+}
+
+// Posts get a live unread badge; the other resources sit under their area.
 // The panel is repeated here because the badge clears while /posts is open:
 // adding a post from any other page is the only way to see it. It sits at the
 // top of the sidebar: at the bottom it scrolls under the devtools panel.
-const definitions = useResourceDefinitions();
-const others = computed(() =>
-  Object.keys(definitions).filter(
-    (name) => name !== "posts" && definitions[name]?.list != null,
-  ),
-);
 </script>
 
 <template>
@@ -75,36 +102,81 @@ const others = computed(() =>
               <div class="px-4 py-2">
                 <SimulateOtherUser />
               </div>
-              <ResourceMenuItemGroup :resources="others" />
-              <section v-for="{ group, pages } in pageGroups" :key="group">
-                <h2 class="px-4 pt-2 text-xs font-medium text-muted-foreground">
-                  {{ group }}
-                </h2>
-                <Menu>
-                  <MenuItemLink
-                    v-for="{ path, title } in pages"
-                    :key="path"
-                    :to="`/${path}`"
-                    :label="title"
-                  />
-                </Menu>
-              </section>
+              <ResourceMenuItemGroup
+                v-for="{ area, resources, pages } in areas"
+                :key="area"
+                :label="area"
+                :resources="resources ?? []"
+              >
+                <MenuItemLink
+                  v-for="{ path, title } in pages"
+                  :key="path"
+                  :to="`/${path}`"
+                  :label="title"
+                  :keyboard-shortcut="shortcuts.get(path)"
+                >
+                  <template #icon>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
+                      />
+                      <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                      <path d="M10 9H8" />
+                      <path d="M16 13H8" />
+                      <path d="M16 17H8" />
+                    </svg>
+                  </template>
+                </MenuItemLink>
+              </ResourceMenuItemGroup>
             </AppSidebar>
           </template>
           <template #app-bar>
-            <AppBar>
-              <template #toolbar>
-                <SearchButton />
-                <InspectorButton data-tour="configure" />
-                <LocalesMenuButton />
-                <ThemeModeToggle />
-              </template>
-              <template #user-menu>
-                <UserMenu>
-                  <TakeTheTour />
-                </UserMenu>
-              </template>
-            </AppBar>
+            <!-- Sticky, so that hiding the bar on scroll has something to hide. index.css lets the page scroll under it. -->
+            <HideOnScroll class="demo-app-bar sticky top-0 z-20 bg-background">
+              <AppBar>
+                <template #start>
+                  <SidebarToggleButton />
+                </template>
+                <template #toolbar>
+                  <SearchButton />
+                  <InspectorButton data-tour="configure" />
+                  <IconButtonWithTooltip label="Documentation" @click="openDocs">
+                    <svg
+                      viewBox="0 0 24 24"
+                      width="16"
+                      height="16"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M12 7v14" />
+                      <path
+                        d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"
+                      />
+                    </svg>
+                  </IconButtonWithTooltip>
+                  <LoadingIndicator class="mx-2" />
+                  <LocalesMenuButton />
+                  <ThemeModeToggle />
+                </template>
+                <template #user-menu>
+                  <UserMenu>
+                    <TakeTheTour />
+                  </UserMenu>
+                </template>
+              </AppBar>
+            </HideOnScroll>
           </template>
           <router-view />
         </Layout>
