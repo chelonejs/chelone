@@ -10,7 +10,12 @@
  * not exist in chelone yet, so the exporter contract drops that argument.
  */
 
-import { defaultExporter, definedParams, type Exporter } from "@chelone/core";
+import {
+  DEFAULT_EXPORT_MAX_RESULTS,
+  defaultExporter,
+  definedParams,
+  type Exporter,
+} from "@chelone/core";
 import { Download } from "lucide-react";
 import type { Ref } from "react";
 import { useCallback } from "react";
@@ -49,7 +54,7 @@ interface ExportButtonProps {
  */
 function ExportButton(props: ExportButtonProps) {
   const {
-    maxResults = 1000,
+    maxResults = DEFAULT_EXPORT_MAX_RESULTS,
     onClick,
     label: labelProp,
     icon = defaultIcon,

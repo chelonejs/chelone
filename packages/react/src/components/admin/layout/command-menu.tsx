@@ -90,12 +90,12 @@ export interface CommandMenuProps {
   searchFields?: Record<string, string>;
   /** Records fetched per resource for one search. */
   perResourceLimit?: number;
-  /** Recent picks kept. */
+  /** Recent picks kept. Default `10`. */
   recentsLimit?: number;
   /** Extra commands. Use `useRegisterCommand` for ones that come and go. */
   actions?: CommandMenuAction[];
   placeholder?: string;
-  /** Wait after the last keystroke before records are searched. */
+  /** Wait after the last keystroke before records are searched. Default `250`. */
   searchDebounceMs?: number;
   /** Rendered outside the dialog, so helpers can call `useRegisterCommand`. */
   children?: ReactNode;
@@ -154,7 +154,7 @@ function CommandMenu({
   recentsLimit = 10,
   actions,
   placeholder,
-  searchDebounceMs = 200,
+  searchDebounceMs = 250,
   children,
 }: CommandMenuProps) {
   const translate = useTranslate();
