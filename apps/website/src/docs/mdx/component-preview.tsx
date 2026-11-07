@@ -81,9 +81,29 @@ type LoadedDemo =
     }
   | { key: string; status: "error" };
 
+/** The Vue iframe's height until `<DocsPreview>` reports the demo's own. */
+const STARTING_VUE_HEIGHT = 224;
+
+/**
+ * The height `<DocsPreview>` posts up for its demo. Read without a cast: the
+ * message crosses the iframe boundary, so every field is checked before it is
+ * trusted.
+ */
+function postedHeight(data: unknown, name: string): number | undefined {
+  if (typeof data !== "object" || data === null) return undefined;
+  if (!("cheloneDocsPreview" in data) || !("height" in data)) return undefined;
+  const { cheloneDocsPreview, height } = data;
+  if (cheloneDocsPreview !== name) return undefined;
+  if (typeof height !== "number" || !Number.isFinite(height) || height <= 0) {
+    return undefined;
+  }
+  return Math.ceil(height);
+}
+
 export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [loaded, setLoaded] = useState<LoadedDemo>();
+  const [vueHeight, setVueHeight] = useState(STARTING_VUE_HEIGHT);
   const [chosen, setFramework] = useFramework();
   const reactKey = keyFor(demoModules, name, "tsx");
   const vueKey = keyFor(vueSources, name, "vue");
@@ -111,6 +131,18 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
       cancelled = true;
     };
   }, [key, framework]);
+
+  // The Vue demo app posts the height its demo needs, so a tall demo (a `<List>`
+  // with its pagination) is not cut off inside a fixed-height iframe.
+  useEffect(() => {
+    if (!vueKey) return;
+    const onMessage = (event: MessageEvent) => {
+      const height = postedHeight(event.data, name);
+      if (height !== undefined) setVueHeight(height);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, [name, vueKey]);
 
   if (!key) {
     return (
@@ -174,7 +206,8 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
             <iframe
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
-              className="h-56 w-full border-0"
+              className="w-full border-0"
+              style={{ height: vueHeight }}
             />
           ) : DemoComponent ? (
             <PreviewProvider mode={mode}>

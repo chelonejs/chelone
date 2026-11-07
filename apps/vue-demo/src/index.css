@@ -10,6 +10,10 @@
  */
 @source "../../../packages/vue/src/components";
 
+/* The docs demos render here as an iframe of the website's docs pages. They sit
+   outside this app, so their own utility classes need a source of their own. */
+@source "../../website/src/docs/content";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
