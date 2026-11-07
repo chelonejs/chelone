@@ -26,7 +26,7 @@
  * `<Resource name="posts">`), and any `ReferenceField`/`ReferenceInput` in the
  * demo resolves its `authors` FK straight through the data provider.
  *
- * Three `mode`s supply the extra inner context a demo needs, layered inside the
+ * Four `mode`s supply the extra inner context a demo needs, layered inside the
  * resource context:
  *   - `view`   (default): the demo IS the view (`<List>`/`<Edit>`/…), rendered
  *              as-is; it publishes its own record/list/form context.
@@ -36,13 +36,19 @@
  *              (e.g. `<TextInput source="title" />`) that registers into a form,
  *              with `<Create>`'s page title off — the demo is an input, not a
  *              create page.
+ *   - `realtime`: a `view` over a realtime data provider with locks, for the
+ *              components that subscribe to events or hold record locks. A
+ *              write the demo makes reaches its subscribers over an in-memory
+ *              transport.
  */
 import {
   type AuthProvider,
   addEventsForMutations,
   computeDefinition,
   createResourceRegistry,
+  type DataProvider,
   fakeDataProvider,
+  inMemoryLockProvider,
   memoryTransport,
   type ResourceRegistry,
   realtimeDataProvider,
@@ -76,7 +82,7 @@ const previewAuthProvider: AuthProvider = {
   getIdentity: async () => ({ id: 1, fullName: "Ada Lovelace" }),
 };
 
-export type PreviewMode = "view" | "record" | "input";
+export type PreviewMode = "view" | "record" | "input" | "realtime";
 
 interface PreviewProviderProps {
   mode?: PreviewMode;
@@ -112,6 +118,21 @@ function makePreviewRegistry(): ResourceRegistry {
   return registry;
 }
 
+/**
+ * The preview seed behind an in-memory transport, and with `withLocks` an
+ * in-memory lock provider too, for the demos that take or show a record lock.
+ */
+function makeRealtimeDataProvider(withLocks: boolean): DataProvider {
+  const transport = memoryTransport();
+  const locks = withLocks
+    ? inMemoryLockProvider({ publisher: transport })
+    : undefined;
+  return addEventsForMutations(
+    realtimeDataProvider(fakeDataProvider(previewSeed()), transport, { locks }),
+    transport,
+  );
+}
+
 export function PreviewProvider({
   mode = "view",
   children,
@@ -129,13 +150,9 @@ export function PreviewProvider({
   );
   // Realtime over an in-memory transport, so the live components work without a
   // server and a write in one component reaches the others.
-  const [dataProvider] = useState(() => {
-    const transport = memoryTransport();
-    return addEventsForMutations(
-      realtimeDataProvider(fakeDataProvider(previewSeed()), transport),
-      transport,
-    );
-  });
+  const [dataProvider] = useState<DataProvider>(() =>
+    makeRealtimeDataProvider(mode === "realtime"),
+  );
   const [i18n] = useState(makePreviewI18n);
   const [notifications] = useState(makePreviewNotifications);
   const [store] = useState(makePreviewStore);

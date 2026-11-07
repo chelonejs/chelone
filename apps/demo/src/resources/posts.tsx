@@ -95,7 +95,9 @@ export function PostList() {
 export function PostEdit() {
   return (
     <EditLive>
-      <LockStatus />
+      <div className="mb-4 empty:hidden">
+        <LockStatus />
+      </div>
       <LockOnMount identity="you">
         {/* The user hides the inputs they never fill from the inspector. A
             hidden input keeps its loaded value, so the schema still passes. */}
