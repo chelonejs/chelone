@@ -168,7 +168,12 @@ export function GeocodingInput<TRecord = LooseRecord>({
     const count = results.length;
     if (count === 0) return;
     setOpen(true);
-    setActive((current) => (current + step + count) % count);
+    setActive((current) => {
+      // Nothing is highlighted yet, which is not the same as being before the
+      // first option: each arrow lands on the end it points at.
+      if (current < 0) return step === 1 ? 0 : count - 1;
+      return (current + step + count) % count;
+    });
   };
 
   // An option's mousedown is prevented, so a click on one never blurs the input.
