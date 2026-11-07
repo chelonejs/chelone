@@ -1,4 +1,4 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import type {
   FilterPayload,
   LooseRecord,
@@ -9,7 +9,7 @@ import type {
 } from "@chelone/core";
 
 /** Props for {@link ArrayField}. */
-export interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface ArrayFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The field path to the array on the current record. */
   source: SourceProp<RecordType>;
   /** The record to read. Defaults to the ambient `RecordContext` value. */
@@ -25,7 +25,7 @@ export interface ArrayFieldProps<RecordType extends LooseRecord = LooseRecord> {
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ArrayField>` — reads an array-valued `source` off the ambient record, drops
  * it into a client-side `ListContext` (no dataProvider), and renders its default

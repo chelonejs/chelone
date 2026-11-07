@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import type { ElementFieldProps } from "@/lib/field-types";
@@ -29,12 +29,12 @@ type BadgeProps = React.ComponentProps<typeof Badge>;
  *   </List>
  * );
  */
-interface BadgeFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface BadgeFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends ElementFieldProps<RecordType, BadgeProps> {
   variant?: "default" | "outline" | "secondary" | "destructive";
 }
 
-function BadgeField<RecordType extends LooseRecord = LooseRecord>({
+function BadgeField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
