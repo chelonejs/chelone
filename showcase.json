@@ -409,7 +409,24 @@
   "callout-block": {
     "shownBy": "block-editor-input"
   },
-  "can-access": null,
+  "can-access": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/can-access",
+        "see": "role=region[name=\"Post tools\"]"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "role=region[name=\"Role matrix\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "role=region[name=\"Role matrix\"]"
+      }
+    }
+  },
   "cancel-button": null,
   "card-content-inner": null,
   "chart-block": {
@@ -979,7 +996,24 @@
     "shownBy": "list-guesser"
   },
   "hide-on-scroll": null,
-  "i18n-key-editor": null,
+  "i18n-key-editor": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/i18n-key-editor",
+        "see": "[data-slot='i18n-key-editor']"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "[data-slot='i18n-key-editor']"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "[data-slot='i18n-key-editor']"
+      }
+    }
+  },
   "icon-button-with-tooltip": null,
   "image-block": {
     "shownBy": "block-editor-input"
@@ -1182,7 +1216,24 @@
   "locales-menu": {
     "shownBy": "locales-menu-button"
   },
-  "locales-menu-button": null,
+  "locales-menu-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/locales-menu-button",
+        "see": "role=button[name=\"Change locale\"]"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "role=button[name=\"Change locale\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "role=button[name=\"Change locale\"]"
+      }
+    }
+  },
   "lock-on-mount": null,
   "lock-status": null,
   "login-form": null,
@@ -1374,7 +1425,24 @@
       }
     }
   },
-  "permission-matrix": null,
+  "permission-matrix": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/permission-matrix",
+        "see": "[data-slot='permission-matrix']"
+      },
+      "demo": {
+        "path": "/demo/team",
+        "see": "[data-slot='permission-matrix']"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/team",
+        "see": "[data-slot='permission-matrix']"
+      }
+    }
+  },
   "phone-field": null,
   "phone-input": null,
   "pivot-grid": null,
