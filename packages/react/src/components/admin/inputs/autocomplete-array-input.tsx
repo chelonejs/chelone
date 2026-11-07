@@ -100,9 +100,6 @@ function AutocompleteArrayInput<
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  // The options are read whole: reading the generic `defaultValue` anywhere
-  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
-  // instantiation depth.
   const { id, field, fieldState, isRequired } = useInput({ ...props, source });
   const translate = useTranslate();
   const { placeholder = translate("ra.action.search", { _: "Search..." }) } =

@@ -48,9 +48,7 @@ function MonacoJsonField<RecordType extends LooseRecord = LooseRecord>(
     className,
     monacoOptions,
   } = props;
-  // Read through `LooseRecord`: the typed read is a `SourceValue` still deferred
-  // on `RecordType`, which overflows the compiler when compared.
-  const value = useFieldValue<LooseRecord>({
+  const value = useFieldValue<RecordType>({
     source,
     record,
     defaultValue,

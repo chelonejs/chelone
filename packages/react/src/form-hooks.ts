@@ -450,25 +450,12 @@ function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
  *   (react-form's slice pattern), so typing here never re-renders sibling
  *   inputs.
  */
-// The loose overload comes first so a call with no type argument never tries
-// the generic one: inferring through `SourceValue` overflows the compiler's
-// instantiation depth when `defaultValue` and `format` are both given. It is
-// repeated last, so `Parameters<typeof useInput>` is the plain `UseInputOptions`.
-export function useInput(options: UseInputOptions): UseInputResult;
 export function useInput<
   TRecord,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
   TInput = unknown,
 >(options: UseInputOptions<TRecord, TPath, TInput>): UseInputResult<TInput>;
-// Repeated last for the same reason: an input whose resolved `source` is a
-// plain string (a choice input under a reference wrapper) has no path to name,
-// and it must still reach the loose options.
-export function useInput(options: UseInputOptions): UseInputResult;
-export function useInput(typedOptions: unknown): UseInputResult {
-  // The implementation takes the erased options: the binding's `format` and
-  // `parse` are loose, and resolving the typed `SourceValue` generically here
-  // would exceed the compiler's instantiation depth.
-  const options = typedOptions as UseInputOptions;
+export function useInput(options: UseInputOptions): UseInputResult {
   const { ambient: form } = useCheloneFormContext().form;
   const scope = useSourceContext();
   const source = scope.getSource(options.source);

@@ -86,7 +86,7 @@ function useCoordinate(
   validate: readonly Validator[],
   range: Validator,
 ) {
-  const { id, field, fieldState, isRequired } = useInput({
+  const { id, field, fieldState, isRequired } = useInput<LooseRecord>({
     source,
     parse: toCoordinate,
     format: (value) => toText(toCoordinate(value)),

@@ -1,5 +1,10 @@
 <script lang="ts">
-import type { MapStyleInput, SourceProp, Validator } from "@chelone/core";
+import type {
+  LooseRecord,
+  MapStyleInput,
+  SourceProp,
+  Validator,
+} from "@chelone/core";
 import {
   defineComponent,
   onBeforeUnmount,
@@ -172,7 +177,7 @@ function useCoordinate(
   validate: readonly Validator[],
   range: Validator,
 ) {
-  const input = useInput({
+  const input = useInput<LooseRecord>({
     source,
     parse: toCoordinate,
     format: (value) => toText(toCoordinate(value)),

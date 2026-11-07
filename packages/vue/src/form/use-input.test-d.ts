@@ -27,6 +27,14 @@ describe("useInput source typing", () => {
     const input = useInput;
     expectTypeOf(input).toBeCallableWith({ source: "whatever" });
   });
+
+  it("useInput without a type argument takes defaultValue and format together", () => {
+    useInput({
+      source: "headline",
+      defaultValue: "untitled",
+      format: (value) => String(value),
+    });
+  });
 });
 
 type Invoice = { total: number; customer: { email: string } };
