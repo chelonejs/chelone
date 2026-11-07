@@ -105,7 +105,9 @@ onBeforeUnmount(() => {
         cn(
           'flex h-svh flex-col bg-sidebar transition-[width] duration-200 ease-linear',
           state === 'collapsed' && collapsible === 'icon'
-            ? 'w-(--sidebar-width-icon)'
+            ? variant === 'floating'
+              ? 'w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
+              : 'w-(--sidebar-width-icon)'
             : 'w-(--sidebar-width)',
           variant === 'floating' && 'p-2',
           props.class,

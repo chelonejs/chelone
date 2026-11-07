@@ -106,7 +106,7 @@ function DemoSidebar({ children }: { children?: ReactNode }) {
       collapsible="icon"
       style={cssVars({
         "--sidebar-width": "240px",
-        "--sidebar-width-icon": "55px",
+        "--sidebar-width-icon": "48px",
       })}
     >
       <SidebarHeader>

@@ -76,6 +76,10 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    // A docs page imports its live demo lazily, so a test that waits for the
+    // demo waits on a module load. `src/test-setup.ts` gives those waits 10s;
+    // this has to outlast them, or vitest ends the test first.
+    testTimeout: 20_000,
     setupFiles: ["./src/test-setup.ts"],
     // The docs engine's other pure-logic tests (nav-sequence / registry) run
     // under `node --test` (node:test), not vitest. `nav.test.ts` is vitest, and

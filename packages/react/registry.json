@@ -7700,9 +7700,9 @@
       "description": "The opt-in maps add-on for pieces that call a network service: GeocodingInput searches an address with a geocoding provider and fills its coordinates, and MapWithSearch puts that search over a map. Installs maplibre-gl, and the maps block.",
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/command",
         "@chelone/field",
         "@chelone/field-label-text",
+        "@chelone/input",
         "@chelone/lat-lng-input",
         "@chelone/lib-utils",
         "@chelone/maps-provider",
@@ -7773,9 +7773,10 @@
       ],
       "registryDependencies": [
         "@chelone/button",
-        "@chelone/command",
         "@chelone/field",
         "@chelone/field-label-text",
+        "@chelone/input",
+        "@chelone/lib-utils",
         "@chelone/maps-provider",
         "@chelone/use-geocode"
       ],
