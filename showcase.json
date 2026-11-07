@@ -31,7 +31,24 @@
       }
     }
   },
-  "approval-queue": null,
+  "approval-queue": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/approval-queue",
+        "see": "[data-slot=\"approval-queue-row\"]"
+      },
+      "demo": {
+        "path": "/demo/approvals",
+        "see": "[data-slot=\"approval-queue-row\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/approvals",
+        "see": "[data-slot=\"approval-queue\"]"
+      }
+    }
+  },
   "approval-queue-row": {
     "shownBy": "approval-queue"
   },
@@ -104,8 +121,42 @@
   "auto-config-form": {
     "shownBy": "block-editor-input"
   },
-  "autocomplete-array-input": null,
-  "autocomplete-input": null,
+  "autocomplete-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/autocomplete-array-input",
+        "see": "[data-slot=command]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "[data-slot=field]:has(> label > span:text-is(\"Products\")) [data-slot=command]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "[data-slot=autocomplete-array]"
+      }
+    }
+  },
+  "autocomplete-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/autocomplete-input",
+        "see": "role=combobox[name=\"Author\"]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=combobox[name=\"Customer\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "[data-slot=autocomplete]"
+      }
+    }
+  },
   "badge-field": null,
   "bar-chart": null,
   "bbox-field": null,
@@ -310,11 +361,45 @@
       }
     }
   },
-  "checkbox-group-input": null,
+  "checkbox-group-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/checkbox-group-input",
+        "see": "role=group[name=\"Tags\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=group[name=\"Channels\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=group[name=\"Channels\"]"
+      }
+    }
+  },
   "chip-field": null,
   "clone-button": null,
   "color-field": null,
-  "color-input": null,
+  "color-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/color-input",
+        "see": "role=button[name=\"Pick a color\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=button[name=\"Pick a color\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "[data-slot=\"color-input\"]"
+      }
+    }
+  },
   "columns-button": {
     "react": {
       "docs": {
@@ -366,7 +451,24 @@
   "command-menu-record-search": {
     "shownBy": "command-menu"
   },
-  "comments-thread": null,
+  "comments-thread": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/comments-thread",
+        "see": "[data-slot=\"comments-thread\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"comments-thread\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"comments-thread\"]"
+      }
+    }
+  },
   "configurable": {
     "shownBy": "inspector"
   },
@@ -462,7 +564,24 @@
     }
   },
   "currency-field": null,
-  "currency-input": null,
+  "currency-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/currency-input",
+        "see": "role=spinbutton[name=\"Total\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=spinbutton[name=\"Price\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=spinbutton[name=\"Price\"]"
+      }
+    }
+  },
   "dashboard-menu-item": null,
   "data-block-fields-input": {
     "shownBy": "block-editor-input"
@@ -532,7 +651,24 @@
   },
   "date-field": null,
   "date-input": null,
-  "date-time-input": null,
+  "date-time-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/date-time-input",
+        "see": "role=textbox"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=textbox[name=\"Delivery\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=textbox[name=\"Delivery\"]"
+      }
+    }
+  },
   "default-blocks": {
     "shownBy": "block-editor-input"
   },
@@ -540,14 +676,82 @@
     "shownBy": "mdx-input"
   },
   "delete-button": null,
-  "diff-viewer": null,
+  "diff-viewer": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/diff-viewer",
+        "see": "[data-slot=\"diff-viewer\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"diff-viewer\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"diff-viewer\"]"
+      }
+    }
+  },
   "donut-chart": null,
   "draw-toolbar": {
     "shownBy": "shape-input"
   },
-  "dual-approval-button": null,
-  "duration-field": null,
-  "duration-input": null,
+  "dual-approval-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/dual-approval-button",
+        "see": "[data-slot=\"dual-approval-button\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"dual-approval-button\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"dual-approval-button\"]"
+      }
+    }
+  },
+  "duration-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/duration-field",
+        "see": "text=\"2h 30m\""
+      },
+      "demo": {
+        "path": "/demo/orders/1/show",
+        "see": "div:has(> div > span:text-is(\"Handling time\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1/show",
+        "see": "[data-slot=duration-field]"
+      }
+    }
+  },
+  "duration-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/duration-input",
+        "see": "role=spinbutton[name=\"hours\"]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=spinbutton[name=\"hours\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=spinbutton[name=\"hours\"]"
+      }
+    }
+  },
   "edit": null,
   "edit-button": null,
   "edit-guesser": null,
@@ -618,7 +822,24 @@
     }
   },
   "file-field": null,
-  "file-input": null,
+  "file-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/file-input",
+        "see": "text=Drop some files to upload, or click to select one."
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "text=Drop a file to upload, or click to select it."
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "text=Drop a file to upload, or click to select it."
+      }
+    }
+  },
   "file-input-preview": {
     "shownBy": "file-input"
   },
@@ -654,11 +875,45 @@
     "shownBy": "block-editor-input"
   },
   "image-field": null,
-  "image-input": null,
+  "image-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/image-input",
+        "see": "text=Drop a picture to upload, or click to select it."
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "text=Drop a picture to upload, or click to select it."
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "text=Drop a picture to upload, or click to select it."
+      }
+    }
+  },
   "image-input-thumbnail": {
     "shownBy": "image-input"
   },
-  "in-place-editor": null,
+  "in-place-editor": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/in-place-editor",
+        "see": "[data-slot=\"in-place-editor\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"in-place-editor\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"in-place-editor\"]"
+      }
+    }
+  },
   "in-place-editor-form": {
     "shownBy": "in-place-editor"
   },
@@ -865,8 +1120,14 @@
   },
   "mdx-field": {
     "react": {
-      "docs": { "path": "/docs/viewing/mdx-field", "see": ".mdxeditor" },
-      "demo": { "path": "/demo/pages/1/show", "see": ".mdxeditor" }
+      "docs": {
+        "path": "/docs/viewing/mdx-field",
+        "see": ".mdxeditor"
+      },
+      "demo": {
+        "path": "/demo/pages/1/show",
+        "see": ".mdxeditor"
+      }
     },
     "vue": {
       "demo": {
@@ -881,7 +1142,10 @@
         "path": "/docs/editing/mdx-input",
         "see": ".mdxeditor [role=toolbar]"
       },
-      "demo": { "path": "/demo/pages/1", "see": ".mdxeditor [role=toolbar]" }
+      "demo": {
+        "path": "/demo/pages/1",
+        "see": ".mdxeditor [role=toolbar]"
+      }
     },
     "vue": {
       "demo": {
@@ -950,7 +1214,24 @@
       }
     }
   },
-  "nullable-boolean-input": null,
+  "nullable-boolean-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/nullable-boolean-input",
+        "see": "role=combobox[name=\"Published\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=combobox[name=\"Featured\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=combobox[name=\"Featured\"]"
+      }
+    }
+  },
   "number-field": null,
   "number-input": null,
   "offline": {
@@ -1032,11 +1313,62 @@
       }
     }
   },
-  "presence-bar": null,
+  "presence-bar": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/presence-bar",
+        "see": "[data-slot=\"presence-bar\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"presence-bar\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"presence-bar\"]"
+      }
+    }
+  },
   "prev-next-buttons": null,
-  "radio-button-group-input": null,
+  "radio-button-group-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/radio-button-group-input",
+        "see": "role=group[name=\"Category\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=group[name=\"Shipping class\" i]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=group[name=\"Shipping class\" i]"
+      }
+    }
+  },
   "rating-field": null,
-  "rating-input": null,
+  "rating-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/rating-input",
+        "see": "role=group[name=\"Rating\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=group[name=\"Rating\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=group[name=\"Rating\"]"
+      }
+    }
+  },
   "ready": {
     "react": {
       "docs": {
@@ -1064,14 +1396,82 @@
   "record-list-config": {
     "shownBy": "block-editor-input"
   },
-  "record-timeline": null,
-  "reference-array-field": null,
-  "reference-array-input": null,
+  "record-timeline": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/record-timeline",
+        "see": "[data-slot=\"record-timeline\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"record-timeline\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"record-timeline\"]"
+      }
+    }
+  },
+  "reference-array-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-array-field",
+        "see": "[data-slot=badge]"
+      },
+      "demo": {
+        "path": "/demo/orders/1/show",
+        "see": "div:has(> div > span:text-is(\"Products\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1/show",
+        "see": "[data-slot=record-field]:has(> div:text-is(\"Products\")) > span"
+      }
+    }
+  },
+  "reference-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/reference-array-input",
+        "see": "[data-slot=command]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "[data-slot=field]:has(> label > span:text-is(\"Products\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=combobox[name=\"Products\"]"
+      }
+    }
+  },
   "reference-field": null,
   "reference-input": null,
   "reference-many-count": null,
   "reference-many-field": null,
-  "reference-one-field": null,
+  "reference-one-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-one-field",
+        "see": "text=\"Most viewed post\""
+      },
+      "demo": {
+        "path": "/demo/orders/1/show",
+        "see": "div:has(> div > span:text-is(\"Customer's latest order\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1/show",
+        "see": "[data-slot=record-field]:has(> div:text-is(\"Customer's latest order\")) > span"
+      }
+    }
+  },
   "reference-record-block": {
     "shownBy": "block-editor-input"
   },
@@ -1114,7 +1514,24 @@
       }
     }
   },
-  "resettable-text-input": null,
+  "resettable-text-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/resettable-text-input",
+        "see": "role=textbox[name=\"Title\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=textbox[name=\"Sku\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=textbox[name=\"Sku\"]"
+      }
+    }
+  },
   "resource-menu-item": null,
   "resource-menu-item-group": null,
   "reverse-geocode-field": null,
@@ -1201,7 +1618,24 @@
       }
     }
   },
-  "select-array-input": null,
+  "select-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/select-array-input",
+        "see": "role=combobox[name=\"Tags\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=combobox[name=\"Tags\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=combobox[name=\"Tags\"]"
+      }
+    }
+  },
   "select-field": null,
   "select-input": null,
   "set-password-form": {
@@ -1216,7 +1650,24 @@
   "show": null,
   "show-button": null,
   "show-guesser": null,
-  "show-live": null,
+  "show-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/show-live",
+        "see": "[data-slot=\"show\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1/show",
+        "see": "[data-slot=\"show\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1/show",
+        "see": "[data-slot=\"show\"]"
+      }
+    }
+  },
   "sidebar-toggle-button": null,
   "simple-form-iterator": {
     "react": {
@@ -1329,7 +1780,24 @@
     "shownBy": "tabbed-show-layout"
   },
   "text-array-field": null,
-  "text-array-input": null,
+  "text-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/text-array-input",
+        "see": "role=textbox[name=\"Keywords\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=textbox[name=\"Keywords\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "role=textbox[name=\"Keywords\"]"
+      }
+    }
+  },
   "text-field": null,
   "text-input": {
     "react": {
@@ -1353,7 +1821,24 @@
   "theme-provider": {
     "shownBy": "theme-mode-toggle"
   },
-  "time-input": null,
+  "time-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/time-input",
+        "see": "role=textbox"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=textbox[name=\"Slot opens\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=textbox[name=\"Slot opens\"]"
+      }
+    }
+  },
   "title": null,
   "title-portal": {
     "shownBy": "title"

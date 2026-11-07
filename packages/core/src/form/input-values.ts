@@ -7,6 +7,8 @@
  * family cannot hold lands on that family's empty value.
  */
 
+import { isSafeImageSrc } from "../rich-text/rich-text";
+
 /**
  * A value read out of form state: whatever the data provider put there, until a
  * guard names the family an input edits.
@@ -238,6 +240,23 @@ export function fileEntryKey(entry: FileEntry, index: number): string | number {
   if (isTransformedFile(entry)) return entry.rawFile.name;
   if (isFile(entry)) return index;
   return entry.src ?? index;
+}
+
+/**
+ * What an image preview shows of a file entry: its URL and a title, or `null`
+ * when it has no URL or one that is not safe to load. A raster data URL is safe,
+ * since data providers store uploads that way. A stored URL string is titled by
+ * its file name, and a data URL string has none.
+ */
+export function fileEntryImage(
+  entry: FileEntry | undefined,
+): { src: string; title?: string } | null {
+  if (entry === undefined || isFile(entry)) return null;
+  const src = typeof entry === "string" ? entry : entry.src;
+  if (!src || !isSafeImageSrc(src, { allowDataImages: true })) return null;
+  if (typeof entry !== "string") return { src, title: entry.title };
+  if (src.startsWith("data:")) return { src };
+  return { src, title: entry.split("/").pop() };
 }
 
 /** The object URL a file entry's preview holds, to revoke when it goes. */

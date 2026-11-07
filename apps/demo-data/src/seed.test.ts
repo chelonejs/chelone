@@ -1,6 +1,11 @@
 import type { LooseRecord } from "@chelone/core";
 import { describe, expect, it } from "vitest";
-import { seedData } from "./seed";
+import {
+  channelChoices,
+  seedData,
+  shippingClassChoices,
+  tagChoices,
+} from "./seed";
 
 const NOW = new Date("2026-11-06T12:00:00.000Z");
 
@@ -37,6 +42,7 @@ function referencesIn(seed: Seed): Reference[] {
         to: "authors",
         ids: post.approvals.map((approval) => approval.reviewer_id),
       },
+      { at: `posts#${post.id}.approvers`, to: "authors", ids: post.approvers },
     ]),
     ...seed.products.flatMap((product): Reference[] => [
       {
@@ -85,9 +91,9 @@ function referencesIn(seed: Seed): Reference[] {
         ids: [comment.post_id],
       },
       {
-        at: `comments#${comment.id}.author_id`,
+        at: `comments#${comment.id}.authorId`,
         to: "authors",
-        ids: [comment.author_id],
+        ids: [comment.authorId],
       },
     ]),
     ...seed.api_keys.map(
@@ -134,6 +140,12 @@ describe("seedData", () => {
     }
   });
 
+  it("leaves an in_review post one approval short of two, so the signed-in user's approval publishes it", () => {
+    const inReview = seed.posts.filter((post) => post.status === "in_review");
+    expect(inReview.some((post) => post.approvers.length === 1)).toBe(true);
+    expect(inReview.some((post) => post.approvers.length === 0)).toBe(true);
+  });
+
   it("keeps ids unique within each resource", () => {
     for (const [name, rows] of Object.entries(seed)) {
       const ids = rows.map((row) => row.id);
@@ -157,6 +169,17 @@ describe("seedData", () => {
     for (const order of seed.orders) {
       expect(order.product_ids, `orders#${order.id}`).toContain(
         order.product_id,
+      );
+    }
+  });
+
+  it("gives every order a delivery slot time and an ISO handling duration", () => {
+    for (const order of seed.orders) {
+      expect(order.slot, `orders#${order.id}.slot`).toMatch(
+        /^([01]\d|2[0-3]):[0-5]\d$/,
+      );
+      expect(order.handling, `orders#${order.id}.handling`).toMatch(
+        /^PT(\d+H)?\d+M$/,
       );
     }
   });
@@ -215,6 +238,32 @@ describe("seedData", () => {
   it("leaves some products unfeatured, some featured and some undecided", () => {
     const values = new Set(seed.products.map((p) => p.featured));
     expect(values).toEqual(new Set([true, false, null]));
+  });
+
+  it("offers a choice for every channel, shipping class and tag a product holds", () => {
+    const channels = new Set(channelChoices.map((c) => c.id));
+    const shipping = new Set(shippingClassChoices.map((c) => c.id));
+    const tagIds = new Set(tagChoices.map((c) => c.id));
+    for (const product of seed.products) {
+      for (const channel of product.channels)
+        expect(channels).toContain(channel);
+      expect(shipping).toContain(product.shipping_class);
+      for (const tag of product.tags) expect(tagIds).toContain(tag);
+    }
+  });
+
+  it("gives every product a hex colour", () => {
+    for (const product of seed.products) {
+      expect(product.color, product.name).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
+  it("gives every product keywords as text", () => {
+    for (const product of seed.products) {
+      expect(product.keywords.length, product.name).toBeGreaterThan(0);
+      for (const keyword of product.keywords)
+        expect(keyword.length).toBeGreaterThan(0);
+    }
   });
 
   it("gives places a GeoJSON zone", () => {

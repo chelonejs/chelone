@@ -24,6 +24,13 @@ export type {
   Variant,
   Webhook,
 } from "./seed";
-export { categoryChoices, seedData, statusChoices } from "./seed";
+export {
+  categoryChoices,
+  channelChoices,
+  seedData,
+  shippingClassChoices,
+  statusChoices,
+  tagChoices,
+} from "./seed";
 export { makeDemoStore } from "./store";
 export { type DemoTourStep, TOUR_ID, tourSteps } from "./tour";

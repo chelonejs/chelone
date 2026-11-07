@@ -93,7 +93,7 @@ function onSelect(choice: TChoice) {
     data-slot="radio-button-group"
     class="flex flex-col gap-2"
   >
-    <legend v-if="labelText != null" class="text-sm font-medium leading-none">
+    <legend v-if="labelText != null" class="mb-3 text-sm font-medium leading-none">
       {{ labelText }}<span v-if="isRequired"> *</span>
     </legend>
     <div :class="['flex', row ? 'flex-row gap-4' : 'flex-col gap-2']" role="radiogroup">
