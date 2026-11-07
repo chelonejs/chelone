@@ -530,6 +530,16 @@ describe("<ImageInput>", () => {
     expect(img.attributes("alt")).toBe("keyboard.png");
   });
 
+  it("renders a stored raster data URL as a thumbnail", async () => {
+    const png = "data:image/png;base64,iVBORw0KGgo=";
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1, avatar: png },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("img").attributes("src")).toBe(png);
+  });
+
   it("renders no img for a stored javascript: URL", async () => {
     const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
       record: { id: 1, avatar: "javascript:alert(1)" },

@@ -309,6 +309,22 @@ describe("the file entry guards", () => {
     expect(fileEntryImage({ src: "javascript:alert(1)" })).toBeNull();
   });
 
+  it("fileEntryImage shows a stored raster data URL, untitled when it is a bare string", () => {
+    const png = "data:image/png;base64,iVBORw0KGgo=";
+    expect(fileEntryImage(png)).toEqual({ src: png });
+    expect(fileEntryImage({ src: png, title: "x" })).toEqual({
+      src: png,
+      title: "x",
+    });
+  });
+
+  it("fileEntryImage refuses a data URL that is not a raster image", () => {
+    expect(fileEntryImage("data:text/html;base64,PHNjcmlwdD4=")).toBeNull();
+    expect(
+      fileEntryImage({ src: "data:image/svg+xml;base64,PHN2Zz4=" }),
+    ).toBeNull();
+  });
+
   it("fileEntryPreview finds the object URL a preview holds", () => {
     const withPreview = Object.assign(new File(["x"], "p.png"), {
       preview: "blob:p",

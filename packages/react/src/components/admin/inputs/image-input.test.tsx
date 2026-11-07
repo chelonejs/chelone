@@ -98,6 +98,12 @@ describe("<ImageInput>", () => {
     expect(img.getAttribute("alt")).toBe("keyboard.png");
   });
 
+  it("renders a stored raster data URL as a thumbnail", () => {
+    const png = "data:image/png;base64,iVBORw0KGgo=";
+    setup(<ImageInput source="image" />, { defaultValues: { image: png } });
+    expect(screen.getByRole("img").getAttribute("src")).toBe(png);
+  });
+
   it("renders no <img> for a stored javascript: URL", () => {
     setup(<ImageInput source="image" />, {
       defaultValues: { image: "javascript:alert(1)" },
