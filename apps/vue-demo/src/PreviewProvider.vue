@@ -44,6 +44,18 @@ const props = withDefaults(defineProps<{ mode?: PreviewMode }>(), {
 
 // Per mount: the data provider mutates its seed, so a demo must not share it.
 const seed = seedData();
+// The shared seed gives posts no schedule, which `<CalendarList>` plots; spread
+// them over this month, as the React preview's fixtures do.
+const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+seed.posts = seed.posts.map((post, i) => ({
+  ...post,
+  publish_at: new Date(
+    monthStart.getFullYear(),
+    monthStart.getMonth(),
+    1 + ((i * 5) % 28),
+    9 + (i % 8),
+  ).toISOString(),
+}));
 const dataProvider = fakeDataProvider(seed);
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -81,7 +93,9 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
     :store="store"
   >
     <!-- `posts` is registered with all four views and `authors` with a list, so
-         the sidebar `<Menu>` lists both — the Vue form of the React preview's
+         the sidebar `<Menu>` lists both, and the registered create view is what
+         lets the registry derive `hasCreate` for `<ListActions>` and
+         `<CreateButton>` to offer — the Vue form of the React preview's
          `computeDefinition({ hasList: true, … })`. `#layout` below replaces the
          shell, so these views never mount: the demo is the whole page. -->
     <Resource
