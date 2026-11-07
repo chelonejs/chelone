@@ -1,26 +1,33 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type {
   CalendarEvent,
   CalendarLabels,
   LooseRecord,
+  ResourceRecord,
 } from "@chelone/core";
 
 /** Props for {@link CalendarWeekView}. */
-export interface CalendarWeekViewProps {
+export interface CalendarWeekViewProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** The seven days of the week, in order. */
   days: Date[];
   labels: CalendarLabels;
   /** The label of the grid. */
   label: string;
-  events: CalendarEvent<LooseRecord>[];
+  events: CalendarEvent<TRecord>[];
   /** The link an event is, when it navigates. */
-  hrefFor: (record: LooseRecord) => string | undefined;
+  hrefFor: (record: TRecord) => string | undefined;
   /** Whether activating the event does anything: it is inert otherwise. */
-  isSelectable: (record: LooseRecord) => boolean;
+  isSelectable: (record: TRecord) => boolean;
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="TRecord extends ResourceRecord = LooseRecord"
+>
 /**
  * `<CalendarWeekView>` — seven day columns by 24 hour rows. An event shows in
  * the cell of its start hour only. Emits `select-event` with the record and
@@ -36,13 +43,13 @@ import type {
   CalendarSlot,
 } from "./calendar-month-view.vue";
 
-const props = defineProps<CalendarWeekViewProps>();
+const props = defineProps<CalendarWeekViewProps<TRecord>>();
 const emit = defineEmits<{
-  selectEvent: [record: LooseRecord];
+  selectEvent: [record: TRecord];
   selectSlot: [slot: CalendarSlot];
 }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): VNode[];
+  event?(props: CalendarEventSlotProps<TRecord>): VNode[];
 }>();
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);

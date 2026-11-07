@@ -1,26 +1,33 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type {
   CalendarEvent,
   CalendarLabels,
   CalendarRange,
   LooseRecord,
+  ResourceRecord,
 } from "@chelone/core";
 
 /** Props for {@link CalendarAgendaView}. */
-export interface CalendarAgendaViewProps {
+export interface CalendarAgendaViewProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   range: CalendarRange;
   labels: CalendarLabels;
   /** The label of the list. */
   label: string;
-  events: CalendarEvent<LooseRecord>[];
+  events: CalendarEvent<TRecord>[];
   /** The link an event is, when it navigates. */
-  hrefFor: (record: LooseRecord) => string | undefined;
+  hrefFor: (record: TRecord) => string | undefined;
   /** Whether activating the event does anything: it is inert otherwise. */
-  isSelectable: (record: LooseRecord) => boolean;
+  isSelectable: (record: TRecord) => boolean;
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="TRecord extends ResourceRecord = LooseRecord"
+>
 /**
  * `<CalendarAgendaView>` — the events of the range as a list, a heading per day
  * with the events that start on it, earliest first. Emits `select-event` with
@@ -34,10 +41,10 @@ import { useTranslate } from "../../../i18n/use-translate";
 import CalendarEventButton from "./calendar-event.vue";
 import type { CalendarEventSlotProps } from "./calendar-month-view.vue";
 
-const props = defineProps<CalendarAgendaViewProps>();
-const emit = defineEmits<{ selectEvent: [record: LooseRecord] }>();
+const props = defineProps<CalendarAgendaViewProps<TRecord>>();
+const emit = defineEmits<{ selectEvent: [record: TRecord] }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): VNode[];
+  event?(props: CalendarEventSlotProps<TRecord>): VNode[];
 }>();
 
 const translate = useTranslate();
