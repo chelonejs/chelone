@@ -1,4 +1,9 @@
-import type { LooseRecord, SourcePath } from "@chelone/core";
+import {
+  isLooseRecord,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourcePath,
+} from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
@@ -35,7 +40,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  * `<ReferenceField>`, which defaults it to false).
  */
 const SelectFieldImpl = <
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
   TChoice extends ChoiceRecord = ChoiceRecord,
 >(
   typedProps: SelectFieldProps<RecordType, TChoice>,
@@ -53,8 +58,13 @@ const SelectFieldImpl = <
     ...rest
   } = typedProps;
   // Read through `LooseRecord`: this `defaultValue` is a choice's value, not the
-  // value at `source`.
-  const value = useFieldValue<LooseRecord>({ defaultValue, source, record });
+  // value at `source`. `isLooseRecord` is what gives the caller's record the
+  // index signature that read wants.
+  const value = useFieldValue<LooseRecord>({
+    defaultValue,
+    source,
+    record: record && isLooseRecord(record) ? record : undefined,
+  });
 
   const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText,
@@ -93,7 +103,7 @@ SelectFieldImpl.displayName = "SelectFieldImpl";
 const SelectField = genericMemo(SelectFieldImpl);
 
 interface SelectFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
   TChoice extends ChoiceRecord = ChoiceRecord,
 > extends FieldProps<RecordType>,
     HTMLAttributes<HTMLSpanElement> {
