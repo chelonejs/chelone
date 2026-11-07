@@ -561,8 +561,33 @@
   "mdx-editor": {
     "shownBy": "mdx-input"
   },
-  "mdx-field": null,
-  "mdx-input": null,
+  "mdx-field": {
+    "react": {
+      "docs": { "path": "/docs/viewing/mdx-field", "see": ".mdxeditor" },
+      "demo": { "path": "/demo/pages/1/show", "see": ".mdxeditor" }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1/show",
+        "see": "[data-slot=\"mdx-editor\"]"
+      }
+    }
+  },
+  "mdx-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/mdx-input",
+        "see": ".mdxeditor [role=toolbar]"
+      },
+      "demo": { "path": "/demo/pages/1", "see": ".mdxeditor [role=toolbar]" }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1",
+        "see": "[data-slot=\"mdx-editor\"]"
+      }
+    }
+  },
   "menu": null,
   "menu-item-link": null,
   "menu-live": {
@@ -685,7 +710,24 @@
   "rich-text-color": {
     "shownBy": "rich-text-input"
   },
-  "rich-text-field": null,
+  "rich-text-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/rich-text-field",
+        "see": "[data-slot=\"rich-text-field\"]"
+      },
+      "demo": {
+        "path": "/demo/pages/1/show",
+        "see": "[data-slot=\"rich-text-field\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1/show",
+        "see": "[data-slot=\"rich-text-field\"]"
+      }
+    }
+  },
   "rich-text-image": {
     "shownBy": "rich-text-input"
   },
@@ -695,7 +737,24 @@
   "rich-text-image-view": {
     "shownBy": "rich-text-input"
   },
-  "rich-text-input": null,
+  "rich-text-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/rich-text-input",
+        "see": "[data-slot=\"rich-text-input\"]"
+      },
+      "demo": {
+        "path": "/demo/pages/1",
+        "see": "[data-slot=\"rich-text-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/pages/1",
+        "see": "[data-slot=\"rich-text-input\"]"
+      }
+    }
+  },
   "rich-text-input-editor": {
     "shownBy": "rich-text-input"
   },
