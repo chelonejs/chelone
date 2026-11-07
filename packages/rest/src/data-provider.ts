@@ -10,6 +10,7 @@ import type {
 import {
   fetchUtils,
   HttpError,
+  isHeadersInit,
   isRecord,
   ValidationError,
 } from "@chelone/core";
@@ -51,6 +52,41 @@ interface RestMeta {
   headers?: HeadersInit;
   /** Added to this call's query parameters. */
   query?: Record<string, unknown>;
+}
+
+/** A `meta` key this provider reads, refused for the shape it cannot use. */
+function badMeta(key: string, expected: string): never {
+  throw new TypeError(`restDataProvider: meta.${key} must be ${expected}`);
+}
+
+/**
+ * The `meta` this provider reads, narrowed once per call. `undefined` and
+ * `null` are an empty meta, a key this provider does not know is dropped, and
+ * a key it does know is kept only in the shape it can use: a wrong one throws
+ * naming the field, rather than the call going out without the auth header the
+ * caller meant to send.
+ */
+function restMetaOf(meta: unknown): RestMeta {
+  if (meta === undefined || meta === null) return {};
+  if (!isRecord(meta)) {
+    throw new TypeError(
+      "restDataProvider: meta must be an object, undefined or null",
+    );
+  }
+  const narrowed: RestMeta = {};
+  if (meta.headers !== undefined) {
+    if (isHeadersInit(meta.headers)) narrowed.headers = meta.headers;
+    else
+      badMeta(
+        "headers",
+        "a Headers, a list of [name, value] pairs or a record of strings",
+      );
+  }
+  if (meta.query !== undefined) {
+    if (isRecord(meta.query)) narrowed.query = meta.query;
+    else badMeta("query", "a record of query parameters");
+  }
+  return narrowed;
 }
 
 export const defaultListQuery = (
@@ -178,7 +214,7 @@ export function restDataProvider({
       ...init
     }: RequestInit & { id?: Identifier; query?: object; write?: boolean },
   ) => {
-    const { headers: callHeaders, query: callQuery } = (meta ?? {}) as RestMeta;
+    const { headers: callHeaders, query: callQuery } = restMetaOf(meta);
     const merged = new Headers(
       typeof headers === "function" ? await headers() : headers,
     );

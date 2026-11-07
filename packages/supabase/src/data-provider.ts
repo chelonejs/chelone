@@ -4,7 +4,7 @@ import type {
   GetManyReferenceParams,
   Pagination,
 } from "@chelone/core";
-import { HttpError } from "@chelone/core";
+import { HttpError, isHeadersInit, isRecord } from "@chelone/core";
 import type { SupabaseSessionSource } from "./http";
 import { supabaseRequest } from "./http";
 import type { PostgrestOperator } from "./postgrest/filters";
@@ -44,6 +44,65 @@ interface SupabaseMeta extends PostgrestMeta {
   /** Overrides the `schema` option for this call. */
   schema?: string;
   headers?: HeadersInit;
+}
+
+/** A `meta` key this provider reads, refused for the shape it cannot use. */
+function badMeta(key: string, expected: string): never {
+  throw new TypeError(`supabaseDataProvider: meta.${key} must be ${expected}`);
+}
+
+/** A list of column or table names, as `columns` and `embed` take them. */
+function isNameList(value: unknown): value is string[] {
+  return (
+    Array.isArray(value) && value.every((name) => typeof name === "string")
+  );
+}
+
+/**
+ * The `meta` this provider reads, narrowed once per call. `undefined` and
+ * `null` are an empty meta, a key this provider does not know is dropped, and
+ * a key it does know is kept only in the shape it can use: a wrong one throws
+ * naming the field, rather than the call going out without the header or the
+ * schema the caller meant to send.
+ */
+function supabaseMetaOf(meta: unknown): SupabaseMeta {
+  if (meta === undefined || meta === null) return {};
+  if (!isRecord(meta)) {
+    throw new TypeError(
+      "supabaseDataProvider: meta must be an object, undefined or null",
+    );
+  }
+  const narrowed: SupabaseMeta = {};
+  const { schema, headers, columns, embed } = meta;
+  if (schema !== undefined) {
+    if (typeof schema === "string") narrowed.schema = schema;
+    else badMeta("schema", "a string");
+  }
+  if (headers !== undefined) {
+    if (isHeadersInit(headers)) narrowed.headers = headers;
+    else
+      badMeta(
+        "headers",
+        "a Headers, a list of [name, value] pairs or a record of strings",
+      );
+  }
+  if (columns !== undefined) {
+    if (typeof columns === "string") narrowed.columns = columns;
+    else if (isNameList(columns)) narrowed.columns = columns;
+    else badMeta("columns", "a string or a list of columns");
+  }
+  if (embed !== undefined) {
+    if (isNameList(embed)) narrowed.embed = embed;
+    else badMeta("embed", "a list of tables");
+  }
+  for (const key of ["nullsfirst", "nullslast"] as const) {
+    const placement = meta[key];
+    if (placement === undefined) continue;
+    if (typeof placement === "boolean") narrowed[key] = placement;
+    else if (isNameList(placement)) narrowed[key] = placement;
+    else badMeta(key, "true or a list of columns");
+  }
+  return narrowed;
 }
 
 type Row = Record<string, unknown>;
@@ -101,7 +160,7 @@ export function supabaseDataProvider({
     resource: string,
     { pagination, sort, filter, meta }: GetListParams,
   ) {
-    const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+    const supabaseMeta = supabaseMetaOf(meta);
     const primaryKey = getPrimaryKey(resource, primaryKeys);
     const order = buildOrder(sort, primaryKey, {
       sortOrder,
@@ -172,7 +231,7 @@ export function supabaseDataProvider({
     getList: list,
 
     async getOne(resource, { id, meta }) {
-      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const supabaseMeta = supabaseMetaOf(meta);
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       const key = Object.entries(decodeId(id, primaryKey)).map(
         ([column, value]): Pair => [column, `eq.${value}`],
@@ -196,7 +255,7 @@ export function supabaseDataProvider({
 
     async getMany(resource, { ids, meta }) {
       if (ids.length === 0) return { data: [] };
-      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const supabaseMeta = supabaseMetaOf(meta);
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       const { json } = await request(
         resource,
@@ -218,7 +277,7 @@ export function supabaseDataProvider({
     },
 
     async create(resource, { data, meta }) {
-      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const supabaseMeta = supabaseMetaOf(meta);
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       const row = await writeOne(resource, [], supabaseMeta, {
         method: "POST",
@@ -228,7 +287,7 @@ export function supabaseDataProvider({
     },
 
     async update(resource, { id, data, meta }) {
-      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const supabaseMeta = supabaseMetaOf(meta);
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       const row = await writeOne(
         resource,
@@ -246,7 +305,7 @@ export function supabaseDataProvider({
 
     async updateMany(resource, { ids, data, meta }) {
       if (ids.length === 0) return { data: [] };
-      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const supabaseMeta = supabaseMetaOf(meta);
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       return {
         data: await writeMany(
@@ -265,7 +324,7 @@ export function supabaseDataProvider({
     },
 
     async delete(resource, { id, meta }) {
-      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const supabaseMeta = supabaseMetaOf(meta);
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       const row = await writeOne(
         resource,
@@ -278,7 +337,7 @@ export function supabaseDataProvider({
 
     async deleteMany(resource, { ids, meta }) {
       if (ids.length === 0) return { data: [] };
-      const supabaseMeta = (meta ?? {}) as SupabaseMeta;
+      const supabaseMeta = supabaseMetaOf(meta);
       const primaryKey = getPrimaryKey(resource, primaryKeys);
       return {
         data: await writeMany(

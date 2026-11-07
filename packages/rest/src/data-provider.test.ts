@@ -187,6 +187,39 @@ describe("restDataProvider", () => {
     );
   });
 
+  it("a meta with a non-record query throws naming query", async () => {
+    const fetchMock = stubFetch(respond([]));
+    const call = restDataProvider({ apiUrl }).getList("posts", {
+      meta: { query: "expand=author" },
+    });
+
+    await expect(call).rejects.toThrow(TypeError);
+    await expect(call).rejects.toThrow(/meta\.query/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("a meta with a non-string header value throws naming headers", async () => {
+    const fetchMock = stubFetch(respond({ id: 5 }));
+    const call = restDataProvider({ apiUrl }).getOne("posts", {
+      id: 5,
+      meta: { headers: { Authorization: 1 } },
+    });
+
+    await expect(call).rejects.toThrow(TypeError);
+    await expect(call).rejects.toThrow(/meta\.headers/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("a null meta is an empty meta, and a key the provider does not know is ignored", async () => {
+    const fetchMock = stubFetch(respond({ id: 5 }));
+    const provider = restDataProvider({ apiUrl });
+
+    await provider.getOne("posts", { id: 5, meta: null });
+    await provider.getOne("posts", { id: 5, meta: { tenant: "acme" } });
+
+    expect(lastCall(fetchMock).url.search).toBe("");
+  });
+
   it("a headers function is read on every call", async () => {
     const fetchMock = stubFetch(respond({ id: 1 }));
     let token = "one";

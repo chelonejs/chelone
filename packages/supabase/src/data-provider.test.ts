@@ -463,4 +463,53 @@ describe("supabaseDataProvider", () => {
       await expect(auth.checkError?.(rejection)).rejects.toBe(rejection);
     });
   });
+
+  describe("meta", () => {
+    it("a meta with a non-string schema throws naming schema", async () => {
+      const fetchMock = stubFetch(respond([], { range: "*/0" }));
+      const call = provider().getList("posts", { meta: { schema: 42 } });
+
+      await expect(call).rejects.toThrow(TypeError);
+      await expect(call).rejects.toThrow(/meta\.schema/);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("a meta with headers that are not headers throws naming headers", async () => {
+      const fetchMock = stubFetch(respond([], { range: "*/0" }));
+      const call = provider().create("posts", {
+        data: {},
+        meta: { headers: "Bearer t" },
+      });
+
+      await expect(call).rejects.toThrow(TypeError);
+      await expect(call).rejects.toThrow(/meta\.headers/);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("a meta with a non-list embed throws naming embed", async () => {
+      const fetchMock = stubFetch(respond([], { range: "*/0" }));
+      const call = provider().getMany("posts", {
+        ids: [1],
+        meta: { embed: "author" },
+      });
+
+      await expect(call).rejects.toThrow(TypeError);
+      await expect(call).rejects.toThrow(/meta\.embed/);
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("a null meta is an empty meta, and a key the provider does not know is ignored", async () => {
+      const fetchMock = stubFetch(respond([{ id: 1 }], { range: "0-0/1" }));
+
+      await expect(
+        provider().getList("posts", { meta: null }),
+      ).resolves.toEqual({
+        data: [{ id: 1 }],
+        total: 1,
+      });
+      await provider().getList("posts", { meta: { tenant: "acme" } });
+
+      expect(lastCall(fetchMock).url.searchParams.has("tenant")).toBe(false);
+    });
+  });
 });
