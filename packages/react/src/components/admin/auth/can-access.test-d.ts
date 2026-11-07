@@ -33,12 +33,11 @@ describe("<CanAccess> record prop", () => {
     expectTypeOf(gate).not.toBeAny();
   });
 
-  it("takes a record with fields beyond the id", () => {
-    const record = { id: 7, author: "rin" };
+  it("takes an inline record, fields and all", () => {
     const gate = CanAccess({
       action: "edit",
       resource: "posts",
-      record,
+      record: { id: 7, author: "rin" },
       children: null,
     });
     expectTypeOf(gate).not.toBeAny();

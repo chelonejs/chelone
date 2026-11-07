@@ -22,7 +22,9 @@ import type { ResourceRecord } from "@chelone/core";
 import type { ReactNode } from "react";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-export interface CanAccessProps {
+export interface CanAccessProps<
+  TRecord extends ResourceRecord = ResourceRecord,
+> {
   /** The action to check (`'list' | 'create' | 'edit' | 'show' | 'delete'` or custom). */
   action: string;
   /** The resource to check (e.g. `'posts'`). */
@@ -32,7 +34,7 @@ export interface CanAccessProps {
    * the floor; the rest is whatever the grant's predicate reads, so a record of
    * the caller's own shape and an inline record both fit.
    */
-  record?: ResourceRecord;
+  record?: TRecord;
   /** Rendered when access is granted. */
   children: ReactNode;
   /** Rendered while the access check is pending. Defaults to `null`. */
@@ -42,14 +44,14 @@ export interface CanAccessProps {
 }
 
 /** Declarative access gate — see the module doc. */
-export function CanAccess({
+export function CanAccess<TRecord extends ResourceRecord = ResourceRecord>({
   action,
   resource,
   record,
   children,
   loading = null,
   accessDenied = null,
-}: CanAccessProps): ReactNode {
+}: CanAccessProps<TRecord>): ReactNode {
   const { canAccess, isPending } = useMenuAccess({ action, resource, record });
   if (isPending) return loading;
   if (!canAccess) return accessDenied;
