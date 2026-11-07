@@ -47,6 +47,13 @@ function sectorFills(container: HTMLElement) {
   );
 }
 
+/** The fill each sector paints with: its inline style, which outranks the attribute. */
+function paintedFills(container: HTMLElement) {
+  return [
+    ...container.querySelectorAll<SVGPathElement>(".recharts-pie-sector path"),
+  ].map((path) => path.style.fill);
+}
+
 describe("<DonutChart>", () => {
   it("draws a slice per positive value in the given colors", () => {
     const { container } = mount({ colors: ["red", "green"] });
@@ -54,13 +61,12 @@ describe("<DonutChart>", () => {
     expect(sectorFills(container)).toEqual(["red", "green", "red"]);
   });
 
-  it("falls back to the theme chart colors", () => {
+  it("paints every slice with its theme colour on first render", () => {
     const { container } = mount();
-    expect(sectorFills(container)).toEqual([
-      "var(--chart-1)",
-      "var(--chart-2)",
-      "var(--chart-3)",
-    ]);
+    const theme = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)"];
+    expect(sectorFills(container)).toEqual(theme);
+    // recharts writes the attribute; the style is the declaration that paints.
+    expect(paintedFills(container)).toEqual(theme);
   });
 
   it("leaves out zero and negative values, and shows the empty text when none is left", () => {

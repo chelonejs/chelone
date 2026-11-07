@@ -117,7 +117,8 @@ describe("<DonutChart>", () => {
     ]);
   });
 
-  it("falls back to the theme chart colors", () => {
+  it("paints every slice with its theme colour on first render", () => {
+    // unovis draws each segment's fill as an inline style from this accessor.
     expect(drawn(mountChart()).map((slice) => slice.color)).toEqual([
       "var(--chart-1)",
       "var(--chart-2)",

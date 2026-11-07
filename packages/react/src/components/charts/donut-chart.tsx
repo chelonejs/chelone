@@ -68,10 +68,16 @@ export function DonutChart<TRow extends object = LooseRecord>({
           stroke="none"
           isAnimationActive={false}
         >
-          {slices.map((_slice, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: labels repeat, and a slice's color follows its position
-            <Cell key={index} fill={chartColor(index, colors)} />
-          ))}
+          {slices.map((_slice, index) => {
+            const fill = chartColor(index, colors);
+            return (
+              // The style is what paints: recharts hands `fill` to the sector
+              // as a presentation attribute, which an engine may drop when it
+              // holds a var(), leaving recharts' grey default on screen.
+              // biome-ignore lint/suspicious/noArrayIndexKey: labels repeat, and a slice's color follows its position
+              <Cell key={index} fill={fill} style={{ fill }} />
+            );
+          })}
         </Pie>
       </PieChart>
     </ChartFrame>
