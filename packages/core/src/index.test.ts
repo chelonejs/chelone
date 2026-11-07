@@ -518,6 +518,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isRecord([1])).toBe(false);
   });
 
+  it("exports isHeadersInit", () => {
+    expect(barrel.isHeadersInit).toBeTypeOf("function");
+    expect(barrel.isHeadersInit({ a: "b" })).toBe(true);
+    expect(barrel.isHeadersInit([["a", "b"]])).toBe(true);
+    expect(barrel.isHeadersInit({ a: 1 })).toBe(false);
+  });
+
   it("exports deepEqual", () => {
     expect(barrel.deepEqual).toBeTypeOf("function");
     expect(barrel.deepEqual({ a: 1, b: undefined }, { a: 1 })).toBe(true);

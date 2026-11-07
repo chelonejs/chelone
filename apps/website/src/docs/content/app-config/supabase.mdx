@@ -228,6 +228,10 @@ controller do not take `meta`. Pass it in the params of `useGetList`, or of
   list of columns, and win over `sortOrder`.
 - `meta.headers` adds request headers and wins over the ones the provider sets.
 
+A key that fails its check throws a `TypeError` naming the field, so a wrong
+`meta.headers` never sends the call without the header you meant to send. Keys
+the provider does not know are ignored.
+
 ```tsx
 const { data } = useGetList("posts", {
   meta: { columns: ["id", "title"], embed: ["author"] },
