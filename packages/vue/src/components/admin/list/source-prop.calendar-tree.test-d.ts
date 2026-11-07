@@ -6,17 +6,22 @@
 
 import type { SourceProp } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type CalendarList from "./calendar-list.vue";
+import type { CalendarListProps } from "./calendar-list.vue";
 import type TreeList from "./tree-list.vue";
 
 describe("CalendarList and TreeList sources", () => {
   it("each calendar and tree source prop is SourceProp", () => {
-    type Calendar = InstanceType<typeof CalendarList>["$props"];
     type CalendarSource = NonNullable<
-      Calendar["startSource" | "endSource" | "titleSource" | "colorSource"]
+      CalendarListProps[
+        | "startSource"
+        | "endSource"
+        | "titleSource"
+        | "colorSource"]
     >;
     expectTypeOf<CalendarSource>().toEqualTypeOf<SourceProp>();
-    expectTypeOf<Calendar["startSource"]>().toEqualTypeOf<SourceProp>();
+    expectTypeOf<
+      CalendarListProps["startSource"]
+    >().toEqualTypeOf<SourceProp>();
 
     type Tree = InstanceType<typeof TreeList>["$props"];
     type TreeSource = NonNullable<
