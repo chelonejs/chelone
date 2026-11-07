@@ -168,6 +168,17 @@ describe("seedData", () => {
     }
   });
 
+  it("gives every order a delivery slot time and an ISO handling duration", () => {
+    for (const order of seed.orders) {
+      expect(order.slot, `orders#${order.id}.slot`).toMatch(
+        /^([01]\d|2[0-3]):[0-5]\d$/,
+      );
+      expect(order.handling, `orders#${order.id}.handling`).toMatch(
+        /^PT(\d+H)?\d+M$/,
+      );
+    }
+  });
+
   it("keeps every row assignable to the data provider's LooseRecord", () => {
     const rows: LooseRecord[] = Object.values(seed).flat();
     expect(rows.length).toBeGreaterThan(0);
