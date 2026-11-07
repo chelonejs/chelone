@@ -17,9 +17,13 @@
 
 import { createNotificationStore } from "@chelone/core";
 import {
+  AccessDenied,
   Admin,
+  AuthCallback,
+  AuthenticationError,
   EditGuesser,
   ListGuesser,
+  LoginPage,
   NotFound,
   Resource,
   ShowGuesser,
@@ -85,11 +89,12 @@ const queryClient = new QueryClient({
   },
 });
 // Kept in `localStorage`, so the tour that opens on a first visit stays closed
-// and the Team page's role and role matrix survive a reload. The auth provider
-// answers every access check from them. `<MenuLive>` keeps its unread counts
+// and the Team page's role, role matrix and sign-in survive a reload. The auth
+// provider answers every access check from them, and resets the query client's
+// cached answers when someone signs in or out. `<MenuLive>` keeps its unread counts
 // here too. The i18n instance is in ./i18n.
 const store = makeDemoStore();
-const authProvider = makeDemoAuthProvider(store);
+const authProvider = makeDemoAuthProvider(store, queryClient);
 </script>
 
 <template>
@@ -105,12 +110,23 @@ const authProvider = makeDemoAuthProvider(store);
       :store="store"
       :auth-provider="authProvider"
       :custom-routes="customRoutes"
+      require-auth
     >
       <template #layout><Shell /></template>
       <!-- Shell.vue renders the dashboard, since a #layout slot replaces the
            shell that would. This empty slot keeps the index from redirecting to
            the first resource. -->
       <template #dashboard />
+      <!-- Shown in place of the app while nobody is signed in: log out from the
+           user menu to see it. Any email and password sign in. -->
+      <template #login><LoginPage /></template>
+      <!-- Where an OAuth provider sends the visitor back: /auth-callback with a
+           code signs in, with an error shows <AuthError>. -->
+      <template #authCallback><AuthCallback /></template>
+      <!-- /access-denied is where a role that may not open a page lands, as the
+           Team page's viewer does on /posts/create. -->
+      <template #accessDenied><AccessDenied /></template>
+      <template #authenticationError><AuthenticationError /></template>
       <!-- A URL no route owns, such as /nowhere. -->
       <template #catchAll><NotFound /></template>
       <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
