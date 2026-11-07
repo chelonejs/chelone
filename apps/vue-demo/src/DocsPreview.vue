@@ -41,22 +41,34 @@ void load?.().then((loaded) => {
 </script>
 
 <template>
-  <!-- `flow-root` keeps the demo's own margins inside its box: the page fits
-       the iframe to this document's body, and a margin that collapsed out of it
-       would land outside the fitted height. -->
-  <div class="flow-root">
-    <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
-      <component :is="demo.default" />
-    </PreviewProvider>
+  <!-- The box carries the same `min-h-56` the frame carries, so a demo shorter
+       than that floor is centred in it rather than stranded at its top. The
+       inner `flow-root` keeps the demo's own margins inside its box: the page
+       fits the iframe to this document's body, and a margin that collapsed out
+       of it would land outside the fitted height. -->
+  <div class="demo-box min-h-56">
+    <div class="flow-root">
+      <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
+        <component :is="demo.default" />
+      </PreviewProvider>
+    </div>
   </div>
 </template>
 
 <style scoped>
-/* The frame is as wide as the panel, so a bare field would sit at its left
-   edge where the React panel centres it. Auto margins centre a demo that caps
-   its own width and do nothing to one that fills the frame; `text-align`
-   centres a bare field, which renders inline (a `<BadgeField>` is a span), and
-   is reset inside every demo so a table's cells stay left-aligned. */
+/* The frame is as wide as the panel and has a height floor so an empty frame is
+   not a slit (see `ComponentPreview`). Centre the demo in it on both axes:
+   `justify-content` vertically; auto margins horizontally for a demo that caps
+   its own width, which do nothing to one that fills the frame; and `text-align`
+   for a bare field, which renders inline (a `<BadgeField>` is a span), reset
+   inside every demo so a table's cells stay left-aligned. The inner box stays a
+   block so a demo that fills the frame still does. */
+.demo-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 .flow-root {
   text-align: center;
 }

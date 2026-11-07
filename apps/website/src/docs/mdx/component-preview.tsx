@@ -211,14 +211,11 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
           )}
         >
           {framework === "vue" ? (
-            // No height floor on the frame: the panel's own `min-h-32` holds it
-            // open while the demo loads, and a floor would strand a one-line
-            // field at the top of a tall frame with a band of blank under it.
             <iframe
               ref={frameRef}
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
-              className="w-full border-0"
+              className="min-h-56 w-full border-0"
             />
           ) : DemoComponent ? (
             // `min-w-0`: the panel is a flex row, and a flex item may not shrink
