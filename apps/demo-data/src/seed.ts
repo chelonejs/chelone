@@ -152,13 +152,16 @@ export type Page = {
   published_at: string | null;
 };
 
+/** The fields `<CommentsThread>` reads, so a post's thread shows these as they are. */
 export type Comment = {
   id: number;
   post_id: number;
-  author_id: number;
+  authorId: number;
+  authorName: string;
   body: string;
   approved: boolean;
-  created_at: string;
+  createdAt: string;
+  resolvedAt: string | null;
 };
 
 export type Job = {
@@ -589,14 +592,19 @@ const commentBodies = [
 ];
 
 function buildComments(now: Date): Comment[] {
-  return Array.from({ length: 20 }, (_, i) => ({
-    id: i + 1,
-    post_id: (i % postTitles.length) + 1,
-    author_id: cycle(authors, i + 1).id,
-    body: cycle(commentBodies, i),
-    approved: i % 4 !== 3,
-    created_at: from(now, -(i * 5 + 1) * HOUR),
-  }));
+  return Array.from({ length: 20 }, (_, i) => {
+    const author = cycle(authors, i + 1);
+    return {
+      id: i + 1,
+      post_id: (i % postTitles.length) + 1,
+      authorId: author.id,
+      authorName: author.name,
+      body: cycle(commentBodies, i),
+      approved: i % 4 !== 3,
+      createdAt: from(now, -(i * 5 + 1) * HOUR),
+      resolvedAt: null,
+    };
+  });
 }
 
 const jobSeeds: ReadonlyArray<

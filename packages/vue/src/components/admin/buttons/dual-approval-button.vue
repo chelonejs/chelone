@@ -163,10 +163,24 @@ async function onClick(event: MouseEvent): Promise<void> {
       data-slot="dual-approval-button"
       @click="onClick"
     >
+      <svg
+        aria-hidden="true"
+        class="size-4"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M20 6 9 17l-5-5" />
+      </svg>
       <template v-if="state?.isComplete">{{ completeText }}</template>
       <template v-else>
         {{ translate("chelone.approval.approve", { _: "Approve" }) }}
-        <span data-slot="dual-approval-count">{{ countText }}</span>
+        <span data-slot="dual-approval-count" class="text-muted-foreground">{{
+          countText
+        }}</span>
       </template>
     </Button>
     <span

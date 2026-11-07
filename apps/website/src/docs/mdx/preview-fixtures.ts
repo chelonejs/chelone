@@ -32,6 +32,25 @@ export type PreviewPost = {
   author_id: number;
   views: number;
   published: boolean;
+  status: "draft" | "in_review" | "published";
+  /** Ids of the authors who approved the post; `<DualApprovalButton>` writes it. */
+  approvers: number[];
+  revisions: PreviewRevision[];
+};
+export type PreviewRevision = {
+  id: number;
+  at: string;
+  author_id: number;
+  summary: string;
+};
+export type PreviewComment = {
+  id: number;
+  post_id: number;
+  authorId: number;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  resolvedAt: string | null;
 };
 
 const authors: PreviewAuthor[] = [
@@ -73,20 +92,60 @@ const postTitles = [
   "Turing Machines Made Concrete",
 ];
 
-const posts: PreviewPost[] = postTitles.map((title, i) => ({
-  id: i + 1,
-  title,
-  body: `Body copy for "${title}". This record lives entirely in the in-memory fakeDataProvider.`,
-  author_id: authors[i % authors.length].id,
-  views: 50 + ((i * 137) % 900),
-  published: i % 3 !== 0,
-}));
+const HOUR = 3_600_000;
+const hoursAgo = (hours: number) =>
+  new Date(Date.UTC(2026, 0, 15, 12) - hours * HOUR).toISOString();
+
+const revisionSummaries = ["First draft", "Fix typos", "Tighten the intro"];
+
+/** The first three posts wait for review; post 2 already has Alan's approval. */
+const posts: PreviewPost[] = postTitles.map((title, i) => {
+  const status = i < 3 ? "in_review" : i % 3 !== 0 ? "published" : "draft";
+  return {
+    id: i + 1,
+    title,
+    body: `Body copy for "${title}". This record lives entirely in the in-memory fakeDataProvider.`,
+    author_id: authors[i % authors.length].id,
+    views: 50 + ((i * 137) % 900),
+    published: i % 3 !== 0,
+    status,
+    approvers: i === 1 ? [2] : [],
+    revisions: revisionSummaries.map((summary, r) => ({
+      id: r + 1,
+      at: hoursAgo((revisionSummaries.length - r) * 20 + i),
+      author_id: authors[(i + r) % authors.length].id,
+      summary,
+    })),
+  };
+});
+
+const comments: PreviewComment[] = [
+  {
+    id: 1,
+    post_id: 1,
+    authorId: 2,
+    authorName: "Alan Turing",
+    body: "The second section needs a source.",
+    createdAt: hoursAgo(5),
+    resolvedAt: null,
+  },
+  {
+    id: 2,
+    post_id: 1,
+    authorId: 3,
+    authorName: "Grace Hopper",
+    body: "Fixed the typo in the intro.",
+    createdAt: hoursAgo(2),
+    resolvedAt: hoursAgo(1),
+  },
+];
 
 /** Build a fresh seed object (fakeDataProvider mutates its data in place). */
 export function previewSeed() {
   return {
     posts: structuredClone(posts),
     authors: structuredClone(authors),
+    comments: structuredClone(comments),
   };
 }
 

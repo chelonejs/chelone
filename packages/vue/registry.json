@@ -5695,6 +5695,7 @@
         "@chelone/badge",
         "@chelone/button",
         "@chelone/card",
+        "@chelone/lib-utils",
         "@chelone/textarea"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],

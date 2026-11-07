@@ -85,9 +85,9 @@ function referencesIn(seed: Seed): Reference[] {
         ids: [comment.post_id],
       },
       {
-        at: `comments#${comment.id}.author_id`,
+        at: `comments#${comment.id}.authorId`,
         to: "authors",
-        ids: [comment.author_id],
+        ids: [comment.authorId],
       },
     ]),
     ...seed.api_keys.map(
