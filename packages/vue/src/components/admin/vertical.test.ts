@@ -247,6 +247,48 @@ describe("<ReferenceInput>", () => {
     // The FK is written back as its original numeric type.
     expect(captured.values?.().author_id).toBe(11);
   });
+
+  it.each([
+    ["core's reference default", undefined, 25],
+    ["the perPage prop", 5, 5],
+  ] as const)(
+    "fetches the reference's choices at %s",
+    async (_name, perPage, expected) => {
+      const dataProvider = makeProvider();
+      const getList = vi.spyOn(dataProvider, "getList");
+      const FormHost = defineComponent({
+        setup(_, { slots }) {
+          useForm<Post>({
+            resource: "posts",
+            record: { id: 1, title: "T", author_id: 10, views: 3 },
+            onSubmit: () => undefined,
+          });
+          return () => slots.default?.();
+        },
+      });
+      const { wrapper } = mountAdmin(
+        () =>
+          h(FormHost, null, {
+            default: () =>
+              h(ReferenceInput, {
+                source: "author_id",
+                reference: "authors",
+                perPage,
+              }),
+          }),
+        dataProvider,
+      );
+      await vi.waitFor(() => {
+        expect(wrapper.text()).toContain("Ada Lovelace");
+      });
+
+      const call = getList.mock.calls.find(
+        ([resource]) => resource === "authors",
+      );
+      if (!call) throw new Error("the authors resource was never fetched");
+      expect(call[1].pagination).toEqual({ page: 1, perPage: expected });
+    },
+  );
 });
 
 describe("<SaveButton> in <Create>", () => {

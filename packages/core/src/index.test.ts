@@ -154,6 +154,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.createReferenceOneController).toBeTypeOf("function");
   });
 
+  it("exports the list and reference defaults the adapters fall back to", () => {
+    expect(barrel.DEFAULT_PER_PAGE).toBe(10);
+    expect(barrel.DEFAULT_DEBOUNCE_MS).toBe(500);
+    expect(barrel.DEFAULT_REFERENCE_PER_PAGE).toBe(25);
+  });
+
   it("exports the P5 form controllers + composed controllers", () => {
     expect(barrel.createFormController).toBeTypeOf("function");
     expect(barrel.normalizeFormError).toBeTypeOf("function");

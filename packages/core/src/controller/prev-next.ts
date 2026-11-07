@@ -13,6 +13,9 @@ import type {
   SortPayload,
 } from "../data/types";
 import type { Identifier } from "../resource/identifier";
+// The page a list caches is the one its own default put it on, so the fallback
+// here is the list controller's, not a second 10.
+import { DEFAULT_PER_PAGE } from "./list-controller";
 
 /** The list's persisted params, read from the `<resource>.listParams` store key. */
 export interface PrevNextStoredParams {
@@ -47,7 +50,6 @@ export interface PrevNextParams {
 }
 
 export const DEFAULT_PREV_NEXT_LIMIT = 1000;
-const DEFAULT_PER_PAGE = 10;
 const DEFAULT_SORT: SortPayload = { field: "id", order: "ASC" };
 
 /**

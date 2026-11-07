@@ -96,6 +96,7 @@ import {
   calendarLabels,
   calendarRange,
   calendarRangeFilter,
+  DEFAULT_PER_PAGE,
   shiftCalendarAnchor,
   staleCalendarRangeKeys,
   toCalendarEvents,
@@ -249,7 +250,9 @@ const rangeEndISO = computed(() => range.value.end.toISOString());
 // A URL or store that already holds the calendar's own `perPage` (back from an
 // event's page, a reload) hides the list's real one: fall back to its default.
 const originalPerPage =
-  list.perPage === props.perPage ? (list.defaultPerPage ?? 10) : list.perPage;
+  list.perPage === props.perPage
+    ? (list.defaultPerPage ?? DEFAULT_PER_PAGE)
+    : list.perPage;
 let appliedKeys: string[] = [];
 
 const without = (filter: Record<string, unknown>, keys: string[]) =>

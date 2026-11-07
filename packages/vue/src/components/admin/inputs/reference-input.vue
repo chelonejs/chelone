@@ -21,7 +21,11 @@ export interface ReferenceInputProps {
  * Risk 1). Choice labels use the reference's record representation.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import {
+  DEFAULT_REFERENCE_PER_PAGE,
+  type SourceProp,
+  type Validator,
+} from "@chelone/core";
 import { computed } from "vue";
 import { useGetList } from "../../../data/queries";
 import { useInput } from "../../../form/use-input";
@@ -41,7 +45,7 @@ const { id, value, setValue, error, touched, isRequired } = useInput({
 });
 
 const query = useGetList(props.reference, () => ({
-  pagination: { page: 1, perPage: props.perPage ?? 25 },
+  pagination: { page: 1, perPage: props.perPage ?? DEFAULT_REFERENCE_PER_PAGE },
 }));
 const getRepresentation = useGetRecordRepresentation(props.reference);
 
