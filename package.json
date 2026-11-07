@@ -20,7 +20,6 @@
   "devDependencies": {
     "@biomejs/biome": "^2.6.5",
     "jscpd": "5.4.2",
-    "playwright": "^1.65.0",
     "turbo": "^2.11.10",
     "typescript": "^6.0.3"
   }

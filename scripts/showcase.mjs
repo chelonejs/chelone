@@ -1,5 +1,4 @@
 // Holds every component to its entry in showcase.json: a docs page and a place in each demo.
-// The entry names the page and what must be visible on it, so CI can photograph both.
 //
 //   pnpm check:showcase                  compare with origin/main
 //   pnpm check:showcase --base HEAD^1    compare with another commit
@@ -98,7 +97,6 @@ export function owner(manifest, name) {
 function shotProblems(name, adapter, view, shot, hasDemo) {
   const where = `${name}: ${adapter}.${view}`;
   if (!shot.path?.startsWith("/")) return [`${where} needs a path starting with /`];
-  if (!shot.see) return [`${where} needs \`see\`: a Playwright selector for the component`];
   if (view === "docs" && !hasDemo(shot.path, adapter)) {
     return [`${where}: ${shot.path} has no ${adapter} demo in its demos folder`];
   }
@@ -135,36 +133,6 @@ export function problems({ manifest, previous, components, hasDemo }) {
     return entryProblems(name, entry, components, hasDemo);
   });
   return [...unlisted, ...listed];
-}
-
-// What a change has to photograph: each component it touched or whose entry it edited.
-export function targets({ manifest, previous, components, changedFiles }) {
-  const changed = new Set(changedFiles);
-  const touched = Object.entries(components).flatMap(([adapter, names]) =>
-    [...names]
-      .filter(([, files]) => files.some((file) => changed.has(file)))
-      .map(([name]) => ({ adapter, name: owner(manifest, name) ?? name })),
-  );
-  const edited = Object.keys(manifest)
-    .filter((name) => JSON.stringify(manifest[name]) !== JSON.stringify(previous?.[name] ?? null))
-    .flatMap((name) =>
-      Object.keys(components)
-        .filter((adapter) => components[adapter].has(name))
-        .map((adapter) => ({ adapter, name: owner(manifest, name) ?? name })),
-    );
-  const unique = [...new Map([...touched, ...edited].map((t) => [`${t.name}/${t.adapter}`, t])).values()];
-  return {
-    owed: [...new Set(unique.filter((t) => !manifest[t.name]).map((t) => t.name))].sort(),
-    shots: unique
-      .filter((t) => manifest[t.name])
-      .flatMap(({ name, adapter }) =>
-        VIEWS.flatMap((view) => {
-          const shot = shotOf(manifest[name], adapter, view);
-          return shot ? [{ name, adapter, view, ...shot }] : [];
-        }),
-      )
-      .sort((a, b) => a.name.localeCompare(b.name)),
-  };
 }
 
 function main() {
