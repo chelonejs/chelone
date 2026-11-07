@@ -103,7 +103,9 @@ interface PersistedListParams {
   displayedFilters: Record<string, boolean>;
 }
 
-const DEFAULT_PER_PAGE = 10;
+/** The `perPage` a list starts at when nothing is persisted or in the URL. The single definition: `prev-next` and both adapters read this. */
+export const DEFAULT_PER_PAGE = 10;
+/** Debounce delay for `setFilters(..., debounced=true)` when no `debounceMs` option is given. Shared with the reference-many and choices controllers. */
 export const DEFAULT_DEBOUNCE_MS = 500;
 export const DEFAULT_SELECT_ALL_LIMIT = 250;
 const DEFAULT_SORT: SortPayload[] = [{ field: "id", order: "ASC" }];
