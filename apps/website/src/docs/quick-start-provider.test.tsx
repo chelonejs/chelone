@@ -1,7 +1,7 @@
 import * as core from "@chelone/core";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
-import setup from "./content/getting-started/quick-start-guide/setup.mdx?raw";
+import setup from "./content/react/quick-start-guide/setup.mdx?raw";
 
 // Execute the provider readers copy, using the real public core exports.
 function tutorialProvider(): core.DataProvider {

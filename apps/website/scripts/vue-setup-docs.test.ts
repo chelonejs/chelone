@@ -14,9 +14,10 @@ const installPage = read(
 );
 const installVueSection = installPage.split("## Install for Vue")[1];
 
-it("the Vue section sits after Getting Started and lists setup, admin-slots, forms and differences", () => {
-  expect(rootMeta.slice(0, 2)).toEqual([
+it("the Vue section sits after Getting Started and React and lists setup, admin-slots, forms and differences", () => {
+  expect(rootMeta.slice(0, 3)).toEqual([
     { dir: "getting-started", title: "Getting Started" },
+    { dir: "react", title: "React" },
     { dir: "vue", title: "Vue" },
   ]);
   expect(vueMeta).toEqual([
@@ -74,6 +75,6 @@ it("unresolvedDocLinks reports a missing page and accepts a page, a section and 
 
 it("unresolvedDocLinks rejects a folder that holds no page", () => {
   expect(
-    unresolvedDocLinks("[g](/docs/getting-started/quick-start-guide/demos)"),
-  ).toEqual(["/docs/getting-started/quick-start-guide/demos"]);
+    unresolvedDocLinks("[g](/docs/react/quick-start-guide/demos)"),
+  ).toEqual(["/docs/react/quick-start-guide/demos"]);
 });

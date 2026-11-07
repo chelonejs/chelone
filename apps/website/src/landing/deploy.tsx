@@ -53,7 +53,7 @@ export function Deploy() {
             First, configure the <code>@chelone</code> registry in{" "}
             <code>components.json</code> using the{" "}
             <Link
-              to={`${links.install}#add-the-ui-components`}
+              to={`${links.reactSetup}#add-the-ui-components`}
               className="underline underline-offset-4 hover:text-foreground"
             >
               installation guide
