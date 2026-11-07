@@ -40,7 +40,7 @@ export const SidebarHeader = structural(
 export const SidebarContent = structural(
   "sidebar-content",
   "div",
-  "flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-2",
+  "flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-2 group-data-[collapsible=icon]:overflow-hidden group-data-[collapsible=icon]:p-0",
 );
 export const SidebarFooter = structural(
   "sidebar-footer",
@@ -60,7 +60,7 @@ export const SidebarGroupContent = structural(
 export const SidebarGroupLabel = structural(
   "sidebar-group-label",
   "div",
-  "flex h-8 shrink-0 items-center px-2 text-xs font-medium text-sidebar-foreground/70",
+  "flex h-8 shrink-0 items-center px-2 text-xs font-medium text-sidebar-foreground/70 group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0",
 );
 export const SidebarMenu = structural(
   "sidebar-menu",

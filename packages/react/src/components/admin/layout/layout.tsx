@@ -77,10 +77,9 @@ function Layout(props: LayoutProps) {
       </SidebarComponent>
       <main
         className={cn(
-          "ml-auto w-full max-w-full",
-          "peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]",
-          "peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]",
-          "sm:transition-[width] sm:duration-200 sm:ease-linear",
+          // The sidebar's in-flow gap reserves its width, so the column takes
+          // what is left; no width here has to track `AppSidebar`'s sizes.
+          "min-w-0 flex-1",
           "flex h-svh flex-col",
         )}
       >

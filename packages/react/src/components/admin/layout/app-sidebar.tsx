@@ -38,7 +38,7 @@ export interface AppSidebarProps {
   size?: number;
   /**
    * Width of the sidebar in its collapsed/icon-only state, in pixels.
-   * Defaults to 55.
+   * Defaults to 48: the 32px icon button plus the 8px padding on each side.
    */
   closedSize?: number;
   /**
@@ -76,7 +76,7 @@ export interface AppSidebarProps {
 function AppSidebar({
   children,
   size = 240,
-  closedSize = 55,
+  closedSize = 48,
   appBarAlwaysOn: _appBarAlwaysOn,
   brand = "Chelone",
   brandIcon,
