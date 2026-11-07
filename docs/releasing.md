@@ -7,7 +7,7 @@ Merge every pull request with an empty merge commit body: `gh pr merge <n> --mer
 release-please reads any commit body line that looks like a conventional commit as one more
 commit, so GitHub's default body, the pull request title, lists the change twice.
 
-1. Release runs once a day, and each run updates one open release pull request. It bumps `@chelone/core`,
+1. Every push to `main` updates one open release pull request. It bumps `@chelone/core`,
    `@chelone/react`, `@chelone/vue`, `@chelone/supabase`, `@chelone/rest`, and `@chelone/utils` to
    one shared version and writes each package's `CHANGELOG.md` from the conventional commits since the last
    release. `feat`, `fix`, `perf`, `refactor`, and `revert` commits are listed; other types are
@@ -16,10 +16,8 @@ commit, so GitHub's default body, the pull request title, lists the change twice
    files on its branch if an entry needs rewording. The GitHub release notes come from the body,
    or from `release-notes.md` on the `release-please--branches--main--release-notes` branch once
    they outgrow it.
-3. Run the Release workflow by hand so the pull request holds everything on `main`, then merge it.
-   A hand run also starts the publish job, which skips every version npm already has.
-4. Merging changes `.release-please-manifest.json`, which starts Release. That run tags
-   `@chelone/<name>@<version>`, creates the GitHub releases, and publishes.
+3. Merge it.
+4. The next run tags `@chelone/<name>@<version>`, creates the GitHub releases, and publishes.
    The publish job lints, typechecks, tests, builds, checks tarballs, packs each package with pnpm
    (which applies `publishConfig` and replaces `workspace:*` with the version), and publishes the
    tarballs with npm.
