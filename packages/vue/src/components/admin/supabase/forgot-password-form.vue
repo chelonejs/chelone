@@ -17,7 +17,7 @@ export interface ForgotPasswordFormProps {
  * errors.
  */
 
-import { errorMessageOf, required } from "@chelone/core";
+import { DEFAULT_LOGIN_PATH, errorMessageOf, required } from "@chelone/core";
 import { RouterLink } from "vue-router";
 import { useCheloneNotifications } from "../../../context";
 import { useForm } from "../../../form/use-form";
@@ -82,7 +82,7 @@ function handleSubmit(event: Event): void {
       {{ translate("ra-supabase.auth.reset_password", { _: "Reset password" }) }}
     </Button>
     <RouterLink
-      to="/login"
+      :to="DEFAULT_LOGIN_PATH"
       class="text-center text-sm text-muted-foreground underline underline-offset-4 hover:text-primary"
     >
       {{ translate("ra-supabase.auth.back_to_login", { _: "Back to login" }) }}

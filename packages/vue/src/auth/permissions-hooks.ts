@@ -13,6 +13,7 @@
 
 import {
   checkError,
+  DEFAULT_LOGIN_PATH,
   permissionsQueryOptions,
   type RegisteredPermissions,
 } from "@chelone/core";
@@ -96,9 +97,6 @@ export function usePermissions(
 /* -------------------------------------------------------------------------- */
 /* useLogoutIfAccessDenied + data-error wiring                               */
 /* -------------------------------------------------------------------------- */
-
-/** The default path a logged-out session is redirected to. */
-const DEFAULT_LOGIN_PATH = "/login";
 
 /**
  * Module-level debounce (mirrors ra-core + the React twin): side-effects fire at
