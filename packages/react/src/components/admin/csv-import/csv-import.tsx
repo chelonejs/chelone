@@ -6,7 +6,9 @@ import {
   createCsvImportController,
   csvErrorRows,
   downloadCSV,
+  PREVIEW_ROWS,
   parseCsvWith,
+  REPLACEMENT_CHAR,
   recordsToCSV,
 } from "@chelone/core";
 import { Upload } from "lucide-react";
@@ -45,11 +47,6 @@ import { useDataProvider } from "../../../compat-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useResourceContext } from "../../../resource";
 import { CsvImportContext, useCsvImport } from "./use-csv-import";
-
-const PREVIEW_ROWS = 50;
-
-// readAsText decodes UTF-8 and writes U+FFFD for each byte it cannot read.
-const REPLACEMENT_CHAR = "\uFFFD";
 
 /** What the upload step tells the user beside the file's own parse result. */
 type UploadNotice = "wrong_file" | "not_utf8" | null;

@@ -1,3 +1,4 @@
+import { GAP_PREFIX, HANDLE_ID } from "@chelone/core";
 import { Accessibility, PointerSensor } from "@dnd-kit/dom";
 import {
   type DragDropProvider,
@@ -26,9 +27,6 @@ export const BLOCK_DRAG_PLUGINS: ComponentProps<
   typeof DragDropProvider
 >["plugins"] = (defaults) =>
   defaults.filter((plugin) => plugin !== Accessibility);
-
-const HANDLE_ID = "block-drag-handle";
-const GAP_PREFIX = "block-gap-";
 
 interface BlockBox {
   top: number;

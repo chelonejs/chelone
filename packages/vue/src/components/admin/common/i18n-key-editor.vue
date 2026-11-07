@@ -39,6 +39,7 @@ export interface I18nKeyEditorProps {
  * </template>
  */
 
+import { COPIED_MS, OWN_KEY_PREFIX } from "@chelone/core";
 import type { MissingKeyEntry } from "@chelone/core";
 import { computed, onScopeDispose, ref, shallowRef, watch, watchEffect } from "vue";
 import { useCheloneNotifications } from "../../../context";
@@ -54,9 +55,6 @@ import {
   ChevronUpIcon,
   CopyIcon,
 } from "../buttons/icons";
-
-const COPIED_MS = 1500;
-const OWN_KEY_PREFIX = "chelone.i18n_key_editor.";
 
 const props = withDefaults(defineProps<I18nKeyEditorProps>(), {
   defaultOpen: true,

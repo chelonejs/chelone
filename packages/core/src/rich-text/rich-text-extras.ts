@@ -7,6 +7,9 @@ import {
 // biome-ignore lint/suspicious/noControlCharactersInRegex: stripping control characters is the point
 const CONTROL = /[\u0000-\u001f\u007f]/g;
 
+/** The image size every Chelone editor offers: 5 MB. */
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
 export interface RichTextImageRules {
   /** Exact types, or `type/*` for any subtype. SVG never passes. */
   allowedMimeTypes: readonly string[];
@@ -19,7 +22,7 @@ export interface RichTextImageRules {
 export const defaultRichTextImageRules: Readonly<RichTextImageRules> =
   Object.freeze({
     allowedMimeTypes: Object.freeze(["image/*"]),
-    maxFileSize: 5 * 1024 * 1024,
+    maxFileSize: MAX_IMAGE_BYTES,
     allowBase64: true,
   });
 
