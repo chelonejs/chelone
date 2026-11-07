@@ -1,5 +1,5 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** A webhook delivery outcome. */
 export type DeliveryStatus = "ok" | "failed" | "pending";
@@ -17,7 +17,7 @@ export interface WebhookEndpoint {
 
 /** Props for {@link WebhookEndpointField}. */
 export interface WebhookEndpointFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   source: SourceProp<RecordType>;
   record?: RecordType;
@@ -26,7 +26,7 @@ export interface WebhookEndpointFieldProps<
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<WebhookEndpointField>` — displays a webhook endpoint's URL and last-delivery
  * status badge, the Vue analog of `@chelone/react`'s

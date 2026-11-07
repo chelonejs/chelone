@@ -1,12 +1,12 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp, SourceValue } from "@chelone/core";
 import type { SubscriptionPlan } from "../inputs/subscription-plan-picker.vue";
 
 export type { SubscriptionPlan };
 
 /** Props for {@link SubscriptionPlanField}. */
 export interface SubscriptionPlanFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   source: SourceProp<RecordType>;
   record?: RecordType;
@@ -18,7 +18,7 @@ export interface SubscriptionPlanFieldProps<
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<SubscriptionPlanField>` — displays the current subscription plan as a
  * compact badge (name + price/interval), the Vue analog of `@chelone/react`'s

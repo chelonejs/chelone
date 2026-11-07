@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -24,7 +24,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  *   </List>
  * );
  */
-function TextField<RecordType extends LooseRecord = LooseRecord>({
+function TextField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
@@ -53,7 +53,7 @@ function TextField<RecordType extends LooseRecord = LooseRecord>({
   );
 }
 
-interface TextFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface TextFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {}
 
 export { TextField, type TextFieldProps };
