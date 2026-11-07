@@ -66,6 +66,7 @@ describe("<MenuItemLink>", () => {
     expect(button.getAttribute("data-size")).toBe("default");
     expect(button.classList.contains("h-8")).toBe(false);
     expect(button.classList.contains("min-h-8")).toBe(true);
+    expect(button.classList.contains("py-1.5")).toBe(true);
   });
 
   it("keeps the keyboard shortcut in a trailing span when the label wraps", () => {

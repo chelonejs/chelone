@@ -477,10 +477,12 @@ const sidebarMenuButtonVariants = cva(
           "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
       // A floor, not a fixed height: a label that wraps onto a second line must
-      // grow the box so its hover/active background covers the whole label.
+      // grow the box so its hover/active background covers the whole label. The
+      // tighter `py-1.5` keeps a one-line row at the floor (a 1.25rem `text-sm`
+      // line in a 2rem box needs 6px, not 8px).
       size: {
-        default: "min-h-8 text-sm",
-        sm: "min-h-7 text-xs",
+        default: "min-h-8 py-1.5 text-sm",
+        sm: "min-h-7 py-1.5 text-xs",
         lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
       },
     },
