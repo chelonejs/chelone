@@ -21,6 +21,7 @@ import {
 } from "@chelone/demo-data";
 import {
   AppBar,
+  AppSidebar,
   Assistant,
   CommandMenu,
   DashboardMenuItem,
@@ -47,7 +48,6 @@ import { Inspector, InspectorButton } from "@chelone/vue/inspector";
 import { computed } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import AccessGuard from "./AccessGuard.vue";
-import DemoSidebar from "./DemoSidebar.vue";
 import Dashboard from "./pages/Dashboard.vue";
 import { pageGroups } from "./pages";
 import SimulateOtherUser from "./realtime-sim.vue";
@@ -105,6 +105,12 @@ function openDocs() {
   window.open("/docs/", "_blank", "noopener");
 }
 
+// The mark sits in this app's own public/ folder, so its URL carries Vite's base
+// (`/vue-demo/`) rather than pointing at the website's copy. The brand links home
+// with `brand-href`, a plain anchor: `brand-to` is a router link and would prefix
+// the basename.
+const logoSrc = `${import.meta.env.BASE_URL}chelone-mark.svg`;
+
 const translate = useTranslate();
 const getResourceLabel = useGetResourceLabel();
 /** A demo string in the current locale, with the English text as its default. */
@@ -122,7 +128,10 @@ const t = (key: string, english: string) => translate(key, { _: english });
       <Inspector>
         <Layout>
           <template #sidebar>
-            <DemoSidebar>
+            <AppSidebar brand-href="/">
+              <template #brand-icon>
+                <img :src="logoSrc" alt="" width="20" height="20" />
+              </template>
               <div class="px-2 pt-2">
                 <MenuLive
                   :items="[
@@ -172,7 +181,7 @@ const t = (key: string, english: string) => translate(key, { _: english });
                   </template>
                 </MenuItemLink>
               </ResourceMenuItemGroup>
-            </DemoSidebar>
+            </AppSidebar>
           </template>
           <template #app-bar>
             <!-- Sticky, so that hiding the bar on scroll has something to hide. index.css lets the page scroll under it. -->

@@ -4472,7 +4472,7 @@
         }
       ],
       "registryDependencies": ["@chelone/menu", "@chelone/sidebar"],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
