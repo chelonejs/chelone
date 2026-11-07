@@ -25,6 +25,8 @@ import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 import InputsOverviewDemo from "../content/editing/demos/inputs-overview";
+import FileInputDemo from "../content/editing/file-input/demos/basic";
+import ImageInputDemo from "../content/editing/image-input/demos/basic";
 import BooleanFieldDemo from "../content/getting-started/quick-start-guide/demos/boolean-field";
 import PostListDemo from "../content/getting-started/quick-start-guide/demos/post-list";
 import ReferenceFieldDemo from "../content/getting-started/quick-start-guide/demos/reference-field";
@@ -223,4 +225,29 @@ describe("PreviewProvider — live admin previews render against the fixture pro
     );
     expect(await screen.findByLabelText(/title/i)).toBeTruthy();
   });
+
+  // The docs `showcase.json` shots find these drop zones by their prompt, so the
+  // preview catalog has to translate it rather than echo the `ra.input.*` key.
+  it.each([
+    [
+      "<ImageInput>",
+      ImageInputDemo,
+      "Drop a picture to upload, or click to select it.",
+    ],
+    [
+      "<FileInput multiple>",
+      FileInputDemo,
+      "Drop some files to upload, or click to select one.",
+    ],
+  ])(
+    "shows the %s drop zone prompt in English",
+    async (_name, Demo, prompt) => {
+      renderInHostRouter(
+        <PreviewProvider mode="input">
+          <Demo />
+        </PreviewProvider>,
+      );
+      expect(await screen.findByText(prompt)).toBeTruthy();
+    },
+  );
 });
