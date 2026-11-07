@@ -41,6 +41,18 @@ const props = withDefaults(defineProps<{ mode?: PreviewMode }>(), {
 
 // Per mount: the data provider mutates its seed, so a demo must not share it.
 const seed = seedData();
+// The shared seed gives posts no schedule, which `<CalendarList>` plots; spread
+// them over this month, as the React preview's fixtures do.
+const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+seed.posts = seed.posts.map((post, i) => ({
+  ...post,
+  publish_at: new Date(
+    monthStart.getFullYear(),
+    monthStart.getMonth(),
+    1 + ((i * 5) % 28),
+    9 + (i % 8),
+  ).toISOString(),
+}));
 const dataProvider = fakeDataProvider(seed);
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -90,7 +90,7 @@ function onSelect(plan: SubscriptionPlan) {
     data-slot="subscription-plan-picker"
     class="flex flex-col gap-3"
   >
-    <legend v-if="labelText != null" class="text-sm font-medium leading-none">
+    <legend v-if="labelText != null" class="mb-3 text-sm font-medium leading-none">
       {{ labelText }}<span v-if="isRequired"> *</span>
     </legend>
     <div

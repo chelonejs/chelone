@@ -118,7 +118,7 @@ function onTelInput(raw: string) {
         aria-label="Country"
         :value="country"
         :disabled="disabled"
-        class="rounded-md border border-input bg-background px-2 py-1 text-sm"
+        class="h-9 rounded-md border border-input bg-background px-2 py-1 text-sm"
         @change="onCountryChange"
       >
         <option v-for="c in countries" :key="c" :value="c">

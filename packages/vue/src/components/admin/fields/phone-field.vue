@@ -29,12 +29,14 @@ import { parsePhoneNumber } from "libphonenumber-js";
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
+import { cn } from "../../../lib/utils";
 
 // `withDefaults` for `link`: an absent Vue Boolean prop is cast to `false`, so
 // the `true` default must live on the prop (a bare `?? true` never fires).
 const props = withDefaults(defineProps<PhoneFieldProps<RecordType>>(), { link: true });
 
 const displayFormat = computed(() => props.displayFormat ?? "national");
+const linkClass = computed(() => cn("underline hover:no-underline", props.class));
 
 const value = useFieldValue<RecordType>({
   source: props.source,
@@ -80,7 +82,7 @@ const parsed = computed(() => {
       v-if="link"
       data-slot="phone-field"
       :href="parsed.href"
-      :class="props.class"
+      :class="linkClass"
       >{{ parsed.formatted }}</a
     >
     <span v-else data-slot="phone-field" :class="props.class">{{
