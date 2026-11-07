@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import {
   richTextStyledSanitizeOptions,
   sanitizeRichTextImageElement,
@@ -42,7 +42,7 @@ function sanitizer(): ReturnType<typeof DOMPurify> {
   return created;
 }
 
-interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface RichTextFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends FieldProps<RecordType>,
     Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   /** Shows the text of the HTML, with no elements. */
@@ -65,7 +65,7 @@ interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord>
  *
  * <RichTextField source="body" empty="No content" />
  */
-function RichTextField<RecordType extends LooseRecord = LooseRecord>({
+function RichTextField<RecordType extends ResourceRecord = LooseRecord>({
   source,
   record,
   empty,

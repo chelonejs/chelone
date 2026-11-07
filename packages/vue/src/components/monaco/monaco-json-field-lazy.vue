@@ -1,7 +1,7 @@
 <script
   setup
   lang="ts"
-  generic="RecordType extends LooseRecord = LooseRecord"
+  generic="RecordType extends ResourceRecord = LooseRecord"
 >
 /**
  * The lazy half of `<MonacoJsonField>` and the only file that imports
@@ -9,7 +9,7 @@
  */
 
 import { loader, VueMonacoEditor } from "@guolao/vue-monaco-editor";
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { editor } from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { computed, shallowRef, type VNode } from "vue";

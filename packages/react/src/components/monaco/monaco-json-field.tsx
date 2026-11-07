@@ -1,11 +1,16 @@
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+import type {
+  LooseRecord,
+  ResourceRecord,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 import type { editor } from "monaco-editor";
 import { lazy, Suspense } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { useFieldValue } from "../../record/use-field-value";
 import { MonacoSkeleton } from "./internal/monaco-shared";
 
-interface MonacoJsonFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface MonacoJsonFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends FieldProps<RecordType> {
   /** Shown when the record has no value at `source`. */
   defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
@@ -34,7 +39,7 @@ const SKELETON_HEIGHT = 120;
  *
  * <MonacoJsonField source="metadata" />
  */
-function MonacoJsonField<RecordType extends LooseRecord = LooseRecord>(
+function MonacoJsonField<RecordType extends ResourceRecord = LooseRecord>(
   props: MonacoJsonFieldProps<RecordType>,
 ) {
   const {

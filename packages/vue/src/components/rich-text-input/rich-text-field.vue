@@ -1,5 +1,10 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type {
+  LooseRecord,
+  ResourceRecord,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 import {
   sanitizeRichTextImageElement,
   sanitizeRichTextStyle,
@@ -23,7 +28,9 @@ function sanitizer() {
 }
 
 /** Props for {@link RichTextField}. */
-export interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface RichTextFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+> {
   source: SourceProp<RecordType>;
   record?: RecordType;
   /** Used when the record has no value at `source`. */
@@ -36,7 +43,7 @@ export interface RichTextFieldProps<RecordType extends LooseRecord = LooseRecord
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<RichTextField>` — shows a stored HTML value, sanitized with DOMPurify and
  * the core `richTextStyledSanitizeOptions`: scripts, event handlers, frames and
