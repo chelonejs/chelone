@@ -284,27 +284,24 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
       aria-label={label}
       aria-busy={busy}
       data-slot="calendar-month-view"
-      className="w-full table-fixed border-collapse overflow-hidden rounded-md border"
+      className="w-full table-fixed border-separate border-spacing-0 overflow-hidden rounded-md border"
     >
       <thead>
-        <tr className="border-b bg-muted/50">
+        <tr className="bg-muted/50">
           {(weeks[0] ?? []).map((day) => (
             <th
               key={calendarDayKey(day)}
               scope="col"
-              className="px-2 py-1 text-center text-xs font-medium text-muted-foreground"
+              className="border-b px-2 py-1 text-center text-xs font-medium text-muted-foreground"
             >
               {labels.weekday(day)}
             </th>
           ))}
         </tr>
       </thead>
-      <tbody>
+      <tbody className="[&_tr:last-child_td]:border-b-0">
         {weeks.map((week) => (
-          <tr
-            key={calendarDayKey(week[0])}
-            className="border-b last:border-b-0"
-          >
+          <tr key={calendarDayKey(week[0])}>
             {week.map((day) => {
               const key = calendarDayKey(day);
               const outside = day.getMonth() !== anchor.getMonth();
@@ -320,7 +317,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
                   onKeyDown={(event) => onCellKeyDown(event, day)}
                   {...cellDragProps(day)}
                   className={cn(
-                    "h-24 border-r p-1 align-top last:border-r-0",
+                    "h-24 border-b border-r p-1 align-top last:border-r-0",
                     outside && "bg-muted/30 text-muted-foreground",
                     onSelectSlot && "cursor-pointer",
                   )}
