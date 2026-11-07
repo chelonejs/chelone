@@ -1,5 +1,42 @@
 # @chelone/core
 
+## [0.8.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.7.0...@chelone/core@0.8.0) (2026-11-07)
+
+
+### Features
+
+* **core:** add isHeadersInit, the guard for a HeadersInit value ([008bb5e](https://github.com/chelonejs/chelone/commit/008bb5ece10d527e8623cb4aaa8114fd669d58dd))
+* **core:** erase the choice lists once, in choiceListsOf ([04b9f33](https://github.com/chelonejs/chelone/commit/04b9f33b4cb52b9016dfac6a57f85bb5af0f52b8))
+* **demo:** the product form uses the value inputs ([7eef8d8](https://github.com/chelonejs/chelone/commit/7eef8d8d05a580f06102819d9bd84249913285eb))
+
+
+### Bug Fixes
+
+* a bulk update keeps its own label and the fake provider returns copies ([914f023](https://github.com/chelonejs/chelone/commit/914f0234bdf0e72920537575adc510043317d886))
+* **calendar:** a selected day has the same range in both adapters ([6207063](https://github.com/chelonejs/chelone/commit/6207063f8cf3c39d903950dea0c43de1551ff287))
+* **core:** an image preview shows a stored raster data URL ([77967d1](https://github.com/chelonejs/chelone/commit/77967d19405ae7dc37d1654517c7ed29e4bc4b4d))
+* **core:** read the kanban group key at the top level, as a drop writes it ([81a3cdc](https://github.com/chelonejs/chelone/commit/81a3cdcd5e6ab3922566751ca9ed64778ebe4d73))
+
+
+### Refactors
+
+* **core,react,vue:** KanbanBoard and BlockDocField take an interface as their record ([d79b5e2](https://github.com/chelonejs/chelone/commit/d79b5e2035eca8468ef3878fdfb27fa4f17d237b))
+* **core,react,vue:** map fit defaults have one definition ([5d33ce7](https://github.com/chelonejs/chelone/commit/5d33ce73c3eb5387d05e6a02e42cd17253946208))
+* **core,react,vue:** map view defaults and coordinate limits have one definition ([5072a47](https://github.com/chelonejs/chelone/commit/5072a4780a2199475a28d56c2e199051be65f790))
+* **core,react,vue:** the shared record types are bounded by ResourceRecord ([0fef358](https://github.com/chelonejs/chelone/commit/0fef358c3e67b58e353b5162b41b03e7ce575a9d))
+* **core:** describeResource reads Zod defs through guards, not casts ([0539ffe](https://github.com/chelonejs/chelone/commit/0539ffe35d8152a70341d927c2a97a18d9800317))
+* **core:** give the list and reference defaults one definition ([5ee3ace](https://github.com/chelonejs/chelone/commit/5ee3ace38b561a70880efaaeacadc7436f313ab9))
+* **core:** inspector, tour and layout constants have one definition ([d28b099](https://github.com/chelonejs/chelone/commit/d28b0994e0ecf510a70626e9e0045c88e929f506))
+* **core:** name the block editor, CSV import and key editor constants once ([245e26e](https://github.com/chelonejs/chelone/commit/245e26eb227c5bfe50dd1214809697c21b6705a1))
+* **core:** shared UI defaults have one definition ([5d9a470](https://github.com/chelonejs/chelone/commit/5d9a47050bd5e6e3763194834e0adb46fc82a7c3))
+* **core:** the login path has one definition ([d1d4d44](https://github.com/chelonejs/chelone/commit/d1d4d44081935a96ef588b00c6d13c021171f230))
+* **core:** the Monaco constants have one definition ([cab3668](https://github.com/chelonejs/chelone/commit/cab36681dd1b5e43b118027ef76e5cb89a5b8508))
+* **core:** theme and command menu defaults have one definition ([b798c29](https://github.com/chelonejs/chelone/commit/b798c2905aa9474dff484bc8e95b291ad8e87eea))
+* **i18n:** put every literal translation key in the catalog ([4406dea](https://github.com/chelonejs/chelone/commit/4406dead064eed911168cebda308bf6368472579))
+* **react,vue:** currency, date, duration, email and file fields and DiffViewer take an interface as their record ([cbe1141](https://github.com/chelonejs/chelone/commit/cbe11416751053f506212eb4e6ee8e8897823a09))
+* **react,vue:** PivotGrid, RecordTimeline and ApprovalQueue take an interface as their record ([b0273b3](https://github.com/chelonejs/chelone/commit/b0273b3362d2b4b6f8621757055065da24cd6086))
+* **react,vue:** reference inputs, InPlaceEditor and JobMonitor take an interface as their record ([864ea4b](https://github.com/chelonejs/chelone/commit/864ea4b9ad6eb664b02680ec2d7ee6a14703d359))
+
 ## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.6.0...@chelone/core@0.7.0) (2026-11-06)
 
 

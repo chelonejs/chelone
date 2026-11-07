@@ -1,5 +1,19 @@
 # @chelone/supabase
 
+## [0.8.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.7.0...@chelone/supabase@0.8.0) (2026-11-07)
+
+
+### Refactors
+
+* **supabase,rest:** narrow a data provider's meta once, in a guard ([e0631b4](https://github.com/chelonejs/chelone/commit/e0631b4dba40f5aff746ba8daa9302541423a8b7))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.8.0
+
 ## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.6.0...@chelone/supabase@0.7.0) (2026-11-06)
 
 

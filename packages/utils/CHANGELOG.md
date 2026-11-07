@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.8.0](https://github.com/chelonejs/chelone/compare/@chelone/utils@0.7.0...@chelone/utils@0.8.0) (2026-11-07)
+
+
+### Chores
+
+* **@chelone/utils:** Synchronize chelone versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.8.0
+
 ## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/utils@0.6.0...@chelone/utils@0.7.0) (2026-11-06)
 
 

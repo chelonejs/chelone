@@ -1,5 +1,96 @@
 # @chelone/react
 
+## [0.8.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.7.0...@chelone/react@0.8.0) (2026-11-07)
+
+
+### Features
+
+* **demo:** a status page shows every loading, empty and error state ([cc3eb7f](https://github.com/chelonejs/chelone/commit/cc3eb7f942c76868ed2eada910adc689dc453c54))
+* **demo:** both demos show every value input and the showcase entries are filled ([f23fc3b](https://github.com/chelonejs/chelone/commit/f23fc3b430252a1065c9b6b3aac203e5fb74962f))
+* **demo:** posts go through review, approval and comments ([dae3e0e](https://github.com/chelonejs/chelone/commit/dae3e0e60d44941d0bbbb326119a02773c76fb14))
+* **demo:** product variants use the array inputs ([1bd5a0c](https://github.com/chelonejs/chelone/commit/1bd5a0c026a44663284fd63e02269e6469f4348a))
+* **demo:** the customer pages show plans, usage and contact details ([7cd38b0](https://github.com/chelonejs/chelone/commit/7cd38b0391dd2d28c27c96afcbe1d017fcd1ced4))
+* **demo:** the product form uses the value inputs ([7eef8d8](https://github.com/chelonejs/chelone/commit/7eef8d8d05a580f06102819d9bd84249913285eb))
+* **demo:** the realtime components are in the showcase ([c832774](https://github.com/chelonejs/chelone/commit/c832774488c6df2c36e0869b691d04c946395f63))
+* **demo:** the Vue customer list uses the bulk actions and CSV import ([0555bd3](https://github.com/chelonejs/chelone/commit/0555bd30463a576e5f3ca0bc6e81add5a0a8cf40))
+* **demo:** the Vue demo has products ([68e4753](https://github.com/chelonejs/chelone/commit/68e47532d8da11d4f2eb021c1b8360a6b6598a08))
+* **demo:** use every filter and sort control in the product list ([b6d5195](https://github.com/chelonejs/chelone/commit/b6d51951c2d83d5867fc2dc82b6392aec63eff40))
+* **vue-demo:** customers and orders views matching the React demo ([4dba35d](https://github.com/chelonejs/chelone/commit/4dba35d16638f60022fb78992f91ae91a70bc928))
+
+
+### Bug Fixes
+
+* a bulk update keeps its own label and the fake provider returns copies ([914f023](https://github.com/chelonejs/chelone/commit/914f0234bdf0e72920537575adc510043317d886))
+* **calendar:** a selected day has the same range in both adapters ([6207063](https://github.com/chelonejs/chelone/commit/6207063f8cf3c39d903950dea0c43de1551ff287))
+* centre the password toggle and open up the auth subtitle ([994426b](https://github.com/chelonejs/chelone/commit/994426b9560ced061de216bff57da005e7fa22ff))
+* centre the password toggle, settle Monaco's auto-height, mark the React cron field ([f3502be](https://github.com/chelonejs/chelone/commit/f3502be5d6642da5664336110251d9dab14dd217))
+* **core:** an image preview shows a stored raster data URL ([77967d1](https://github.com/chelonejs/chelone/commit/77967d19405ae7dc37d1654517c7ed29e4bc4b4d))
+* **demo:** pages sit inside their menu group and the page scrolls under the app bar ([e3593f0](https://github.com/chelonejs/chelone/commit/e3593f0d514cc5dc6f0c95e56d0a1ce18319a4cd))
+* **devtools:** scroll the entry list inside the panel ([2e2200f](https://github.com/chelonejs/chelone/commit/2e2200f74a02dab9b765a3484463716217e085ed))
+* **docs:** align React's Add filter menu and make live search narrow ([3540655](https://github.com/chelonejs/chelone/commit/3540655f837b796705e47cf161868f132ca9c79f))
+* duration input values are not muted, and Vue date and time pickers match React ([9dbad84](https://github.com/chelonejs/chelone/commit/9dbad8453ea8e33b56cf4831d1f57048c521e98e))
+* **i18n:** write fallback copy with core's placeholder ([a01e90a](https://github.com/chelonejs/chelone/commit/a01e90a374adb1457eec26b008029560dcb6a535))
+* **list:** keep the data-table sort button inside its header cell ([63ba6bb](https://github.com/chelonejs/chelone/commit/63ba6bbaec30fbbe3cfe3bfdd4c4a0cf157b8b9e))
+* **mdx-editor:** style dark theme and content to match the admin in both adapters ([854239b](https://github.com/chelonejs/chelone/commit/854239bb6044c785a99316573e100ecf88f80243))
+* **react,vue:** centre the loading spinner, fit the error accordion, flex the update prompt ([8c47844](https://github.com/chelonejs/chelone/commit/8c4784408e96b9e794ff2f3e5c30784bf4f72398))
+* **react,vue:** delete confirm, theme key and command menu defaults match across adapters ([a294fb1](https://github.com/chelonejs/chelone/commit/a294fb128d25567c7d07cbcff9b9fc823e72e2cd))
+* **react,vue:** the clear button lines up with its input ([7c272b8](https://github.com/chelonejs/chelone/commit/7c272b89f4e182912bf68a7dd05218aa70c0ed18))
+* **react:** CanAccess is generic over its record so inline records still fit ([b125221](https://github.com/chelonejs/chelone/commit/b125221b0853fe859d3fc8361dd811c5fe5aa297))
+* **react:** dark MDX palette reaches the editor popups again ([b39458d](https://github.com/chelonejs/chelone/commit/b39458dc85178f2962efcc160da788709b471f32))
+* **react:** inline SimpleFormIterator children share the row ([87cdd0d](https://github.com/chelonejs/chelone/commit/87cdd0d5e32d617a7616fc13ee13134370fd1d9e))
+* **react:** keep the clear button for a multiline resettable input ([e2413db](https://github.com/chelonejs/chelone/commit/e2413db8e82ce9e2f085a86e00ed282a07f0c037))
+* **react:** render no-layout custom routes outside the Layout when signed in ([35f9c65](https://github.com/chelonejs/chelone/commit/35f9c659587184b5639c7b8c0e4d87f3b16a33df))
+* readable webhook status in dark mode, pagination on the keys table ([7c10a31](https://github.com/chelonejs/chelone/commit/7c10a316f0b65f512481858ffb67761e8f6795e4))
+* **views:** space the fields of Show, Create and Edit in both adapters ([ee19519](https://github.com/chelonejs/chelone/commit/ee19519fd02ddc03220ddf64a7a6b13ab10238a9))
+
+
+### Refactors
+
+* **core,react,vue:** KanbanBoard and BlockDocField take an interface as their record ([d79b5e2](https://github.com/chelonejs/chelone/commit/d79b5e2035eca8468ef3878fdfb27fa4f17d237b))
+* **core,react,vue:** map fit defaults have one definition ([5d33ce7](https://github.com/chelonejs/chelone/commit/5d33ce73c3eb5387d05e6a02e42cd17253946208))
+* **core,react,vue:** map view defaults and coordinate limits have one definition ([5072a47](https://github.com/chelonejs/chelone/commit/5072a4780a2199475a28d56c2e199051be65f790))
+* **core,react,vue:** the shared record types are bounded by ResourceRecord ([0fef358](https://github.com/chelonejs/chelone/commit/0fef358c3e67b58e353b5162b41b03e7ce575a9d))
+* **core:** inspector, tour and layout constants have one definition ([d28b099](https://github.com/chelonejs/chelone/commit/d28b0994e0ecf510a70626e9e0045c88e929f506))
+* **core:** shared UI defaults have one definition ([5d9a470](https://github.com/chelonejs/chelone/commit/5d9a47050bd5e6e3763194834e0adb46fc82a7c3))
+* **core:** the login path has one definition ([d1d4d44](https://github.com/chelonejs/chelone/commit/d1d4d44081935a96ef588b00c6d13c021171f230))
+* **core:** the Monaco constants have one definition ([cab3668](https://github.com/chelonejs/chelone/commit/cab36681dd1b5e43b118027ef76e5cb89a5b8508))
+* **core:** theme and command menu defaults have one definition ([b798c29](https://github.com/chelonejs/chelone/commit/b798c2905aa9474dff484bc8e95b291ad8e87eea))
+* **react,vue:** array, badge, boolean, chip, color and cron fields take an interface as their record ([0c2d4b7](https://github.com/chelonejs/chelone/commit/0c2d4b7a4fe7937d784c7d224448382cce31f5b5))
+* **react,vue:** CalendarList is typed by its record ([b3df892](https://github.com/chelonejs/chelone/commit/b3df892e3a17a902c02a4e86fd9bda3ec0167ef5))
+* **react,vue:** currency, date, duration, email and file fields and DiffViewer take an interface as their record ([cbe1141](https://github.com/chelonejs/chelone/commit/cbe11416751053f506212eb4e6ee8e8897823a09))
+* **react,vue:** DataTable callbacks receive the table's record type ([b7ef13f](https://github.com/chelonejs/chelone/commit/b7ef13fde04bc4f876ec9f81d039d0952c174e19))
+* **react,vue:** edit, show, clone and delete buttons take any record ([0612392](https://github.com/chelonejs/chelone/commit/0612392f8f35fdbc6ffaf027c9be6a7b01423b0a))
+* **react,vue:** fields with a sibling source take an interface as their record ([f399b69](https://github.com/chelonejs/chelone/commit/f399b698beb0367f9b889de955b90a3b44ce82c6))
+* **react,vue:** function, image, json, number, phone and record fields take an interface as their record ([f707bf0](https://github.com/chelonejs/chelone/commit/f707bf0d36cef6a46a14d6c28be7f3859a3b600b))
+* **react,vue:** PivotGrid, RecordTimeline and ApprovalQueue take an interface as their record ([b0273b3](https://github.com/chelonejs/chelone/commit/b0273b3362d2b4b6f8621757055065da24cd6086))
+* **react,vue:** read the list and reference defaults from core ([7b519d5](https://github.com/chelonejs/chelone/commit/7b519d5b3b21048281ee6dd5ffedf5b58ddf3983))
+* **react,vue:** reference fields are generic over their record in both adapters ([259ee87](https://github.com/chelonejs/chelone/commit/259ee87e9322e27c1d234ca286fc969ec5e2803f))
+* **react,vue:** reference inputs, InPlaceEditor and JobMonitor take an interface as their record ([864ea4b](https://github.com/chelonejs/chelone/commit/864ea4b9ad6eb664b02680ec2d7ee6a14703d359))
+* **react,vue:** shape, simplify, geo-json and bbox fields use the core map defaults ([4229ac9](https://github.com/chelonejs/chelone/commit/4229ac9e14d4339acab4237791ff9edef75a0a43))
+* **react,vue:** six fields take an interface as their record ([a4f7f0f](https://github.com/chelonejs/chelone/commit/a4f7f0f91f7fdd20e68743e001d4133a15bde3d7))
+* **react,vue:** take the choice lists from core's choiceListsOf ([d9104c0](https://github.com/chelonejs/chelone/commit/d9104c064912b1f82537dc15bcf5b9cdf5cc75ef))
+* **react,vue:** take the shared editor constants from core ([e4ad2b5](https://github.com/chelonejs/chelone/commit/e4ad2b5073d877d38e3ed939c44e3d770a61a62f))
+* **react,vue:** the Monaco input builds its model path from MODEL_PREFIX ([7b7c8ba](https://github.com/chelonejs/chelone/commit/7b7c8bae55b23ffd09a3bb4e96ae32428570421e))
+* **react,vue:** the Monaco, rich text and MDX fields take an interface ([ded9439](https://github.com/chelonejs/chelone/commit/ded94398b5857fbc168294cdb421dbe6e12f9a39))
+* **react,vue:** the remaining record props take the caller's record ([09a4d47](https://github.com/chelonejs/chelone/commit/09a4d47b299a371cfa51dba835db347226bf23df))
+* **react,vue:** TreeList callbacks receive the list's record type ([d5ced91](https://github.com/chelonejs/chelone/commit/d5ced91b02771360df3a14958b2ee8bef6acaafd))
+* **react,vue:** update buttons and CanAccess take any record ([7b596a6](https://github.com/chelonejs/chelone/commit/7b596a6a7faa2f4cfcf91704be052335732041d0))
+* **react:** search-input and ResettableTextInput share the clear wiring ([ae8f53a](https://github.com/chelonejs/chelone/commit/ae8f53ae6507c3af3694a347378dc655c3202f7f))
+* useInput has one signature in both adapters ([df268de](https://github.com/chelonejs/chelone/commit/df268de2dce54b1e11177587ff7f68e1908b5cea))
+* useInput has one signature in both adapters ([b7953e7](https://github.com/chelonejs/chelone/commit/b7953e7369f84ef6f4256d0826ba0d7822d7f4f3))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.8.0
+    * @chelone/utils bumped to 0.8.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.8.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.8.0
+
 ## [0.7.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.6.0...@chelone/react@0.7.0) (2026-11-06)
 
 
