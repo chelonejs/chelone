@@ -19,6 +19,8 @@ import {
 } from "@chelone/demo-data";
 import {
   AppBar,
+  AppSidebar,
+  type AppSidebarProps,
   Assistant,
   CommandMenu,
   DataProviderDevtools,
@@ -43,19 +45,24 @@ import {
   useTranslate,
 } from "@chelone/react";
 import { Inspector, InspectorButton } from "@chelone/react/inspector";
+import {
+  Activity,
+  CalendarDays,
+  ClipboardCheck,
+  HeartPulse,
+  KeyRound,
+  Layers,
+  LayoutTemplate,
+  LogIn,
+  type LucideIcon,
+  Newspaper,
+  Plug,
+  SquareKanban,
+  UserCog,
+} from "lucide-react";
 import { type ReactNode, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { cssVars } from "@/lib/css-vars";
 import { pageGroups } from "./pages";
 import { dataProvider, dataProviderLog } from "./realtime";
 import { SimulateOtherUser } from "./realtime-sim";
@@ -81,6 +88,23 @@ const areas = [
   ]),
 ].sort((a, b) => a.localeCompare(b));
 
+// One glyph per page, by route. A page missing here shows none, which the
+// sidebar test catches. Dashboard and the resources have theirs elsewhere (the
+// menu's house, each `<Resource icon>`).
+const pageIcons: Record<string, LucideIcon> = {
+  activity: Activity,
+  approvals: ClipboardCheck,
+  integrations: Plug,
+  "landing-page": LayoutTemplate,
+  login: LogIn,
+  "order-board": SquareKanban,
+  "order-calendar": CalendarDays,
+  "product-variants": Layers,
+  status: HeartPulse,
+  "supabase-auth": KeyRound,
+  team: UserCog,
+};
+
 // Mod+1 to mod+9 open the first nine pages, in menu order.
 const shortcuts = new Map(
   areas
@@ -96,37 +120,18 @@ const logoSrc = `${import.meta.env.BASE_URL}chelone-mark.svg`;
 /**
  * The sidebar header brands the demo as part of the site: the Chelone mark and
  * name link back to the site home, not to this app's dashboard. The demos are
- * separate SPAs under `/demo/`, so the home link is a plain anchor — a router
- * `Link` would prefix it with the basename and stay inside the demo.
+ * separate SPAs under `/demo/`, so the home link is `brandHref`, a plain anchor:
+ * `brandTo` is a router link and would prefix the basename.
  */
-function DemoSidebar({ children }: { children?: ReactNode }) {
+function DemoSidebar({ children, ...props }: AppSidebarProps) {
   return (
-    <Sidebar
-      variant="floating"
-      collapsible="icon"
-      style={cssVars({
-        "--sidebar-width": "240px",
-        "--sidebar-width-icon": "48px",
-      })}
+    <AppSidebar
+      {...props}
+      brandIcon={<img src={logoSrc} alt="" width={20} height={20} />}
+      brandHref="/"
     >
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-            >
-              <a href="/">
-                <img src={logoSrc} alt="" width={20} height={20} />
-                <span className="text-base font-semibold">Chelone</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>{children}</SidebarContent>
-      <SidebarFooter />
-    </Sidebar>
+      {children}
+    </AppSidebar>
   );
 }
 
@@ -146,6 +151,7 @@ function DemoMenu() {
               to: "/posts",
               resource: "posts",
               label: getResourceLabel("posts"),
+              icon: <Newspaper size={16} className="shrink-0" />,
             },
           ]}
         />
@@ -164,15 +170,18 @@ function DemoMenu() {
             label={translate(demoMenuKey("group", area), { _: area })}
             resources={resourceAreas[area] ?? []}
           >
-            {pages.map(({ path, title }) => (
-              <Menu.Item
-                key={path}
-                to={`/${path}`}
-                label={translate(demoMenuKey("page", path), { _: title })}
-                icon={<PageIcon />}
-                keyboardShortcut={shortcuts.get(path)}
-              />
-            ))}
+            {pages.map(({ path, title }) => {
+              const PageIcon = pageIcons[path];
+              return (
+                <Menu.Item
+                  key={path}
+                  to={`/${path}`}
+                  label={translate(demoMenuKey("page", path), { _: title })}
+                  icon={PageIcon && <PageIcon />}
+                  keyboardShortcut={shortcuts.get(path)}
+                />
+              );
+            })}
           </ResourceMenuItemGroup>
         );
       })}
@@ -221,18 +230,6 @@ function Icon({ children }: { children: ReactNode }) {
     >
       {children}
     </svg>
-  );
-}
-
-function PageIcon() {
-  return (
-    <Icon>
-      <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
-      <path d="M14 2v5a1 1 0 0 0 1 1h5" />
-      <path d="M10 9H8" />
-      <path d="M16 13H8" />
-      <path d="M16 17H8" />
-    </Icon>
   );
 }
 

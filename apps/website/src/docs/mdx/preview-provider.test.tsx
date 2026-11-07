@@ -226,8 +226,8 @@ describe("PreviewProvider — live admin previews render against the fixture pro
     expect(await screen.findByLabelText(/title/i)).toBeTruthy();
   });
 
-  // The docs `showcase.json` shots find these drop zones by their prompt, so the
-  // preview catalog has to translate it rather than echo the `ra.input.*` key.
+  // The preview catalog has to translate a drop zone's prompt rather than echo the
+  // `ra.input.*` key.
   it.each([
     [
       "<ImageInput>",

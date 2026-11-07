@@ -33,8 +33,7 @@ export interface CommandMenuProps {
  * slot of `<Admin>`): the default slot renders inside the provider and outside
  * the dialog, so descendants can call `useCommandMenu` and `useRegisterCommand`.
  *
- * It is a `CommandDialog` on a wide screen and a bottom `Sheet` holding a
- * `Command` on a narrow one.
+ * It is a `CommandDialog` on every screen size.
  */
 
 import {
@@ -46,7 +45,6 @@ import {
 import {
   type Component,
   computed,
-  nextTick,
   onBeforeUnmount,
   onMounted,
   onScopeDispose,
@@ -54,13 +52,10 @@ import {
   ref,
   shallowRef,
   type VNode,
-  watch,
 } from "vue";
 import { useCheloneNotifications } from "../../../context";
 import { useTranslate } from "../../../i18n/use-translate";
-import { Command, CommandDialog } from "../../ui/command";
-import Sheet from "../../ui/sheet.vue";
-import { useIsMobile } from "../../ui/sidebar/use-is-mobile";
+import { CommandDialog } from "../../ui/command";
 import CommandMenuContent from "./command-menu-content.vue";
 import {
   type CommandMenuContextValue,
@@ -82,7 +77,6 @@ defineSlots<{ default?: () => VNode[] }>();
 
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
-const isMobile = useIsMobile();
 
 const isOpen = ref(false);
 const query = ref("");
@@ -132,14 +126,6 @@ function onKeydown(event: KeyboardEvent): void {
 onMounted(() => window.addEventListener("keydown", onKeydown));
 onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
 
-// CommandDialog focuses its own input on open; Sheet has no such step.
-const sheetCommand = ref<{ $el: HTMLElement } | null>(null);
-watch(isOpen, async (opened) => {
-  if (!opened || !isMobile.value) return;
-  await nextTick();
-  sheetCommand.value?.$el.querySelector("input")?.focus();
-});
-
 function onOpenChange(next: boolean): void {
   if (next) open();
   else close();
@@ -172,31 +158,7 @@ const description = computed(() =>
 
 <template>
   <slot />
-  <Sheet
-    v-if="isMobile"
-    side="bottom"
-    :open="isOpen"
-    :title="title"
-    :description="description"
-    @update:open="onOpenChange"
-  >
-    <Command ref="sheetCommand" class="-mx-4 h-auto">
-      <CommandMenuContent
-        v-model:query="query"
-        :resources="resources"
-        :search-fields="searchFields"
-        :per-resource-limit="perResourceLimit"
-        :recents-limit="recentsLimit"
-        :search-debounce-ms="searchDebounceMs"
-        :placeholder="placeholder"
-        :commands="commands"
-        @close="close"
-        @run="run"
-      />
-    </Command>
-  </Sheet>
   <CommandDialog
-    v-else
     :open="isOpen"
     :title="title"
     :description="description"

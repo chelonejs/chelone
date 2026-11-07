@@ -9,6 +9,7 @@
  * sidebar without re-implementing it).
  */
 
+import { isSafeLinkUrl } from "@chelone/core";
 import { Shell } from "lucide-react";
 import type { ReactNode } from "react";
 import {
@@ -54,6 +55,12 @@ export interface AppSidebarProps {
    * Defaults to the dashboard under the basename.
    */
   brandTo?: string;
+  /**
+   * Where the brand links to as a plain anchor, with no router and no basename
+   * prefix: for a link out of the app, such as the site home. Wins over
+   * `brandTo`. A `javascript:` or other unsafe scheme renders no `href`.
+   */
+  brandHref?: string;
 }
 
 /**
@@ -74,9 +81,16 @@ function AppSidebar({
   brand = "Chelone",
   brandIcon,
   brandTo,
+  brandHref,
 }: AppSidebarProps) {
   const { Link } = useRouterAdapter();
   const basename = useBasename();
+  const brandContent = (
+    <>
+      {brandIcon ?? <Shell className="size-5!" />}
+      <span className="text-base font-semibold">{brand}</span>
+    </>
+  );
   return (
     <Sidebar
       variant="floating"
@@ -93,10 +107,13 @@ function AppSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <Link to={brandTo ?? `${basename}/`}>
-                {brandIcon ?? <Shell className="size-5!" />}
-                <span className="text-base font-semibold">{brand}</span>
-              </Link>
+              {brandHref === undefined ? (
+                <Link to={brandTo ?? `${basename}/`}>{brandContent}</Link>
+              ) : (
+                <a href={isSafeLinkUrl(brandHref) ? brandHref : undefined}>
+                  {brandContent}
+                </a>
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -551,13 +551,14 @@ describe("CommandMenu", () => {
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("opens in a bottom Sheet when useIsMobile is true", async () => {
+  it("opens in the same dialog on a narrow screen", async () => {
     window.innerWidth = 500;
     mount();
     const dialog = await openMenu();
-    expect(dialog.getAttribute("data-slot")).toBe("sheet-content");
+    expect(dialog.getAttribute("data-slot")).toBe("dialog-content");
     expect(dialog.getAttribute("aria-labelledby")).toBeTruthy();
     expect(within(dialog).getByRole("option", { name: "Posts" })).toBeTruthy();
+    expect(document.querySelector('[data-slot="sheet-content"]')).toBeNull();
   });
 
   it("opens in a dialog on a wide screen", async () => {

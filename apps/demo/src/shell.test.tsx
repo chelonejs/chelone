@@ -10,9 +10,10 @@ import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import { Admin } from "@chelone/react";
 import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render, within } from "@testing-library/react";
+import { cleanup, render, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { afterEach, expect, test } from "vitest";
+import { App } from "./App";
 import { i18n } from "./i18n";
 import { dataProvider } from "./realtime";
 import { resources } from "./resources";
@@ -78,4 +79,32 @@ test("the custom sidebar keeps the demo's own menu", () => {
     .getAllByRole("link")
     .map((link) => link.getAttribute("href"));
   expect(links).toContain("/demo/posts");
+});
+
+// The resources' icons are the `<Resource icon>` props in `App.tsx`, so this
+// mounts the app itself rather than the shell over the bare registry.
+test("no two sidebar entries render the same icon", async () => {
+  window.history.pushState({}, "", "/demo/posts");
+  render(<App />);
+
+  // The app signs in and checks access before the menu lists its resources.
+  const content = await waitFor(() => {
+    const found = elementOf(
+      document.querySelector('[data-slot="sidebar-content"]'),
+      HTMLElement,
+    );
+    expect(within(found).getAllByRole("link").length).toBeGreaterThan(20);
+    return found;
+  });
+
+  const owners = new Map<string | undefined, string | null>();
+  for (const link of within(content).getAllByRole("link")) {
+    const href = link.getAttribute("href");
+    const icon = link.querySelector("svg")?.innerHTML;
+    expect(icon, `${href} has no icon`).toBeTruthy();
+    expect(owners.get(icon), `${href} repeats another entry's icon`).toBe(
+      undefined,
+    );
+    owners.set(icon, href);
+  }
 });

@@ -43,7 +43,6 @@ import {
   useSyncExternalStore,
 } from "react";
 import {
-  Command,
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -53,14 +52,6 @@ import {
   CommandShortcut,
 } from "@/components/ui/command";
 import { Kbd } from "@/components/ui/kbd";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useLogout } from "../../../auth-hooks";
 import { useRefresh } from "../../../compat-hooks";
 import { useCheloneContext } from "../../../context";
@@ -160,7 +151,6 @@ function CommandMenu({
   children,
 }: CommandMenuProps) {
   const translate = useTranslate();
-  const isMobile = useIsMobile();
   const { authProvider, notifications } = useCheloneContext();
   const definitions = useResourceDefinitions();
   const createPath = useCreatePath();
@@ -342,26 +332,14 @@ function CommandMenu({
     <CommandMenuContext.Provider value={contextValue}>
       {authProvider ? <LogoutCommand /> : null}
       {children}
-      {isMobile ? (
-        <Sheet open={isOpen} onOpenChange={setOpen}>
-          <SheetContent side="bottom" className="gap-0 p-0">
-            <SheetHeader className="sr-only">
-              <SheetTitle>{title}</SheetTitle>
-              <SheetDescription>{description}</SheetDescription>
-            </SheetHeader>
-            <Command>{body}</Command>
-          </SheetContent>
-        </Sheet>
-      ) : (
-        <CommandDialog
-          open={isOpen}
-          onOpenChange={setOpen}
-          title={title}
-          description={description}
-        >
-          {body}
-        </CommandDialog>
-      )}
+      <CommandDialog
+        open={isOpen}
+        onOpenChange={setOpen}
+        title={title}
+        description={description}
+      >
+        {body}
+      </CommandDialog>
     </CommandMenuContext.Provider>
   );
 }

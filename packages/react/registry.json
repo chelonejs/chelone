@@ -4738,7 +4738,7 @@
         "@chelone/menu",
         "@chelone/sidebar"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4790,10 +4790,8 @@
         "@chelone/command",
         "@chelone/command-menu-context",
         "@chelone/kbd",
-        "@chelone/sheet",
         "@chelone/use-menu-access",
-        "@chelone/use-theme",
-        "use-mobile"
+        "@chelone/use-theme"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "devDependencies": ["@tanstack/react-query"],
