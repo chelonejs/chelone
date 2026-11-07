@@ -557,4 +557,51 @@ describe("<ListPagination>", () => {
       ),
     );
   });
+
+  it("keeps a top margin on its root, and merges a custom class into it", async () => {
+    const capture: { list?: ListContextValue } = {};
+    const { wrapper } = mountAdmin(() =>
+      h(
+        List,
+        { resource: "posts", perPage: 10 },
+        {
+          default: () => [
+            h(listProbe(capture)),
+            h(ListPagination, { id: "plain" }),
+            h(ListPagination, { id: "custom", class: "mt-6 text-red-500" }),
+          ],
+        },
+      ),
+    );
+    await settled(capture);
+
+    const plain = wrapper.find("#plain").classes();
+    expect(plain).toContain("mt-2");
+
+    const custom = wrapper.find("#custom").classes();
+    expect(custom).toContain("mt-6");
+    expect(custom).toContain("text-red-500");
+  });
+
+  it("has the same single top margin inside a <DataTable> as on its own", async () => {
+    const capture: { list?: ListContextValue } = {};
+    const { wrapper } = mountAdmin(() =>
+      h(
+        List,
+        { resource: "posts", perPage: 10 },
+        {
+          default: () => [
+            h(listProbe(capture)),
+            h(DataTable, null, {
+              default: () => h(DataTableCol, { source: "title" }),
+            }),
+          ],
+        },
+      ),
+    );
+    await settled(capture);
+
+    const classes = wrapper.find('[data-slot="list-pagination"]').classes();
+    expect(classes.filter((c) => c === "mt-2")).toHaveLength(1);
+  });
 });

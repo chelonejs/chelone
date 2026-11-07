@@ -27,7 +27,7 @@
     "react": {
       "docs": {
         "path": "/docs/app-config/admin",
-        "see": "iframe[title=\"The reference admin\"]"
+        "see": "iframe[title^=\"The reference\"]"
       },
       "demo": {
         "path": "/demo/posts",

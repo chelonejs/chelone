@@ -49,8 +49,12 @@ void load?.().then((loaded) => {
 
        The inner `flow-root` keeps the demo's own margins inside its box: the
        page fits the frame to this document's body, and a margin that collapsed
-       out of it would land outside the fitted height. -->
-  <div class="px-1">
+       out of it would land outside the fitted height.
+
+       `not-prose` is the class the website's preview panel puts on a React
+       demo, so a showcase `see` written against the React docs page (many open
+       with `.not-prose`) finds the same component in this frame. -->
+  <div class="not-prose px-1">
     <div class="flow-root">
       <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
         <component :is="demo.default" />
