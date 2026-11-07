@@ -23,3 +23,50 @@
   --crepe-font-default: inherit;
   --crepe-font-title: inherit;
 }
+
+/*
+ * Crepe's own page spacing and display-size headings suit a full-page editor.
+ * Inside a form the content sits at the width of the other inputs, with
+ * headings sized like the rest of the admin.
+ */
+.chelone-mdx-editor .milkdown .ProseMirror {
+  padding: 12px 16px;
+}
+
+.chelone-mdx-editor .milkdown .ProseMirror h1,
+.chelone-mdx-editor .milkdown .ProseMirror h2,
+.chelone-mdx-editor .milkdown .ProseMirror h3,
+.chelone-mdx-editor .milkdown .ProseMirror h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1em 0 0.5em;
+}
+
+.chelone-mdx-editor .milkdown .ProseMirror h1 {
+  font-size: 1.875rem;
+}
+
+.chelone-mdx-editor .milkdown .ProseMirror h2 {
+  font-size: 1.5rem;
+}
+
+.chelone-mdx-editor .milkdown .ProseMirror h3 {
+  font-size: 1.25rem;
+}
+
+.chelone-mdx-editor .milkdown .ProseMirror h4 {
+  font-size: 1.125rem;
+}
+
+/* The outline color is a border color: too faint for a list marker. */
+.chelone-mdx-editor .milkdown .milkdown-list-item-block li .label-wrapper {
+  color: var(--crepe-color-on-surface-variant);
+}
+
+.chelone-mdx-editor .milkdown .milkdown-list-item-block li .label-wrapper svg {
+  fill: var(--crepe-color-on-surface-variant);
+}
+
+.chelone-mdx-editor .milkdown .ProseMirror > :first-child {
+  margin-top: 0;
+}
