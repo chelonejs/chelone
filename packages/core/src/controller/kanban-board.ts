@@ -10,6 +10,7 @@
 
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
+import type { SourceKey } from "../resource/source-path";
 
 export interface KanbanColumnDef {
   /** Value written to `groupSource` by a drop into this column. */
@@ -38,12 +39,14 @@ export interface KanbanMove<R> {
  * The column key a record sits under: its group value as a string, with a
  * missing or null value reading as `""`. A top-level key, because a move can
  * only write `{ [source]: value }` — as in {@link getAllowedTransitions}.
+ * Read through `Reflect.get`: `SourceKey<R>` of a generic record is a
+ * deferred type, so `record[groupSource]` would not typecheck.
  */
 function bucketKey<R extends ResourceRecord>(
   record: R,
-  groupSource: keyof R & string,
+  groupSource: SourceKey<R>,
 ): string {
-  return String(record[groupSource] ?? "");
+  return String(Reflect.get(record, groupSource) ?? "");
 }
 
 /**
@@ -54,7 +57,7 @@ function bucketKey<R extends ResourceRecord>(
  */
 export function buildKanbanBuckets<R extends ResourceRecord>(
   records: readonly R[],
-  groupSource: keyof R & string,
+  groupSource: SourceKey<R>,
   columns: readonly KanbanColumnDef[],
 ): KanbanBucket<R>[] {
   const buckets: KanbanBucket<R>[] = columns.map((column) => ({
@@ -82,7 +85,7 @@ export function buildKanbanBuckets<R extends ResourceRecord>(
  */
 export function planKanbanMove<R extends ResourceRecord>(
   record: R,
-  groupSource: keyof R & string,
+  groupSource: SourceKey<R>,
   columns: readonly KanbanColumnDef[],
   targetColumnId: string,
 ): KanbanMove<R> | null {

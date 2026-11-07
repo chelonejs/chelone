@@ -1,9 +1,11 @@
 import {
   buildKanbanBuckets,
   getAtPath,
+  isLooseRecord,
   type KanbanColumnDef,
   type LooseRecord,
   planKanbanMove,
+  type ResourceRecord,
   type SourceKey,
   type SourceProp,
 } from "@chelone/core";
@@ -41,7 +43,9 @@ import { useResourceContext, useResourceDefinition } from "../../resource";
 import { useCreatePath, useNavigate } from "../../router";
 import { useMenuAccess } from "../admin/layout/use-menu-access";
 
-export interface KanbanBoardProps<TRecord extends LooseRecord = LooseRecord> {
+export interface KanbanBoardProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /**
    * The top-level field whose value names a column; a drop writes the target
    * column's `id` to it.
@@ -152,7 +156,7 @@ function KanbanCardShell({
  *   />
  * </List>
  */
-function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
+function KanbanBoard<TRecord extends ResourceRecord = LooseRecord>({
   groupSource,
   columns,
   titleSource,
@@ -186,9 +190,22 @@ function KanbanBoard<TRecord extends LooseRecord = LooseRecord>({
   );
 
   const move = (record: TRecord, targetColumnId: string) => {
-    const plan = planKanbanMove(record, groupSource, columns, targetColumnId);
+    // `update` carries the record as the data provider takes it: every field,
+    // not only the ones the board's type names. The plan keeps `TRecord`, so
+    // `groupSource` still matches it.
+    if (!isLooseRecord(record)) return;
+    const plan = planKanbanMove<TRecord>(
+      record,
+      groupSource,
+      columns,
+      targetColumnId,
+    );
     if (!plan) return;
-    mutateAsync(plan).catch(() => {
+    mutateAsync({
+      id: plan.id,
+      data: plan.data,
+      previousData: record,
+    }).catch(() => {
       notify("chelone.notification.http_error", { type: "error" });
     });
   };

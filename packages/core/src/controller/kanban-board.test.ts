@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { LooseRecord } from "../resource/record";
 import {
   buildKanbanBuckets,
   type KanbanColumnDef,
@@ -78,6 +79,15 @@ describe("buildKanbanBuckets", () => {
       { id: "doing", records: [] },
       { id: "done", records: [] },
     ]);
+  });
+
+  it("reads only the record's own top-level key, as a drop writes it", () => {
+    const record: LooseRecord = { id: 1, meta: { status: "todo" } };
+    const buckets = buildKanbanBuckets([record], "meta.status", columns);
+    expect(buckets.map((bucket) => bucket.records.length)).toEqual([0, 0, 0]);
+    expect(planKanbanMove(record, "meta.status", columns, "todo")).toEqual(
+      expect.objectContaining({ data: { "meta.status": "todo" } }),
+    );
   });
 
   it("keeps the first column's records when a column id repeats", () => {
