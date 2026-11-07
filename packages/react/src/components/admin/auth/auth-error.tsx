@@ -14,6 +14,7 @@
  * framework-swappable routing seam), not react-router directly.
  */
 
+import { DEFAULT_LOGIN_PATH } from "@chelone/core";
 import { CircleAlert, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -52,7 +53,7 @@ function AuthError(props: AuthErrorProps) {
       </h1>
       <p className="my-5">{translate(message, { _: message })}</p>
       <Button asChild>
-        <Link to="/login">
+        <Link to={DEFAULT_LOGIN_PATH}>
           <Lock /> {translate("ra.auth.sign_in", { _: "Sign in" })}
         </Link>
       </Button>

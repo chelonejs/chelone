@@ -32,6 +32,7 @@ export {
   authStateQueryOptions,
   canAccessQueryOptions,
   checkError,
+  DEFAULT_LOGIN_PATH,
   identityQueryOptions,
   permissionsQueryOptions,
 } from "./auth/auth-options";

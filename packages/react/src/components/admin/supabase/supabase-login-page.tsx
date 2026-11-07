@@ -9,6 +9,7 @@
  * `authProvider.login({ email, password })`, which the Supabase provider takes.
  */
 
+import { DEFAULT_LOGIN_PATH } from "@chelone/core";
 import { forgotPasswordPath } from "@chelone/supabase";
 import type { ReactNode } from "react";
 import { useTranslate } from "../../../i18n-hooks";
@@ -118,6 +119,6 @@ function SupabaseLoginPage(props: SupabaseLoginPageProps) {
   );
 }
 
-SupabaseLoginPage.path = "/login";
+SupabaseLoginPage.path = DEFAULT_LOGIN_PATH;
 
 export { SupabaseLoginPage };

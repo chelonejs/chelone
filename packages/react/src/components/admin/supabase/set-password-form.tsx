@@ -8,7 +8,7 @@
  * message stays on screen with a Back to login link and no redirect.
  */
 
-import { errorMessageOf, required } from "@chelone/core";
+import { DEFAULT_LOGIN_PATH, errorMessageOf, required } from "@chelone/core";
 import { useCallback } from "react";
 import { PasswordInput } from "@/components/admin/inputs/password-input";
 import { Button } from "@/components/ui/button";
@@ -90,7 +90,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
 
   const backToLogin = (
     <Link
-      to="/login"
+      to={DEFAULT_LOGIN_PATH}
       className="text-center text-sm text-muted-foreground underline underline-offset-4 hover:text-primary"
     >
       {translate("ra-supabase.auth.back_to_login", { _: "Back to login" })}

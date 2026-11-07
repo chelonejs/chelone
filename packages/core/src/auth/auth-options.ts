@@ -2,6 +2,9 @@ import { type SkipToken, skipToken } from "@tanstack/query-core";
 import { isRecord } from "../guards";
 import type { AuthProvider, CanAccessParams, UserIdentity } from "./types";
 
+/** The path a logged-out session is sent to when no `redirectTo` is given. */
+export const DEFAULT_LOGIN_PATH = "/login";
+
 /** The option shape of the factories that skip with no provider. */
 interface SkippableQueryOptions<TKey, TData> {
   queryKey: TKey;

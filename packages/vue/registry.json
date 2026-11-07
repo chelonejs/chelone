@@ -1806,7 +1806,7 @@
         "@chelone/button-variants",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"

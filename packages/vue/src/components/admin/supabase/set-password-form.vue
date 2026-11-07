@@ -17,7 +17,7 @@ export interface SetPasswordFormProps {
  * and no redirect (shared with the React twin).
  */
 
-import { errorMessageOf, required } from "@chelone/core";
+import { DEFAULT_LOGIN_PATH, errorMessageOf, required } from "@chelone/core";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useCheloneNotifications } from "../../../context";
@@ -100,7 +100,7 @@ const linkClass =
         })
       }}
     </p>
-    <RouterLink to="/login" :class="linkClass">
+    <RouterLink :to="DEFAULT_LOGIN_PATH" :class="linkClass">
       {{ translate("ra-supabase.auth.back_to_login", { _: "Back to login" }) }}
     </RouterLink>
   </div>
