@@ -1,9 +1,9 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import type { Component } from "vue";
-import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link RecordField}. */
-export interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface RecordFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   source?: SourceProp<RecordType>;
   /** Explicit label, or `false`/`""` to hide it. Absent → humanized `source`. */
   label?: string | false;
@@ -19,7 +19,7 @@ export interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord> 
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<RecordField>` — displays a labeled field-value pair with flexible rendering,
  * the Vue analog of `@chelone/react`'s `fields/record-field.tsx`. Supports

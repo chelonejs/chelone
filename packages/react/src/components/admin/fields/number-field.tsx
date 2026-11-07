@@ -1,4 +1,9 @@
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+import type {
+  LooseRecord,
+  ResourceRecord,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -23,7 +28,7 @@ import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props"
  *   </Show>
  * );
  */
-function NumberField<RecordType extends LooseRecord = LooseRecord>({
+function NumberField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
@@ -61,7 +66,7 @@ function NumberField<RecordType extends LooseRecord = LooseRecord>({
   );
 }
 
-interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface NumberFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   locales?: string | string[];
   options?: object;
