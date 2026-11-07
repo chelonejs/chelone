@@ -21,7 +21,10 @@ import { computed } from "vue";
 import FileInput from "./file-input.vue";
 import ImageInputThumbnail from "./image-input-thumbnail.vue";
 
+// `label: undefined` stops Vue casting an absent `string | false` to `false`,
+// which would hide the label <FileInput> falls back to.
 const props = withDefaults(defineProps<ImageInputProps>(), {
+  label: undefined,
   accept: "image/*",
   labelMultiple: "ra.input.image.upload_several",
   labelSingle: "ra.input.image.upload_single",

@@ -234,6 +234,12 @@ describe("seedData", () => {
     }
   });
 
+  it("gives every product a hex colour", () => {
+    for (const product of seed.products) {
+      expect(product.color, product.name).toMatch(/^#[0-9a-f]{6}$/);
+    }
+  });
+
   it("gives every product keywords as text", () => {
     for (const product of seed.products) {
       expect(product.keywords.length, product.name).toBeGreaterThan(0);

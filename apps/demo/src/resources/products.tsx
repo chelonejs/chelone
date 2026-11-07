@@ -1,3 +1,4 @@
+import type { FileSelection } from "@chelone/core";
 import {
   categoryChoices,
   channelChoices,
@@ -11,6 +12,7 @@ import {
   CurrencyInput,
   DataTable,
   Edit,
+  FileField,
   FileInput,
   ImageInput,
   List,
@@ -48,6 +50,12 @@ export function ProductList() {
   );
 }
 
+/** The seed stores a spec sheet as its URL; the preview reads `{ src, title }`. */
+function specSheetEntry(value: FileSelection): FileSelection {
+  if (typeof value !== "string") return value;
+  return { src: value, title: value.split("/").pop() };
+}
+
 /** The product form, shared by Edit and Create. */
 function ProductInputs() {
   return (
@@ -60,7 +68,13 @@ function ProductInputs() {
       <RatingInput source="rating" allowHalf />
       <ColorInput source="color" />
       <ImageInput source="image" />
-      <FileInput source="spec_sheet" accept={{ "application/pdf": [] }} />
+      <FileInput
+        source="spec_sheet"
+        accept={{ "application/pdf": [] }}
+        format={specSheetEntry}
+      >
+        <FileField source="src" title="title" />
+      </FileInput>
       <CheckboxGroupInput source="channels" choices={channelChoices} />
       <RadioButtonGroupInput
         source="shipping_class"

@@ -110,6 +110,25 @@ describe("<RadioButtonGroupInput>", () => {
     expect(screen.getByLabelText("People")).toBeTruthy();
   });
 
+  it("labels the group with the humanized source when no label is given", () => {
+    setup(<RadioButtonGroupInput source="shipping_class" choices={choices} />, {
+      defaultValues: { shipping_class: "" },
+    });
+    expect(screen.getByRole("group", { name: "Shipping class" })).toBeTruthy();
+  });
+
+  it("renders no label when label is false", () => {
+    setup(
+      <RadioButtonGroupInput
+        source="shipping_class"
+        choices={choices}
+        label={false}
+      />,
+      { defaultValues: { shipping_class: "" } },
+    );
+    expect(screen.queryByText("Shipping class")).toBeNull();
+  });
+
   it("checks the radio matching the default value", () => {
     setup(<RadioButtonGroupInput source="category" choices={choices} />, {
       defaultValues: { category: "lifestyle" },

@@ -508,6 +508,15 @@ describe("<ImageInput>", () => {
     expect(img.attributes("title")).toBe("Pic");
   });
 
+  it("labels the input with the humanized source", async () => {
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1 },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("label").text()).toBe("Avatar");
+  });
+
   it("renders a stored URL string as a thumbnail titled by its file name", async () => {
     const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
       record: { id: 1, avatar: "https://example.org/photos/keyboard.png" },

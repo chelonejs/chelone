@@ -4295,7 +4295,7 @@
         }
       ],
       "registryDependencies": ["@chelone/file-input"],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },

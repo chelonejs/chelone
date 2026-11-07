@@ -68,6 +68,7 @@ export type Product = {
   category_id: number;
   /** 1 to 5, one decimal. */
   rating: number;
+  /** A hex colour. */
   color: string;
   image: string;
   spec_sheet: string;
@@ -326,7 +327,15 @@ const tags: Tag[] = [
 
 /** The leaf category each product (by position) sits in. */
 const productCategoryIds = [8, 6, 9, 7, 8, 10, 9, 9, 8, 9, 8, 11];
-const colors = ["black", "white", "silver", "blue", "red", "green"];
+/** Hex, which is what `<ColorInput>` parses. */
+const colors = [
+  "#111827",
+  "#f9fafb",
+  "#9ca3af",
+  "#2563eb",
+  "#dc2626",
+  "#16a34a",
+];
 const allChannels = ["web", "store", "marketplace", "wholesale"];
 const shippingClasses = ["standard", "bulky", "fragile", "express"];
 const keywordPool = ["office", "gaming", "travel", "home"];
