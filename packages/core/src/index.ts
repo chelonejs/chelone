@@ -619,6 +619,7 @@ export type {
 } from "./form/input-values";
 export {
   choiceIdOf,
+  fileEntryImage,
   fileEntryKey,
   fileEntryPreview,
   isTransformedFile,

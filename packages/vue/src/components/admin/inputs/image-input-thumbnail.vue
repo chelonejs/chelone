@@ -7,19 +7,20 @@
  * for a ported `<ImageField>` default child; pass an explicit slot to override.
  */
 
+import { type FileEntry, fileEntryImage } from "@chelone/core";
 import { useRecordContext } from "../../../record/record-context";
 
 // The file record is static per preview (published by <FileInputPreview>), so a
 // single setup-time read suffices — parity with the React twin.
-const record = useRecordContext<{ src?: string; title?: string }>();
+const image = fileEntryImage(useRecordContext<FileEntry>());
 </script>
 
 <template>
   <img
-    v-if="record?.src"
-    :src="record.src"
-    :title="record.title"
-    :alt="record.title"
+    v-if="image"
+    :src="image.src"
+    :title="image.title"
+    :alt="image.title"
     class="h-24 w-24 rounded-md object-cover"
   />
 </template>

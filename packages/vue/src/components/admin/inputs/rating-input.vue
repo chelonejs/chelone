@@ -51,7 +51,9 @@ const currentValue = computed(() => toNumberValue(value.value) ?? 0);
 const stars = computed(() =>
   Array.from({ length: steps.value }, (_, i) => {
     const v = (i + 1) * stepValue.value;
-    return { v, selected: currentValue.value >= v, half: v % 1 !== 0 };
+    // With half steps a star is two buttons, each drawing its half.
+    const half: "left" | "right" | undefined = props.allowHalf ? (v % 1 !== 0 ? "left" : "right") : undefined;
+    return { v, selected: currentValue.value >= v, half };
   }),
 );
 
@@ -65,8 +67,8 @@ function pick(v: number) {
   setValue(v);
 }
 
-const filledPoints = "12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9";
-const halfPoints = "12 2 12 17 6 22 8 14 2 9 9 9";
+const starPoints = "12 2 15 9 22 9 16 14 18 22 12 17 6 22 8 14 2 9 9 9";
+const viewBoxes = { left: "0 0 12 24", right: "12 0 12 24" };
 </script>
 
 <template>
@@ -78,7 +80,7 @@ const halfPoints = "12 2 12 17 6 22 8 14 2 9 9 9";
   >
     <legend
       v-if="labelText != null"
-      class="text-sm font-medium leading-none"
+      class="mb-3 text-sm font-medium leading-none"
       data-slot="field-legend"
     >
       {{ labelText }}<span v-if="isRequired"> *</span>
@@ -88,7 +90,8 @@ const halfPoints = "12 2 12 17 6 22 8 14 2 9 9 9";
       role="radiogroup"
       :aria-disabled="disabled || undefined"
       :aria-invalid="invalid || undefined"
-      class="flex items-center gap-1"
+      class="flex items-center"
+      :class="allowHalf ? '' : 'gap-1'"
     >
       <button
         v-for="star in stars"
@@ -98,24 +101,27 @@ const halfPoints = "12 2 12 17 6 22 8 14 2 9 9 9";
         :aria-checked="star.selected"
         :aria-disabled="disabled || undefined"
         :disabled="disabled"
-        class="p-0.5 leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        :class="disabled ? 'cursor-not-allowed opacity-50' : ''"
+        class="py-0.5 leading-none focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        :class="[
+          star.half === 'left' ? 'pl-0.5' : '',
+          star.half === 'right' ? 'pr-0.5 mr-1' : '',
+          star.half === undefined ? 'px-0.5' : '',
+          disabled ? 'cursor-not-allowed opacity-50' : '',
+        ]"
         @click="pick(star.v)"
         @blur="blur"
       >
         <svg
-          width="20"
+          :width="star.half ? 10 : 20"
           height="20"
-          viewBox="0 0 24 24"
+          :viewBox="star.half ? viewBoxes[star.half] : '0 0 24 24'"
           stroke="currentColor"
           stroke-width="1.5"
           :fill="star.selected ? 'currentColor' : 'none'"
           class="text-yellow-500"
           aria-hidden="true"
         >
-          <polygon
-            :points="allowHalf && star.half ? halfPoints : filledPoints"
-          />
+          <polygon :points="starPoints" />
         </svg>
       </button>
     </div>
