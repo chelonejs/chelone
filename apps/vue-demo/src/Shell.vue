@@ -20,7 +20,6 @@ import {
 } from "@chelone/demo-data";
 import {
   AppBar,
-  AppSidebar,
   Assistant,
   CommandMenu,
   DashboardMenuItem,
@@ -45,6 +44,7 @@ import { Inspector, InspectorButton } from "@chelone/vue/inspector";
 import { computed } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import AccessGuard from "./AccessGuard.vue";
+import DemoSidebar from "./DemoSidebar.vue";
 import Dashboard from "./pages/Dashboard.vue";
 import { pageGroups } from "./pages";
 import SimulateOtherUser from "./realtime-sim.vue";
@@ -114,7 +114,7 @@ function openDocs() {
       <Inspector>
         <Layout>
           <template #sidebar>
-            <AppSidebar>
+            <DemoSidebar>
               <div class="px-2 pt-2">
                 <MenuLive
                   :items="[{ to: '/posts', resource: 'posts', label: 'Posts' }]"
@@ -158,7 +158,7 @@ function openDocs() {
                   </template>
                 </MenuItemLink>
               </ResourceMenuItemGroup>
-            </AppSidebar>
+            </DemoSidebar>
           </template>
           <template #app-bar>
             <!-- Sticky, so that hiding the bar on scroll has something to hide. index.css lets the page scroll under it. -->
