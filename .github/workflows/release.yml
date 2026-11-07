@@ -17,13 +17,8 @@ name: Release
 # workflow by hand: the publish job runs on workflow_dispatch and skips any
 # version npm already has.
 on:
-  # release-please makes about one API call per commit since the last release,
-  # so it runs when a release pull request merges, not on every push.
   push:
     branches: [main]
-    paths: [.release-please-manifest.json]
-  schedule:
-    - cron: "17 6 * * *"
   workflow_dispatch:
 
 concurrency:
