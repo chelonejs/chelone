@@ -89,24 +89,12 @@ export interface UseInputReturn<TInput = unknown> {
   isRequired: boolean;
 }
 
-// The loose overload comes first so a call with no type argument never tries
-// the generic one: inferring through `SourceValue` overflows the compiler's
-// instantiation depth when `defaultValue` and `format` are both given. It is
-// repeated last, so `Parameters<typeof useInput>` is the plain `UseInputOptions`.
-export function useInput(options: UseInputOptions): UseInputReturn;
 export function useInput<
   TRecord,
   TPath extends SourcePath<TRecord> = SourcePath<TRecord>,
   TInput = unknown,
 >(options: UseInputOptions<TRecord, TPath, TInput>): UseInputReturn<TInput>;
-// A typed props spread has a `source` wider than `SourcePath<Post>` (row paths,
-// filter keys), which the generic overload would reject.
-export function useInput(options: UseInputOptions): UseInputReturn;
-export function useInput(typedOptions: unknown): UseInputReturn {
-  // The implementation takes the erased options: the binding's `format` and
-  // `parse` are loose, and resolving the typed `SourceValue` generically here
-  // would exceed the compiler's instantiation depth.
-  const options = typedOptions as UseInputOptions;
+export function useInput(options: UseInputOptions): UseInputReturn {
   const { form } = useCheloneFormContext();
   const scope = useSourceScope();
   const source = scope.getSource(options.source);

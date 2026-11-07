@@ -55,10 +55,8 @@ function CurrencyInput<
   const [appLocale] = useLocaleState();
   const locale = displayLocale ?? appLocale;
 
-  // The options are spread whole: reading the generic `defaultValue` anywhere
-  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
-  // instantiation depth. The component's own generics go to `useInput` so
-  // `format` and `parse` are typed by the value at `source`.
+  // The component's own generics go to `useInput` so `format` and `parse` are
+  // typed by the value at `source`.
   const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>({
     ...inputProps,
     source,

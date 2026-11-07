@@ -71,9 +71,8 @@ function WebhookEndpointInput<
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
 
-  // The options are spread whole: reading the generic `defaultValue` here
-  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
-  // instantiation depth. `withEmptyEndpoint` reads it through a loose type.
+  // `withEmptyEndpoint` takes the options loose: `DEFAULT_VALUE` is a
+  // `WebhookEndpoint`, not the value at `source`.
   const { id, field, fieldState, isRequired } = useInput({
     ...withEmptyEndpoint(inputProps),
     source,

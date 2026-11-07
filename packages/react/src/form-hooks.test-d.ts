@@ -113,6 +113,14 @@ describe("useInput source typing", () => {
   it("useInput without a type argument takes any string", () => {
     expectTypeOf(useInput).toBeCallableWith({ source: "anything.at[0].all" });
   });
+
+  it("useInput without a type argument takes defaultValue and format together", () => {
+    useInput({
+      source: "title",
+      defaultValue: "untitled",
+      format: (value) => String(value),
+    });
+  });
 });
 
 describe("useInput value typing", () => {

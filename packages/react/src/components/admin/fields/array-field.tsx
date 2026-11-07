@@ -45,9 +45,7 @@ function ArrayField<RecordType extends LooseRecord = LooseRecord>(
 ) {
   const { children, perPage, sort, filter, source, record, defaultValue } =
     props;
-  // Read through the loose record: the array holds arbitrary embedded rows,
-  // and a deferred `SourceValue<RecordType, ...>` is too deep to narrow.
-  const value = useFieldValue<LooseRecord>({
+  const value = useFieldValue<RecordType>({
     defaultValue,
     source,
     record,

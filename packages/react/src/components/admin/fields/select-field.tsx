@@ -52,8 +52,8 @@ const SelectFieldImpl = <
     translateChoice,
     ...rest
   } = typedProps;
-  // Read through `LooseRecord`: the typed read is a `SourceValue` still deferred
-  // on `RecordType`, which overflows the compiler when compared. It is `unknown`.
+  // Read through `LooseRecord`: this `defaultValue` is a choice's value, not the
+  // value at `source`.
   const value = useFieldValue<LooseRecord>({ defaultValue, source, record });
 
   const { getChoiceText, getChoiceValue } = useChoices<TChoice>({

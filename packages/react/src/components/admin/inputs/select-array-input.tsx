@@ -111,9 +111,6 @@ function SelectArrayInput<
     });
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  // The options are spread whole: reading the generic `defaultValue` anywhere
-  // makes the compiler resolve `SourceValue`'s constraint, which exceeds the
-  // instantiation depth.
   const { id, field, fieldState, isRequired } = useInput({
     ...inputOptions,
     source,
