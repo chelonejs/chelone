@@ -4852,6 +4852,7 @@
         }
       ],
       "registryDependencies": ["@chelone/theme-context"],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
