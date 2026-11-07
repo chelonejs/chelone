@@ -23,6 +23,11 @@ type TextInputProps<
   inputClassName?: string;
   resettable?: boolean;
   className?: string;
+  /**
+   * Rendered over the control's right edge, inside the control's own row, so it
+   * centres on the control whatever the field renders above or below it.
+   */
+  controlSuffix?: React.ReactNode;
 } & Omit<
     React.ComponentProps<"textarea">,
     "onChange" | "onBlur" | "type" | "defaultValue"
@@ -38,6 +43,10 @@ type TextInputProps<
  * Use `<TextInput>` for short text fields like titles or names. Set `multiline`
  * to `true` for longer content like descriptions or comments. Wraps shadcn's
  * `<Input>` or `<Textarea>` component depending on the `multiline` prop.
+ *
+ * Every control, `multiline` included, sits in a row of its own with
+ * `controlSuffix`, so a wrapper can overlay a button on the control and have that
+ * button centred on the control whatever the field renders above or below the row.
  *
  * @example
  * import { Edit, TextInput } from '@/components/admin';
@@ -60,6 +69,7 @@ function TextInput(props: TextInputProps) {
     helperText,
     resettable = false,
     type = "text",
+    controlSuffix,
     ...rest
   } = props;
   const { id, field, fieldState, isRequired } = useInput(props);
@@ -78,6 +88,52 @@ function TextInput(props: TextInputProps) {
     field.onChange("");
   };
 
+  // The row is the positioned ancestor an overlay resolves against, so it holds
+  // the control and the overlay alone: label, helper text and error stay out of
+  // it, and an overlay centres on the control wherever the field puts it. Every
+  // control gets the row, multiline included, so `controlSuffix` is never
+  // silently dropped, and a single-line control keeps it even when a clear
+  // button coming and going would otherwise move the input out from under the
+  // caret.
+  const control = multiline ? (
+    <Textarea
+      {...sanitizeInputRestProps(rest)}
+      {...domField}
+      id={id}
+      aria-invalid={invalid || undefined}
+      className={inputClassName}
+    />
+  ) : (
+    <Input
+      {...sanitizeInputRestProps(rest)}
+      {...domField}
+      id={id}
+      type={type}
+      aria-invalid={invalid || undefined}
+      className={cn(inputClassName, resettable && hasValue && "pr-8")}
+    />
+  );
+
+  const controlRow = (
+    <div className="relative flex items-center">
+      {control}
+      {!multiline && resettable && hasValue ? (
+        <button
+          type="button"
+          aria-label={translate("ra.action.clear_input_value", {
+            _: "Clear",
+          })}
+          className="absolute right-2 p-0 text-muted-foreground opacity-50 hover:opacity-100 hover:bg-transparent"
+          onClick={handleReset}
+          tabIndex={-1}
+        >
+          <X className="size-4" />
+        </button>
+      ) : null}
+      {controlSuffix}
+    </div>
+  );
+
   return (
     <Field className={className} data-invalid={invalid || undefined}>
       {label !== false && (
@@ -90,48 +146,7 @@ function TextInput(props: TextInputProps) {
           />
         </FieldLabel>
       )}
-      {multiline ? (
-        <Textarea
-          {...sanitizeInputRestProps(rest)}
-          {...domField}
-          id={id}
-          aria-invalid={invalid || undefined}
-          className={inputClassName}
-        />
-      ) : resettable ? (
-        <div className="relative flex items-center">
-          <Input
-            {...sanitizeInputRestProps(rest)}
-            {...domField}
-            id={id}
-            type={type}
-            aria-invalid={invalid || undefined}
-            className={cn(inputClassName, hasValue && "pr-8")}
-          />
-          {hasValue && (
-            <button
-              type="button"
-              aria-label={translate("ra.action.clear_input_value", {
-                _: "Clear",
-              })}
-              className="absolute right-2 p-0 text-muted-foreground opacity-50 hover:opacity-100 hover:bg-transparent"
-              onClick={handleReset}
-              tabIndex={-1}
-            >
-              <X className="size-4" />
-            </button>
-          )}
-        </div>
-      ) : (
-        <Input
-          {...sanitizeInputRestProps(rest)}
-          {...domField}
-          id={id}
-          type={type}
-          aria-invalid={invalid || undefined}
-          className={inputClassName}
-        />
-      )}
+      {controlRow}
       <InputHelperText helperText={helperText} />
       <FieldError>
         {invalid && error ? <ValidationError error={error} /> : null}
