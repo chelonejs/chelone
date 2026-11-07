@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   hasProperty,
+  isHeadersInit,
   isJsonObject,
   isPlainObject,
   isRecord,
@@ -143,6 +144,43 @@ describe("isThenable", () => {
     ];
     for (const value of refused) {
       expect(isThenable(value)).toBe(false);
+    }
+  });
+});
+
+describe("isHeadersInit", () => {
+  it("isHeadersInit takes Headers, pairs and records, and refuses anything else", () => {
+    const accepted = [
+      new Headers({ a: "b" }),
+      new Headers(),
+      [["a", "b"]],
+      [],
+      { a: "b" },
+      nullProtoObject(),
+    ];
+    for (const value of accepted) {
+      expect(isHeadersInit(value)).toBe(true);
+    }
+
+    const refused = [
+      undefined,
+      null,
+      "a=b",
+      1,
+      // a list of strings, not of pairs
+      ["a", "b"],
+      [["a", 1]],
+      [["a"]],
+      [[["a", "b"]]],
+      { a: 1 },
+      { a: null },
+      new Map([["a", "b"]]),
+      new Date(),
+      new Query(),
+      () => {},
+    ];
+    for (const value of refused) {
+      expect(isHeadersInit(value)).toBe(false);
     }
   });
 });
