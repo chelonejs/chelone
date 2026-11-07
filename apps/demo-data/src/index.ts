@@ -1,3 +1,5 @@
+export { demoAssistantTools, demoAssistantTransport } from "./assistant";
+export { demoAuthProvider } from "./auth";
 export { makeI18n } from "./i18n";
 export type {
   Activity,
@@ -22,3 +24,5 @@ export type {
   Webhook,
 } from "./seed";
 export { categoryChoices, seedData, statusChoices } from "./seed";
+export { makeDemoStore } from "./store";
+export { type DemoTourStep, TOUR_ID, tourSteps } from "./tour";
