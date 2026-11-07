@@ -67,6 +67,7 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
 <template>
   <Admin
     :data-provider="dataProvider"
+    :auth-provider="authProvider"
     :query-client="queryClient"
     :registry="resources"
     :i18n="i18n"
