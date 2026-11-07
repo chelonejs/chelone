@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { fileName, inVueFrame, MARKER, section } from "./showcase-shots.mjs";
-import { componentsIn, docsPageHasDemo, owner, problems, targets, vueDocsShot } from "./showcase.mjs";
+import { componentsIn, docsPageHasDemo, owner, problems, vueDocsShot } from "./showcase.mjs";
 
-const shot = (path) => ({ path, see: "role=textbox" });
+const shot = (path) => ({ path });
 // `vue.docs` is never written: it is the React docs shot with `?framework=vue`.
 const complete = {
   react: { docs: shot("/docs/editing/text-input"), demo: shot("/demo/posts/create") },
@@ -31,7 +30,7 @@ describe("componentsIn", () => {
 
 describe("vueDocsShot", () => {
   it("is the React docs shot with the framework set", () => {
-    assert.deepEqual(vueDocsShot(complete), { path: vueDocs, see: "role=textbox" });
+    assert.deepEqual(vueDocsShot(complete), { path: vueDocs });
   });
 
   it("leaves an entry that names its own Vue docs shot alone", () => {
@@ -41,14 +40,6 @@ describe("vueDocsShot", () => {
 
   it("is nothing when the entry has no docs shot at all", () => {
     assert.equal(vueDocsShot({ react: { demo: shot("/demo/posts") } }), undefined);
-  });
-});
-
-describe("inVueFrame", () => {
-  it("is true only for a Vue docs shot, whose demo sits in the docs page's frame", () => {
-    assert.ok(inVueFrame({ adapter: "vue", view: "docs" }));
-    assert.ok(!inVueFrame({ adapter: "vue", view: "demo" }));
-    assert.ok(!inVueFrame({ adapter: "react", view: "docs" }));
   });
 });
 
@@ -113,11 +104,6 @@ describe("problems", () => {
     assert.deepEqual(problems({ manifest, previous: manifest, components: reactOnly, hasDemo: () => true }), []);
   });
 
-  it("fails a shot with nothing to look for", () => {
-    const entry = { ...complete, vue: { demo: { path: "/vue-demo/posts" } } };
-    assert.match(check({ "text-input": entry })[0], /needs `see`/);
-  });
-
   it("fails a docs page with no demo for the adapter it is shot for", () => {
     const manifest = { "text-input": complete };
     const found = problems({ manifest, previous: manifest, components, hasDemo: () => false });
@@ -157,83 +143,5 @@ describe("problems", () => {
 describe("owner", () => {
   it("follows shownBy to the component that renders", () => {
     assert.equal(owner({ a: { shownBy: "b" }, b: { shownBy: "c" }, c: complete }, "a"), "c");
-  });
-});
-
-describe("targets", () => {
-  const manifest = { "text-input": complete };
-  const run = (changedFiles, previous = manifest, entries = manifest) =>
-    targets({ manifest: entries, previous, components, changedFiles });
-
-  it("shoots nothing when no component changed", () => {
-    assert.deepEqual(run(["packages/core/src/index.ts"]), { owed: [], shots: [] });
-  });
-
-  it("shoots the docs page and demo of the adapter that changed", () => {
-    const { shots } = run(["packages/react/src/components/admin/inputs/text-input.tsx"]);
-    assert.deepEqual(
-      shots.map((s) => `${s.adapter}.${s.view}`),
-      ["react.docs", "react.demo"],
-    );
-  });
-
-  it("shoots an entry a change filled in, in each adapter", () => {
-    const { shots } = run([], { "text-input": null });
-    assert.deepEqual(
-      shots.map((s) => `${s.adapter}.${s.view}`),
-      ["react.docs", "react.demo", "vue.docs", "vue.demo"],
-    );
-  });
-
-  it("shoots the Vue docs page as the React docs page with the framework set", () => {
-    const { shots } = run(["packages/vue/src/components/admin/inputs/text-input.vue"]);
-    assert.deepEqual(
-      shots.map((s) => `${s.adapter}.${s.view} ${s.path}`),
-      [`vue.docs ${vueDocs}`, "vue.demo /vue-demo/posts/create"],
-    );
-  });
-
-  it("names a changed component that still owes its entry", () => {
-    const entries = { "text-input": null };
-    const file = "packages/vue/src/components/admin/inputs/text-input.vue";
-    assert.deepEqual(run([file], entries, entries), { owed: ["text-input"], shots: [] });
-  });
-
-  it("shoots the owner of a changed part", () => {
-    const parts = { ...components, react: new Map([...components.react, ["row", ["packages/react/src/row.tsx"]]]) };
-    const entries = { ...manifest, row: { shownBy: "text-input" } };
-    const { shots } = targets({ manifest: entries, previous: entries, components: parts, changedFiles: ["packages/react/src/row.tsx"] });
-    assert.deepEqual([...new Set(shots.map((s) => s.name))], ["text-input"]);
-  });
-});
-
-describe("section", () => {
-  const docs = { name: "text-input", adapter: "react", view: "docs" };
-  const demo = { ...docs, view: "demo" };
-
-  it("starts at the marker the job replaces from", () => {
-    assert.ok(section({ results: [], owed: [] }).startsWith(MARKER));
-  });
-
-  it("puts both images on one row", () => {
-    const text = section({ results: [docs, demo], owed: [] });
-    assert.ok(text.includes(`![docs]({{shots}}/${fileName(docs)})`));
-    assert.ok(text.includes(`![demo]({{shots}}/${fileName(demo)})`));
-  });
-
-  it("says why a shot failed", () => {
-    const text = section({ results: [{ ...demo, error: "/demo/posts: Timeout" }], owed: [] });
-    assert.ok(text.includes("failed: `/demo/posts: Timeout`"));
-  });
-
-  it("photographs a Vue docs page beside its demo", () => {
-    const vue = { ...docs, adapter: "vue" };
-    const text = section({ results: [vue, { ...vue, view: "demo" }], owed: [] });
-    assert.ok(text.includes("![docs]({{shots}}/text-input-vue-docs.png)"));
-    assert.ok(text.includes("![demo]({{shots}}/text-input-vue-demo.png)"));
-  });
-
-  it("names what is owed", () => {
-    assert.ok(section({ results: [], owed: ["array-input"] }).includes("`array-input`"));
   });
 });

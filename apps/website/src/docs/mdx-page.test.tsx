@@ -342,8 +342,7 @@ it.each([
   },
 );
 
-// The showcase photographs each of these pages and waits for the `see` in showcase.json, so
-// a page that lists no preview fails CI's screenshot step.
+// Each of these pages lists a preview.
 it.each([
   ["supabase/supabase-login-page", "heading", "Sign in"],
   ["supabase/forgot-password-page", "heading", "Forgot your password?"],

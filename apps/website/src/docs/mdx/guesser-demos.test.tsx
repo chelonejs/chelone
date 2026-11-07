@@ -17,8 +17,7 @@ function mount(demo: ReactNode) {
   );
 }
 
-// The `see` selectors in showcase.json for these pages name what the guessers
-// build from the `posts` schema the previews register.
+// The guessers build from the `posts` schema the previews register.
 it("ListGuesser builds a column for each field of the posts schema", async () => {
   mount(<ListDemo />);
   await screen.findByText("On Computable Numbers");
