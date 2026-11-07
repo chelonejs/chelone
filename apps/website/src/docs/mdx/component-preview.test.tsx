@@ -103,6 +103,39 @@ describe("ComponentPreview framework switch", () => {
     expect(source.textContent).toContain("<ResettableTextInput");
   });
 
+  it("sizes the Vue iframe to the height the demo reports", async () => {
+    const { container } = renderPreview(
+      BOTH,
+      "/docs/editing/resettable-text-input?framework=vue",
+    );
+    const frame = container.querySelector("iframe");
+    if (!frame) throw new Error("the Vue demo renders no iframe");
+    expect(frame.style.height).toBe("224px");
+
+    // The demo posts from inside the frame, so the report carries the frame's
+    // own window as its source.
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: { type: "chelone-docs-preview-height", height: 312 },
+          source: frame.contentWindow,
+        }),
+      );
+    });
+    expect(frame.style.height).toBe("312px");
+
+    // A report from anywhere else is not this demo's height.
+    act(() => {
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: { type: "chelone-docs-preview-height", height: 999 },
+          source: null,
+        }),
+      );
+    });
+    expect(frame.style.height).toBe("312px");
+  });
+
   it("a Vue choice on a React-only demo still previews React", () => {
     renderPreview(REACT_ONLY, "/docs/editing?framework=vue");
 

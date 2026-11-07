@@ -18,7 +18,11 @@ export type PreviewMode = "view" | "record" | "input";
  * - `input`: the demo sits in a `<Create>` form, titleless, for a bare input.
  */
 
-import { createNotificationStore, fakeDataProvider } from "@chelone/core";
+import {
+  type AuthProvider,
+  createNotificationStore,
+  fakeDataProvider,
+} from "@chelone/core";
 import { makeI18n, seedData } from "@chelone/demo-data";
 import {
   Admin,
@@ -45,6 +49,16 @@ const queryClient = new QueryClient({
 });
 const i18n = makeI18n();
 const notifications = createNotificationStore();
+
+// Signs every preview in as the first fixture author, so the components that act
+// as a user (approve, reject) have someone to act as — as the React preview does.
+const authProvider: AuthProvider = {
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+  getIdentity: async () => ({ id: 1, fullName: "Ada Lovelace" }),
+};
 
 provideResourceContext("posts");
 if (props.mode === "record") provideRecordContext(seed.posts[0]);

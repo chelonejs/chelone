@@ -7,9 +7,21 @@
  * The demo is found by globbing the docs content folder, where it sits beside
  * its React twin as `<slug>/demos/<demo>.vue`. A URL that matches no demo
  * renders nothing.
+ *
+ * The frame has no height of its own: the demo reports its own to the parent
+ * page (see `ComponentPreview`), which sizes the frame to it. A fixed height
+ * would clip a tall demo (an approval queue) and leave dead space under a short
+ * one.
  */
 
-import { type Component, shallowRef } from "vue";
+import {
+  computed,
+  type Component,
+  onMounted,
+  onScopeDispose,
+  ref,
+  shallowRef,
+} from "vue";
 import PreviewProvider, { type PreviewMode } from "./PreviewProvider.vue";
 
 interface VueDemoModule {
@@ -38,10 +50,37 @@ const demo = shallowRef<VueDemoModule>();
 void load?.().then((loaded) => {
   demo.value = loaded;
 });
+
+const mode = computed<PreviewMode>(() => demo.value?.mode ?? "view");
+const content = ref<HTMLElement>();
+
+function reportHeight(): void {
+  parent.postMessage(
+    {
+      type: "chelone-docs-preview-height",
+      height: content.value?.offsetHeight ?? 0,
+    },
+    "*",
+  );
+}
+
+// The demo mounts and fetches after this page does, so the height is re-read on
+// every resize instead of once on load.
+let resize: ResizeObserver | undefined;
+onMounted(() => {
+  resize = new ResizeObserver(reportHeight);
+  const el = content.value;
+  if (el) resize.observe(el);
+});
+onScopeDispose(() => resize?.disconnect());
 </script>
 
 <template>
-  <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
-    <component :is="demo.default" />
-  </PreviewProvider>
+  <!-- An `input` demo fills the frame as it fills the React panel's block row; a
+       view or record demo is centered, as the React panel centers it. -->
+  <div ref="content" :class="mode === 'input' ? 'block' : 'flex justify-center'">
+    <PreviewProvider v-if="demo" :mode="mode">
+      <component :is="demo.default" />
+    </PreviewProvider>
+  </div>
 </template>

@@ -15,7 +15,7 @@
  * website has no Vue compiler, so the Vue demo renders in an iframe of the Vue
  * demo app (`apps/vue-demo/src/DocsPreview.vue`), which compiles it.
  */
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ShikiHighlighter } from "react-shiki";
 import { SHIKI_THEME } from "@/lib/shiki-theme";
 import { cn } from "@/lib/utils";
@@ -71,6 +71,25 @@ interface ComponentPreviewProps {
   className?: string;
 }
 
+/** The height a Vue demo posts from its iframe when its content resizes. */
+interface PreviewHeight {
+  type: "chelone-docs-preview-height";
+  height: number;
+}
+
+function isPreviewHeight(value: unknown): value is PreviewHeight {
+  if (typeof value !== "object" || value === null) return false;
+  return (
+    "type" in value &&
+    value.type === "chelone-docs-preview-height" &&
+    "height" in value &&
+    typeof value.height === "number"
+  );
+}
+
+/** The frame height before the first report, matching the panel's own scale. */
+const DEFAULT_FRAME_HEIGHT = 224;
+
 type LoadedDemo =
   | {
       key: string;
@@ -85,6 +104,8 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [loaded, setLoaded] = useState<LoadedDemo>();
   const [chosen, setFramework] = useFramework();
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [frameHeight, setFrameHeight] = useState<number>();
   const reactKey = keyFor(demoModules, name, "tsx");
   const vueKey = keyFor(vueSources, name, "vue");
   // The switch only offers a framework the demo exists in.
@@ -110,6 +131,21 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
     return () => {
       cancelled = true;
     };
+  }, [key, framework]);
+
+  // The Vue demo sizes its own frame: a fixed height clips a tall demo (an
+  // approval queue) and leaves dead space under a short one. Only this preview's
+  // own iframe may report.
+  useEffect(() => {
+    setFrameHeight(undefined);
+    if (framework !== "vue") return;
+    function onMessage(event: MessageEvent) {
+      if (event.source !== frameRef.current?.contentWindow) return;
+      if (!isPreviewHeight(event.data)) return;
+      setFrameHeight(event.data.height);
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
   }, [key, framework]);
 
   if (!key) {
@@ -172,9 +208,11 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
         >
           {framework === "vue" ? (
             <iframe
+              ref={frameRef}
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
-              className="h-56 w-full border-0"
+              className="w-full border-0"
+              style={{ height: frameHeight ?? DEFAULT_FRAME_HEIGHT }}
             />
           ) : DemoComponent ? (
             <PreviewProvider mode={mode}>

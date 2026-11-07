@@ -10,6 +10,10 @@
  */
 @source "../../../packages/vue/src/components";
 
+/* Docs demos render here in an iframe (see `src/DocsPreview.vue`), but they live
+   in the website's content folder, outside this app's own tree. */
+@source "../../website/src/docs/content";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
