@@ -15,10 +15,9 @@
  * re-deriving the object each render. The inline context is a frozen plain object.
  */
 
-import type { FilterPayload, SortPayload } from "@chelone/core";
+import type { ChoiceRecord, FilterPayload, SortPayload } from "@chelone/core";
 import { noop } from "@chelone/core";
 import { type InjectionKey, inject, provide } from "vue";
-import type { ChoiceRecord } from "./use-choices";
 
 /**
  * The choices context every choice input consumes. A reference context fills the

@@ -39,6 +39,19 @@ describe("useChoices option types", () => {
     useChoices<Author>({ disableValue: "retire" });
   });
 
+  it("optionText takes a path of Author", () => {
+    const { getChoiceText } = useChoices<Author>({
+      optionText: "publisher.country",
+    });
+    expectTypeOf(getChoiceText).parameter(0).toEqualTypeOf<Author>();
+  });
+
+  it("a call with no options keeps the choice type on every accessor", () => {
+    const accessors = useChoices<Author>();
+    expectTypeOf(accessors).toEqualTypeOf<UseChoicesResult<Author>>();
+    expectTypeOf(accessors.getDisableValue).returns.toBeBoolean();
+  });
+
   it("useChoices<Author> accepts an optionText function that takes an Author", () => {
     useChoices<Author>({ optionText: (author) => author.penName });
     useChoices<Author>({

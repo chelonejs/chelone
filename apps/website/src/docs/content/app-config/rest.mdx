@@ -152,6 +152,9 @@ call only and win over the options.
 - `meta.headers` is added to the call's headers.
 - `meta.query` is added to the call's query parameters.
 
+A key that fails its check throws a `TypeError` naming the field. Keys the
+provider does not know are ignored.
+
 ```tsx
 useGetList("posts", { meta: { query: { include: "author" } } });
 ```

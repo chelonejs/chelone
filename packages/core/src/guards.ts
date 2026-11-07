@@ -68,6 +68,31 @@ export function isJsonObject(value: unknown): value is JsonObject {
 }
 
 /**
+ * Could `new Headers(value)` take it? A `Headers`, a list of `[name, value]`
+ * pairs, or a record whose every value is a string. A pair list holding a
+ * non-string, and a record holding a number or a null, are refused: `Headers`
+ * would read them as names and values it was never given.
+ */
+export function isHeadersInit(value: unknown): value is HeadersInit {
+  if (value instanceof Headers) return true;
+  if (Array.isArray(value)) return value.every(isHeaderPair);
+  return (
+    isPlainObject(value) &&
+    Object.values(value).every((entry) => typeof entry === "string")
+  );
+}
+
+/** One `[name, value]` header pair. A longer or shorter array is not one. */
+function isHeaderPair(value: unknown): value is [string, string] {
+  return (
+    Array.isArray(value) &&
+    value.length === 2 &&
+    typeof value[0] === "string" &&
+    typeof value[1] === "string"
+  );
+}
+
+/**
  * The deep half of `isJsonObject`. `path` holds the containers `value` sits
  * inside, so a value that contains itself is refused instead of walked
  * forever; a shared sub-object, which no container holds twice on one path,

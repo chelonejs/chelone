@@ -210,6 +210,7 @@ describe("@chelone/core barrel", () => {
 
   it("exports the P5 choices controller", () => {
     expect(barrel.createChoicesController).toBeTypeOf("function");
+    expect(barrel.choiceListsOf).toBeTypeOf("function");
   });
 
   it("exports defaultMessages — the English catalog apps spread (P5 drop guard)", () => {
@@ -516,6 +517,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isRecord).toBeTypeOf("function");
     expect(barrel.isRecord({ a: 1 })).toBe(true);
     expect(barrel.isRecord([1])).toBe(false);
+  });
+
+  it("exports isHeadersInit", () => {
+    expect(barrel.isHeadersInit).toBeTypeOf("function");
+    expect(barrel.isHeadersInit({ a: "b" })).toBe(true);
+    expect(barrel.isHeadersInit([["a", "b"]])).toBe(true);
+    expect(barrel.isHeadersInit({ a: 1 })).toBe(false);
   });
 
   it("exports deepEqual", () => {

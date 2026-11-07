@@ -478,12 +478,17 @@ export type {
 export { createArrayBinding } from "./form/array-binding";
 export { toIdentifierList } from "./form/choice-ids";
 export type {
+  ChoiceLists,
+  ChoiceRecord,
   ChoicesController,
   ChoicesControllerContext,
   ChoicesControllerOptions,
   ChoicesControllerState,
 } from "./form/choices-controller";
-export { createChoicesController } from "./form/choices-controller";
+export {
+  choiceListsOf,
+  createChoicesController,
+} from "./form/choices-controller";
 export {
   formatDate,
   formatDateTime,
@@ -773,7 +778,7 @@ export {
 export type { OsrmProviderOptions, RoutingProvider } from "./geo/snap-to-roads";
 export { createOsrmProvider } from "./geo/snap-to-roads";
 export type { JsonObject, JsonValue } from "./guards";
-export { isRecord, isThenable } from "./guards";
+export { isHeadersInit, isRecord, isThenable } from "./guards";
 export { defaultMessages } from "./i18n/default-messages";
 export { englishMessages } from "./i18n/english-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";

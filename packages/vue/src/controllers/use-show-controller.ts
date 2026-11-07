@@ -64,7 +64,7 @@ export function useShowController<
 ): UseShowControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
-  const resource = useRequiredResource("useShowController", options) as TName;
+  const resource = useRequiredResource<TName>("useShowController", options);
   const id = resolveId(options.id);
 
   const controller: ShowController<TRecord> = createShowController(

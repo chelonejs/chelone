@@ -25,11 +25,10 @@ import type {
   RecordOf,
   ResourceMap,
 } from "@chelone/core";
-import { createChoicesController } from "@chelone/core";
+import { choiceListsOf, createChoicesController } from "@chelone/core";
 import { type CheloneContextValue, useCheloneContext } from "../context";
 import { useMicroStore } from "../store/use-micro-store";
 import type { ChoicesContextValue } from "./choices-context";
-import type { ChoiceRecord } from "./use-choices";
 
 /** `useReferenceInput` options: the controller options (the ctx is injected). */
 export type UseReferenceInputOptions<
@@ -81,16 +80,17 @@ export function useReferenceInput<
   const state = useMicroStore(controller);
 
   // Getters make each property read track `state.value` at the consumer's read
-  // site — the Vue analog of React re-deriving the object per render.
+  // site — the Vue analog of React re-deriving the object per render. Core's
+  // `choiceListsOf` is where a record becomes an erased `ChoiceRecord`.
   return {
     get allChoices() {
-      return state.value.allChoices as ChoiceRecord[];
+      return choiceListsOf(state.value).allChoices;
     },
     get availableChoices() {
-      return state.value.availableChoices as ChoiceRecord[];
+      return choiceListsOf(state.value).availableChoices;
     },
     get selectedChoices() {
-      return state.value.selectedChoices as ChoiceRecord[];
+      return choiceListsOf(state.value).selectedChoices;
     },
     get total() {
       return state.value.total;
