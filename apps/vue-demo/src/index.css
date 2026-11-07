@@ -10,8 +10,8 @@
  */
 @source "../../../packages/vue/src/components";
 
-/* The docs demos render here as an iframe of the website's docs pages. They sit
-   outside this app, so their own utility classes need a source of their own. */
+/* The docs demos render here in an iframe, and are the only place their
+   wrapper classes appear. Without this source they are tree-shaken away. */
 @source "../../website/src/docs/content";
 
 @custom-variant dark (&:is(.dark *));

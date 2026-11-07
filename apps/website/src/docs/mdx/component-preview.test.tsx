@@ -103,37 +103,6 @@ describe("ComponentPreview framework switch", () => {
     expect(source.textContent).toContain("<ResettableTextInput");
   });
 
-  it("sizes the Vue iframe to the height the demo posts", async () => {
-    const { container } = renderPreview(
-      BOTH,
-      "/docs/editing/resettable-text-input?framework=vue",
-    );
-    const frame = container.querySelector("iframe");
-    expect(frame?.style.height).toBe("224px");
-
-    window.postMessage({ cheloneDocsPreview: BOTH, height: 480 }, "*");
-    await waitFor(() => expect(frame?.style.height).toBe("480px"));
-
-    // A one-line field shrinks the iframe so the panel can centre it.
-    window.postMessage({ cheloneDocsPreview: BOTH, height: 40 }, "*");
-    await waitFor(() => expect(frame?.style.height).toBe("40px"));
-  });
-
-  it("ignores a posted height for another demo on the page", async () => {
-    const { container } = renderPreview(
-      BOTH,
-      "/docs/editing/resettable-text-input?framework=vue",
-    );
-    const frame = container.querySelector("iframe");
-
-    window.postMessage(
-      { cheloneDocsPreview: "viewing/text-field/basic", height: 600 },
-      "*",
-    );
-    await new Promise((resolve) => setTimeout(resolve, 50));
-    expect(frame?.style.height).toBe("224px");
-  });
-
   it("a Vue choice on a React-only demo still previews React", () => {
     renderPreview(REACT_ONLY, "/docs/editing?framework=vue");
 

@@ -15,7 +15,7 @@
  * website has no Vue compiler, so the Vue demo renders in an iframe of the Vue
  * demo app (`apps/vue-demo/src/DocsPreview.vue`), which compiles it.
  */
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ShikiHighlighter } from "react-shiki";
 import { SHIKI_THEME } from "@/lib/shiki-theme";
 import { cn } from "@/lib/utils";
@@ -81,30 +81,11 @@ type LoadedDemo =
     }
   | { key: string; status: "error" };
 
-/** The Vue iframe's height until `<DocsPreview>` reports the demo's own. */
-const STARTING_VUE_HEIGHT = 224;
-
-/**
- * The height `<DocsPreview>` posts up for its demo. Read without a cast: the
- * message crosses the iframe boundary, so every field is checked before it is
- * trusted.
- */
-function postedHeight(data: unknown, name: string): number | undefined {
-  if (typeof data !== "object" || data === null) return undefined;
-  if (!("cheloneDocsPreview" in data) || !("height" in data)) return undefined;
-  const { cheloneDocsPreview, height } = data;
-  if (cheloneDocsPreview !== name) return undefined;
-  if (typeof height !== "number" || !Number.isFinite(height) || height <= 0) {
-    return undefined;
-  }
-  return Math.ceil(height);
-}
-
 export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [tab, setTab] = useState<"preview" | "code">("preview");
   const [loaded, setLoaded] = useState<LoadedDemo>();
-  const [vueHeight, setVueHeight] = useState(STARTING_VUE_HEIGHT);
   const [chosen, setFramework] = useFramework();
+  const frameRef = useRef<HTMLIFrameElement>(null);
   const reactKey = keyFor(demoModules, name, "tsx");
   const vueKey = keyFor(vueSources, name, "vue");
   // The switch only offers a framework the demo exists in.
@@ -132,17 +113,44 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
     };
   }, [key, framework]);
 
-  // The Vue demo app posts the height its demo needs, so a tall demo (a `<List>`
-  // with its pagination) is not cut off inside a fixed-height iframe.
+  // The Vue demo renders in an iframe of another app, which cannot size the
+  // panel it sits in, so a fixed height cuts a list demo off. Fit the frame to
+  // its content and keep it fitted while the demo changes size (its module
+  // loads after the frame does, and paging a list shrinks it). jsdom has no
+  // ResizeObserver, and a frame it cannot load has nothing to fit.
   useEffect(() => {
-    if (!vueKey) return;
-    const onMessage = (event: MessageEvent) => {
-      const height = postedHeight(event.data, name);
-      if (height !== undefined) setVueHeight(height);
+    const frame = frameRef.current;
+    if (framework !== "vue" || tab !== "preview" || !frame) return;
+    const fit = () => {
+      // The body, not the document element: a document element is never shorter
+      // than the frame it fills, so measuring it can only ever grow the frame
+      // and a shrunk demo would leave an empty band under it. The body's bottom
+      // edge is measured in the frame, so it carries the body's own offset.
+      const body = frame.contentDocument?.body;
+      if (!body) return;
+      const height = Math.max(
+        body.scrollHeight,
+        body.getBoundingClientRect().bottom,
+      );
+      frame.style.height = `${Math.ceil(height)}px`;
     };
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, [name, vueKey]);
+    const observer =
+      typeof ResizeObserver === "function"
+        ? new ResizeObserver(fit)
+        : undefined;
+    const onLoad = () => {
+      fit();
+      const body = frame.contentDocument?.body;
+      if (body) observer?.observe(body);
+    };
+    frame.addEventListener("load", onLoad);
+    if (frame.contentDocument?.readyState === "complete") onLoad();
+    return () => {
+      frame.removeEventListener("load", onLoad);
+      observer?.disconnect();
+      frame.style.height = "";
+    };
+  }, [framework, key, tab]);
 
   if (!key) {
     return (
@@ -204,15 +212,21 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
         >
           {framework === "vue" ? (
             <iframe
+              ref={frameRef}
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
-              className="w-full border-0"
-              style={{ height: vueHeight }}
+              className="min-h-56 w-full border-0"
             />
           ) : DemoComponent ? (
-            <PreviewProvider mode={mode}>
-              <DemoComponent />
-            </PreviewProvider>
+            // `min-w-0`: the panel is a flex row, and a flex item may not shrink
+            // below its min-content size by default. A table with a long-text
+            // column has a min-content wider than the panel, and without this it
+            // overflows the panel instead of scrolling inside the table.
+            <div className="min-w-0">
+              <PreviewProvider mode={mode}>
+                <DemoComponent />
+              </PreviewProvider>
+            </div>
           ) : (
             <span className="text-sm text-muted-foreground">
               {current?.status === "error"

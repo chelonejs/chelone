@@ -38,30 +38,12 @@ const demo = shallowRef<VueDemoModule>();
 void load?.().then((loaded) => {
   demo.value = loaded;
 });
-
-/**
- * Tell the embedding docs page how tall the demo is, named by the demo id the
- * page asked for, so the iframe fits it: a `<List>` demo would otherwise scroll
- * inside a fixed-height iframe, and a one-line field would sit at the top of a
- * tall one instead of centring in the panel beside it.
- */
-const sizes = new ResizeObserver((entries) => {
-  const entry = entries[0];
-  if (!entry) return;
-  const { height } = entry.contentRect;
-  if (height > 0) {
-    window.parent.postMessage(
-      { cheloneDocsPreview: id, height: Math.ceil(height) },
-      "*",
-    );
-  }
-});
-sizes.observe(document.body);
 </script>
 
 <template>
-  <!-- `flow-root` keeps the demo's own margins inside its box, so the height
-       reported above is the whole demo and none of it is cut off. -->
+  <!-- `flow-root` keeps the demo's own margins inside its box. The embedding
+       docs page fits the iframe to this document's body, and a margin that
+       collapsed out of it would land outside the fitted height. -->
   <div class="flow-root">
     <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
       <component :is="demo.default" />
