@@ -37,6 +37,7 @@ function referencesIn(seed: Seed): Reference[] {
         to: "authors",
         ids: post.approvals.map((approval) => approval.reviewer_id),
       },
+      { at: `posts#${post.id}.approvers`, to: "authors", ids: post.approvers },
     ]),
     ...seed.products.flatMap((product): Reference[] => [
       {
@@ -132,6 +133,18 @@ describe("seedData", () => {
     ] as const) {
       expect(seed[name].length, name).toBeGreaterThanOrEqual(5);
     }
+  });
+
+  it("leaves an in_review post one approval short of two, approved by someone but the signed-in user", () => {
+    const SIGNED_IN = 1;
+    const inReview = seed.posts.filter((post) => post.status === "in_review");
+    expect(
+      inReview.some(
+        (post) =>
+          post.approvers.length === 1 && !post.approvers.includes(SIGNED_IN),
+      ),
+    ).toBe(true);
+    expect(inReview.some((post) => post.approvers.length === 0)).toBe(true);
   });
 
   it("keeps ids unique within each resource", () => {

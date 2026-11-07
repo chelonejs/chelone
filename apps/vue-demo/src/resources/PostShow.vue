@@ -29,7 +29,9 @@ const params = useParams();
 </script>
 
 <template>
-  <ShowLive resource="posts">
+  <!-- Keyed by id: vue-router reuses this page between posts, and the page-open
+       diff and the simulated viewer belong to one post. -->
+  <ShowLive :key="params.id" resource="posts">
     <div class="flex flex-col gap-6 max-w-xl">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <PresenceBar />

@@ -196,7 +196,9 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 export function PostShow() {
   const { id } = useParams();
   return (
-    <ShowLive>
+    // Keyed by id: React Router reuses this page between posts, and the page-open
+    // diff belongs to one post.
+    <ShowLive key={id}>
       <div className="flex max-w-xl flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <PresenceBar />

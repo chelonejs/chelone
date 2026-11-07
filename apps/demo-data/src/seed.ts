@@ -47,6 +47,8 @@ export type Post = {
   views: number;
   published: boolean;
   status: PostStatus;
+  /** Ids of the authors who approved the post, written by `<DualApprovalButton>`. */
+  approvers: number[];
   revisions: Revision[];
   approvals: Approval[];
 };
@@ -534,6 +536,7 @@ function buildPosts(now: Date): Post[] {
       views: 50 + ((i * 137) % 900),
       published: status === "published",
       status,
+      approvers: status === "in_review" && (i / 3) % 4 === 1 ? [2] : [],
       revisions: Array.from({ length: revisionCount }, (_, r) => ({
         id: r + 1,
         at: from(now, -(i + 1) * DAY - (revisionCount - r) * 3 * HOUR),
