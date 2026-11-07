@@ -2,9 +2,10 @@ import type { ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { links } from "@/landing/constants";
 import { cn } from "@/lib/utils";
 
-const links = [
+const navLinks = [
   { to: "/", label: "Home", end: true },
   { to: "/docs", label: "Docs" },
 ];
@@ -17,7 +18,7 @@ function NavBar({ left }: { left: ReactNode }) {
       <nav className="flex h-14 items-center gap-4 px-4">
         {left}
         <ul className="flex items-center gap-4">
-          {links.map((l) => (
+          {navLinks.map((l) => (
             <li key={l.to}>
               <NavLink
                 to={l.to}
@@ -33,6 +34,16 @@ function NavBar({ left }: { left: ReactNode }) {
               </NavLink>
             </li>
           ))}
+          {/* Hard nav: the demo is a separate SPA at /demo/, not a react-router
+              route — a <Link> would be intercepted and 404 (decision B). */}
+          <li>
+            <a
+              href={links.demo}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Demo
+            </a>
+          </li>
         </ul>
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
