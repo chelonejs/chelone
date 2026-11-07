@@ -6,16 +6,12 @@ import {
   type SourceProp,
   textOf,
 } from "@chelone/core";
-import { useEffect, useState } from "react";
+import { type KeyboardEvent, useEffect, useId, useState } from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { ValidationError } from "../../field-error-display";
 import { useCheloneFormContext, useWrappedSource } from "../../form-context";
 import { useInput } from "../../form-hooks";
@@ -58,6 +54,10 @@ export interface GeocodingInputProps<TRecord = LooseRecord> {
  * `lngSource` and `bboxSource` so they never describe a different address; a
  * pick writes the result's `displayName` and its coordinates.
  *
+ * The input is a `combobox` and the results are a `listbox` overlay anchored
+ * under it, over the content below, so opening the list leaves the rest of the
+ * form where it is. Same markup as the Vue adapter.
+ *
  * @example
  * <GeocodingInput
  *   source="address"
@@ -98,6 +98,7 @@ export function GeocodingInput<TRecord = LooseRecord>({
   // What the search runs on: typing sets it for a typeahead provider, Enter or the button for any other.
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(-1);
 
   // The form changed the address from outside (a reset, a reverse geocode).
   useEffect(() => setText(saved), [saved]);
@@ -114,9 +115,20 @@ export function GeocodingInput<TRecord = LooseRecord>({
   // Not `query` itself: a typeahead search runs on the debounced value, so a query
   // that has reached `minChars` may not have started yet.
   const searched = search.isFetching || search.status !== "pending";
+  const listed = open && searched;
+  const showsOptions = listed && !search.isFetching && results.length > 0;
+  const highlighted = showsOptions && active >= 0 ? active : -1;
+
+  // A new answer is a different list: nothing is highlighted in it yet.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `search.data` is the intentional trigger; the body only clears the highlight.
+  useEffect(() => setActive(-1), [search.data]);
+
+  const listId = `${useId()}-listbox`;
+  const optionId = (index: number) => `${listId}-${index}`;
 
   const onType = (value: string) => {
     setText(value);
+    setActive(-1);
     if (typeahead) {
       setQuery(value);
       setOpen(true);
@@ -149,6 +161,40 @@ export function GeocodingInput<TRecord = LooseRecord>({
       ambient.setFieldValue(wrappedBbox, [...result.bbox]);
     }
     setOpen(false);
+    setActive(-1);
+  };
+
+  const move = (step: 1 | -1) => {
+    const count = results.length;
+    if (count === 0) return;
+    setOpen(true);
+    setActive((current) => (current + step + count) % count);
+  };
+
+  // An option's mousedown is prevented, so a click on one never blurs the input.
+  const onBlur = () => {
+    setOpen(false);
+    setActive(-1);
+    if (text !== saved) writeTyped();
+    field.onBlur();
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (!showsOptions && !open) return;
+      event.preventDefault();
+      move(event.key === "ArrowDown" ? 1 : -1);
+    } else if (event.key === "Escape" && open) {
+      event.stopPropagation();
+      setOpen(false);
+      setActive(-1);
+    } else if (event.key === "Enter") {
+      // A search or a pick, not a form submit.
+      event.preventDefault();
+      const chosen = highlighted >= 0 ? results[highlighted] : undefined;
+      if (chosen) pick(chosen);
+      else if (!typeahead) runSearch();
+    }
   };
 
   const shown = label === undefined || label ? label : false;
@@ -168,18 +214,18 @@ export function GeocodingInput<TRecord = LooseRecord>({
           />
         </FieldLabel>
       ) : null}
-      <Command
-        shouldFilter={false}
-        className="h-auto overflow-visible bg-transparent"
-      >
+      <div className="relative">
         <div className="flex gap-2">
-          <CommandInput
+          <Input
             id={id}
             name={field.name}
-            value={text}
-            disabled={disabled}
-            placeholder={
-              placeholder ?? translate("chelone.map.search_placeholder")
+            role="combobox"
+            autoComplete="off"
+            aria-autocomplete="list"
+            aria-expanded={listed}
+            aria-controls={showsOptions ? listId : undefined}
+            aria-activedescendant={
+              highlighted >= 0 ? optionId(highlighted) : undefined
             }
             aria-label={
               shown === false
@@ -187,21 +233,14 @@ export function GeocodingInput<TRecord = LooseRecord>({
                 : undefined
             }
             aria-invalid={fieldState.invalid || undefined}
-            onValueChange={onType}
-            onBlur={() => {
-              if (text !== saved) writeTyped();
-              field.onBlur();
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && open) {
-                event.stopPropagation();
-                setOpen(false);
-              } else if (event.key === "Enter" && !open) {
-                // A search, not a form submit.
-                event.preventDefault();
-                if (!typeahead) runSearch();
-              }
-            }}
+            value={text}
+            placeholder={
+              placeholder ?? translate("chelone.map.search_placeholder")
+            }
+            disabled={disabled}
+            onChange={(event) => onType(event.target.value)}
+            onBlur={onBlur}
+            onKeyDown={onKeyDown}
           />
           {typeahead ? null : (
             <Button
@@ -214,44 +253,68 @@ export function GeocodingInput<TRecord = LooseRecord>({
             </Button>
           )}
         </div>
-        {open && searched ? (
-          <CommandList>
+        {listed ? (
+          <div className="absolute z-10 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md">
             {search.isFetching ? (
-              <div className="px-2 py-3 text-sm text-muted-foreground">
+              <p
+                role="status"
+                className="px-2 py-3 text-sm text-muted-foreground"
+              >
                 {translate("chelone.map.searching")}
-              </div>
+              </p>
             ) : search.isError ? (
-              <div
+              <p
                 role="alert"
                 className="px-2 py-3 text-sm text-muted-foreground"
               >
                 {translate("chelone.map.search_failed")}
-              </div>
+              </p>
             ) : results.length === 0 ? (
-              <div className="px-2 py-3 text-sm text-muted-foreground">
+              <p
+                role="status"
+                className="px-2 py-3 text-sm text-muted-foreground"
+              >
                 {translate("chelone.map.no_results")}
-              </div>
+              </p>
             ) : (
-              results.map((result, index) => (
-                <CommandItem
-                  key={`${result.displayName}:${result.lat}:${result.lng}`}
-                  value={`${index}`}
-                  onSelect={() => pick(result)}
-                >
-                  <span className="flex flex-col">
-                    <span>{result.displayName}</span>
-                    {result.type ? (
-                      <span className="text-xs text-muted-foreground">
-                        {result.type}
-                      </span>
-                    ) : null}
-                  </span>
-                </CommandItem>
-              ))
+              <div
+                id={listId}
+                role="listbox"
+                className="max-h-64 overflow-auto p-1"
+              >
+                {results.map((result, index) => (
+                  // The combobox keeps focus on the input, which moves the
+                  // highlight with the arrow keys and picks it with Enter.
+                  // biome-ignore lint/a11y/useKeyWithClickEvents: keyboard-only picking runs through the input, not through the option
+                  // biome-ignore lint/a11y/useFocusableInteractive: same pattern: an option is never focused, so it needs no tabindex
+                  <div
+                    key={`${result.displayName}:${result.lat}:${result.lng}`}
+                    id={optionId(index)}
+                    role="option"
+                    aria-selected={index === highlighted}
+                    className={cn(
+                      "cursor-default rounded-sm px-2 py-1.5 text-sm outline-hidden select-none",
+                      index === highlighted &&
+                        "bg-accent text-accent-foreground",
+                    )}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => pick(result)}
+                  >
+                    <span className="flex flex-col">
+                      <span>{result.displayName}</span>
+                      {result.type ? (
+                        <span className="text-xs text-muted-foreground">
+                          {result.type}
+                        </span>
+                      ) : null}
+                    </span>
+                  </div>
+                ))}
+              </div>
             )}
-          </CommandList>
+          </div>
         ) : null}
-      </Command>
+      </div>
       <FieldError>
         {fieldState.invalid && fieldState.error ? (
           <ValidationError error={fieldState.error} />
