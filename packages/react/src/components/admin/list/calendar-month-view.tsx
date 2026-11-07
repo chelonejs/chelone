@@ -3,6 +3,7 @@ import {
   type CalendarRange,
   type CalendarView,
   calendarDayKey,
+  calendarDaySlot,
   calendarDays,
   calendarEventsOnDay,
   calendarLabels,
@@ -33,8 +34,9 @@ interface EventRendererProps<
 }
 
 /**
- * A selected slot: a whole day in the month view, from its midnight to the
- * next one, or one hour in the week view, ending at the next hour's start.
+ * A selected slot: a whole day in the month view, from its midnight to its last
+ * millisecond as `calendarDaySlot` gives it, or one hour in the week view,
+ * ending at the next hour's start.
  */
 interface CalendarSlot {
   startISO: string;
@@ -204,16 +206,7 @@ function CalendarMonthView<RecordType extends ResourceRecord>({
       weeks.push([first, ...days.slice(i + 1, i + WEEK)]);
   }
 
-  const selectSlot = (day: Date) =>
-    onSelectSlot?.({
-      startISO: day.toISOString(),
-      endISO: new Date(
-        day.getFullYear(),
-        day.getMonth(),
-        day.getDate() + 1,
-      ).toISOString(),
-      allDay: true,
-    });
+  const selectSlot = (day: Date) => onSelectSlot?.(calendarDaySlot(day));
 
   const onCellKeyDown = (event: KeyboardEvent, day: Date) => {
     if (isSlotKey(event)) selectSlot(day);
