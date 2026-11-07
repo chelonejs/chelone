@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * One row of an `<ApprovalQueue>`: the title and subtitle of its record, the
  * `<DualApprovalButton>` and a Reject that opens a reason form. It owns the
@@ -8,7 +8,9 @@
 import {
   buildRejectionUpdate,
   getAtPath,
+  isLooseRecord,
   type LooseRecord,
+  type ResourceRecord,
 } from "@chelone/core";
 import { useIsMutating } from "@tanstack/vue-query";
 import { computed, ref, toRef, useId, type VNode } from "vue";
@@ -106,7 +108,7 @@ function close(): void {
 
 async function confirm(): Promise<void> {
   const data = rejection.value;
-  if (!data) return;
+  if (!data || !isLooseRecord(props.record)) return;
   const request = update.mutateAsync({
     id: props.record.id,
     data,

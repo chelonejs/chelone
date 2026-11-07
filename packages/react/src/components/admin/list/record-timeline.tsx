@@ -1,6 +1,7 @@
 import {
   formatRelativeTime,
   type LooseRecord,
+  type ResourceRecord,
   type SourceProp,
   toTimelineEntries,
 } from "@chelone/core";
@@ -12,7 +13,7 @@ import { cn } from "../../../lib/utils";
 import { SimpleListLoading } from "./simple-list-loading";
 
 export interface RecordTimelineProps<
-  TRecord extends LooseRecord = LooseRecord,
+  TRecord extends ResourceRecord = LooseRecord,
 > {
   /** The field printed as the entry's text; a dotted path reads a nested value. */
   messageSource: SourceProp<TRecord>;
@@ -46,7 +47,7 @@ export interface RecordTimelineProps<
  *   <RecordTimeline messageSource="message" timestampSource="at" userSource="by" />
  * </ReferenceManyField>
  */
-function RecordTimeline<TRecord extends LooseRecord = LooseRecord>({
+function RecordTimeline<TRecord extends ResourceRecord = LooseRecord>({
   messageSource,
   timestampSource,
   userSource,
@@ -62,7 +63,7 @@ function RecordTimeline<TRecord extends LooseRecord = LooseRecord>({
 
   const timeline = useMemo(
     () =>
-      toTimelineEntries<LooseRecord>(data ?? [], {
+      toTimelineEntries<TRecord>(data ?? [], {
         messageSource,
         timestampSource,
         userSource,
