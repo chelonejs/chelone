@@ -26,5 +26,5 @@ const classes = computed(() => cn("inline-flex bg-muted", props.class));
 </script>
 
 <template>
-  <span :class="classes"><slot>&nbsp;</slot></span>
+  <span data-slot="placeholder" :class="classes"><slot>&nbsp;</slot></span>
 </template>

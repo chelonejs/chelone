@@ -24,6 +24,12 @@
       "type": "(() => void)",
       "optional": true,
       "comment": "Click handler invoked alongside the default navigation (e.g. close the mobile drawer)."
+    },
+    {
+      "name": "keyboardShortcut",
+      "type": "string",
+      "optional": true,
+      "comment": "Keys that navigate to `to` from anywhere on the page, such as `\"mod+1\"` or\n`\"alt+/\"`, shown after the label. `mod` is Cmd or Ctrl."
     }
   ],
   "emits": [],

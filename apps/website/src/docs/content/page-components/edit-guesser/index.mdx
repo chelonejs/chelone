@@ -1,0 +1,28 @@
+---
+title: "EditGuesser"
+description: "An edit page whose inputs come from the resource's registered Zod schema."
+registry: "edit-guesser"
+---
+
+`<EditGuesser>` is an `<Edit>` with an input for each field of the resource's
+Zod schema, followed by a `<Toolbar>`. It leaves out the `id` field, and the
+form validates against the same schema on save. A resource without a schema
+shows `<GuesserEmpty>` and fetches no record.
+
+<ComponentPreview name="page-components/edit-guesser/basic" />
+
+```tsx title="src/App.tsx"
+<Resource name="posts" edit={EditGuesser} />
+```
+
+Outside production it logs the hand-written edit page it stands in for. Copy
+that code and replace the guesser when the page needs more. `enableLog` turns
+the log off. The [guessers guide](/docs/app-config/guessers) covers the
+schema-to-input mapping, the log and Vue.
+
+See also [`<ListGuesser>`](/docs/page-components/list-guesser) and
+[`<ShowGuesser>`](/docs/page-components/show-guesser).
+
+## Props
+
+<PropsTable name="EditGuesser" />

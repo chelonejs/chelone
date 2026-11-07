@@ -7,4 +7,7 @@ export default [
   { dir: "edit", title: "Edit" },
   { slug: "create", title: "Create" },
   { slug: "show", title: "Show" },
+  { slug: "list-guesser", title: "ListGuesser" },
+  { slug: "show-guesser", title: "ShowGuesser" },
+  { slug: "edit-guesser", title: "EditGuesser" },
 ] satisfies MetaEntry[];

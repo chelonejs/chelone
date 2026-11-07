@@ -4705,8 +4705,11 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/sidebar"],
-      "dependencies": ["@chelone/vue"],
+      "registryDependencies": [
+        "@chelone/keyboard-shortcut",
+        "@chelone/sidebar"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
