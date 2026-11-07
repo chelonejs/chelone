@@ -2,6 +2,7 @@ export { demoAssistantTools, demoAssistantTransport } from "./assistant";
 export { demoAuthProvider } from "./auth";
 export { createFakeDeploy, type FakeDeploy } from "./fake-deploy";
 export { makeI18n } from "./i18n";
+export { landingPageDocument } from "./landing-page";
 export type {
   Activity,
   ActivityResource,
