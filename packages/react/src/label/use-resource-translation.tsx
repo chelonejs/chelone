@@ -33,7 +33,8 @@ export function useResourceTranslation(
   return useMemo<ReactNode>(() => {
     if (userText !== undefined) {
       if (typeof userText !== "string") return userText;
-      const translated = translate(userText, options ?? {});
+      // The caller's fallback is for the base key; a missing key falls back to the text itself.
+      const translated = translate(userText, { ...options, _: userText });
       return translated === userText ? userText : translated;
     }
 
