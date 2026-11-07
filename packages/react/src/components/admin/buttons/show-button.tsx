@@ -6,7 +6,7 @@
  * `useResourceTranslation`. Reads the record from `RecordContext`.
  */
 
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import { definedParams } from "@chelone/core";
 import { Eye } from "lucide-react";
 import type { Ref } from "react";
@@ -22,10 +22,10 @@ import { useCreatePath } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-type ShowButtonProps = {
+type ShowButtonProps<TRecord extends ResourceRecord = LooseRecord> = {
   label?: string;
   icon?: React.ReactNode;
-  record?: LooseRecord;
+  record?: TRecord;
   resource?: string;
   scrollToTop?: boolean;
   ref?: Ref<HTMLAnchorElement>;
@@ -44,7 +44,9 @@ const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
  *
  * const PostActions = () => <ShowButton label="View Details" />;
  */
-function ShowButton(props: ShowButtonProps) {
+function ShowButton<TRecord extends ResourceRecord = LooseRecord>(
+  props: ShowButtonProps<TRecord>,
+) {
   const {
     label: labelProp,
     icon,
@@ -55,7 +57,7 @@ function ShowButton(props: ShowButtonProps) {
     ...rest
   } = props;
   const resource = useResourceContext(props);
-  const record = useRecordContext(props);
+  const record = useRecordContext<TRecord>(props);
   const createPath = useCreatePath();
   const { Link } = useRouterAdapter();
   const { canAccess, isPending: isAccessPending } = useMenuAccess({
