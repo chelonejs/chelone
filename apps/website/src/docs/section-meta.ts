@@ -1,4 +1,5 @@
 import {
+  Atom,
   Boxes,
   KeyRound,
   Layers,
@@ -28,6 +29,11 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
     "page-components": {
       icon: LayoutDashboard,
       blurb: "List, Create, Edit, and Show — the screens of every CRUD app.",
+    },
+    react: {
+      icon: Atom,
+      blurb:
+        "Install @chelone/react, wire Admin into react-router, and follow the quick start.",
     },
     vue: {
       icon: Layers,
@@ -61,6 +67,11 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
   };
 
 // Guide sections aren't components — keep the directory to the library itself.
-export const GUIDE_SECTIONS = new Set(["getting-started", "vue", "app-config"]);
+export const GUIDE_SECTIONS = new Set([
+  "getting-started",
+  "react",
+  "vue",
+  "app-config",
+]);
 
 export const fallbackIcon = Boxes;

@@ -11,6 +11,8 @@ export const insetCard = "rounded-[0.85rem] border border-border/40 bg-card";
 /** Canonical external/internal links used across the landing. */
 export const links = {
   install: "/docs/getting-started/install",
+  // The React adapter's install steps moved to the React section's setup page.
+  reactSetup: "/docs/react/setup",
   // Decision B: the demo ships as a standalone Vite app, linked out (not folded
   // into this SSG shell). The website build copies apps/demo/dist → the static
   // output at build/client/demo/, so the deployed site serves the working admin

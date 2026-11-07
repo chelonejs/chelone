@@ -59,7 +59,7 @@ export function PostList() {
 
 The `q` filter is an `alwaysOn` search — Chelone forwards it to your data
 provider's `getList` under `filter.q`. The wrapper from
-[Setup](/docs/getting-started/quick-start-guide/setup) matches a case-insensitive
+[Setup](/docs/react/quick-start-guide/setup) matches a case-insensitive
 substring of the post's title or body before pagination. Type `On` to find
 "On Computable Numbers". A production provider must implement its own `q`
 search. The `author_id` filter is optional: the `<FilterButton>` dropdown toggles
@@ -96,7 +96,7 @@ export function AuthorList() {
 ```
 
 The following `App.tsx` snippets update the `App` from
-[Setup](/docs/getting-started/quick-start-guide/setup): keep its `dataProvider`,
+[Setup](/docs/react/quick-start-guide/setup): keep its `dataProvider`,
 `queryClient`, `resources`, view imports, and surrounding `<BrowserRouter>`.
 
 ```tsx title="src/App.tsx" {2,9,10}
@@ -138,4 +138,4 @@ import { Dashboard } from "./dashboard";
 </Admin>;
 ```
 
-Next: [auth & production](/docs/getting-started/quick-start-guide/auth-production).
+Next: [auth & production](/docs/react/quick-start-guide/auth-production).

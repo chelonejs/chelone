@@ -11,7 +11,7 @@ the resource's Zod schema — no per-input `validate` props.
 
 An input renders a labelled control bound to one field:
 
-<ComponentPreview name="getting-started/quick-start-guide/text-input" />
+<ComponentPreview name="react/quick-start-guide/text-input" />
 
 ```tsx
 import { TextInput } from "@chelone/react";
@@ -25,7 +25,7 @@ Compose inputs directly as `<Edit>` children — Chelone has no `<SimpleForm>`
 wrapper; the view IS the form. Keep `PostList` and merge the new imported names
 into the existing `@chelone/react` import in `src/posts.tsx`:
 
-<ComponentPreview name="getting-started/quick-start-guide/post-edit" />
+<ComponentPreview name="react/quick-start-guide/post-edit" />
 
 ```tsx title="src/posts.tsx"
 import {
@@ -96,7 +96,7 @@ export function PostShow() {
 }
 ```
 
-In the `App` from [Setup](/docs/getting-started/quick-start-guide/setup), merge
+In the `App` from [Setup](/docs/react/quick-start-guide/setup), merge
 the new view names into the existing imports and replace the posts `<Resource>`
 inside `<Admin>`:
 

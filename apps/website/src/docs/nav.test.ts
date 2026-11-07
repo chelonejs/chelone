@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { defined } from "@chelone/test-utils";
 import { test } from "vitest";
+import rootMeta from "./content/_meta.ts";
 import { buildNavTree, lastSegment } from "./nav.ts";
 import type { DocGroup, DocLeaf, DocNode } from "./types.ts";
 
@@ -132,6 +133,21 @@ test("buildNavTree returns only groups at the root", () => {
     [
       ["group", "ui-layout"],
       ["group", "getting-started"],
+    ],
+  );
+});
+
+test("the real section order puts React above Vue, under Getting Started", () => {
+  const tree = buildNavTree(
+    ["getting-started/install", "react/setup", "vue/setup"],
+    { "": rootMeta },
+  );
+  assert.deepEqual(
+    tree.map((node) => [node.dir, node.title]),
+    [
+      ["getting-started", "Getting Started"],
+      ["react", "React"],
+      ["vue", "Vue"],
     ],
   );
 });

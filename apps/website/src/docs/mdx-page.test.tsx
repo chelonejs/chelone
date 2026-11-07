@@ -416,3 +416,61 @@ it("renders the h2 and h3 headings of a docs page as links to their own anchors"
     within(screen.getByRole("heading", { level: 1 })).queryByRole("link"),
   ).toBeNull();
 });
+
+// The React section and the moved quick start guide: each page must still render
+// at its new slug, with the demos it places by hand.
+it.each([
+  ["react/setup", "Setup"],
+  ["react/quick-start-guide/setup", "1. Setup"],
+  ["react/quick-start-guide/detail-editing", "3. Detail & Editing"],
+  ["getting-started/install", "Installation"],
+])("renders the %s guide page at its new slug", async (slug, title) => {
+  render(
+    <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(
+    await screen.findByRole("heading", { level: 1, name: title }),
+  ).toBeTruthy();
+  expect(screen.queryByText(/Page not found/)).toBeNull();
+});
+
+it("renders the moved quick start list page with its four live demos", async () => {
+  render(
+    <MemoryRouter
+      initialEntries={["/docs/react/quick-start-guide/building-the-list"]}
+    >
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(await screen.findByText("On Computable Numbers")).toBeTruthy();
+  expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(4);
+});
+
+it("lands the React section on cards for its setup page and quick start", async () => {
+  render(
+    <MemoryRouter initialEntries={["/docs/react"]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(
+    await screen.findByRole("heading", { level: 1, name: "React" }),
+  ).toBeTruthy();
+  const hrefs = screen.getAllByRole("link").map((l) => l.getAttribute("href"));
+  expect(hrefs).toEqual(
+    expect.arrayContaining([
+      "/docs/react/setup",
+      "/docs/react/quick-start-guide/setup",
+    ]),
+  );
+});
