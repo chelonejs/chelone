@@ -18,10 +18,10 @@
 import { createNotificationStore } from "@chelone/core";
 import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
-import { supabaseEnglishMessages } from "@chelone/supabase";
 import { QueryClient } from "@tanstack/vue-query";
-import { demoAuthProvider, makeDemoStore, makeI18n } from "@chelone/demo-data";
+import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import { authRoutes } from "./auth-routes";
+import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
@@ -63,7 +63,7 @@ const customRoutes = [...authRoutes, ...pageRoutes];
 // resources/schema.ts.
 const guessedResources = ["categories", "tags"];
 
-// A retry-off query client, the English i18n catalog and a notification store
+// A retry-off query client and a notification store
 // (the simulated user's failed lock reports through it) — the services a real
 // app configures. Module scope keeps them stable for the app lifetime. The
 // realtime data provider is built in `realtime.ts`.
@@ -74,9 +74,11 @@ const queryClient = new QueryClient({
     mutations: { retry: false },
   },
 });
-const i18n = makeI18n(supabaseEnglishMessages);
-// Kept in `localStorage`, so the tour that opens on a first visit stays closed.
+// Kept in `localStorage`, so the tour that opens on a first visit stays closed
+// and the Team page's role and role matrix survive a reload. The auth provider
+// answers every access check from them. The i18n instance is in ./i18n.
 const store = makeDemoStore();
+const authProvider = makeDemoAuthProvider(store);
 </script>
 
 <template>
@@ -90,7 +92,7 @@ const store = makeDemoStore();
       :i18n="i18n"
       :notifications="notifications"
       :store="store"
-      :auth-provider="demoAuthProvider"
+      :auth-provider="authProvider"
       :custom-routes="customRoutes"
     >
       <template #layout><Shell /></template>
