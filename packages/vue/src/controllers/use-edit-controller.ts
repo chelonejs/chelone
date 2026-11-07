@@ -68,7 +68,7 @@ export function useEditController<
 ): UseEditControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
-  const resource = useRequiredResource("useEditController", options) as TName;
+  const resource = useRequiredResource<TName>("useEditController", options);
   const id = resolveId(options.id);
 
   const controller: EditController<TRecord> = createEditController(
