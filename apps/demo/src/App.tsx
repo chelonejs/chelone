@@ -11,18 +11,18 @@ import { createNotificationStore, createStore } from "@chelone/core";
 import { makeI18n } from "@chelone/demo-data";
 import {
   Admin,
-  Layout,
-  Menu,
-  MenuLive,
+  CustomRoutes,
+  EditGuesser,
+  ListGuesser,
   Resource,
-  useResourceDefinitions,
+  ShowGuesser,
 } from "@chelone/react";
 import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
-import { BrowserRouter } from "react-router";
+import { BrowserRouter, Route } from "react-router";
 import { mapsConfig } from "./maps-services";
+import { pages } from "./pages";
 import { dataProvider } from "./realtime";
-import { SimulateOtherUser } from "./realtime-sim";
 import { resources } from "./resources";
 import {
   AuthorCreate,
@@ -55,6 +55,7 @@ import {
   ProductList,
   ProductShow,
 } from "./resources/products";
+import { Shell } from "./shell";
 
 // One QueryClient for the app lifetime (module scope — stable across renders).
 const queryClient = new QueryClient({
@@ -69,33 +70,6 @@ const queryClient = new QueryClient({
 const i18n = makeI18n();
 const notifications = createNotificationStore();
 const store = createStore();
-
-// Posts get a live unread badge; the other resources keep their plain links.
-// The panel is repeated here because the badge clears while /posts is open:
-// adding a post from any other page is the only way to see it.
-function DemoMenu() {
-  const definitions = useResourceDefinitions();
-  const others = Object.entries(definitions).filter(
-    ([name, { hasList }]) => hasList && name !== "posts",
-  );
-  return (
-    <>
-      <div className="px-4 pt-2 text-sm">
-        <MenuLive
-          items={[{ to: "/posts", resource: "posts", label: "Posts" }]}
-        />
-      </div>
-      <Menu>
-        {others.map(([name]) => (
-          <Menu.ResourceItem key={name} name={name} />
-        ))}
-      </Menu>
-      <div className="px-4 pt-2">
-        <SimulateOtherUser />
-      </div>
-    </>
-  );
-}
 
 export function App() {
   return (
@@ -116,7 +90,7 @@ export function App() {
         >
           {/* Opt-in shadcn shell (sidebar + app bar + toaster). */}
           <Admin.Layout>
-            <Layout menu={DemoMenu} />
+            <Shell />
           </Admin.Layout>
 
           {/* QUICKSTART: `posts` carries a Zod schema (see resources/index.ts →
@@ -164,6 +138,24 @@ export function App() {
             create={PlaceCreate}
             show={PlaceShow}
           />
+          {/* No hand-written views yet: the guessers build them from the
+              schemas in resources/index.ts. */}
+          {["pages", "categories", "tags"].map((name) => (
+            <Resource
+              key={name}
+              name={name}
+              list={ListGuesser}
+              edit={EditGuesser}
+              show={ShowGuesser}
+            />
+          ))}
+
+          {/* One route per file in src/pages (see pages.tsx). */}
+          <CustomRoutes>
+            {pages.map(({ path, Component }) => (
+              <Route key={path} path={path} element={<Component />} />
+            ))}
+          </CustomRoutes>
         </Admin>
       </MapsProvider>
     </BrowserRouter>
