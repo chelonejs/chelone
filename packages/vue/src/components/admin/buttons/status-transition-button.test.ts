@@ -223,9 +223,8 @@ describe("StatusTransitionButton", () => {
     await vi.waitFor(() =>
       expect(wrapper.find(dialogSelector).exists()).toBe(true),
     );
-    expect(wrapper.get(dialogSelector).text()).toContain(
-      "Change status to review?",
-    );
+    expect(wrapper.get(dialogSelector).text()).toContain("Change status?");
+    expect(wrapper.get(dialogSelector).text()).toContain("Move to review?");
     expect(update).not.toHaveBeenCalled();
 
     await wrapper.get('[data-slot="confirm-cancel"]').trigger("click");

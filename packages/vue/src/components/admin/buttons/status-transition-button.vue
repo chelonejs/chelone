@@ -118,15 +118,13 @@ const pendingTarget = ref<string | null>(null);
 
 const confirmTitle = computed(() =>
   translate("chelone.status_transition.confirm_title", {
-    _: "Change status to {to}?",
-    to: label(pendingTarget.value ?? ""),
+    _: "Change status?",
   }),
 );
 const confirmContent = computed(() =>
   translate("chelone.status_transition.confirm_content", {
-    _: "The status changes from {from} to {to}.",
-    from: label(transitionState.value?.current ?? ""),
-    to: label(pendingTarget.value ?? ""),
+    _: "Move to {status}?",
+    status: label(pendingTarget.value ?? ""),
   }),
 );
 

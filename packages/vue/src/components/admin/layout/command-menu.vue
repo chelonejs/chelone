@@ -165,7 +165,7 @@ const title = computed(() =>
 );
 const description = computed(() =>
   translate("chelone.command_menu.description", {
-    _: "Search resources and records, or run an action.",
+    _: "Jump to a page or record, or run an action.",
   }),
 );
 </script>
