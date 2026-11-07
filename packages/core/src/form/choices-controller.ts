@@ -23,6 +23,14 @@ import type { SourceKey } from "../resource/source-path";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 
 /**
+ * An erased choice record: choices carry arbitrary shapes (`{id, name, ...}`),
+ * and an adapter's choice inputs are generic over one. Both adapters re-export
+ * this as their own `ChoiceRecord`.
+ */
+// type-escape: a choice is any record shape; the caller's `TChoice` names it.
+export type ChoiceRecord = Record<string, unknown>;
+
+/**
  * The choices-context state (§0b parity). A list-like base (page/perPage/sort/
  * filter) plus a status union over three record views:
  * - `availableChoices` — the current fetched page (choices query only)
@@ -479,4 +487,25 @@ export function createChoicesController<
     setValue,
     refetch,
   };
+}
+
+/** The three choice views of a state, erased to `ChoiceRecord[]`. */
+export interface ChoiceLists {
+  allChoices: ChoiceRecord[];
+  availableChoices: ChoiceRecord[];
+  selectedChoices: ChoiceRecord[];
+}
+
+/**
+ * The state's three choice views as the erased lists an adapter's
+ * `ChoicesContextValue` carries — the one place a record becomes a
+ * `ChoiceRecord`, so neither adapter writes the cast. The arrays are the
+ * state's own, not copies.
+ */
+export function choiceListsOf<TRecord>(
+  state: ChoicesControllerState<TRecord>,
+): ChoiceLists {
+  const { allChoices, availableChoices, selectedChoices } = state;
+  // type-escape: `RecordOf` cannot be proved a `ChoiceRecord` while it is generic.
+  return { allChoices, availableChoices, selectedChoices } as ChoiceLists;
 }
