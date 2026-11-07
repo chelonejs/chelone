@@ -14,7 +14,8 @@ const visits = [
 export default function TrendChartDemo() {
   return (
     <TrendChart
-      className="w-full max-w-xl"
+      // A width of its own: the preview panel sizes to its content, so "w-full" collapses the chart to 0.
+      className="w-[32rem] max-w-full"
       title="Visits this week"
       data={visits}
       xField="day"

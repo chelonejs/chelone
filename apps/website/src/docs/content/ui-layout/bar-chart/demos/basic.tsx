@@ -13,7 +13,8 @@ const revenue = [
 export default function BarChartDemo() {
   return (
     <BarChart
-      className="w-full max-w-xl"
+      // A width of its own: the preview panel sizes to its content, so "w-full" collapses the chart to 0.
+      className="w-[32rem] max-w-full"
       title="Revenue by month"
       data={revenue}
       xField="month"

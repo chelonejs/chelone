@@ -11,7 +11,8 @@ const channels = [
 export default function DonutChartDemo() {
   return (
     <DonutChart
-      className="w-full max-w-sm"
+      // A width of its own: the preview panel sizes to its content, so "w-full" collapses the chart to 0.
+      className="w-[24rem] max-w-full"
       title="Orders by channel"
       data={channels}
       labelField="channel"
