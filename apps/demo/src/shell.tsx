@@ -327,10 +327,11 @@ export function Shell({ children, ...props }: LayoutProps) {
           tools={assistantTools}
           welcomeMessage="Hi! Ask me how many posts there are."
         />
+        {/* Left of the Assistant trigger, which sits at `bottom-4 right-4`. */}
         <DataProviderDevtools
           log={dataProviderLog}
           defaultOpen={false}
-          className="right-auto left-4"
+          className="right-32"
         />
       </Inspector>
     </CommandMenu>

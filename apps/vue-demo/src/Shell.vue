@@ -249,10 +249,11 @@ const t = (key: string, english: string) => translate(key, { _: english });
           :tools="assistantTools"
           welcome-message="Hi! Ask me how many posts there are."
         />
+        <!-- Left of the Assistant trigger, which sits at `bottom-4 right-4`. -->
         <DataProviderDevtools
           :log="dataProviderLog"
           :default-open="false"
-          class="right-auto left-4"
+          class="right-32"
         />
       </Inspector>
     </CommandMenu>
