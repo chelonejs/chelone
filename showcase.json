@@ -16,8 +16,44 @@
   "approval-queue-row": {
     "shownBy": "approval-queue"
   },
-  "array-field": null,
-  "array-input": null,
+  "array-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/array-field",
+        "see": "[data-slot=\"badge\"]:has-text(\"Science\")"
+      },
+      "demo": {
+        "path": "/demo/product-variants",
+        "see": "[data-chelone-tab=\"stock\"] [data-slot=\"table\"]",
+        "click": ["role=tab[name=\"Stock\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/ProductVariants",
+        "see": "[data-chelone-tab=\"stock\"] table",
+        "click": ["role=tab[name=\"Stock\"]"]
+      }
+    }
+  },
+  "array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/array-input",
+        "see": ".ra-input:has([data-slot=\"array-input-add\"])"
+      },
+      "demo": {
+        "path": "/demo/product-variants",
+        "see": ".ra-input:has([data-slot=\"array-input-add\"])"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/ProductVariants",
+        "see": "[data-slot=\"array-input\"]"
+      }
+    }
+  },
   "array-input-row": {
     "shownBy": "array-input"
   },
@@ -49,8 +85,42 @@
   "auto-config-form": {
     "shownBy": "block-editor-input"
   },
-  "autocomplete-array-input": null,
-  "autocomplete-input": null,
+  "autocomplete-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/autocomplete-array-input",
+        "see": "[data-slot=command]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "[data-slot=field]:has(> label > span:text-is(\"Products\")) [data-slot=command]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "[data-slot=autocomplete-array]"
+      }
+    }
+  },
+  "autocomplete-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/autocomplete-input",
+        "see": "role=combobox[name=\"Author\"]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=combobox[name=\"Customer\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "[data-slot=autocomplete]"
+      }
+    }
+  },
   "badge-field": null,
   "bar-chart": null,
   "bbox-field": {
@@ -453,10 +523,46 @@
   "data-table-row": {
     "shownBy": "data-table"
   },
-  "datagrid-input": null,
+  "datagrid-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/datagrid-input",
+        "see": "[data-slot=\"datagrid-input\"]"
+      },
+      "demo": {
+        "path": "/demo/product-variants",
+        "see": "[data-slot=\"datagrid-input\"]",
+        "click": ["role=tab[name=\"Tags\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/ProductVariants",
+        "see": "[data-slot=\"datagrid-input\"]",
+        "click": ["role=tab[name=\"Tags\"]"]
+      }
+    }
+  },
   "date-field": null,
   "date-input": null,
-  "date-time-input": null,
+  "date-time-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/date-time-input",
+        "see": "role=textbox"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=textbox[name=\"Delivery\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=textbox[name=\"Delivery\"]"
+      }
+    }
+  },
   "default-blocks": {
     "shownBy": "block-editor-input"
   },
@@ -470,8 +576,42 @@
     "shownBy": "shape-input"
   },
   "dual-approval-button": null,
-  "duration-field": null,
-  "duration-input": null,
+  "duration-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/duration-field",
+        "see": "text=\"2h 30m\""
+      },
+      "demo": {
+        "path": "/demo/orders/1/show",
+        "see": "div:has(> div > span:text-is(\"Handling time\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1/show",
+        "see": "[data-slot=duration-field]"
+      }
+    }
+  },
+  "duration-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/duration-input",
+        "see": "role=spinbutton[name=\"hours\"]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=spinbutton[name=\"hours\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=spinbutton[name=\"hours\"]"
+      }
+    }
+  },
   "edit": null,
   "edit-button": null,
   "edit-guesser": null,
@@ -853,13 +993,64 @@
     "shownBy": "block-editor-input"
   },
   "record-timeline": null,
-  "reference-array-field": null,
-  "reference-array-input": null,
+  "reference-array-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-array-field",
+        "see": "[data-slot=badge]"
+      },
+      "demo": {
+        "path": "/demo/orders/1/show",
+        "see": "div:has(> div > span:text-is(\"Products\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1/show",
+        "see": "[data-slot=record-field]:has(> div:text-is(\"Products\")) > span"
+      }
+    }
+  },
+  "reference-array-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/reference-array-input",
+        "see": "[data-slot=command]"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "[data-slot=field]:has(> label > span:text-is(\"Products\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=combobox[name=\"Products\"]"
+      }
+    }
+  },
   "reference-field": null,
   "reference-input": null,
   "reference-many-count": null,
   "reference-many-field": null,
-  "reference-one-field": null,
+  "reference-one-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-one-field",
+        "see": "text=\"Most viewed post\""
+      },
+      "demo": {
+        "path": "/demo/orders/1/show",
+        "see": "div:has(> div > span:text-is(\"Customer's latest order\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1/show",
+        "see": "[data-slot=record-field]:has(> div:text-is(\"Customer's latest order\")) > span"
+      }
+    }
+  },
   "reference-record-block": {
     "shownBy": "block-editor-input"
   },
@@ -1040,7 +1231,18 @@
   "show-guesser": null,
   "show-live": null,
   "sidebar-toggle-button": null,
-  "simple-form-iterator": null,
+  "simple-form-iterator": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/simple-form-iterator",
+        "see": "[data-slot=\"simple-form-iterator\"]"
+      },
+      "demo": {
+        "path": "/demo/product-variants",
+        "see": "[data-slot=\"simple-form-iterator\"]"
+      }
+    }
+  },
   "simple-list": {
     "react": {
       "docs": {
@@ -1164,7 +1366,24 @@
   "theme-provider": {
     "shownBy": "theme-mode-toggle"
   },
-  "time-input": null,
+  "time-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/time-input",
+        "see": "role=textbox"
+      },
+      "demo": {
+        "path": "/demo/orders/1",
+        "see": "role=textbox[name=\"Slot opens\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/orders/1",
+        "see": "role=textbox[name=\"Slot opens\"]"
+      }
+    }
+  },
   "title": null,
   "title-portal": {
     "shownBy": "title"

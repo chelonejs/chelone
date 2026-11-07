@@ -160,7 +160,7 @@
   "packages/vue/src/components/admin/inputs/currency-input.vue <-> packages/vue/src/components/admin/inputs/phone-input.vue": 3,
   "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/date-time-input.vue": 6,
   "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/file-input.vue": 1,
-  "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/number-input.vue": 3,
+  "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/number-input.vue": 2,
   "packages/vue/src/components/admin/inputs/date-input.vue <-> packages/vue/src/components/admin/inputs/time-input.vue": 2,
   "packages/vue/src/components/admin/inputs/date-time-input.vue <-> packages/vue/src/components/admin/inputs/time-input.vue": 3,
   "packages/vue/src/components/admin/inputs/duration-input.vue <-> packages/vue/src/components/admin/inputs/phone-input.vue": 1,

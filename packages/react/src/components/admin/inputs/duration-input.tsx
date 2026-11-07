@@ -137,7 +137,7 @@ function DurationInput<
                 writeBack(next);
               }}
               onBlur={field.onBlur}
-              className="w-16"
+              className="w-16 text-foreground"
               aria-label={UNIT_LABEL[u]}
               id={`${id}-${u}`}
               aria-invalid={invalid || undefined}
