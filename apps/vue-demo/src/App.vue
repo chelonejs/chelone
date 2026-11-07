@@ -30,6 +30,17 @@ import {
 } from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
+import {
+  FileText,
+  FolderTree,
+  MapPin,
+  Newspaper,
+  Package,
+  PenLine,
+  ShoppingCart,
+  Tags,
+  Users,
+} from "lucide-vue-next";
 import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import { authRoutes } from "./auth-routes";
 import { i18n } from "./i18n";
@@ -75,7 +86,7 @@ const customRoutes = [...authRoutes, ...pageRoutes];
 
 // No hand-written views yet: the guessers build them from the schemas in
 // resources/schema.ts.
-const guessedResources = ["tags"];
+const guessedResources = [{ name: "tags", icon: Tags }];
 
 // A retry-off query client and a notification store
 // (the simulated user's failed lock reports through it) — the services a real
@@ -139,6 +150,7 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
            registry-schema default validator). -->
       <Resource
         name="posts"
+        :icon="Newspaper"
         :list="PostList"
         :edit="PostEdit"
         :create="PostCreate"
@@ -146,6 +158,7 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
       />
       <Resource
         name="authors"
+        :icon="PenLine"
         :list="AuthorList"
         :edit="AuthorEdit"
         :create="AuthorCreate"
@@ -153,6 +166,7 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
       />
       <Resource
         name="products"
+        :icon="Package"
         :list="ProductList"
         :edit="ProductEdit"
         :create="ProductCreate"
@@ -160,6 +174,7 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
       />
       <Resource
         name="customers"
+        :icon="Users"
         :list="CustomerList"
         :edit="CustomerEdit"
         :create="CustomerCreate"
@@ -167,6 +182,7 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
       />
       <Resource
         name="orders"
+        :icon="ShoppingCart"
         :list="OrderList"
         :edit="OrderEdit"
         :create="OrderCreate"
@@ -174,6 +190,7 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
       />
       <Resource
         name="places"
+        :icon="MapPin"
         :list="PlaceList"
         :edit="PlaceEdit"
         :create="PlaceCreate"
@@ -181,21 +198,24 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
       />
       <Resource
         name="pages"
+        :icon="FileText"
         :list="PageList"
         :edit="PageEdit"
         :show="PageShow"
       />
       <Resource
         name="categories"
+        :icon="FolderTree"
         record-representation="name.en"
         :list="CategoryList"
         :edit="CategoryEdit"
         :show="CategoryShow"
       />
       <Resource
-        v-for="name in guessedResources"
+        v-for="{ name, icon } in guessedResources"
         :key="name"
         :name="name"
+        :icon="icon"
         :list="ListGuesser"
         :edit="EditGuesser"
         :show="ShowGuesser"
