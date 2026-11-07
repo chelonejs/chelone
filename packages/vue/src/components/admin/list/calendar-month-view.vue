@@ -1,8 +1,10 @@
-<script lang="ts">
-import type { CalendarEvent, LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { CalendarEvent, LooseRecord, ResourceRecord } from "@chelone/core";
 
 /** What the `#event` slot of a `<CalendarList>` receives: the event and the day cell it renders in. */
-export interface CalendarEventSlotProps extends CalendarEvent<LooseRecord> {
+export interface CalendarEventSlotProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> extends CalendarEvent<TRecord> {
   day: Date;
 }
 
@@ -20,7 +22,9 @@ export interface CalendarDrop {
 }
 
 /** Props for {@link CalendarMonthView}. */
-export interface CalendarMonthViewProps {
+export interface CalendarMonthViewProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** Every day of the grid, whole weeks, in order. */
   days: Date[];
   /** Its month decides which days are outside the month. */
@@ -29,17 +33,21 @@ export interface CalendarMonthViewProps {
   weekdays: string[];
   /** The label of the grid. */
   label: string;
-  events: CalendarEvent<LooseRecord>[];
+  events: CalendarEvent<TRecord>[];
   /** The link an event is, when it navigates. */
-  hrefFor: (record: LooseRecord) => string | undefined;
+  hrefFor: (record: TRecord) => string | undefined;
   /** Whether activating the event does anything: it is inert otherwise. */
-  isSelectable: (record: LooseRecord) => boolean;
+  isSelectable: (record: TRecord) => boolean;
   /** Whether events can be dragged to another day. */
   draggable?: boolean;
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="TRecord extends ResourceRecord = LooseRecord"
+>
 /**
  * `<CalendarMonthView>` — a grid of whole weeks with the events of each day in
  * its cell. An event that spans days shows in every cell it covers. Emits
@@ -58,14 +66,14 @@ import {
 import { computed, onBeforeUnmount, ref, shallowRef, type VNode } from "vue";
 import { cn } from "../../../lib/utils";
 
-const props = defineProps<CalendarMonthViewProps>();
+const props = defineProps<CalendarMonthViewProps<TRecord>>();
 const emit = defineEmits<{
-  selectEvent: [record: LooseRecord];
+  selectEvent: [record: TRecord];
   selectSlot: [slot: CalendarSlot];
-  drop: [record: LooseRecord, range: CalendarDrop];
+  drop: [record: TRecord, range: CalendarDrop];
 }>();
 defineSlots<{
-  event?(props: CalendarEventSlotProps): VNode[];
+  event?(props: CalendarEventSlotProps<TRecord>): VNode[];
 }>();
 
 const weeks = computed(() => {
@@ -112,7 +120,7 @@ function selectSlot(day: Date) {
   });
 }
 
-function onEventClick(event: MouseEvent, record: LooseRecord) {
+function onEventClick(event: MouseEvent, record: TRecord) {
   if (!props.isSelectable(record)) return;
   // A modified click keeps the browser's own link behaviour.
   const plain =
@@ -126,12 +134,12 @@ function onEventClick(event: MouseEvent, record: LooseRecord) {
 // The event being dragged and the day cell it was picked up from: a multi-day
 // event shows in several cells, and the move is measured from that one.
 // Shallow, so the stored event stays the object the template compares against.
-const dragged = shallowRef<{ event: CalendarEvent<LooseRecord>; from: Date }>();
+const dragged = shallowRef<{ event: CalendarEvent<TRecord>; from: Date }>();
 const overKey = ref<string>();
 
 function onDragStart(
   event: DragEvent,
-  calendarEvent: CalendarEvent<LooseRecord>,
+  calendarEvent: CalendarEvent<TRecord>,
   from: Date,
 ) {
   const transfer = event.dataTransfer;
@@ -188,7 +196,7 @@ const cellDragProps = (day: Date) =>
       }
     : {};
 
-const eventDragProps = (calendarEvent: CalendarEvent<LooseRecord>, day: Date) =>
+const eventDragProps = (calendarEvent: CalendarEvent<TRecord>, day: Date) =>
   props.draggable
     ? {
         draggable: true,
@@ -202,7 +210,7 @@ const eventDragProps = (calendarEvent: CalendarEvent<LooseRecord>, day: Date) =>
       }
     : {};
 
-const tagFor = (event: CalendarEvent<LooseRecord>) =>
+const tagFor = (event: CalendarEvent<TRecord>) =>
   props.hrefFor(event.record)
     ? "a"
     : props.isSelectable(event.record)

@@ -1,22 +1,27 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type {
   CalendarRange,
   CalendarView,
   CalendarWeekStart,
+  LooseRecord,
+  ResourceRecord,
+  SourcePath,
   SourceProp,
 } from "@chelone/core";
 import type { CalendarNavigateDirection } from "./calendar-header.vue";
 
 /** Props for {@link CalendarList}. */
-export interface CalendarListProps {
+export interface CalendarListProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** The field holding the start of an event; a dotted path reads a nested value. */
-  startSource: SourceProp;
+  startSource: SourceProp<TRecord>;
   /** The field holding the end. An event with none, or one before its start, covers its start day only. */
-  endSource?: SourceProp;
+  endSource?: SourceProp<TRecord>;
   /** The string field shown as the event title; the record representation otherwise. */
-  titleSource?: SourceProp;
+  titleSource?: SourceProp<TRecord>;
   /** The field whose value picks a color from `colorMap`. */
-  colorSource?: SourceProp;
+  colorSource?: SourceProp<TRecord>;
   colorMap?: Record<string, string>;
   /** The view shown first. Default `month`. */
   defaultView?: CalendarView;
@@ -58,7 +63,11 @@ export interface CalendarHeaderSlotProps {
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="TRecord extends ResourceRecord = LooseRecord"
+>
 /**
  * `<CalendarList>` — the records of the ambient `<List>` as events in a month
  * grid, or in a week of hour rows, or in an agenda. The Vue analog of `@chelone/react`'s `list/calendar-list.tsx`. It asks
@@ -87,7 +96,6 @@ import {
   calendarLabels,
   calendarRange,
   calendarRangeFilter,
-  type LooseRecord,
   shiftCalendarAnchor,
   staleCalendarRangeKeys,
   toCalendarEvents,
@@ -117,7 +125,7 @@ import CalendarMonthView, {
 import CalendarWeekView from "./calendar-week-view.vue";
 
 // A `false` in the union makes Vue cast an absent prop to `false`.
-const props = withDefaults(defineProps<CalendarListProps>(), {
+const props = withDefaults(defineProps<CalendarListProps<TRecord>>(), {
   linkType: undefined,
   endSource: undefined,
   titleSource: undefined,
@@ -130,18 +138,18 @@ const props = withDefaults(defineProps<CalendarListProps>(), {
   perPage: 1000,
 });
 const emit = defineEmits<{
-  selectEvent: [record: LooseRecord];
+  selectEvent: [record: TRecord];
   selectSlot: [slot: CalendarSlot];
-  drop: [record: LooseRecord, range: CalendarDrop];
+  drop: [record: TRecord, range: CalendarDrop];
 }>();
 defineSlots<{
   /** Replaces an event in its day cell. */
-  event?(props: CalendarEventSlotProps): VNode[];
+  event?(props: CalendarEventSlotProps<TRecord>): VNode[];
   /** Replaces the title and the navigation. */
   header?(props: CalendarHeaderSlotProps): VNode[];
 }>();
 
-const list = useListContext<LooseRecord>();
+const list = useListContext<TRecord>();
 const resource = useResourceContext();
 const getRepresentation = useGetRecordRepresentation(resource);
 const navigate = useNavigate();
@@ -207,12 +215,23 @@ const weekdays = computed(() =>
   days.value.slice(0, 7).map((day) => labels.value.weekday(day)),
 );
 
-const events = computed<CalendarEvent<LooseRecord>[]>(() =>
-  toCalendarEvents(list.data ?? [], {
-    startSource: props.startSource,
-    endSource: props.endSource,
-    titleSource: props.titleSource,
-    colorSource: props.colorSource,
+const pathOf = (source: SourceProp<TRecord>): SourcePath<TRecord> => {
+  // A source prop is `SourceProp`, which core reads with `getAtPath`, taking any
+  // path string. `toCalendarEvents` names the record's exact path type instead.
+  // type-escape: a source prop for any record cannot carry that exact type.
+  return source as SourcePath<TRecord>;
+};
+const pathOfOptional = (
+  source: SourceProp<TRecord> | undefined,
+): SourcePath<TRecord> | undefined =>
+  source === undefined ? undefined : pathOf(source);
+
+const events = computed<CalendarEvent<TRecord>[]>(() =>
+  toCalendarEvents<TRecord>(list.data ?? [], {
+    startSource: pathOf(props.startSource),
+    endSource: pathOfOptional(props.endSource),
+    titleSource: pathOfOptional(props.titleSource),
+    colorSource: pathOfOptional(props.colorSource),
     colorMap: props.colorMap,
     getTitle: getRepresentation,
   }),
@@ -290,17 +309,18 @@ const type = computed(
         ? "show"
         : false),
 );
-const linkTo = (record: LooseRecord) =>
-  resource && type.value
-    ? createPath({ resource, id: record.id, type: type.value })
-    : undefined;
+const linkTo = (record: TRecord) =>
+  !resource || type.value === false
+    ? undefined
+    : createPath({ resource, id: record.id, type: type.value });
 
-const hrefFor = (record: LooseRecord) =>
+// A listener replaces the link, so the event is a button then.
+const hrefFor = (record: TRecord) =>
   hasListener() ? undefined : linkTo(record);
-const isSelectable = (record: LooseRecord) =>
+const isSelectable = (record: TRecord) =>
   hasListener() || linkTo(record) !== undefined;
 
-function onSelectEvent(record: LooseRecord) {
+function onSelectEvent(record: TRecord) {
   if (hasListener()) return emit("selectEvent", record);
   const to = linkTo(record);
   if (to) navigate(to);
