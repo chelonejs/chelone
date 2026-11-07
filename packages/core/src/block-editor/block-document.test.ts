@@ -7,7 +7,9 @@ import {
   createBlockRegistry,
   describeBlockAttrs,
   emptyBlockDocument,
+  GAP_PREFIX,
   getBlockDefaultAttrs,
+  HANDLE_ID,
   isBlockDoc,
   isEmptyBlockDocument,
   matchBlocks,
@@ -27,6 +29,15 @@ const block = (
   group,
   schema: z.object({}),
   ...extra,
+});
+
+describe("drag handle ids", () => {
+  it("names the handle and the drop gaps the adapters register with dnd-kit", () => {
+    expect(HANDLE_ID).toBe("block-drag-handle");
+    expect(GAP_PREFIX).toBe("block-gap-");
+    // A gap id is the prefix followed by the gap index, which the adapter reads back.
+    expect(Number("block-gap-2".slice(GAP_PREFIX.length))).toBe(2);
+  });
 });
 
 describe("createBlockRegistry", () => {

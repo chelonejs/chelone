@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { createMissingKeyStore } from "./missing-keys";
+import {
+  COPIED_MS,
+  createMissingKeyStore,
+  OWN_KEY_PREFIX,
+} from "./missing-keys";
 
 const flush = () => Promise.resolve();
 
@@ -136,5 +140,17 @@ describe("createMissingKeyStore", () => {
     const { record, getEntries } = createMissingKeyStore();
     record("a", "fr", undefined);
     expect(getEntries("fr")).toHaveLength(1);
+  });
+});
+
+describe("i18n key editor constants", () => {
+  it("the panel's own keys sit under its prefix, which the store records like any other", () => {
+    expect(OWN_KEY_PREFIX).toBe("chelone.i18n_key_editor.");
+    expect(COPIED_MS).toBe(1500);
+    const store = createMissingKeyStore();
+    store.record(`${OWN_KEY_PREFIX}title`, "en", undefined);
+    expect(store.getEntries("en").map((entry) => entry.key)).toEqual([
+      "chelone.i18n_key_editor.title",
+    ]);
   });
 });

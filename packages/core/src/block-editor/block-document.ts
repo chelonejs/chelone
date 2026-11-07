@@ -5,6 +5,12 @@ import {
   type FieldDescriptor,
 } from "../resource/describe-resource";
 
+/** The dnd-kit id of the block editor's drag handle, shared by both adapters. */
+export const HANDLE_ID = "block-drag-handle";
+
+/** Prefix of the dnd-kit id of each drop gap, followed by the gap's index. */
+export const GAP_PREFIX = "block-gap-";
+
 // type-escape: tiptap attrs are open JSON, so the keys and values are not knowable here
 export type Attrs = Record<string, unknown>;
 

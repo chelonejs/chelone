@@ -1,3 +1,9 @@
+/** Every key the i18n key editor labels itself with. The panel never lists these. */
+export const OWN_KEY_PREFIX = "chelone.i18n_key_editor.";
+
+/** How long its export button shows `Copied`. */
+export const COPIED_MS = 1500;
+
 export interface MissingKeyEntry {
   key: string;
   fallback: string | undefined;
