@@ -5715,7 +5715,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/badge"],
+      "registryDependencies": ["@chelone/badge", "@chelone/sidebar"],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

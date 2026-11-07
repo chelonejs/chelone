@@ -5781,7 +5781,7 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/badge"],
+      "registryDependencies": ["@chelone/badge", "@chelone/sidebar"],
       "dependencies": ["@chelone/core", "@chelone/vue"],
       "devDependencies": ["vue-router"],
       "categories": ["chelone", "components"],

@@ -19,6 +19,7 @@ import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
+import { SidebarMenu, SidebarProvider } from "../../ui/sidebar";
 import MenuLive, {
   MenuLiveItemLink,
   type MenuLiveItemLinkProps,
@@ -284,5 +285,65 @@ describe("<MenuLive>", () => {
       "/posts",
       "/tags",
     ]);
+  });
+});
+
+describe("<MenuLive> in a sidebar", () => {
+  const items = [{ to: "/posts", resource: "posts", label: "Posts" }];
+
+  function mountInSidebar(defaultOpen: boolean) {
+    const env = setup();
+    const { wrapper } = mountUnderAdmin(env, () =>
+      h(SidebarProvider, { defaultOpen }, () =>
+        h(SidebarMenu, null, () => h(MenuLive, { items })),
+      ),
+    );
+    return { env, wrapper };
+  }
+
+  it("renders each item as a sidebar menu button", async () => {
+    const { wrapper } = mountInSidebar(true);
+    await flushPromises();
+
+    const link = wrapper.get("a");
+    expect(link.attributes("data-slot")).toBe("sidebar-menu-button");
+    expect(link.element.closest("li")?.getAttribute("data-slot")).toBe(
+      "sidebar-menu-item",
+    );
+  });
+
+  it("has no tooltip on an expanded sidebar", async () => {
+    const { wrapper } = mountInSidebar(true);
+    await flushPromises();
+
+    expect(wrapper.get("a").attributes("title")).toBeUndefined();
+  });
+
+  it("shows the label as a tooltip on a collapsed sidebar, and keeps the badge", async () => {
+    const { env, wrapper } = mountInSidebar(false);
+    await flushPromises();
+
+    created(env.transport);
+    await flushPromises();
+
+    const link = wrapper.get("a");
+    expect(link.attributes("title")).toBe("Posts");
+    expect(link.text()).toContain("Posts");
+    expect(link.get('[data-testid="menu-live-badge"]').text()).toBe("1");
+  });
+});
+
+describe("<MenuLive> outside a sidebar", () => {
+  it("renders a plain link, not a sidebar menu button", async () => {
+    const env = setup();
+    const { wrapper } = mountUnderAdmin(env, () =>
+      h(MenuLive, {
+        items: [{ to: "/posts", resource: "posts", label: "Posts" }],
+      }),
+    );
+    await flushPromises();
+
+    expect(wrapper.get("a").attributes("data-slot")).toBeUndefined();
+    expect(wrapper.find("nav").exists()).toBe(true);
   });
 });
