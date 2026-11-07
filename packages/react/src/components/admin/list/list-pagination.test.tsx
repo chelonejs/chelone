@@ -90,4 +90,28 @@ describe("<ListPagination>", () => {
     wrap(makeListContext({ total: undefined }), <ListPagination />);
     expect(screen.getByText(/1-10/)).toBeTruthy();
   });
+
+  it("keeps a top margin between the list above and the row", () => {
+    const { container } = wrap(makeListContext(), <ListPagination />);
+    expect(container.firstElementChild?.classList.contains("mt-2")).toBe(true);
+  });
+
+  it("lets a className override the default top margin", () => {
+    const { container } = wrap(
+      makeListContext(),
+      <ListPagination className="mt-6 text-red-500" />,
+    );
+    const root = container.firstElementChild;
+    expect(root?.classList.contains("mt-6")).toBe(true);
+    expect(root?.classList.contains("text-red-500")).toBe(true);
+    expect(root?.classList.contains("mt-2")).toBe(false);
+  });
+
+  it("keeps the top margin when custom actions replace the controls", () => {
+    const { container } = wrap(
+      makeListContext(),
+      <ListPagination actions={<button type="button">Load more</button>} />,
+    );
+    expect(container.firstElementChild?.classList.contains("mt-2")).toBe(true);
+  });
 });

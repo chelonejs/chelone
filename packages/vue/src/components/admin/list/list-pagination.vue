@@ -165,7 +165,7 @@ function onPerPageChange(value: string) {
 <template>
   <div
     v-if="!hidden"
-    :class="cn('flex items-center justify-end gap-x-2 gap-4', props.class)"
+    :class="cn('mt-2 flex items-center justify-end gap-x-2 gap-4', props.class)"
     data-slot="list-pagination"
   >
     <div class="hidden md:flex items-center gap-x-2">
