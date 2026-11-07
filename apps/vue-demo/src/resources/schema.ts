@@ -36,6 +36,7 @@ export const authorSchema = z.object({
 export const resources = defineResources({
   posts: { schema: postSchema },
   authors: { schema: authorSchema },
+  products: {},
   places: {},
 });
 
