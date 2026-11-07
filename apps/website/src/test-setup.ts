@@ -18,6 +18,15 @@
  * ships no `matchMedia`, so a light-mode-default stub is provided.
  */
 
+import { configure } from "@testing-library/react";
+
+// A docs reference page imports its live demo through `import.meta.glob`, so a
+// test that waits for the demo is also waiting on a module load. On a contended
+// CI runner that load can pass testing-library's 1000ms default and the test
+// fails with "Unable to find role=..." while the import is still running. The
+// budget is wide so the load is never what is under test.
+configure({ asyncUtilTimeout: 10_000 });
+
 if (typeof URL !== "undefined") {
   if (typeof URL.createObjectURL !== "function") {
     URL.createObjectURL = function createObjectURL(): string {

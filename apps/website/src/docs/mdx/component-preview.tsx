@@ -201,12 +201,15 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   return (
     <div
       className={cn(
-        "not-prose my-6 overflow-hidden rounded-xl border border-border/50",
+        // Not `overflow-hidden`: a field can open a list over the content below
+        // it, and clipping at the card edge would cut that list off. The tab bar
+        // rounds its own top so it still sits inside the card's corners.
+        "not-prose my-6 rounded-xl border border-border/50",
         className,
       )}
     >
       {/* Tab bar */}
-      <div className="flex items-center border-b border-border/40 bg-muted/30">
+      <div className="flex items-center rounded-t-xl border-b border-border/40 bg-muted/30">
         {(["preview", "code"] as const).map((t) => (
           <button
             key={t}

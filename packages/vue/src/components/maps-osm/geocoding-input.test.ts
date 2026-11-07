@@ -43,6 +43,12 @@ const lyon: GeocodeResult = {
   lng: 4.8357,
   type: "city",
 };
+const marseille: GeocodeResult = {
+  displayName: "Marseille, France",
+  lat: 43.2965,
+  lng: 5.3698,
+  type: "city",
+};
 
 function fakeProvider(
   overrides: Partial<GeocodingProvider> & { results?: GeocodeResult[] } = {},
@@ -318,6 +324,31 @@ describe("GeocodingInput", () => {
     await input.trigger("keydown", { key: "Escape" });
     expect(wrapper.find('[role="listbox"]').exists()).toBe(false);
     expect(input.element.value).toBe("Paris");
+  });
+
+  it("ArrowUp with nothing highlighted lands on the last option", async () => {
+    const { provider } = fakeProvider({ results: [paris, lyon, marseille] });
+    const { wrapper, probe } = await setup({ provider, latSource: "latitude" });
+    await type(wrapper, "Paris");
+    await field(wrapper).trigger("keydown", { key: "Enter" });
+    await settle();
+
+    const input = field(wrapper);
+    expect(options(wrapper)).toHaveLength(3);
+    expect(input.attributes("aria-activedescendant")).toBeUndefined();
+
+    // The end the arrow points at, not the one a wrap from "nothing" lands on.
+    await input.trigger("keydown", { key: "ArrowUp" });
+    expect(input.attributes("aria-activedescendant")).toBe(
+      options(wrapper)[2]?.attributes("id"),
+    );
+    expect(options(wrapper)[2]?.attributes("aria-selected")).toBe("true");
+
+    await input.trigger("keydown", { key: "Enter" });
+    await settle();
+
+    expect(probe("address")).toBe('"Marseille, France"|true');
+    expect(probe("latitude")).toBe("43.2965|true");
   });
 
   it("closes the list when focus leaves the field", async () => {

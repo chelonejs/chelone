@@ -1,7 +1,6 @@
 /**
  * GeocodingInput tests. They mount the input in a form under `CheloneProvider`
- * with a fake `GeocodingProvider`, so no test touches the network. cmdk needs
- * the jsdom shims in `test-setup.ts`.
+ * with a fake `GeocodingProvider`, so no test touches the network.
  */
 
 import {
@@ -46,6 +45,12 @@ const lyon: GeocodeResult = {
   displayName: "Lyon, France",
   lat: 45.764,
   lng: 4.8357,
+  type: "city",
+};
+const marseille: GeocodeResult = {
+  displayName: "Marseille, France",
+  lat: 43.2965,
+  lng: 5.3698,
   type: "city",
 };
 
@@ -137,6 +142,8 @@ const type = (value: string) =>
   fireEvent.change(field(), { target: { value } });
 const probe = (source: string) =>
   screen.getByTestId(`probe-${source}`).textContent;
+const options = () => screen.getAllByRole("option");
+const option = (index: number) => elementOf(options()[index], HTMLElement);
 
 beforeEach(() => vi.useRealTimers());
 afterEach(cleanup);
@@ -366,6 +373,113 @@ describe("GeocodingInput", () => {
     fireEvent.keyDown(field(), { key: "Escape" });
 
     expect(screen.queryByText("Paris, France")).toBeNull();
+    expect(field().value).toBe("Paris");
+  });
+
+  it("anchors the open list over the field instead of pushing the form down", async () => {
+    await setup();
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    const list = await screen.findByRole("listbox");
+
+    // jsdom lays out nothing, so this pins the contract the overlay rests on: the
+    // list is out of flow, and it resolves against the box that holds the input.
+    const overlay = elementOf(list.parentElement, HTMLElement);
+    expect(overlay.classList.contains("absolute")).toBe(true);
+    const box = elementOf(overlay.parentElement, HTMLElement);
+    expect(box.classList.contains("relative")).toBe(true);
+    expect(box).toBe(field().parentElement?.parentElement);
+    expect(box.contains(field())).toBe(true);
+    expect(box.contains(list)).toBe(true);
+  });
+
+  it("opens and closes the combobox with the list", async () => {
+    await setup();
+
+    expect(field().getAttribute("aria-expanded")).toBe("false");
+    expect(field().getAttribute("aria-controls")).toBeNull();
+    expect(field().getAttribute("aria-autocomplete")).toBe("list");
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    const list = await screen.findByRole("listbox");
+    expect(field().getAttribute("aria-expanded")).toBe("true");
+    expect(field().getAttribute("aria-controls")).toBe(list.id);
+
+    fireEvent.keyDown(field(), { key: "Escape" });
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(field().getAttribute("aria-expanded")).toBe("false");
+    expect(field().getAttribute("aria-controls")).toBeNull();
+  });
+
+  it("picks with the arrow keys and Enter", async () => {
+    await setup({ latSource: "latitude" });
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    await screen.findByRole("listbox");
+
+    expect(field().getAttribute("aria-activedescendant")).toBeNull();
+
+    fireEvent.keyDown(field(), { key: "ArrowDown" });
+    expect(field().getAttribute("aria-activedescendant")).toBe(option(0).id);
+    expect(option(0).getAttribute("aria-selected")).toBe("true");
+
+    fireEvent.keyDown(field(), { key: "ArrowDown" });
+    expect(field().getAttribute("aria-activedescendant")).toBe(option(1).id);
+    expect(option(1).getAttribute("aria-selected")).toBe("true");
+
+    fireEvent.keyDown(field(), { key: "ArrowUp" });
+    expect(field().getAttribute("aria-activedescendant")).toBe(option(0).id);
+
+    // Wrapping past an end stays inside the list.
+    fireEvent.keyDown(field(), { key: "ArrowUp" });
+    expect(field().getAttribute("aria-activedescendant")).toBe(option(1).id);
+
+    fireEvent.keyDown(field(), { key: "Enter" });
+    await act(async () => {});
+
+    expect(probe("address")).toBe('"Lyon, France"|true');
+    expect(probe("latitude")).toBe("45.764|true");
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(field().getAttribute("aria-expanded")).toBe("false");
+    expect(field().value).toBe("Lyon, France");
+  });
+
+  it("ArrowUp with nothing highlighted lands on the last option", async () => {
+    const { provider } = fakeProvider({ results: [paris, lyon, marseille] });
+    await setup({ provider, latSource: "latitude" });
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    await screen.findByRole("listbox");
+    expect(options()).toHaveLength(3);
+    expect(field().getAttribute("aria-activedescendant")).toBeNull();
+
+    // The end the arrow points at, not the one a wrap from "nothing" lands on.
+    fireEvent.keyDown(field(), { key: "ArrowUp" });
+    expect(field().getAttribute("aria-activedescendant")).toBe(option(2).id);
+    expect(option(2).getAttribute("aria-selected")).toBe("true");
+
+    fireEvent.keyDown(field(), { key: "Enter" });
+    await act(async () => {});
+
+    expect(probe("address")).toBe('"Marseille, France"|true');
+    expect(probe("latitude")).toBe("43.2965|true");
+  });
+
+  it("closes the list when focus leaves the field", async () => {
+    await setup();
+
+    type("Paris");
+    fireEvent.keyDown(field(), { key: "Enter" });
+    await screen.findByRole("listbox");
+
+    fireEvent.blur(field());
+
+    expect(screen.queryByRole("listbox")).toBeNull();
+    expect(field().getAttribute("aria-expanded")).toBe("false");
     expect(field().value).toBe("Paris");
   });
 
