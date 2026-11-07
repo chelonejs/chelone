@@ -548,7 +548,24 @@
       }
     }
   },
-  "cancel-button": null,
+  "cancel-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/cancel-button",
+        "see": ".not-prose >> role=button[name=\"Cancel\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "role=button[name=\"Cancel\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "role=button[name=\"Cancel\"]"
+      }
+    }
+  },
   "card-content-inner": {
     "react": {
       "docs": {
@@ -823,7 +840,24 @@
       }
     }
   },
-  "count": null,
+  "count": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/count",
+        "see": ".not-prose >> p:text-matches(\"Published posts: \\\\d+\")"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "a[href^=\"/demo/customers?filter\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "a[href^=\"/vue-demo/customers?filter\"]"
+      }
+    }
+  },
   "count-spinner": {
     "shownBy": "count"
   },
@@ -1025,8 +1059,42 @@
       }
     }
   },
-  "date-field": null,
-  "date-input": null,
+  "date-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/date-field",
+        "see": ".not-prose >> text=/2026/"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "div:has(> div > span:text-is(\"Customer since\")) > span > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-slot=\"date-field\"]"
+      }
+    }
+  },
+  "date-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/date-input",
+        "see": ".not-prose >> input[type=\"date\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "input[type=\"date\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "input[type=\"date\"]"
+      }
+    }
+  },
   "date-time-input": {
     "react": {
       "docs": {
@@ -2182,8 +2250,42 @@
       }
     }
   },
-  "phone-field": null,
-  "phone-input": null,
+  "phone-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/phone-field",
+        "see": ".not-prose >> a[href^=\"tel:\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "a[href^=\"tel:\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "a[href^=\"tel:\"]"
+      }
+    }
+  },
+  "phone-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/phone-input",
+        "see": ".not-prose >> input[type=\"tel\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "input[type=\"tel\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "input[type=\"tel\"]"
+      }
+    }
+  },
   "pivot-grid": null,
   "placeholder": {
     "react": {
@@ -2429,7 +2531,24 @@
       }
     }
   },
-  "reference-many-count": null,
+  "reference-many-count": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-many-count",
+        "see": ".not-prose >> [data-slot=\"reference-many-count\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "[data-slot=\"reference-many-count\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-slot=\"reference-many-count\"]"
+      }
+    }
+  },
   "reference-many-field": {
     "react": {
       "docs": {
@@ -2936,8 +3055,42 @@
       }
     }
   },
-  "subscription-plan-field": null,
-  "subscription-plan-picker": null,
+  "subscription-plan-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/subscription-plan-field",
+        "see": ".not-prose >> [data-slot=\"badge\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "[data-slot=\"badge\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-slot=\"badge\"]"
+      }
+    }
+  },
+  "subscription-plan-picker": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/subscription-plan-picker",
+        "see": ".not-prose >> role=radiogroup"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "role=radiogroup"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "role=radiogroup"
+      }
+    }
+  },
   "supabase-login-page": null,
   "tabbed-show-layout": {
     "react": {
@@ -3126,7 +3279,24 @@
   "ui": {
     "shownBy": "layout"
   },
-  "update-button": null,
+  "update-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/update-button",
+        "see": ".not-prose >> role=button[name=\"Publish\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "role=button[name=\"Mark champion\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "role=button[name=\"Mark champion\"]"
+      }
+    }
+  },
   "url-field": {
     "react": {
       "docs": {
@@ -3147,7 +3317,24 @@
       }
     }
   },
-  "usage-meter-field": null,
+  "usage-meter-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/usage-meter-field",
+        "see": ".not-prose >> [data-usage-meter]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "[data-usage-meter]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-usage-meter]"
+      }
+    }
+  },
   "user-menu": {
     "react": {
       "docs": {
