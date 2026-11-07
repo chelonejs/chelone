@@ -223,7 +223,8 @@ function SimpleFormIteratorItem({
       <div
         className={cn(
           "flex flex-1 flex-col gap-2",
-          inline && "sm:flex-row sm:items-start",
+          inline &&
+            "sm:flex-row sm:items-start sm:[&>*]:min-w-0 sm:[&>*]:flex-1",
         )}
       >
         {children}
