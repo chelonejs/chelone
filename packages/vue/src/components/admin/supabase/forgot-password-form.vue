@@ -54,6 +54,8 @@ async function save(values: ForgotPasswordValues): Promise<undefined> {
 const { submit, submitting } = useForm<ForgotPasswordValues>({
   record: { email: "" },
   onSubmit: save,
+  // Standalone auth form: credentials, not the ambient resource's record.
+  recordForm: false,
   resetOnSuccess: false,
 });
 

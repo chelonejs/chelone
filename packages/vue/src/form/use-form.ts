@@ -80,9 +80,11 @@ export interface UseFormOptions<TFormData> {
   resetOnSuccess?: boolean;
   /**
    * Whether the form holds the resource's record, so descendants read it
-   * through a handle tagged with that resource (`useFormHandle("posts")`).
-   * `false` for a form whose values are something else, such as a list filter:
-   * its handle is unbound. Default true.
+   * through a handle tagged with that resource (`useFormHandle("posts")`) and
+   * its inputs validate against that resource's registry schema.
+   * `false` for a form whose values are something else, such as a list filter
+   * or login credentials: its handle is unbound and the ambient resource's
+   * schema does not apply to it. Default true.
    */
   recordForm?: boolean;
 }
@@ -124,8 +126,14 @@ export function useForm<TFormData = Record<string, unknown>>(
   const translate = ctx.i18n
     ? (key: string) => ctx.i18n?.translate(key) ?? key
     : undefined;
+  // A form that does not hold the resource's record is not validated against
+  // that record's schema: login credentials rendered under a
+  // `<Resource name="posts">` would otherwise be rejected for a missing `title`.
   const schema =
-    options.schema ?? registrySchema<TFormData>(ctx.resources, resource);
+    options.schema ??
+    (options.recordForm === false
+      ? undefined
+      : registrySchema<TFormData>(ctx.resources, resource));
 
   const controller: FormController<TFormData> = createFormController<TFormData>(
     {

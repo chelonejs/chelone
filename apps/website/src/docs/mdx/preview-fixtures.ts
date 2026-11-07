@@ -211,6 +211,15 @@ const en = defineMessages({
     englishMessages["ra.input.image.upload_several"],
   "ra.input.image.upload_single":
     englishMessages["ra.input.image.upload_single"],
+  // The screens `<AccessDenied>`, `<AuthenticationError>` and `<AuthError>` show.
+  "ra.page.access_denied": englishMessages["ra.page.access_denied"],
+  "ra.page.authentication_error":
+    englishMessages["ra.page.authentication_error"],
+  "ra.page.error": englishMessages["ra.page.error"],
+  "ra.message.access_denied": englishMessages["ra.message.access_denied"],
+  "ra.message.auth_error": englishMessages["ra.message.auth_error"],
+  "ra.message.authentication_error":
+    englishMessages["ra.message.authentication_error"],
 });
 
 export function makePreviewI18n() {

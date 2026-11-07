@@ -109,6 +109,24 @@ describe("useForm", () => {
     expect(result(capture).form.state.isValid).toBe(false);
   });
 
+  it("applies no registry schema to a form that is not a record form", async () => {
+    const onSubmit = vi.fn(async () => undefined);
+    const { capture } = mountForm(
+      {
+        record: { id: 1, title: "", views: 1 },
+        onSubmit,
+        recordForm: false,
+      },
+      { resources: true, resource: "posts" },
+    );
+
+    await result(capture).submit();
+    await flushPromises();
+
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({ id: 1, title: "", views: 1 });
+  });
+
   it("accepts an explicit schema override", async () => {
     const onSubmit = vi.fn(async () => undefined);
     const { capture } = mountForm({
