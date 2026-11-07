@@ -30,7 +30,6 @@ import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import { authRoutes } from "./auth-routes";
 import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
-import Dashboard from "./pages/Dashboard.vue";
 import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
 import AuthorCreate from "./resources/AuthorCreate.vue";
@@ -108,8 +107,10 @@ const authProvider = makeDemoAuthProvider(store);
       :custom-routes="customRoutes"
     >
       <template #layout><Shell /></template>
-      <!-- The index route, and the menu's Dashboard entry. -->
-      <template #dashboard><Dashboard /></template>
+      <!-- Shell.vue renders the dashboard, since a #layout slot replaces the
+           shell that would. This empty slot keeps the index from redirecting to
+           the first resource. -->
+      <template #dashboard />
       <!-- A URL no route owns, such as /nowhere. -->
       <template #catchAll><NotFound /></template>
       <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The

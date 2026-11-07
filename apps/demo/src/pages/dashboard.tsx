@@ -90,6 +90,7 @@ export default function Dashboard() {
 
         <div className="grid gap-4 lg:grid-cols-2">
           <BarChart
+            height={260}
             title="Revenue by status"
             data={revenueByStatus}
             xField="status"
@@ -98,7 +99,7 @@ export default function Dashboard() {
           />
           <Card>
             <CardHeader>
-              <CardTitle>Sales by status and delivery slot</CardTitle>
+              <CardTitle>Order value by status and delivery slot</CardTitle>
             </CardHeader>
             <CardContent>
               <ListContextProvider value={list}>

@@ -35,10 +35,13 @@ import {
   ThemeModeToggle,
   ThemeProvider,
   UserMenu,
+  useBasename,
   useResourceDefinitions,
 } from "@chelone/vue";
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
 import { computed } from "vue";
+import { useRoute } from "vue-router";
+import Dashboard from "./pages/Dashboard.vue";
 import { pageGroups } from "./pages";
 import SimulateOtherUser from "./realtime-sim.vue";
 import { dataProvider, dataProviderLog } from "./realtime";
@@ -48,6 +51,14 @@ import TakeTheTour from "./TakeTheTour.vue";
 // One transport and tool set for the app's lifetime: a new one starts a new conversation.
 const assistantTransport = demoAssistantTransport();
 const assistantTools = demoAssistantTools(dataProvider);
+
+// A `#layout` slot replaces the default shell, which is what renders the
+// `#dashboard` slot at the index, so this shell renders the dashboard itself.
+const route = useRoute();
+const basename = useBasename();
+const isIndex = computed(
+  () => route.path.replace(/\/$/, "") === basename.replace(/\/$/, ""),
+);
 
 // Posts get a live unread badge; the other resources keep their plain links.
 // The panel is repeated here because the badge clears while /posts is open:
@@ -108,7 +119,8 @@ const others = computed(() =>
               </template>
             </AppBar>
           </template>
-          <router-view />
+          <Dashboard v-if="isIndex" />
+          <router-view v-else />
         </Layout>
         <OnboardingTour :id="TOUR_ID" :steps="tourSteps" />
         <Assistant

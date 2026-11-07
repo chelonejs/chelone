@@ -95,6 +95,7 @@ const stats = computed(() => dashboardStats(list.data ?? []));
 
     <div class="grid gap-4 lg:grid-cols-2">
       <BarChart
+        :height="260"
         title="Revenue by status"
         :data="stats.revenueByStatus"
         x-field="status"
@@ -105,7 +106,7 @@ const stats = computed(() => dashboardStats(list.data ?? []));
         class="flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm"
       >
         <h2 class="px-6 leading-none font-semibold">
-          Sales by status and delivery slot
+          Order value by status and delivery slot
         </h2>
         <div class="px-6">
           <PivotGrid
