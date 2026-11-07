@@ -1,9 +1,16 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceKey, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import {
+  getAtPath,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourceKey,
+  type SourceProp,
+  type SourceValue,
+} from "@chelone/core";
 
 /** Props for {@link RatingField}. */
 export interface RatingFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   source: SourceProp<RecordType>;
   /** The record to render. Defaults to the ambient `RecordContext` value. */
@@ -23,7 +30,7 @@ export interface RatingFieldProps<
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<RatingField>` — displays a numeric rating as a row of filled/half/outlined
  * star icons, the Vue analog of `@chelone/react`'s `fields/rating-field.tsx`.
@@ -34,9 +41,9 @@ export interface RatingFieldProps<
  * twin).
  */
 
-import { computed, inject } from "vue";
+import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useTranslate } from "../../../i18n/use-translate";
 
 const props = defineProps<RatingFieldProps<RecordType>>();
@@ -49,20 +56,15 @@ const value = useFieldValue<RecordType>({
   defaultValue: props.defaultValue,
 });
 
-// Inject the record ref once (inject must run in setup); a `record` prop wins.
 // Reading `.value` inside the computed keeps `countSource` reactive as an async
-// record resolves — parity with the twin's `useRecordContext`. The record is
-// read as a loose one: `countSource` is a plain own-key read, not a path walk.
-const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed<LooseRecord | undefined>(
-  () => props.record ?? injectedRecord?.value,
-);
+// record resolves — parity with the twin's `useRecordContext`.
+const ctxRecord = useRecordContextRef<RecordType>(() => props.record);
 const translate = useTranslate();
 
 const count = computed<number | undefined>(() => {
   const rec = ctxRecord.value;
   if (!props.countSource || !rec) return undefined;
-  const c = rec[props.countSource];
+  const c = getAtPath(rec, props.countSource);
   return typeof c === "number" ? c : undefined;
 });
 

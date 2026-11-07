@@ -1,15 +1,22 @@
-import type { LooseRecord, SourceKey } from "@chelone/core";
+import {
+  getAtPath,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourceKey,
+} from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import { Progress } from "@/components/ui/progress";
-import type { FieldProps } from "@/lib/field-types";
+import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface UsageMeterFieldProps<RecordType extends LooseRecord = LooseRecord>
-  extends FieldProps<RecordType>,
-    Omit<HTMLAttributes<HTMLSpanElement>, "color"> {
+interface UsageMeterFieldProps<RecordType extends ResourceRecord = LooseRecord>
+  extends ElementFieldProps<
+    RecordType,
+    Omit<HTMLAttributes<HTMLSpanElement>, "color">
+  > {
   /**
    * Sibling record field holding the limit/quota; the bar is only shown when
    * set. A top-level key, not a path: the read is `record[limitSource]`.
@@ -33,7 +40,7 @@ const DEFAULT_THRESHOLDS = { warning: 0.8, critical: 1.0 };
  * @example
  * <UsageMeterField source="used" limitSource="limit" unit="GB" />
  */
-function UsageMeterField<RecordType extends LooseRecord = LooseRecord>({
+function UsageMeterField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
@@ -43,10 +50,10 @@ function UsageMeterField<RecordType extends LooseRecord = LooseRecord>({
   className,
   ...rest
 }: UsageMeterFieldProps<RecordType>) {
-  const rawUsed = useFieldValue<LooseRecord>({ defaultValue, source, record });
+  const rawUsed = useFieldValue<RecordType>({ defaultValue, source, record });
   const used = typeof rawUsed === "number" ? rawUsed : undefined;
   const ctx = useRecordContext<RecordType>({ record });
-  const rawLimit = limitSource && ctx ? ctx[limitSource] : undefined;
+  const rawLimit = limitSource && ctx ? getAtPath(ctx, limitSource) : undefined;
   const limit = typeof rawLimit === "number" ? rawLimit : undefined;
 
   if (used == null) return null;

@@ -1,4 +1,9 @@
-import type { LooseRecord, SourceKey } from "@chelone/core";
+import {
+  getAtPath,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourceKey,
+} from "@chelone/core";
 import type { ReactNode } from "react";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
@@ -6,7 +11,7 @@ import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface RatingFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface RatingFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   /** Total stars rendered (filled + outlined). Default 5. */
   max?: number;
@@ -29,7 +34,7 @@ interface RatingFieldProps<RecordType extends LooseRecord = LooseRecord>
  * @example
  * <RatingField source="rating" allowHalf countSource="reviewCount" />
  */
-function RatingField<RecordType extends LooseRecord = LooseRecord>({
+function RatingField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
@@ -48,7 +53,7 @@ function RatingField<RecordType extends LooseRecord = LooseRecord>({
   const ctxRecord = useRecordContext<RecordType>({ record });
   const translate = useTranslate();
   const rawCount =
-    countSource && ctxRecord ? ctxRecord[countSource] : undefined;
+    countSource && ctxRecord ? getAtPath(ctxRecord, countSource) : undefined;
   const count = typeof rawCount === "number" ? rawCount : undefined;
 
   if (value == null) {
