@@ -16,7 +16,14 @@
  */
 
 import { createNotificationStore } from "@chelone/core";
-import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from "@chelone/vue";
+import {
+  Admin,
+  EditGuesser,
+  ListGuesser,
+  NotFound,
+  Resource,
+  ShowGuesser,
+} from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
 import { demoAuthProvider, makeDemoStore, makeI18n } from "@chelone/demo-data";
@@ -88,6 +95,8 @@ const store = makeDemoStore();
       :custom-routes="pageRoutes"
     >
       <template #layout><Shell /></template>
+      <!-- A URL no route owns, such as /nowhere. -->
+      <template #catchAll><NotFound /></template>
       <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
            Edit/Create forms validate against it automatically (the D6
            registry-schema default validator). -->
