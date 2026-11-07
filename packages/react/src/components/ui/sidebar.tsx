@@ -152,6 +152,7 @@ function Sidebar({
   variant = "sidebar",
   collapsible = "offcanvas",
   className,
+  style,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
@@ -169,6 +170,7 @@ function Sidebar({
           "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
           className,
         )}
+        style={style}
         {...props}
       >
         {children}
@@ -207,6 +209,10 @@ function Sidebar({
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
+      // Sizing vars (`--sidebar-width`, `--sidebar-width-icon`) go here, not on
+      // the fixed container, so the in-flow gap reserves the same width the
+      // container takes.
+      style={style}
     >
       {/* This is what handles the sidebar gap on desktop */}
       <div

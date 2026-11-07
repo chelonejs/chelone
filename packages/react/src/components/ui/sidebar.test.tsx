@@ -19,6 +19,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { cssVars } from "@/lib/css-vars";
 
 afterEach(cleanup);
 
@@ -103,5 +104,31 @@ describe("<Sidebar> collapsed to icons", () => {
       sidebar.compareDocumentPosition(screen.getByRole("main")) &
         Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+  });
+
+  it("hands its sizing variables to the wrapper the gap and the panel share", () => {
+    render(
+      <SidebarProvider>
+        <Sidebar
+          variant="floating"
+          collapsible="icon"
+          style={cssVars({ "--sidebar-width-icon": "64px" })}
+        />
+      </SidebarProvider>,
+    );
+
+    const sidebar = elementOf(
+      document.querySelector('[data-slot="sidebar"]'),
+      HTMLDivElement,
+    );
+    expect(sidebar.style.getPropertyValue("--sidebar-width-icon")).toBe("64px");
+    expect(
+      sidebar.contains(document.querySelector('[data-slot="sidebar-gap"]')),
+    ).toBe(true);
+    expect(
+      sidebar.contains(
+        document.querySelector('[data-slot="sidebar-container"]'),
+      ),
+    ).toBe(true);
   });
 });
