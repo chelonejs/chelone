@@ -13,31 +13,44 @@
  * `.min(1)` rule blocks the save and surfaces the message.
  */
 
+import { isLooseRecord, type LooseRecord } from "@chelone/core";
 import {
   BooleanField,
   BooleanInput,
+  CommentsThread,
   Create,
   DataTable,
+  DiffViewer,
+  DualApprovalButton,
   EditButton,
   EditLive,
+  InPlaceEditor,
+  ListContextProvider,
   ListLive,
   LockOnMount,
   LockStatus,
   NumberField,
   NumberInput,
+  PresenceBar,
   RecordField,
+  RecordTimeline,
   ReferenceField,
   ReferenceInput,
   SaveButton,
   SelectInput,
-  Show,
+  ShowLive,
   TextField,
   TextInput,
   Toolbar,
+  useGetList,
+  useList,
+  useParams,
+  useRecordContext,
 } from "@chelone/react";
 import { ConfigurableInputs } from "@chelone/react/inspector";
+import { type ReactNode, useMemo, useState } from "react";
 import { z } from "zod";
-import { SimulateOtherUser } from "../realtime-sim";
+import { SimulatedViewer, SimulateOtherUser } from "../realtime-sim";
 
 /** The record shape + the form validator, in one place. */
 export const postSchema = z.object({
@@ -47,6 +60,9 @@ export const postSchema = z.object({
   author_id: z.number({ message: "Pick an author" }),
   views: z.number().min(0).optional(),
   published: z.boolean().optional(),
+  status: z.enum(["draft", "in_review", "published", "rejected"]).optional(),
+  /** The ids of the users who approved the post, written by `<DualApprovalButton>`. */
+  approvers: z.array(z.union([z.number(), z.string()])).optional(),
   /** Unused by the forms; gives `register-proof` an array for a bracket path. */
   tags: z.array(z.object({ label: z.string() })).optional(),
 });
@@ -110,22 +126,120 @@ export function PostCreate() {
   );
 }
 
-export function PostShow() {
+/** The fields the diff compares: the ones a reviewer can change on this page. */
+const DIFF_SOURCES = ["title", "status", "approvers"] as const;
+
+/**
+ * What changed on this post since the page opened: edit the title in place or
+ * approve it and the row moves. The post stores no revision bodies, so the
+ * opening copy stands in for the earlier revision.
+ */
+function PostChanges() {
+  const record = useRecordContext();
+  const [opened, setOpened] = useState<LooseRecord>();
+  if (record && !opened) setOpened(structuredClone(record));
+  if (!record || !opened) return null;
   return (
-    <Show>
-      <RecordField source="title" />
-      <RecordField source="body" />
-      <RecordField label="Author">
-        <ReferenceField source="author_id" reference="authors">
-          <TextField source="name" />
-        </ReferenceField>
-      </RecordField>
-      <RecordField label="Views">
-        <NumberField source="views" />
-      </RecordField>
-      <RecordField label="Published">
-        <BooleanField source="published" />
-      </RecordField>
-    </Show>
+    <DiffViewer
+      before={opened}
+      after={record}
+      sources={DIFF_SOURCES}
+      labels={{ approvers: "Approved by" }}
+    />
+  );
+}
+
+/** The post's revisions as a dated list, newest first, with the author's name. */
+function PostTimeline() {
+  const record = useRecordContext();
+  const { data: authors } = useGetList("authors", {
+    pagination: { page: 1, perPage: 100 },
+  });
+  const entries = useMemo(() => {
+    const names = new Map(
+      (authors?.data ?? []).map((author) => [author.id, author.name]),
+    );
+    const revisions = Array.isArray(record?.revisions) ? record.revisions : [];
+    return revisions.flatMap((revision) =>
+      isLooseRecord(revision)
+        ? [
+            {
+              id: revision.id,
+              summary: revision.summary,
+              at: revision.at,
+              by: names.get(revision.author_id) ?? revision.author_id,
+            },
+          ]
+        : [],
+    );
+  }, [authors, record]);
+  const list = useList({
+    data: entries,
+    sort: { field: "at", order: "DESC" },
+    isPending: record === undefined,
+  });
+  return (
+    <ListContextProvider value={list}>
+      <RecordTimeline
+        messageSource="summary"
+        timestampSource="at"
+        userSource="by"
+      />
+    </ListContextProvider>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-2">
+      <h3 className="text-lg font-semibold">{title}</h3>
+      {children}
+    </section>
+  );
+}
+
+export function PostShow() {
+  const { id } = useParams();
+  return (
+    // Keyed by id: React Router reuses this page between posts, and the page-open
+    // diff belongs to one post.
+    <ShowLive key={id}>
+      <div className="flex max-w-xl flex-col gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <PresenceBar />
+          <DualApprovalButton
+            required={2}
+            pendingValue="in_review"
+            approvedValue="published"
+          />
+        </div>
+        {id ? <SimulatedViewer postId={id} /> : null}
+        <RecordField label="Title">
+          <InPlaceEditor source="title" notifyOnSuccess />
+        </RecordField>
+        <RecordField source="status" />
+        <RecordField source="body" />
+        <RecordField label="Author">
+          <ReferenceField source="author_id" reference="authors">
+            <TextField source="name" />
+          </ReferenceField>
+        </RecordField>
+        <RecordField label="Views">
+          <NumberField source="views" />
+        </RecordField>
+        <RecordField label="Published">
+          <BooleanField source="published" />
+        </RecordField>
+        <Section title="Changes since you opened this page">
+          <PostChanges />
+        </Section>
+        <Section title="Revisions">
+          <PostTimeline />
+        </Section>
+        <Section title="Comments">
+          <CommentsThread reference="comments" target="post_id" resolvable />
+        </Section>
+      </div>
+    </ShowLive>
   );
 }
