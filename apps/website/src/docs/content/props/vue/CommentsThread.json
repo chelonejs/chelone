@@ -1,0 +1,39 @@
+{
+  "name": "CommentsThread",
+  "props": [
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource that holds the comments."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": false,
+      "comment": "The field of a comment that holds the id of the record it belongs to."
+    },
+    {
+      "name": "resolvable",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Show a Mark resolved button on unresolved comments. Default `false`."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "default": "100",
+      "comment": "How many comments to fetch. Default `100`."
+    },
+    {
+      "name": "record",
+      "type": "LooseRecord",
+      "optional": true,
+      "comment": "The record to comment on; defaults to the ambient record."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

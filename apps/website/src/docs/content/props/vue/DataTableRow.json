@@ -1,0 +1,25 @@
+{
+  "name": "DataTableRow",
+  "props": [
+    {
+      "name": "record",
+      "type": "TRecord",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "hasBulkActions",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

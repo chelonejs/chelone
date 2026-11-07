@@ -1,0 +1,34 @@
+{
+  "name": "SidebarMenuButton",
+  "props": [
+    {
+      "name": "as",
+      "type": "string | Component",
+      "optional": true,
+      "default": "\"button\"",
+      "comment": "The element/component to render as. Defaults to `\"button\"`; pass a link\ncomponent (e.g. vue-router's `RouterLink`) to render a navigable entry —\nthe Vue idiom replacing the React twin's `asChild` + `<Slot>`. Extra attrs\n(`to`, `href`, …) fall through to the rendered element."
+    },
+    {
+      "name": "isActive",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Highlights the entry as the active route."
+    },
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\" | \"lg\"",
+      "optional": true,
+      "default": "\"default\"",
+      "comment": "Size preset. Defaults to `default`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

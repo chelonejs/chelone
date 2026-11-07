@@ -1,0 +1,49 @@
+{
+  "name": "Resource",
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource name — the registry key and the route base (`/{name}`)."
+    },
+    {
+      "name": "list",
+      "type": "Component",
+      "optional": true,
+      "comment": "The list view (adds the `/{name}` route)."
+    },
+    {
+      "name": "create",
+      "type": "Component",
+      "optional": true,
+      "comment": "The create view (adds the `/{name}/create` route)."
+    },
+    {
+      "name": "edit",
+      "type": "Component",
+      "optional": true,
+      "comment": "The edit view (adds the `/{name}/:id` route)."
+    },
+    {
+      "name": "show",
+      "type": "Component",
+      "optional": true,
+      "comment": "The show view (adds the `/{name}/:id/show` route)."
+    },
+    {
+      "name": "icon",
+      "type": "Component",
+      "optional": true,
+      "comment": "The menu / breadcrumb icon."
+    },
+    {
+      "name": "recordRepresentation",
+      "type": "RecordRepresentation",
+      "optional": true,
+      "comment": "How a record renders as a label."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

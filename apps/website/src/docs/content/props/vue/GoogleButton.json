@@ -1,0 +1,19 @@
+{
+  "name": "GoogleButton",
+  "props": [
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "redirect",
+      "type": "string",
+      "optional": true,
+      "comment": "Where the provider sends the user back. Defaults to the current URL."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,13 @@
+{
+  "name": "CommandShortcut",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,25 @@
+{
+  "name": "ChartContainer",
+  "props": [
+    {
+      "name": "id",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "config",
+      "type": "ChartConfig",
+      "optional": false,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

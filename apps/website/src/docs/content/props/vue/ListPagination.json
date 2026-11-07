@@ -1,0 +1,14 @@
+{
+  "name": "ListPagination",
+  "props": [
+    {
+      "name": "rowsPerPageOptions",
+      "type": "number[]",
+      "optional": true,
+      "default": "[5, 10, 25, 50]",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

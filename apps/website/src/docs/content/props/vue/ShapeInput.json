@@ -1,0 +1,164 @@
+{
+  "name": "ShapeInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the GeoJSON value."
+    },
+    {
+      "name": "kind",
+      "type": "ShapeValueKind",
+      "optional": false,
+      "comment": "The kind of value the field holds, which decides what a drawing writes."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The legend. A string is translated; `false` renders none."
+    },
+    {
+      "name": "helperText",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Runs after the limits below. Read once."
+    },
+    {
+      "name": "minVertices",
+      "type": "number",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Fewest vertices the shape may have; a polygon ring counts its distinct vertices. The shape is stored as drawn and the field is flagged. Read once."
+    },
+    {
+      "name": "maxVertices",
+      "type": "number",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Most vertices the shape may have. Read once."
+    },
+    {
+      "name": "minAreaM2",
+      "type": "number",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Smallest area in square metres a polygon may cover. Read once."
+    },
+    {
+      "name": "allowSelfIntersection",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Set to false to flag a shape that crosses itself. Defaults to true, which checks nothing. Read once."
+    },
+    {
+      "name": "tools",
+      "type": "readonly ToolbarTool[]",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The toolbar buttons, in order. Defaults to the tools that suit `kind`."
+    },
+    {
+      "name": "snappable",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Snap to existing coordinates and lines. Read once. Defaults to true."
+    },
+    {
+      "name": "snapDistance",
+      "type": "number",
+      "optional": true,
+      "default": "20",
+      "comment": "Pixels within which the pointer grabs a vertex or snaps. Read once. Defaults to 20."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Shows the shape and hides the toolbar; pan and zoom still work."
+    },
+    {
+      "name": "defaultCenter",
+      "type": "readonly [lat: number, lng: number]",
+      "optional": true,
+      "default": "[0, 0]",
+      "comment": "`[lat, lng]`. The map centre while the field is empty. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_MAP_ZOOM",
+      "comment": "Read once at mount. Defaults to 13."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "default": "DEFAULT_MAP_HEIGHT",
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "shapeStyle",
+      "type": "ShapeStyle",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Partial over `DEFAULT_SHAPE_STYLE`. Read once."
+    },
+    {
+      "name": "aspectRatio",
+      "type": "number",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Width over height of a `BBox` value. The stored box grows around its centre\nto this ratio and never shrinks, and the rectangle on the map follows it."
+    },
+    {
+      "name": "fitBounds",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Frame the first value on the map. The user's own edits never refit. Defaults to true."
+    },
+    {
+      "name": "refine",
+      "type": "((value: ShapeValue, options: { signal: AbortSignal; }) => ShapeValue | Promise<ShapeValue | null> | null)",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Adjusts the value after the user's own drawing or edit, such as snapping a\nline to roads. It runs once the edit is in the form, never on load or\nreset, and a newer edit or an unmount aborts `signal`. A result that is\nnot null and differs is written, unless the field changed meanwhile. A\nthrown error keeps the value as drawn. A null result is \"nothing to\nchange\" unless `refineFailedMessage` is set, which a throw also notifies."
+    },
+    {
+      "name": "refineFailedMessage",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Message key notified as a warning when `refine` resolves to null or throws\n(an abort excepted), and the value is kept as drawn. `LineStringInput` sets it for\n`snapToRoads`."
+    }
+  ],
+  "emits": [
+    {
+      "name": "commit",
+      "type": "[value: ShapeValue | null]"
+    }
+  ],
+  "slots": []
+}

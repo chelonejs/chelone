@@ -1,0 +1,20 @@
+{
+  "name": "DropdownMenuContent",
+  "props": [
+    {
+      "name": "align",
+      "type": "\"start\" | \"end\"",
+      "optional": true,
+      "default": "\"start\"",
+      "comment": "Horizontal alignment against the trigger. Defaults to `start` (left)."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

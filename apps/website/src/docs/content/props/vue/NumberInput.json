@@ -1,0 +1,62 @@
+{
+  "name": "NumberInput",
+  "props": [
+    {
+      "name": "format",
+      "type": "((value: number | null) => string)",
+      "optional": true,
+      "comment": "Text the input shows for the stored number (`null` when empty)."
+    },
+    {
+      "name": "parse",
+      "type": "((value: string) => number | null)",
+      "optional": true,
+      "comment": "The number to store for the text the user typed (`null` when empty or unparseable)."
+    },
+    {
+      "name": "min",
+      "type": "number",
+      "optional": true,
+      "comment": "Lowest value the native input accepts."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "optional": true,
+      "comment": "Highest value the native input accepts."
+    },
+    {
+      "name": "step",
+      "type": "number",
+      "optional": true,
+      "comment": "How far the native input's spinner steps."
+    },
+    {
+      "name": "source",
+      "type": "TPath",
+      "optional": false,
+      "comment": "The field path (dot/bracket), relative to the ambient source scope."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "defaultValue",
+      "type": "NoInfer<SourceValue<RecordType, TPath>>",
+      "optional": true,
+      "comment": "Input-level default (seeds only into a hole), typed as the value at `source`."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

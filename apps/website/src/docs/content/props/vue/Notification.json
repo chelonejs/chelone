@@ -1,0 +1,14 @@
+{
+  "name": "Notification",
+  "props": [
+    {
+      "name": "duration",
+      "type": "number",
+      "optional": true,
+      "default": "5000",
+      "comment": "Auto-dismiss delay (ms) per toast. Default `5000`. `0` disables it."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

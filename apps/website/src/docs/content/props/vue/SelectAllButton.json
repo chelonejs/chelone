@@ -1,0 +1,26 @@
+{
+  "name": "SelectAllButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "default": "defaultLabel",
+      "comment": "A message key, translated with itself as the fallback."
+    },
+    {
+      "name": "limit",
+      "type": "number",
+      "optional": true,
+      "default": "250",
+      "comment": "The most rows to select."
+    }
+  ],
+  "emits": [
+    {
+      "name": "click",
+      "type": "[]"
+    }
+  ],
+  "slots": []
+}

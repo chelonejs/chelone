@@ -1,0 +1,49 @@
+{
+  "name": "NumberField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "locales",
+      "type": "string | string[]",
+      "optional": true,
+      "comment": "BCP 47 locale(s) for `Intl.NumberFormat` (via `toLocaleString`)."
+    },
+    {
+      "name": "options",
+      "type": "Intl.NumberFormatOptions",
+      "optional": true,
+      "comment": "`Intl.NumberFormatOptions` (currency, percent, min/max fraction digits…)."
+    },
+    {
+      "name": "transform",
+      "type": "((value: SourceValue<RecordType, SourceProp<RecordType>>) => string | number | null | undefined)",
+      "optional": true,
+      "comment": "Pre-format transform; the default coerces a numeric string to a number."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

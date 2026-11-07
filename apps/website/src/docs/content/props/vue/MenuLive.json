@@ -1,0 +1,13 @@
+{
+  "name": "MenuLive",
+  "props": [
+    {
+      "name": "items",
+      "type": "MenuLiveItemLinkProps[]",
+      "optional": false,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

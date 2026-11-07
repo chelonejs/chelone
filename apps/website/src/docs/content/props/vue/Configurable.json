@@ -1,0 +1,36 @@
+{
+  "name": "Configurable",
+  "props": [
+    {
+      "name": "preferenceKey",
+      "type": "string",
+      "optional": false,
+      "comment": "Names this piece, so a stale unmount cannot clear another's selection."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "The panel's title while this is selected."
+    },
+    {
+      "name": "openButtonLabel",
+      "type": "string",
+      "optional": true,
+      "comment": "A message key for the Customize button, translated with itself as the fallback."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "editor",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

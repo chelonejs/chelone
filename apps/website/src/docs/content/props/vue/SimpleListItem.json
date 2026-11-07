@@ -1,0 +1,38 @@
+{
+  "name": "SimpleListItem",
+  "props": [
+    {
+      "name": "record",
+      "type": "TRecord",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>`. Without one the row is not linked."
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"edit\" | \"show\"",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Where the row links to. `edit` by default, `show` when the resource has no\nedit view, and a plain row when it has neither. `false` renders a plain row."
+    },
+    {
+      "name": "rowIndex",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

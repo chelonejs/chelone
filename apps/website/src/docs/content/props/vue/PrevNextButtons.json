@@ -1,0 +1,56 @@
+{
+  "name": "PrevNextButtons",
+  "props": [
+    {
+      "name": "record",
+      "type": "ResourceRecord<Identifier>",
+      "optional": true,
+      "comment": "Step from this record instead of the ambient one."
+    },
+    {
+      "name": "linkType",
+      "type": "\"edit\" | \"show\"",
+      "optional": true,
+      "comment": "Which page the neighbour links point at. Default `\"edit\"`."
+    },
+    {
+      "name": "storeKey",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "KV namespace the list persisted its params under. `false` ignores them. Default: the resource name."
+    },
+    {
+      "name": "limit",
+      "type": "number",
+      "optional": true,
+      "comment": "Rows fetched when the cached page cannot serve. Default 1000."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload | SortPayload[]",
+      "optional": true,
+      "comment": "Sort used when no params are stored. Default `id ASC`."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Merged over the stored filter, like a list's permanent filter."
+    },
+    {
+      "name": "filterDefaultValues",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "The stored filter when no params are stored."
+    },
+    {
+      "name": "meta",
+      "type": "unknown",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

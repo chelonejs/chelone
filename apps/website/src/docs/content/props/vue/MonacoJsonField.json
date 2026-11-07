@@ -1,0 +1,61 @@
+{
+  "name": "MonacoJsonField",
+  "props": [
+    {
+      "name": "height",
+      "type": "number",
+      "optional": true,
+      "comment": "Editor height in pixels when `autoHeight` is false. Defaults to 200."
+    },
+    {
+      "name": "autoHeight",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Grow with the content up to `maxHeight`. Defaults to true."
+    },
+    {
+      "name": "maxHeight",
+      "type": "number",
+      "optional": true,
+      "comment": "Tallest the editor grows to when `autoHeight` is on. Defaults to 400."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": "Shown instead of the editor when the value is missing; translated if it is a message key."
+    },
+    {
+      "name": "monacoOptions",
+      "type": "editor.IStandaloneEditorConstructionOptions",
+      "optional": true,
+      "comment": "Merged over the read-only defaults, so it can override any of them."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": "Name of the property to display (dot/bracket path)."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": "Replaces ONLY a resolved `undefined`, never a present `null` / `0` / `\"\"`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "empty",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

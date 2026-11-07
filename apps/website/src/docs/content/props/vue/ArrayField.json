@@ -1,0 +1,49 @@
+{
+  "name": "ArrayField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": "The field path to the array on the current record."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to read. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": "Returned when the resolved value is `undefined`."
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": "Client-side page size for the embedded list."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": "Client-side sort for the embedded list."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Client-side filter for the embedded list."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

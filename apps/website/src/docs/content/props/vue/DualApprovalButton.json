@@ -1,0 +1,57 @@
+{
+  "name": "DualApprovalButton",
+  "props": [
+    {
+      "name": "required",
+      "type": "number",
+      "optional": true,
+      "default": "2",
+      "comment": "Approvals needed. Floored, minimum 1. Default `2`."
+    },
+    {
+      "name": "approverSource",
+      "type": "(keyof TRecord & string)",
+      "optional": true,
+      "comment": "Record field holding the approver list, a top-level key. Default `\"approvers\"`."
+    },
+    {
+      "name": "statusSource",
+      "type": "(keyof TRecord & string)",
+      "optional": true,
+      "comment": "Record field the status is written to, a top-level key. Default `\"status\"`."
+    },
+    {
+      "name": "pendingValue",
+      "type": "string",
+      "optional": true,
+      "comment": "Status written while approvals are short of `required`. Default `\"pending\"`."
+    },
+    {
+      "name": "approvedValue",
+      "type": "string",
+      "optional": true,
+      "comment": "Status written once approvals reach `required`. Default `\"approved\"`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient `<Resource>`."
+    },
+    {
+      "name": "record",
+      "type": "TRecord",
+      "optional": true,
+      "comment": "Override the ambient record."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "default": "\"pessimistic\"",
+      "comment": "How the update is dispatched. Default `\"pessimistic\"`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

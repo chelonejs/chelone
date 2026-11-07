@@ -1,0 +1,49 @@
+{
+  "name": "RatingField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "optional": true,
+      "comment": "Total stars rendered (filled + outlined). Default 5."
+    },
+    {
+      "name": "allowHalf",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Allow half-star granularity when the value falls between integers."
+    },
+    {
+      "name": "countSource",
+      "type": "SourceKey<RecordType>",
+      "optional": true,
+      "comment": "Sibling record field rendered in parentheses (e.g. a review count). A\ntop-level key, not a path: the read is `record[countSource]`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

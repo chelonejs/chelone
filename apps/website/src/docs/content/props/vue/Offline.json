@@ -1,0 +1,12 @@
+{
+  "name": "Offline",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "name": "FilterLiveSearch",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "default": "\"q\"",
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disableClearable",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "inputClass",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

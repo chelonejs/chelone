@@ -219,7 +219,7 @@ function heading(group: string): string {
     :placeholder="
       placeholder ??
       translate('chelone.command_menu.placeholder', {
-        _: 'Type a command or search...',
+        _: 'Search or run a command...',
       })
     "
   />

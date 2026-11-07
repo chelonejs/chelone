@@ -1,0 +1,39 @@
+{
+  "name": "ListActions",
+  "props": [
+    {
+      "name": "filters",
+      "type": "(FilterButtonEntry & { alwaysOn?: boolean | undefined; })[]",
+      "optional": true,
+      "comment": "Entries for the filter button; it shows when one is not `alwaysOn`."
+    },
+    {
+      "name": "exporter",
+      "type": "false | Exporter",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Runs on export; `false` hides the export button."
+    },
+    {
+      "name": "hasCreate",
+      "type": "boolean",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Show the create button. Defaults to the resource's `hasCreate`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

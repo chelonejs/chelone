@@ -1,0 +1,89 @@
+{
+  "name": "GeocodingInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the address text."
+    },
+    {
+      "name": "latSource",
+      "type": "string",
+      "optional": true,
+      "comment": "Written with the picked result's latitude. Left alone when unset."
+    },
+    {
+      "name": "lngSource",
+      "type": "string",
+      "optional": true,
+      "comment": "Written with the picked result's longitude. Left alone when unset."
+    },
+    {
+      "name": "bboxSource",
+      "type": "string",
+      "optional": true,
+      "comment": "Written with the picked result's `[west, south, east, north]`, when it has one."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "A string is translated; `false` renders none. Defaults to the label of `source`."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to `chelone.map.search_placeholder`."
+    },
+    {
+      "name": "provider",
+      "type": "GeocodingProvider",
+      "optional": true,
+      "comment": "Defaults to the `geocoder` of `MapsProvider`. One of the two is required."
+    },
+    {
+      "name": "minChars",
+      "type": "number",
+      "optional": true,
+      "default": "3",
+      "comment": "Shortest trimmed query that searches. Defaults to 3."
+    },
+    {
+      "name": "debounceMs",
+      "type": "number",
+      "optional": true,
+      "default": "300",
+      "comment": "Typeahead providers only: wait after the last key. Defaults to 300."
+    },
+    {
+      "name": "countryCodes",
+      "type": "string[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "viewBox",
+      "type": "LngLatBox",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "limit",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

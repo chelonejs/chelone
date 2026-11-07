@@ -1,0 +1,38 @@
+{
+  "name": "SimpleListLoading",
+  "props": [
+    {
+      "name": "nbFakeLines",
+      "type": "number",
+      "optional": true,
+      "default": "5",
+      "comment": "Number of placeholder rows. Default 5."
+    },
+    {
+      "name": "hasLeftAvatarOrIcon",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "hasRightAvatarOrIcon",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "hasSecondaryText",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "hasTertiaryText",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

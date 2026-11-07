@@ -1,0 +1,59 @@
+{
+  "name": "ArrayInputRow",
+  "props": [
+    {
+      "name": "row",
+      "type": "ArrayRow",
+      "optional": false,
+      "comment": "The stable-id row this wrapper scopes + controls."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides this row's remove and reorder controls."
+    },
+    {
+      "name": "disableRemove",
+      "type": "boolean | ((index: number) => boolean)",
+      "optional": true,
+      "comment": "Hides the remove button. A function decides per row index."
+    },
+    {
+      "name": "disableReordering",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the move up / move down buttons."
+    },
+    {
+      "name": "inline",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Lays the row's inputs out in one line from the `sm` breakpoint up."
+    },
+    {
+      "name": "getItemLabel",
+      "type": "boolean | ((index: number) => string)",
+      "optional": true,
+      "comment": "A label for the row. `true` numbers rows from 1; a function returns the\nlabel for the row index; `false` renders none."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "reorder-buttons",
+      "type": "{ index: number; remove: () => void; reOrder: (to: number) => void; }",
+      "comment": ""
+    },
+    {
+      "name": "remove-button",
+      "type": "{ index: number; remove: () => void; reOrder: (to: number) => void; }",
+      "comment": ""
+    }
+  ]
+}

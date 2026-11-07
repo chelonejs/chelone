@@ -184,9 +184,9 @@ async function resolve(comment: CommentRecord) {
   });
 }
 
-function timeOf(comment: CommentRecord) {
-  if (!comment.createdAt) return undefined;
-  const date = new Date(comment.createdAt);
+function timeOf(iso: string | null | undefined) {
+  if (!iso) return undefined;
+  const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return undefined;
   return { iso: date.toISOString(), label: date.toLocaleString() };
 }
@@ -206,7 +206,11 @@ function timeOf(comment: CommentRecord) {
       }}
     </p>
     <p v-else-if="isSuccess && items.length === 0" data-slot="comments-empty">
-      {{ translate("chelone.comments.empty", { _: "No comments yet" }) }}
+      {{
+        translate("chelone.comments.empty", {
+          _: "No comments yet. Be the first.",
+        })
+      }}
     </p>
     <Card
       v-for="comment in items"
@@ -217,13 +221,21 @@ function timeOf(comment: CommentRecord) {
       <CardContent>
         <div>
           <strong>{{ authorOf(comment) }}</strong>
-          <time v-if="timeOf(comment)" :datetime="timeOf(comment)?.iso">
-            {{ timeOf(comment)?.label }}
+          <time
+            v-if="timeOf(comment.createdAt)"
+            :datetime="timeOf(comment.createdAt)?.iso"
+          >
+            {{ timeOf(comment.createdAt)?.label }}
           </time>
         </div>
         <p>{{ comment.body }}</p>
         <Badge v-if="comment.resolvedAt" variant="secondary">
-          {{ translate("chelone.comments.resolved", { _: "Resolved" }) }}
+          {{
+            translate("chelone.comments.resolved", {
+              _: "Resolved {time}",
+              time: timeOf(comment.resolvedAt)?.label ?? "",
+            })
+          }}
         </Badge>
         <Button
           v-else-if="props.resolvable"
@@ -254,7 +266,7 @@ function timeOf(comment: CommentRecord) {
         v-model="draft"
         :placeholder="
           translate('chelone.comments.placeholder', {
-            _: 'Write a comment',
+            _: 'Write a comment…',
           })
         "
         @keydown="onKeydown"

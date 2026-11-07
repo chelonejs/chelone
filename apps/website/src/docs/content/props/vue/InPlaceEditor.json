@@ -1,0 +1,76 @@
+{
+  "name": "InPlaceEditor",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The field to show and edit. Required unless both the default slot and the\n`#editor` slot are given."
+    },
+    {
+      "name": "mutationMode",
+      "type": "MutationMode",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Default is `useUpdate`'s own."
+    },
+    {
+      "name": "meta",
+      "type": "Record<string, unknown>",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Sent with the update."
+    },
+    {
+      "name": "cancelOnBlur",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Cancel on a focus move out of the editor; when false, save instead. Default `true`."
+    },
+    {
+      "name": "showButtons",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Show Save and Cancel buttons beside the input. Default `false`."
+    },
+    {
+      "name": "notifyOnSuccess",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Notify `chelone.notification.updated` on success. Undoable mode always notifies, with Undo. Default `false`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Override the ambient resource."
+    }
+  ],
+  "emits": [
+    {
+      "name": "success",
+      "type": "[record: TRecord]"
+    },
+    {
+      "name": "error",
+      "type": "[error: unknown]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "editor",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

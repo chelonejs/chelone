@@ -1,0 +1,38 @@
+{
+  "name": "JsonField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "indent",
+      "type": "number",
+      "optional": true,
+      "default": "2",
+      "comment": "Spaces per indentation level. Defaults to 2."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

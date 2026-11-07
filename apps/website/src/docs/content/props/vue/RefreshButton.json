@@ -1,0 +1,13 @@
+{
+  "name": "RefreshButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated aria-label."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}
