@@ -1,9 +1,16 @@
-<script lang="ts">
-import type { Identifier, LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { Identifier, LooseRecord, ResourceRecord } from "@chelone/core";
 import type { DataTableRowClick } from "./data-table-context";
 
-/** Props for {@link DataTable}. */
-export interface DataTableProps {
+/**
+ * Props for {@link DataTable}. A caller of `h()` with loosely typed callbacks
+ * writes `h(DataTable<LooseRecord>, ...)`: `h()` resolves a generic component
+ * to its constraint, `ResourceRecord`, which refuses a `(record: LooseRecord)`
+ * callback.
+ */
+export interface DataTableProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   class?: string;
   /** Enable row selection + the bulk-actions toolbar (also on if a `#bulkActions` slot is passed). */
   bulkActions?: boolean;
@@ -14,13 +21,13 @@ export interface DataTableProps {
    * `"toggleSelection"`, `false` (inert), or a function of `(record, id)`
    * returning one of those or any other link type (`false` = do nothing).
    */
-  rowClick?: DataTableRowClick;
+  rowClick?: DataTableRowClick<TRecord>;
   /** Allow only one expanded row at a time (also hides the expand-all button). */
   expandSingle?: boolean;
   /** Which records can expand; a rejected row gets no toggle. All can by default. */
-  isRowExpandable?: (record: LooseRecord) => boolean;
+  isRowExpandable?: (record: TRecord) => boolean;
   /** A class for a body row, computed from its record and index. */
-  rowClass?: (record: LooseRecord, rowIndex: number) => string | false | undefined;
+  rowClass?: (record: TRecord, rowIndex: number) => string | false | undefined;
   /**
    * The store key of the hidden column ids; the order and the published
    * columns are kept under keys derived from it. Defaults to
@@ -32,7 +39,7 @@ export interface DataTableProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<DataTable>` — a table over the ambient list surface, the Vue analog of
  * `@chelone/react`'s `list/data-table.tsx`. Reads `useListContext` (published by
@@ -59,7 +66,6 @@ import {
 } from "@chelone/core";
 import {
   computed,
-  provide,
   ref,
   useSlots,
   type VNode,
@@ -81,20 +87,27 @@ import BulkActionsToolbar from "./bulk-actions-toolbar.vue";
 import Button from "../../ui/button.vue";
 import {
   ColumnsOutlet,
-  DataTableRowsKey,
   PassProvider,
+  provideDataTableRows,
 } from "./data-table-context";
 import DataTableRow from "./data-table-row.vue";
 import { ChevronsUpDownIcon } from "./list-icons";
 import ListPagination from "./list-pagination.vue";
 
 const props = withDefaults(
-  defineProps<DataTableProps>(),
+  defineProps<DataTableProps<TRecord>>(),
   { bulkActions: false, pagination: true, rowClick: "edit", expandSingle: false },
 );
 
+defineSlots<{
+  default?: () => VNode[];
+  /** Under an expanded row, given the row's record. */
+  expand?: (props: { id: Identifier; record: TRecord; resource: string }) => VNode[];
+  bulkActions?: () => VNode[];
+}>();
+
 const slots = useSlots();
-const list = useListContext<LooseRecord>();
+const list = useListContext<TRecord>();
 
 const hasBulkActions = computed(
   () => props.bulkActions || slots.bulkActions != null,
@@ -104,7 +117,7 @@ const resource = useResourceContext();
 const expandEnabled = computed(() => slots.expand != null);
 const expandedIds = ref<Identifier[]>([]);
 
-const canExpand = (record: LooseRecord): boolean =>
+const canExpand = (record: TRecord): boolean =>
   props.isRowExpandable?.(record) ?? true;
 
 function toggleExpand(id: Identifier) {
@@ -115,7 +128,7 @@ function toggleExpand(id: Identifier) {
   }
 }
 
-provide(DataTableRowsKey, {
+provideDataTableRows<TRecord>({
   rowClick: computed(() => props.rowClick),
   expandEnabled,
   expandedIds,
@@ -123,13 +136,12 @@ provide(DataTableRowsKey, {
   canExpand,
 });
 
-const rows = computed<LooseRecord[]>(() => list.data ?? []);
+const rows = computed<TRecord[]>(() => list.data ?? []);
 const isEmpty = computed(() => !list.isPending && rows.value.length === 0);
 
-const rowId = (record: LooseRecord): Identifier => record.id;
+const rowId = (record: TRecord): Identifier => record.id;
 
-const rowKey = (record: LooseRecord): string =>
-  String(record.id);
+const rowKey = (record: TRecord): string => String(record.id);
 
 // Header select-all: checked when every id on the current page is selected.
 const selectableIds = computed<Identifier[]>(() =>
