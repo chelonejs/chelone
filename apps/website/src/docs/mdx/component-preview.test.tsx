@@ -125,6 +125,17 @@ const VUE_DEMOS = [
   "ui-layout/title",
   "ui-layout/toolbar",
   "ui-layout/user-menu",
+  "ui-layout/access-denied",
+  "ui-layout/application-updated-notification",
+  "ui-layout/auth-callback",
+  "ui-layout/auth-error",
+  "ui-layout/auth-layout",
+  "ui-layout/authentication-error",
+  "ui-layout/check-for-application-update",
+  "ui-layout/login-form",
+  "ui-layout/login-page",
+  "ui-layout/login-with-email",
+  "ui-layout/logout",
 ];
 
 describe.each(VUE_DEMOS)("the Vue demo of %s", (slug) => {
