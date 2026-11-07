@@ -280,6 +280,8 @@ describe("@chelone/core barrel", () => {
     expect(barrel.DEFAULT_MAP_ZOOM).toBe(13);
     expect(barrel.DEFAULT_MAP_HEIGHT).toBe(300);
     expect(barrel.DEFAULT_PIN_COLOR).toBe("#dc2626");
+    expect(barrel.DEFAULT_FIT_PADDING).toBe(20);
+    expect(barrel.DEFAULT_MAX_FIT_ZOOM).toBe(18);
     expect(barrel.PIN_NS).toBe("http://www.w3.org/2000/svg");
     // `PIN_NS` is an XML namespace and reads like a URL: core still names no tile server.
     const urls = Object.values(barrel).filter(
@@ -382,6 +384,10 @@ describe("@chelone/core barrel", () => {
 
   it("exports toLocationState", () => {
     expect(barrel.toLocationState).toBeTypeOf("function");
+  });
+
+  it("exports the location state keys", () => {
+    expect(barrel.NEXT_PATHNAME_KEY).toBe("nextPathname");
   });
 
   it("exports the P6 runtime resource registry (W1-T2)", () => {
@@ -516,6 +522,13 @@ describe("@chelone/core barrel", () => {
     );
     expect(barrel.placeTourCard).toBeTypeOf("function");
     expect(barrel.tourSpotlightPath).toBeTypeOf("function");
+    expect(barrel.REMEASURE_MS).toBe(250);
+  });
+
+  it("exports the inspector panel constants", () => {
+    expect(barrel.PANEL_WIDTH).toBe(320);
+    expect(barrel.INSPECTOR_KEY_STEP).toBe(16);
+    expect(barrel.INSPECTOR_OPEN_LABEL).toBe("chelone.inspector.customize");
   });
 
   it("exports the environment stores", () => {

@@ -65,8 +65,10 @@ export type {
   RasterTileStyleOptions,
 } from "./map-style";
 export {
+  DEFAULT_FIT_PADDING,
   DEFAULT_MAP_HEIGHT,
   DEFAULT_MAP_ZOOM,
+  DEFAULT_MAX_FIT_ZOOM,
   DEFAULT_PIN_COLOR,
   expandTileUrl,
   latLngToLngLat,

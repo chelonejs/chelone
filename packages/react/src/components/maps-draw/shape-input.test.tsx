@@ -426,6 +426,16 @@ describe("ShapeInput", () => {
     expect(map().fits).toHaveLength(1);
   });
 
+  it("fits with the shared padding and max fit zoom", async () => {
+    const { map } = await setup();
+
+    expect(map().fits[0]?.options).toEqual({
+      padding: 20,
+      maxZoom: 18,
+      duration: 0,
+    });
+  });
+
   it("does not fit a value outside the longitude and latitude range", async () => {
     const { map } = await setup({}, square(261845));
 

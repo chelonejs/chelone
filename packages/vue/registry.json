@@ -4852,6 +4852,7 @@
         }
       ],
       "registryDependencies": ["@chelone/theme-context"],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6636,7 +6637,7 @@
         "@chelone/inspector-context",
         "@chelone/lib-utils"
       ],
-      "dependencies": ["@chelone/vue"],
+      "dependencies": ["@chelone/core", "@chelone/vue"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

@@ -17,10 +17,12 @@
 import {
   clampInspectorPosition,
   createInspector,
+  INSPECTOR_KEY_STEP,
   type Inspector as InspectorController,
   type InspectorPosition,
   type InspectorState,
   inspectorPositionKey,
+  PANEL_WIDTH,
 } from "@chelone/core";
 import { X } from "lucide-react";
 import {
@@ -95,9 +97,6 @@ function useInspector(): InspectorControls | null {
   );
 }
 
-const PANEL_WIDTH = 320;
-const KEY_STEP = 16;
-
 const subscribeToResize = (callback: () => void) => {
   window.addEventListener("resize", callback);
   return () => window.removeEventListener("resize", callback);
@@ -107,10 +106,10 @@ const windowHeight = () => window.innerHeight;
 const serverSize = () => 0;
 
 const ARROWS: Record<string, InspectorPosition> = {
-  ArrowLeft: { x: -KEY_STEP, y: 0 },
-  ArrowRight: { x: KEY_STEP, y: 0 },
-  ArrowUp: { x: 0, y: -KEY_STEP },
-  ArrowDown: { x: 0, y: KEY_STEP },
+  ArrowLeft: { x: -INSPECTOR_KEY_STEP, y: 0 },
+  ArrowRight: { x: INSPECTOR_KEY_STEP, y: 0 },
+  ArrowUp: { x: 0, y: -INSPECTOR_KEY_STEP },
+  ArrowDown: { x: 0, y: INSPECTOR_KEY_STEP },
 };
 
 function InspectorPanel({

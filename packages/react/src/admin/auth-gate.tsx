@@ -21,7 +21,7 @@
  * - `LogoutOnMount` — logs out on mount (the unauthenticated branch's effect).
  */
 
-import { authStateQueryOptions } from "@chelone/core";
+import { authStateQueryOptions, NEXT_PATHNAME_KEY } from "@chelone/core";
 import { useQuery } from "@tanstack/react-query";
 import { type ReactNode, useEffect } from "react";
 import { useLogout } from "../auth-hooks";
@@ -132,9 +132,6 @@ export function Authenticated({
   if (!gate.authenticated) return null;
   return children;
 }
-
-/** The Store key the login flow stashes the post-login target under. */
-const NEXT_PATHNAME_KEY = "nextPathname";
 
 export interface HandleAuthCallbackResult {
   /** True once the callback has resolved and the redirect has been issued. */
