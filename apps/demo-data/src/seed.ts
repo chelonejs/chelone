@@ -146,7 +146,10 @@ export type Page = {
   id: number;
   title: string;
   slug: string;
+  /** HTML, written with a rich text editor. */
   body: string;
+  /** Markdown, written with an MDX editor. */
+  release_notes: string;
   status: "draft" | "published";
   author_id: number;
   parent_id: number | null;
@@ -574,12 +577,32 @@ const pageSeeds: ReadonlyArray<
   ["Shipping and returns", 5, "published"],
 ];
 
+function pageBody(title: string): string {
+  return [
+    `<h2>${title}</h2>`,
+    '<p>This page lives in the <strong>in-memory data provider</strong>. Edit it with the toolbar: <em>italic</em>, <u>underline</u>, a <a href="https://example.com">link</a> or a list.</p>',
+    "<ul><li>Headings, lists and quotes</li><li>Images and colored text</li><li>Highlighted code blocks</li></ul>",
+    "<blockquote><p>The stored value is plain HTML.</p></blockquote>",
+  ].join("");
+}
+
+function pageReleaseNotes(title: string): string {
+  return [
+    `## What changed on ${title}`,
+    "- Rewrote the introduction",
+    "- Added a **list** of the main points",
+    "- Fixed a broken [link](https://example.com)",
+    "| Section | Change |\n| --- | --- |\n| Intro | Rewritten |\n| Footer | Unchanged |",
+  ].join("\n\n");
+}
+
 function buildPages(now: Date): Page[] {
   return pageSeeds.map(([title, parent, status], i) => ({
     id: i + 1,
     title,
     slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-    body: `# ${title}\n\nThis page lives in the in-memory data provider.`,
+    body: pageBody(title),
+    release_notes: pageReleaseNotes(title),
     status,
     author_id: cycle(authors, i).id,
     parent_id: parent,
