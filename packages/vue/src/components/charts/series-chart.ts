@@ -73,14 +73,20 @@ export function useSeriesRows<
     return rows.value.filter((row) => row.index % step === 0).map(rowX);
   });
 
-  const tooltip = computed(() =>
+  /**
+   * The crosshair's HTML for a row, with `value` shown in place of the row's y.
+   * `color` draws the row's own indicator, for a chart whose color is not the
+   * same for every row.
+   */
+  const tooltipFor = (
+    row: Row,
+    value: number | string | null,
+    color?: string,
+  ) =>
     componentToString(config.value, ChartTooltipContent, {
       labelFormatter: xLabel,
-    }),
-  );
-  /** The crosshair's HTML for a row, with `value` shown in place of the row's y. */
-  const tooltipFor = (row: Row, value: number | string | null) =>
-    tooltip.value?.({ [props.yField]: value }, row.index) ?? "";
+      ...(color === undefined ? {} : { color }),
+    })?.({ [props.yField]: value }, row.index) ?? "";
 
   /** The props of the x `<VisAxis>`: each tick names its row. */
   const xAxis = computed(() => ({

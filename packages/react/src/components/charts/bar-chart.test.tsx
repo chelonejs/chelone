@@ -1,14 +1,15 @@
 /**
- * `<BarChart>` mounted the way an app uses it: inside the Chelone provider,
- * with assertions on the DOM recharts draws. jsdom measures every element as
- * 0x0, so `ResponsiveContainer` is replaced by one that hands its chart a size.
+ * `<BarChart>` mounted the way the demos use it: as a resource page inside
+ * `<Admin>`, with assertions on the DOM recharts draws. jsdom measures every
+ * element as 0x0, so `ResponsiveContainer` is replaced by one that hands its
+ * chart a size.
  */
-import { createStore, fakeDataProvider } from "@chelone/core";
-import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render } from "@testing-library/react";
+import { defineResources, fakeDataProvider } from "@chelone/core";
+import { cleanup } from "@testing-library/react";
 import { cloneElement, isValidElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CheloneProvider } from "../../context";
+import { z } from "zod";
+import { mountInAdmin } from "./__fixtures__/admin-mount";
 import { BarChart, type BarChartProps } from "./bar-chart";
 
 vi.mock("recharts", async (importOriginal) => ({
@@ -29,16 +30,34 @@ const ROWS: Row[] = [
   { day: "Wed", visits: 5 },
 ];
 
+const resources = defineResources({
+  posts: {
+    schema: z.object({ day: z.string(), visits: z.number() }),
+  },
+});
+
+/** The chart as the `posts` list page, inside `<Admin>`. */
 function mount(props: Partial<BarChartProps<Row>> = {}) {
-  return render(
-    <CheloneProvider
-      dataProvider={fakeDataProvider({})}
-      queryClient={new QueryClient()}
-      store={createStore()}
-    >
+  return mountInAdmin({
+    name: "posts",
+    resources,
+    dataProvider: fakeDataProvider({ posts: [] }),
+    page: () => (
       <BarChart data={ROWS} xField="day" yField="visits" {...props} />
-    </CheloneProvider>,
-  );
+    ),
+  });
+}
+
+/** How each drawn bar is filled: the attribute recharts writes and the style that paints. */
+function barFills(container: HTMLElement) {
+  return [
+    ...container.querySelectorAll<SVGPathElement>(
+      ".recharts-bar-rectangle path",
+    ),
+  ].map((bar) => ({
+    attribute: bar.getAttribute("fill"),
+    style: bar.style.fill,
+  }));
 }
 
 describe("<BarChart>", () => {
@@ -61,10 +80,32 @@ describe("<BarChart>", () => {
     expect(xTicks).toEqual(["Mon", "Tue", "Wed", "Thu"]);
   });
 
-  it("fills the bars with the given color", () => {
+  it("fills every bar with the given color", () => {
     const { container } = mount({ color: "red" });
-    const bar = container.querySelector(".recharts-bar-rectangle path");
-    expect(bar?.getAttribute("fill")).toBe("red");
+    expect(barFills(container)).toEqual([
+      { attribute: "red", style: "red" },
+      { attribute: "red", style: "red" },
+      { attribute: "red", style: "red" },
+    ]);
+  });
+
+  it("gives each bar a different theme colour by default", () => {
+    const { container } = mount();
+    // recharts writes the attribute; the style is the declaration that paints.
+    expect(barFills(container)).toEqual([
+      { attribute: "var(--chart-1)", style: "var(--chart-1)" },
+      { attribute: "var(--chart-2)", style: "var(--chart-2)" },
+      { attribute: "var(--chart-3)", style: "var(--chart-3)" },
+    ]);
+  });
+
+  it("cycles the given colors over the bars", () => {
+    const { container } = mount({ colors: ["red", "green"] });
+    expect(barFills(container).map((bar) => bar.attribute)).toEqual([
+      "red",
+      "green",
+      "red",
+    ]);
   });
 
   it("bare, loading and the empty text behave as in TrendChart", () => {

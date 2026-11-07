@@ -1,14 +1,15 @@
 /**
- * `<DonutChart>` mounted the way an app uses it: inside the Chelone provider,
- * with assertions on the DOM recharts draws. jsdom measures every element as
- * 0x0, so `ResponsiveContainer` is replaced by one that hands its chart a size.
+ * `<DonutChart>` mounted the way the demos use it: as a resource page inside
+ * `<Admin>`, with assertions on the DOM recharts draws. jsdom measures every
+ * element as 0x0, so `ResponsiveContainer` is replaced by one that hands its
+ * chart a size.
  */
-import { createStore, fakeDataProvider } from "@chelone/core";
-import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render } from "@testing-library/react";
+import { defineResources, fakeDataProvider } from "@chelone/core";
+import { cleanup } from "@testing-library/react";
 import { cloneElement, isValidElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CheloneProvider } from "../../context";
+import { z } from "zod";
+import { mountInAdmin } from "./__fixtures__/admin-mount";
 import { DonutChart, type DonutChartProps } from "./donut-chart";
 
 vi.mock("recharts", async (importOriginal) => ({
@@ -29,22 +30,35 @@ const ROWS: Row[] = [
   { plan: "Team", seats: 60 },
 ];
 
+const resources = defineResources({
+  plans: {
+    schema: z.object({ plan: z.string(), seats: z.number() }),
+  },
+});
+
+/** The chart as the `plans` list page, inside `<Admin>`. */
 function mount(props: Partial<DonutChartProps<Row>> = {}) {
-  return render(
-    <CheloneProvider
-      dataProvider={fakeDataProvider({})}
-      queryClient={new QueryClient()}
-      store={createStore()}
-    >
+  return mountInAdmin({
+    name: "plans",
+    resources,
+    dataProvider: fakeDataProvider({ plans: [] }),
+    page: () => (
       <DonutChart data={ROWS} labelField="plan" valueField="seats" {...props} />
-    </CheloneProvider>,
-  );
+    ),
+  });
 }
 
 function sectorFills(container: HTMLElement) {
   return [...container.querySelectorAll(".recharts-pie-sector path")].map(
     (path) => path.getAttribute("fill"),
   );
+}
+
+/** The fill each sector paints with: its inline style, which outranks the attribute. */
+function paintedFills(container: HTMLElement) {
+  return [
+    ...container.querySelectorAll<SVGPathElement>(".recharts-pie-sector path"),
+  ].map((path) => path.style.fill);
 }
 
 describe("<DonutChart>", () => {
@@ -54,13 +68,12 @@ describe("<DonutChart>", () => {
     expect(sectorFills(container)).toEqual(["red", "green", "red"]);
   });
 
-  it("falls back to the theme chart colors", () => {
+  it("paints every slice with its theme colour on first render", () => {
     const { container } = mount();
-    expect(sectorFills(container)).toEqual([
-      "var(--chart-1)",
-      "var(--chart-2)",
-      "var(--chart-3)",
-    ]);
+    const theme = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)"];
+    expect(sectorFills(container)).toEqual(theme);
+    // recharts writes the attribute; the style is the declaration that paints.
+    expect(paintedFills(container)).toEqual(theme);
   });
 
   it("leaves out zero and negative values, and shows the empty text when none is left", () => {

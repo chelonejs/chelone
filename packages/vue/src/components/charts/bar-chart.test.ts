@@ -1,22 +1,20 @@
 /**
- * `<BarChart>` mounted the way an app uses it: inside the Chelone context,
- * with assertions on what unovis was given. jsdom has no layout, so every
- * element is given a size through `getBoundingClientRect` and `ResizeObserver`
- * is a stub that never fires.
+ * `<BarChart>` mounted the way the demos use it: inside `<Admin>`, with
+ * assertions on what unovis was given. jsdom has no layout, so every element is
+ * given a size through `getBoundingClientRect` and `ResizeObserver` is a stub
+ * that never fires.
  */
 
-import { fakeDataProvider } from "@chelone/core";
-import { QueryClient } from "@tanstack/vue-query";
 import {
   VisAxis,
   VisCrosshair,
   VisGroupedBar,
   VisXYContainer,
 } from "@unovis/vue";
-import { mount, type VueWrapper } from "@vue/test-utils";
+import type { VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h } from "vue";
-import { provideCheloneContext } from "../../context";
+import { h } from "vue";
+import { mountInAdmin } from "./__fixtures__/admin-mount";
 import { axis, chartReaders, required } from "./__fixtures__/unovis";
 import BarChart, { type BarChartProps } from "./bar-chart.vue";
 
@@ -56,23 +54,16 @@ afterEach(() => {
   for (const wrapper of mounted.splice(0)) wrapper.unmount();
 });
 
+/** The chart mounted inside `<Admin>`, the way a dashboard page mounts it. */
 function mountChart(props: Partial<BarChartProps<Row>> = {}) {
-  const Harness = defineComponent({
-    setup() {
-      provideCheloneContext({
-        dataProvider: fakeDataProvider({}),
-        queryClient: new QueryClient(),
-      });
-      return () =>
-        h(BarChart<Row>, {
-          data: ROWS,
-          xField: "day",
-          yField: "visits",
-          ...props,
-        });
-    },
-  });
-  const wrapper = mount(Harness, { attachTo: document.body });
+  const wrapper = mountInAdmin(() =>
+    h(BarChart<Row>, {
+      data: ROWS,
+      xField: "day",
+      yField: "visits",
+      ...props,
+    }),
+  );
   mounted.push(wrapper);
   return wrapper;
 }
@@ -121,6 +112,23 @@ describe("<BarChart>", () => {
     );
   });
 
+  it("gives each bar a different theme colour by default", () => {
+    expect(accessedOver(mountChart(), VisGroupedBar, "color")).toEqual([
+      "var(--chart-1)",
+      "var(--chart-2)",
+      "var(--chart-3)",
+    ]);
+  });
+
+  it("cycles the given colors over the bars", () => {
+    const wrapper = mountChart({ colors: ["red", "green"] });
+    expect(accessedOver(wrapper, VisGroupedBar, "color")).toEqual([
+      "red",
+      "green",
+      "red",
+    ]);
+  });
+
   it("bare, loading and the empty text behave as in TrendChart", () => {
     const bare = mountChart({ title: "Visits", bare: true });
     expect(bare.find('[data-slot="card"]').exists()).toBe(false);
@@ -165,6 +173,8 @@ describe("<BarChart>", () => {
     expect(html).toContain("Tue");
     expect(html).toContain("visits");
     expect(html).toContain("7");
+    // The indicator is the second bar's own color, not one color for all rows.
+    expect(html).toContain("var(--chart-2)");
   });
 
   it("the tooltip renders x values that hold markup as text", () => {

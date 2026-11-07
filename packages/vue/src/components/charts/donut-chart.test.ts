@@ -1,18 +1,16 @@
 /**
- * `<DonutChart>` mounted the way an app uses it: inside the Chelone context,
- * with assertions on what unovis was given. jsdom has no layout, so every
- * element is given a size through `getBoundingClientRect` and `ResizeObserver`
- * is a stub that never fires.
+ * `<DonutChart>` mounted the way the demos use it: inside `<Admin>`, with
+ * assertions on what unovis was given. jsdom has no layout, so every element is
+ * given a size through `getBoundingClientRect` and `ResizeObserver` is a stub
+ * that never fires.
  */
 
-import { fakeDataProvider } from "@chelone/core";
-import { QueryClient } from "@tanstack/vue-query";
 import { Donut } from "@unovis/ts";
 import { VisDonut, VisSingleContainer, VisTooltip } from "@unovis/vue";
-import { mount, type VueWrapper } from "@vue/test-utils";
+import type { VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { defineComponent, h } from "vue";
-import { provideCheloneContext } from "../../context";
+import { h } from "vue";
+import { mountInAdmin } from "./__fixtures__/admin-mount";
 import { required } from "./__fixtures__/unovis";
 import DonutChart, { type DonutChartProps } from "./donut-chart.vue";
 
@@ -56,23 +54,16 @@ afterEach(() => {
   for (const wrapper of mounted.splice(0)) wrapper.unmount();
 });
 
+/** The chart mounted inside `<Admin>`, the way a dashboard page mounts it. */
 function mountChart(props: Partial<DonutChartProps<Row>> = {}) {
-  const Harness = defineComponent({
-    setup() {
-      provideCheloneContext({
-        dataProvider: fakeDataProvider({}),
-        queryClient: new QueryClient(),
-      });
-      return () =>
-        h(DonutChart<Row>, {
-          data: ROWS,
-          labelField: "plan",
-          valueField: "seats",
-          ...props,
-        });
-    },
-  });
-  const wrapper = mount(Harness, { attachTo: document.body });
+  const wrapper = mountInAdmin(() =>
+    h(DonutChart<Row>, {
+      data: ROWS,
+      labelField: "plan",
+      valueField: "seats",
+      ...props,
+    }),
+  );
   mounted.push(wrapper);
   return wrapper;
 }
@@ -117,7 +108,8 @@ describe("<DonutChart>", () => {
     ]);
   });
 
-  it("falls back to the theme chart colors", () => {
+  it("paints every slice with its theme colour on first render", () => {
+    // unovis draws each segment's fill as an inline style from this accessor.
     expect(drawn(mountChart()).map((slice) => slice.color)).toEqual([
       "var(--chart-1)",
       "var(--chart-2)",
