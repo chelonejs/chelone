@@ -1,14 +1,14 @@
 <script
   lang="ts"
-  generic="TChoice extends ChoiceRecord = ChoiceRecord, RecordType extends LooseRecord = LooseRecord"
+  generic="TChoice extends ChoiceRecord = ChoiceRecord, RecordType extends ResourceRecord = LooseRecord"
 >
-import type { LooseRecord, SourcePath, SourceProp, SourceValue } from "@chelone/core";
+import type { LooseRecord, ResourceRecord, SourcePath, SourceProp, SourceValue } from "@chelone/core";
 import type { ChoiceRecord, OptionText } from "../../../choices/use-choices";
 
 /** Props for {@link SelectField}. */
 export interface SelectFieldProps<
   TChoice extends ChoiceRecord = ChoiceRecord,
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   source: SourceProp<RecordType>;
   record?: RecordType;
@@ -29,7 +29,7 @@ export interface SelectFieldProps<
 <script
   setup
   lang="ts"
-  generic="TChoice extends ChoiceRecord = ChoiceRecord, RecordType extends LooseRecord = LooseRecord"
+  generic="TChoice extends ChoiceRecord = ChoiceRecord, RecordType extends ResourceRecord = LooseRecord"
 >
 /**
  * `<SelectField>` — displays an enumeration value by mapping it to a

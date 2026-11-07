@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { ComponentProps, HTMLAttributes } from "react";
 import { Badge } from "@/components/ui/badge";
 import type { ElementFieldProps } from "@/lib/field-types";
@@ -28,7 +28,7 @@ type BadgeProps = ComponentProps<typeof Badge>;
  *   </Show>
  * );
  */
-function TextArrayField<RecordType extends LooseRecord = LooseRecord>(
+function TextArrayField<RecordType extends ResourceRecord = LooseRecord>(
   props: TextArrayFieldProps<RecordType>,
 ) {
   const {
@@ -77,7 +77,7 @@ function TextArrayField<RecordType extends LooseRecord = LooseRecord>(
   );
 }
 
-interface TextArrayFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface TextArrayFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends ElementFieldProps<
     RecordType,
     Omit<HTMLAttributes<HTMLDivElement>, "children">

@@ -1,18 +1,18 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import type { BadgeVariant } from "../../ui/badge";
 import type { FieldProps } from "./field-props";
 
 /** Props for {@link TextArrayField}. */
 export interface TextArrayFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > extends FieldProps<RecordType> {
   /** Badge variant. Default `outline` (parity with the React twin). */
   variant?: BadgeVariant;
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<TextArrayField>` — renders an array of scalar values as a horizontal list of
  * `<Badge>` chips, the Vue port of `@chelone/react`'s `fields/text-array-field.tsx`.
