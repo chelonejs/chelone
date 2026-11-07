@@ -1,8 +1,15 @@
-// Core interpolates `{name}` only, so react-admin's `%{name}` keeps its percent
-// sign on screen: `Run %delete_post?`, `Invalid JSON: %Unexpected token`. This
-// reads every production file under `packages/*/src` and fails on a `%{word}`
-// that sits in code rather than in a comment, so a comment that names
-// react-admin's syntax stays legal while a fallback that copies it does not.
+// Two checks over every production file under `packages/*/src`.
+//
+// Percent placeholders. Core interpolates `{name}` only, so react-admin's
+// `%{name}` keeps its percent sign on screen: `Run %delete_post?`,
+// `Invalid JSON: %Unexpected token`. The check fails on a `%{word}` that sits
+// in code rather than in a comment, so a comment that names react-admin's
+// syntax stays legal while a fallback that copies it does not.
+//
+// Catalog coverage. A key written as a plain string literal must be in a
+// catalog, or a translator cannot list it and the two adapters can word it
+// differently. Keys built from a template string (`ra.action.${action}`) are
+// not checked: only part of them is a key.
 
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
@@ -120,6 +127,46 @@ export function percentPlaceholders(text, { htmlComments = false } = {}) {
     });
   }
   return found;
+}
+
+/** A `ra.*` or `chelone.*` key written as a whole `'…'` or `"…"` literal. */
+const literalKey = /(["'])((?:ra|chelone)(?:\.[A-Za-z0-9_]+)+)\1/g;
+
+/** The same shape where it is a catalog entry: the key is followed by a `:`. */
+const catalogEntry = /(["'])((?:ra|chelone)(?:\.[A-Za-z0-9_]+)+)\1(?=\s*:)/g;
+
+/**
+ * `chelone.*`/`ra.*` literals that name no translation key: `ra.sort.sort_by`
+ * is the key a caller's own label is looked up under (`<SortButton label>`), so
+ * a catalog entry would shadow it, and `chelone.inspector.position` is a store
+ * key that only borrows the prefix.
+ */
+const notTranslationKeys = new Set([
+  "chelone.inspector.position",
+  "ra.sort.sort_by",
+]);
+
+/**
+ * Every `ra.*`/`chelone.*` key `text` passes as a quoted literal, outside a
+ * comment. A backtick is left out on purpose: a template string is either a
+ * built key or a sentence, and neither is a literal key.
+ */
+export function literalTranslationKeys(text, { htmlComments = false } = {}) {
+  const comments = commentRanges(text, { htmlComments });
+  const keys = new Set();
+  for (const match of text.matchAll(literalKey)) {
+    const at = match.index;
+    if (comments.some(([start, end]) => at >= start && at < end)) continue;
+    if (!afterBreak(text, at)) continue;
+    keys.add(match[2]);
+  }
+  return keys;
+}
+
+/** Every key the catalogs define: each `defineMessages` call under `dir`. */
+function catalogKeys(text) {
+  if (!text.includes("defineMessages(")) return [];
+  return [...text.matchAll(catalogEntry)].map((match) => match[2]);
 }
 
 /**
@@ -245,6 +292,42 @@ describe("percentPlaceholders", () => {
   });
 });
 
+describe("literalTranslationKeys", () => {
+  it("catches a key passed to translate, in single or double quotes", () => {
+    assert.deepEqual(
+      [
+        ...literalTranslationKeys(
+          'translate("chelone.comments.empty", { _: "No comments yet" })\ntranslate(\'ra.action.delete\', { _: "Delete" })',
+        ),
+      ],
+      ["chelone.comments.empty", "ra.action.delete"],
+    );
+  });
+
+  it("catches a key inside a Vue attribute, and skips a commented one", () => {
+    assert.deepEqual(
+      [
+        ...literalTranslationKeys(
+          '<template>\n  <!-- chelone.comments.post is the label -->\n  <Textarea :placeholder="translate(\'chelone.comments.placeholder\', { _: \'Write a comment\' })" />\n</template>\n',
+          { htmlComments: true },
+        ),
+      ],
+      ["chelone.comments.placeholder"],
+    );
+  });
+
+  it("leaves a built key and a word that only looks like one alone", () => {
+    assert.deepEqual(
+      [
+        ...literalTranslationKeys(
+          'translate(`ra.action.${action}`, { _: action })\nconst path = "packages/core/src/i18n.ts"',
+        ),
+      ],
+      [],
+    );
+  });
+});
+
 describe("production code", () => {
   it("no string in production code uses a percent placeholder", async () => {
     const problems = [];
@@ -259,5 +342,30 @@ describe("production code", () => {
       }
     }
     assert.deepEqual(problems, []);
+  });
+
+  it("every literal translation key is in the catalog", async () => {
+    const catalog = new Set();
+    for (const src of await packageSources()) {
+      for (const file of await productionFiles(src)) {
+        for (const key of catalogKeys(await readFile(file, "utf8"))) {
+          catalog.add(key);
+        }
+      }
+    }
+
+    const missing = [];
+    for (const src of await packageSources()) {
+      for (const file of await productionFiles(src)) {
+        const text = await readFile(file, "utf8");
+        for (const key of literalTranslationKeys(text, {
+          htmlComments: extname(file) === ".vue",
+        })) {
+          if (catalog.has(key) || notTranslationKeys.has(key)) continue;
+          missing.push(`${relative(repoRoot, file)}: ${key}`);
+        }
+      }
+    }
+    assert.deepEqual(missing.sort(), []);
   });
 });
