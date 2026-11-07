@@ -1,0 +1,34 @@
+---
+title: "Shape fields"
+description: "One field per GeoJSON type, each GeoJsonField under another name: PointField, MultiPointField, LineStringField, MultiLineStringField, PolygonField, MultiPolygonField, GeometryCollectionField, FeatureField and FeatureCollectionField. They exist so an app migrating from shadmin changes no import."
+---
+
+One field per GeoJSON type, each `GeoJsonField` under another name. They exist so
+an app migrating from shadmin changes no import. All nine take the props of
+`GeoJsonField` and show any GeoJSON value, so `PolygonField` also draws a
+`LineString`.
+
+## Installation
+
+```tsx
+import {
+  FeatureCollectionField,
+  FeatureField,
+  GeometryCollectionField,
+  LineStringField,
+  MultiLineStringField,
+  MultiPointField,
+  MultiPolygonField,
+  PointField,
+  PolygonField,
+} from "@chelone/react/maps";
+```
+
+See the [maps guide](/docs/app-config/maps) for the subpaths, the optional packages and `MapsProvider`.
+
+Each type has its own page: [PointField](/docs/maps/point-field),
+[PolygonField](/docs/maps/polygon-field) and the rest of the Shape fields.
+
+## Props
+
+<PropsTable name="GeoJsonField" />
