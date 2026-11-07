@@ -1,4 +1,9 @@
-import { getAtPath, isSafeFileUrl, type LooseRecord } from "@chelone/core";
+import {
+  getAtPath,
+  isSafeFileUrl,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
@@ -7,7 +12,7 @@ import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface FileFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface FileFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends ElementFieldProps<RecordType, HTMLAttributes<HTMLElement>> {
   /** The path to the file url on each item, for an array of files. */
   src?: string;
@@ -39,7 +44,7 @@ interface FileFieldProps<RecordType extends LooseRecord = LooseRecord>
  * // <div><a href="doc.pdf" title="Presentation">Presentation</a></div>
  * <FileField source="url" title="title" />
  */
-function FileField<RecordType extends LooseRecord = LooseRecord>(
+function FileField<RecordType extends ResourceRecord = LooseRecord>(
   props: FileFieldProps<RecordType>,
 ) {
   const {

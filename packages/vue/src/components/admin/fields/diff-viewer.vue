@@ -1,12 +1,12 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 
 /** Table (`side-by-side`, the default) or list (`inline`). */
 export type DiffViewerMode = "side-by-side" | "inline";
 
 /** Props for {@link DiffViewer}. */
 export interface DiffViewerProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   /** The earlier version. */
   before: RecordType;
@@ -24,7 +24,7 @@ export interface DiffViewerProps<
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<DiffViewer>` shows what changed between two versions of a record, one row
  * per field. The Vue analog of `@chelone/react`'s `fields/diff-viewer.tsx`.
@@ -64,7 +64,7 @@ const translate = useTranslate();
 const translateLabel = useTranslateLabel();
 
 const rows = computed(() =>
-  diffRecords<LooseRecord>(props.before, props.after, props.sources),
+  diffRecords<RecordType>(props.before, props.after, props.sources),
 );
 
 const empty = computed(() =>

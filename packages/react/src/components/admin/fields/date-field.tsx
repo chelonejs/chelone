@@ -1,11 +1,16 @@
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+import type {
+  LooseRecord,
+  ResourceRecord,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-function DateFieldImpl<RecordType extends LooseRecord = LooseRecord>(
+function DateFieldImpl<RecordType extends ResourceRecord = LooseRecord>(
   inProps: DateFieldProps<RecordType>,
 ) {
   const {
@@ -98,7 +103,7 @@ DateFieldImpl.displayName = "DateFieldImpl";
  */
 const DateField = genericMemo(DateFieldImpl);
 
-interface DateFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface DateFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   locales?: Intl.LocalesArgument;
   options?: Intl.DateTimeFormatOptions;
