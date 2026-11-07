@@ -21,5 +21,11 @@
     }
   ],
   "emits": [],
-  "slots": []
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
 }

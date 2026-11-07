@@ -94,6 +94,8 @@ export type Customer = {
   plan: string;
   /** Percent of the plan's quota, 0 to 100. */
   usage: number;
+  /** What `usage` is measured against, so a meter can draw a bar. */
+  usage_limit: number;
   phone: string;
   /** `YYYY-MM-DD`. */
   joined_on: string;
@@ -452,7 +454,8 @@ function buildCustomers(now: Date): Customer[] {
     city: cycle(cities, i),
     plan: cycle(plans, i),
     usage: (i * 37 + 12) % 101,
-    phone: `+1 555 01${String(10 + i * 7).padStart(2, "0")}`,
+    usage_limit: 100,
+    phone: `+1 415 555 01${String(10 + i * 7).padStart(2, "0")}`,
     joined_on: from(now, -(30 + i * 45) * DAY).slice(0, 10),
     segment: cycle(segments, i * 3 + (i % 2)),
   }));

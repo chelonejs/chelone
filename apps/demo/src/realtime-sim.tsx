@@ -15,7 +15,7 @@ import { useEffect } from "react";
 import { dataProvider, locks } from "./realtime";
 
 const buttonClass =
-  "rounded-md border px-3 py-1.5 text-sm hover:bg-accent hover:text-accent-foreground";
+  "whitespace-nowrap rounded-md border px-2 py-1.5 text-xs hover:bg-accent hover:text-accent-foreground";
 
 export interface SimulateOtherUserProps {
   /** The post the lock button takes. Defaults to the first seeded post. */

@@ -23,6 +23,11 @@ export interface MenuItemLinkProps {
   class?: string;
   /** Click handler invoked alongside the default navigation (e.g. close the mobile drawer). */
   onClick?: () => void;
+  /**
+   * Keys that navigate to `to` from anywhere on the page, such as `"mod+1"` or
+   * `"alt+/"`, shown after the label. `mod` is Cmd or Ctrl.
+   */
+  keyboardShortcut?: string;
 }
 </script>
 
@@ -37,22 +42,25 @@ export interface MenuItemLinkProps {
  * building block for `<DashboardMenuItem>` / `<ResourceMenuItem>` and for custom
  * `<Menu>` children.
  *
- * Vue divergences from the React twin: the keyboard-shortcut binding and the
- * collapsed-rail `<Tooltip>` wrapper are NOT ported yet (those React
- * sub-components have no Vue twin in this wave) — a later surface-parity wave.
- * Navigation uses vue-router's `<RouterLink>` (the framework link), and `onClick`
+ * Vue divergences from the React twin: the collapsed-rail `<Tooltip>` wrapper
+ * is NOT ported yet (that React sub-component has no Vue twin in this wave) — a
+ * later surface-parity wave. `keyboardShortcut` reads core's hotkey grammar
+ * (`mod`, `shift`, `alt`), so `ctrl` and `cmd` are not aliases here, and
+ * `keyboardShortcutRepresentation` has no slot yet. Navigation uses vue-router's `<RouterLink>` (the framework link), and `onClick`
  * is a prop invoked on click rather than a synthetic-event handler.
  */
 
-import { computed, inject } from "vue";
+import { shouldHandleHotkey } from "@chelone/core";
+import { computed, inject, onBeforeUnmount, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
-import { useBasename, useMatch } from "../../../router";
+import { useBasename, useMatch, useNavigate } from "../../../router";
 import {
   SidebarContextKey,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "../../ui/sidebar";
+import KeyboardShortcut from "../common/keyboard-shortcut.vue";
 
 const props = defineProps<MenuItemLinkProps>();
 
@@ -70,6 +78,19 @@ const basename = useBasename();
 const match = useMatch({ path: props.to, end: props.to === `${basename}/` });
 const isActive = computed(() => match.value != null);
 const text = computed(() => translate(props.label, { _: props.label }));
+
+const navigate = useNavigate();
+
+function onShortcut(event: KeyboardEvent): void {
+  if (!props.keyboardShortcut) return;
+  const target = event.target instanceof HTMLElement ? event.target : null;
+  if (!shouldHandleHotkey(event, props.keyboardShortcut, target)) return;
+  event.preventDefault();
+  navigate(props.to);
+}
+
+onMounted(() => window.addEventListener("keydown", onShortcut));
+onBeforeUnmount(() => window.removeEventListener("keydown", onShortcut));
 
 function onClick(): void {
   props.onClick?.();
@@ -89,6 +110,11 @@ function onClick(): void {
       <component :is="icon" v-if="icon" />
       <slot name="icon" />
       <span>{{ text }}</span>
+      <KeyboardShortcut
+        v-if="keyboardShortcut"
+        :keyboard-shortcut="keyboardShortcut"
+        class="ml-auto"
+      />
     </SidebarMenuButton>
   </SidebarMenuItem>
 </template>

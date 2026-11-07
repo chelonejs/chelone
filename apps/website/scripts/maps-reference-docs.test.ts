@@ -238,11 +238,9 @@ const shapeInputs = [
 
 /**
  * The pieces of the `maps/osm` entry: the geocoding input and field, the search
- * over a map, and the two OpenStreetMap buttons. Each calls a network service
- * the app supplies through `MapsProvider` or a `provider` prop.
- *
- * `OsmFeatureOperator` has no page of its own: it is the button the two named
- * ones are, with `mode` left to the caller.
+ * over a map, and the OpenStreetMap button with the two named after its modes.
+ * Each calls a network service the app supplies through `MapsProvider` or a
+ * `provider` prop.
  */
 const geocodingAndOsm = [
   {
@@ -262,6 +260,12 @@ const geocodingAndOsm = [
     component: "ReverseGeocodeField",
     importFrom: "@chelone/react/maps/osm",
     names: ["format", "latSource", "lngSource", "street", "city"],
+  },
+  {
+    slug: "osm-feature-operator",
+    component: "OsmFeatureOperator",
+    importFrom: "@chelone/react/maps/osm",
+    names: ["OsmFeatureAdd", "OsmFeatureSubtract", "presets", "tags", "mode"],
   },
   {
     slug: "osm-feature-add",
@@ -405,6 +409,7 @@ const SET_FOR_THE_CALLER = new Set(["kind", "mode"]);
 // Values of a prop, which its props table shows as a union rather than as rows.
 const PROP_VALUES = new Map([
   ["ReverseGeocodeField", ["full", "street", "city"]],
+  ["OsmFeatureOperator", ["subtract", "add"]],
   ["OsmFeatureAdd", ["add"]],
   ["OsmFeatureSubtract", ["subtract"]],
 ]);

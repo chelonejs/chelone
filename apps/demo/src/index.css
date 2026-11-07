@@ -128,3 +128,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/*
+ * HideOnScroll listens to the window, but the layout fixes <main> to one screen
+ * (and, in Vue, scrolls #main-content inside it). With the sticky app bar in
+ * place, <main> grows with its content so the page scrolls and the bar can
+ * stay stuck, hide on the way down and come back on the way up.
+ */
+main:has(> .demo-app-bar) {
+  height: auto;
+  min-height: 100svh;
+}
+
+main:has(> .demo-app-bar) > #main-content {
+  overflow: visible;
+}

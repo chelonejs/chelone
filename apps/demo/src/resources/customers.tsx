@@ -5,29 +5,79 @@ import {
   BulkEditDrawer,
   BulkExportButton,
   BulkUpdateButton,
+  CancelButton,
   ColumnsButton,
+  Count,
   Create,
   DataTable,
+  DateField,
+  DateInput,
   Edit,
   EmailField,
   ExportButton,
   List,
   ListContextProvider,
   ListPagination,
+  PhoneField,
+  PhoneInput,
   RecordField,
+  ReferenceManyCount,
   ReferenceManyField,
   RefreshButton,
   RefreshIconButton,
+  SaveButton,
   SelectAllButton,
   SelectInput,
   Show,
   SimpleList,
+  SubscriptionPlanField,
+  SubscriptionPlanPicker,
   TextInput,
+  Toolbar,
+  UpdateButton,
+  UsageMeterField,
   useListController,
+  useRecordContext,
   useRefresh,
 } from "@chelone/react";
 import { CsvImport } from "@chelone/react/csv-import";
 import { z } from "zod";
+
+/** The plans a customer can be on, in the order the picker lays them out. */
+const plans = [
+  {
+    id: "free",
+    name: "Free",
+    price: 0,
+    currency: "USD",
+    interval: "month",
+    features: ["1 project", "Community support"],
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    price: 29,
+    currency: "USD",
+    interval: "month",
+    features: ["Unlimited projects", "Email support"],
+  },
+  {
+    id: "team",
+    name: "Team",
+    price: 99,
+    currency: "USD",
+    interval: "month",
+    features: ["Everything in Pro", "Shared workspaces"],
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    price: 2400,
+    currency: "USD",
+    interval: "year",
+    features: ["Everything in Team", "Dedicated support"],
+  },
+] as const;
 
 const segmentChoices = ["new", "active", "at-risk", "champion"].map((id) => ({
   id,
@@ -133,6 +183,15 @@ export function CustomerEdit() {
       <TextInput source="name" />
       <TextInput source="email" />
       <TextInput source="city" />
+      <PhoneInput source="phone" />
+      <DateInput source="joined_on" label="Customer since" />
+      <SubscriptionPlanPicker source="plan" plans={plans} />
+      <Toolbar>
+        <div className="flex gap-2">
+          <SaveButton />
+          <CancelButton />
+        </div>
+      </Toolbar>
     </Edit>
   );
 }
@@ -147,14 +206,48 @@ export function CustomerCreate() {
   );
 }
 
+/** How many customers are on the plan of the one shown; the number links to that list. */
+function CustomersOnPlan() {
+  const customer = useRecordContext<LooseRecord>();
+  if (customer?.plan == null) return null;
+  return <Count filter={{ plan: customer.plan }} link />;
+}
+
 export function CustomerShow() {
   return (
-    <Show>
+    <Show
+      actions={
+        <UpdateButton data={{ segment: "champion" }} label="Mark champion" />
+      }
+    >
       <RecordField source="name" />
       <RecordField label="Email">
         <EmailField source="email" />
       </RecordField>
+      <RecordField label="Phone">
+        <PhoneField source="phone" />
+      </RecordField>
       <RecordField source="city" />
+      <RecordField label="Customer since">
+        <DateField source="joined_on" />
+      </RecordField>
+      <RecordField label="Plan">
+        <SubscriptionPlanField source="plan" plans={plans} />
+      </RecordField>
+      <RecordField label="Customers on this plan">
+        <CustomersOnPlan />
+      </RecordField>
+      <RecordField label="Usage">
+        <UsageMeterField
+          source="usage"
+          limitSource="usage_limit"
+          unit="%"
+          className="w-64"
+        />
+      </RecordField>
+      <RecordField label="Order count">
+        <ReferenceManyCount reference="orders" target="customer_id" />
+      </RecordField>
       <RecordField label="Orders">
         <ReferenceManyField reference="orders" target="customer_id">
           <DataTable>

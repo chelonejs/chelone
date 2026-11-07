@@ -50,6 +50,7 @@ export default [
       "geocoding-input",
       "map-with-search",
       "reverse-geocode-field",
+      "osm-feature-operator",
       "osm-feature-add",
       "osm-feature-subtract",
     ],
