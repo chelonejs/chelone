@@ -1,0 +1,67 @@
+{
+  "name": "FileField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "src",
+      "type": "string",
+      "optional": true,
+      "comment": "The path to the file url on each item, for an array of files."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "The path to the display title (or a literal label)."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "download",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ping",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "rel",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

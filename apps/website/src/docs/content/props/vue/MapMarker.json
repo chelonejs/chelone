@@ -1,0 +1,30 @@
+{
+  "name": "MapMarker",
+  "props": [
+    {
+      "name": "position",
+      "type": "readonly [lat: number, lng: number]",
+      "optional": false,
+      "comment": "`[lat, lng]`."
+    },
+    {
+      "name": "draggable",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "color",
+      "type": "string",
+      "optional": true,
+      "comment": "Any CSS color. Defaults to red."
+    }
+  ],
+  "emits": [
+    {
+      "name": "dragEnd",
+      "type": "[_lat: number, _lng: number]"
+    }
+  ],
+  "slots": []
+}

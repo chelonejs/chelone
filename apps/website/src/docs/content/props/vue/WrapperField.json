@@ -1,0 +1,31 @@
+{
+  "name": "WrapperField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": true,
+      "comment": "A pseudo field path exposed to a parent layout (e.g. a sortable\n`DataTable` header). Not read by the field itself — it only groups children."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": "The wrapped fields, rendered as-is."
+    }
+  ]
+}

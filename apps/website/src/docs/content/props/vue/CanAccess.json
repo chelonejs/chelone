@@ -1,0 +1,41 @@
+{
+  "name": "CanAccess",
+  "props": [
+    {
+      "name": "action",
+      "type": "string",
+      "optional": false,
+      "comment": "The action to check (`'list' | 'create' | 'edit' | 'show' | 'delete'` or custom)."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource to check (e.g. `'posts'`)."
+    },
+    {
+      "name": "record",
+      "type": "ResourceRecord<Identifier>",
+      "optional": true,
+      "comment": "Optional record the grant is scoped to (record-level predicates). `id` is\nthe floor; the rest is whatever the grant's predicate reads, so a record of\nthe caller's own shape and an inline record both fit."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": "Rendered when access is granted."
+    },
+    {
+      "name": "loading",
+      "type": "{}",
+      "comment": "Rendered while the access check is pending. Defaults to nothing."
+    },
+    {
+      "name": "accessDenied",
+      "type": "{}",
+      "comment": "Rendered when access is denied. Defaults to nothing."
+    }
+  ]
+}

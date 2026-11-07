@@ -1,0 +1,47 @@
+{
+  "name": "MapCanvas",
+  "props": [
+    {
+      "name": "center",
+      "type": "readonly [lat: number, lng: number]",
+      "optional": true,
+      "default": "[0, 0]",
+      "comment": "`[lat, lng]`. Read once at mount. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_MAP_ZOOM",
+      "comment": "Read once at mount. Defaults to 13."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "default": "DEFAULT_MAP_HEIGHT",
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "A MapLibre style URL, or a style object such as `rasterTileStyle(...)`.\nRead once at mount. Defaults to the one from `MapsProvider`."
+    },
+    {
+      "name": "scrollZoom",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Zoom with the mouse wheel. Defaults to true."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

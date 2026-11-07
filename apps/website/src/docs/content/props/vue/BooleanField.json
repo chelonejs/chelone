@@ -1,0 +1,49 @@
+{
+  "name": "BooleanField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "valueLabelTrue",
+      "type": "string",
+      "optional": true,
+      "comment": "Label shown (as a native `title` tooltip) when the value is truthy."
+    },
+    {
+      "name": "valueLabelFalse",
+      "type": "string",
+      "optional": true,
+      "comment": "Label shown (as a native `title` tooltip) when the value is falsy."
+    },
+    {
+      "name": "looseValue",
+      "type": "boolean",
+      "optional": true,
+      "comment": "When true, coerce any truthy value (not just `true`) to the check icon."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

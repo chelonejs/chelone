@@ -1,0 +1,36 @@
+{
+  "name": "ApplicationUpdatedNotification",
+  "props": [
+    {
+      "name": "message",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "buttonLabel",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "notificationText",
+      "type": "string",
+      "optional": true,
+      "comment": "Alias for `message`."
+    },
+    {
+      "name": "updateText",
+      "type": "string",
+      "optional": true,
+      "comment": "Alias for `buttonLabel`."
+    }
+  ],
+  "emits": [
+    {
+      "name": "reload",
+      "type": "[]"
+    }
+  ],
+  "slots": []
+}

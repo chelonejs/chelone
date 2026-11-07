@@ -1,0 +1,48 @@
+{
+  "name": "PivotGrid",
+  "props": [
+    {
+      "name": "rowSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The field whose values become the rows; a dotted path reads a nested value."
+    },
+    {
+      "name": "columnSource",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "The field whose values become the columns."
+    },
+    {
+      "name": "valueSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "comment": "The field the aggregator reads. Unused by `count`."
+    },
+    {
+      "name": "aggregator",
+      "type": "PivotAggregator",
+      "optional": true,
+      "comment": "Default `count`."
+    },
+    {
+      "name": "format",
+      "type": "((value: number) => string)",
+      "optional": true,
+      "comment": "Prints a number in place of the locale's default text."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "loading",
+      "type": "{}",
+      "comment": "Rendered while the list is pending, in place of `SimpleListLoading`."
+    },
+    {
+      "name": "empty",
+      "type": "{}",
+      "comment": "Rendered with no records, in place of `ListNoResults`."
+    }
+  ]
+}

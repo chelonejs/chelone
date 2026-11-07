@@ -1,0 +1,13 @@
+{
+  "name": "CancelButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated label."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

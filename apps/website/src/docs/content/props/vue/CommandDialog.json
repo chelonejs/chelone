@@ -1,0 +1,39 @@
+{
+  "name": "CommandDialog",
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Whether the dialog is open. Default `false`."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "default": "\"Command Palette\"",
+      "comment": "Screen-reader-only title; the panel is labelled by it."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "optional": true,
+      "default": "\"Search for a command to run...\"",
+      "comment": "Screen-reader-only description."
+    }
+  ],
+  "emits": [
+    {
+      "name": "update:open",
+      "type": "[open: boolean]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

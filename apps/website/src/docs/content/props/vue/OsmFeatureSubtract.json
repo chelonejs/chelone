@@ -1,0 +1,43 @@
+{
+  "name": "OsmFeatureSubtract",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "The button text, translated. Defaults to the mode's message."
+    },
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the Polygon or MultiPolygon."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "provider",
+      "type": "OverpassProvider",
+      "optional": true,
+      "comment": "Defaults to the `overpass` of `MapsProvider`. One of the two is required."
+    },
+    {
+      "name": "presets",
+      "type": "readonly (\"water\" | \"natural\" | \"waterway\" | \"building\" | \"forest\" | \"landuse\" | \"roads\" | \"highway\" | \"amenity\" | \"leisure\" | \"boundary\" | \"place\" | \"man_made\" | \"shop\" | \"tourism\" | \"historic\" | \"railway\" | \"barrier\" | \"power\" | \"buildings\")[]",
+      "optional": true,
+      "comment": "Named OSM feature sets to query, such as `water`."
+    },
+    {
+      "name": "tags",
+      "type": "readonly `${string}=${string}`[]",
+      "optional": true,
+      "comment": "Extra Overpass tag filters, such as `natural=wood`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

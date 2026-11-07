@@ -1,0 +1,63 @@
+{
+  "name": "DateField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "locales",
+      "type": "Intl.LocalesArgument",
+      "optional": true,
+      "comment": "BCP 47 locale(s) for `Intl.DateTimeFormat` (via `toLocale*String`)."
+    },
+    {
+      "name": "options",
+      "type": "Intl.DateTimeFormatOptions",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "showTime",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Include the time portion. Default false."
+    },
+    {
+      "name": "showDate",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Include the date portion. Default true."
+    },
+    {
+      "name": "transform",
+      "type": "((value: SourceValue<RecordType, SourceProp<RecordType>>) => Date | undefined)",
+      "optional": true,
+      "comment": "Value → `Date` transform; the default parses strings/numbers via `new Date`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

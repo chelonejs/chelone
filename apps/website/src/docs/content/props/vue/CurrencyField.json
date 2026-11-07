@@ -1,0 +1,55 @@
+{
+  "name": "CurrencyField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "optional": true,
+      "comment": "ISO-4217 currency code (e.g. 'USD'). Required when value is a plain number."
+    },
+    {
+      "name": "displayLocale",
+      "type": "string",
+      "optional": true,
+      "comment": "BCP 47 locale for `Intl.NumberFormat`."
+    },
+    {
+      "name": "storeAsMinorUnits",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Treat the stored value as minor units (cents) and divide by 100."
+    },
+    {
+      "name": "options",
+      "type": "Intl.NumberFormatOptions",
+      "optional": true,
+      "comment": "Extra options forwarded to `Intl.NumberFormat`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

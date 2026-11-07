@@ -1,0 +1,74 @@
+{
+  "name": "Confirm",
+  "props": [
+    {
+      "name": "isOpen",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Whether the dialog is open. Default `false`."
+    },
+    {
+      "name": "loading",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disables both buttons while a confirm action is in flight."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": false,
+      "comment": "Dialog title (i18n key or literal — translated with a `_` fallback)."
+    },
+    {
+      "name": "content",
+      "type": "string",
+      "optional": true,
+      "comment": "Dialog body copy (i18n key or literal — translated with a `_` fallback)."
+    },
+    {
+      "name": "cancel",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.action.cancel\"",
+      "comment": "Cancel-button label key. Default `\"ra.action.cancel\"`."
+    },
+    {
+      "name": "confirm",
+      "type": "string",
+      "optional": true,
+      "default": "\"ra.action.confirm\"",
+      "comment": "Confirm-button label key. Default `\"ra.action.confirm\"`."
+    },
+    {
+      "name": "confirmColor",
+      "type": "\"warning\" | \"primary\"",
+      "optional": true,
+      "default": "\"primary\"",
+      "comment": "`\"warning\"` tints the confirm button destructive. Default `\"primary\"`."
+    },
+    {
+      "name": "translateOptions",
+      "type": "TranslateParamValues",
+      "optional": true,
+      "comment": "Interpolation params merged into the title/content translation (e.g. `smart_count`)."
+    }
+  ],
+  "emits": [
+    {
+      "name": "close",
+      "type": "[]"
+    },
+    {
+      "name": "confirm",
+      "type": "[]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

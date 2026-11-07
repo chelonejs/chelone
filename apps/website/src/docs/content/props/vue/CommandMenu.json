@@ -1,0 +1,69 @@
+{
+  "name": "CommandMenu",
+  "props": [
+    {
+      "name": "hotkey",
+      "type": "string | false",
+      "optional": true,
+      "default": "\"mod+k\"",
+      "comment": "The key that toggles the menu, such as `\"mod+k\"` (`mod` is Meta or Ctrl).\n`false` turns the hotkey off. Default `\"mod+k\"`."
+    },
+    {
+      "name": "resources",
+      "type": "string[]",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Resource names to list and search. Default: every resource with a list view."
+    },
+    {
+      "name": "searchFields",
+      "type": "Record<string, string>",
+      "optional": true,
+      "default": "{}",
+      "comment": "The filter key the record search sends, per resource. Default `\"q\"`."
+    },
+    {
+      "name": "perResourceLimit",
+      "type": "number",
+      "optional": true,
+      "default": "5",
+      "comment": "Most record hits per resource. Default `5`."
+    },
+    {
+      "name": "recentsLimit",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_RECENTS_LIMIT",
+      "comment": "Most pages kept under Recent. Default `10`."
+    },
+    {
+      "name": "actions",
+      "type": "CommandMenuAction[]",
+      "optional": true,
+      "default": "[]",
+      "comment": "Commands to list beside the built-in ones."
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Placeholder of the search box."
+    },
+    {
+      "name": "searchDebounceMs",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_SEARCH_DEBOUNCE_MS",
+      "comment": "Pause after typing before records are searched. Default `250`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

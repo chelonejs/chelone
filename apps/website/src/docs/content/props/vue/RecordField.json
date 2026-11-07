@@ -1,0 +1,56 @@
+{
+  "name": "RecordField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false`/`\"\"` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (reserved for label i18n; inert in V1)."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "field",
+      "type": "Component",
+      "optional": true,
+      "comment": "A field component to render (given `source` + `empty`) instead of TextField."
+    },
+    {
+      "name": "variant",
+      "type": "\"default\" | \"inline\"",
+      "optional": true,
+      "comment": "'inline' lays the label + value in a row; 'default' stacks them."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{ record: RecordType; }",
+      "comment": "Receives the resolved record; renders children or derived content."
+    }
+  ]
+}

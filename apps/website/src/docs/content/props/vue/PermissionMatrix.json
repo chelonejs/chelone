@@ -1,0 +1,45 @@
+{
+  "name": "PermissionMatrix",
+  "props": [
+    {
+      "name": "roles",
+      "type": "readonly PermissionMatrixEntry[]",
+      "optional": false,
+      "comment": "One tab per role. A string is its own label."
+    },
+    {
+      "name": "resources",
+      "type": "readonly PermissionMatrixEntry[]",
+      "optional": false,
+      "comment": "One row per resource. A string is labelled with the resource label."
+    },
+    {
+      "name": "actions",
+      "type": "readonly string[]",
+      "optional": true,
+      "default": "DEFAULT_ACTIONS",
+      "comment": "One column per action. Defaults to `list`, `show`, `create`, `edit`, `delete`."
+    },
+    {
+      "name": "modelValue",
+      "type": "PermissionMatrixValue",
+      "optional": true,
+      "default": "EMPTY_VALUE",
+      "comment": "Role id to that role's grants. The `v-model`."
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Disables every checkbox."
+    }
+  ],
+  "emits": [
+    {
+      "name": "update:modelValue",
+      "type": "[next: PermissionMatrixValue]"
+    }
+  ],
+  "slots": []
+}

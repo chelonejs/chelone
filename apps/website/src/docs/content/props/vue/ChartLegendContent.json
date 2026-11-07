@@ -1,0 +1,20 @@
+{
+  "name": "ChartLegendContent",
+  "props": [
+    {
+      "name": "hideIcon",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "verticalAlign",
+      "type": "\"top\" | \"bottom\"",
+      "optional": true,
+      "default": "\"bottom\"",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,21 @@
+{
+  "name": "Alert",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": ""
+    },
+    {
+      "name": "variant",
+      "type": "AlertVariant",
+      "optional": true,
+      "default": "\"default\"",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

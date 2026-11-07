@@ -1,0 +1,19 @@
+{
+  "name": "ChartStyle",
+  "props": [
+    {
+      "name": "id",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "config",
+      "type": "ChartConfig",
+      "optional": false,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

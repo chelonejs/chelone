@@ -1,0 +1,13 @@
+{
+  "name": "KeyboardShortcut",
+  "props": [
+    {
+      "name": "keyboardShortcut",
+      "type": "string",
+      "optional": true,
+      "comment": "A shortcut string with `+` separating simultaneous keys and `>` separating\nsequential chords (e.g. `\"mod+k\"`, `\"shift+ctrl+a>b\"`). Known key names map\nto glyphs (`mod`/`meta` → `⌘`, `shift` → `⇧`, …); unknown keys uppercase.\nRenders nothing when empty/absent."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

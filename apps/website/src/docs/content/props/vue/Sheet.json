@@ -1,0 +1,49 @@
+{
+  "name": "Sheet",
+  "props": [
+    {
+      "name": "open",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Whether the sheet is open. Default `false`."
+    },
+    {
+      "name": "side",
+      "type": "\"right\" | \"top\" | \"bottom\" | \"left\"",
+      "optional": true,
+      "default": "\"right\"",
+      "comment": "Edge the sheet slides in from. Default `\"right\"`."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "Heading text; the panel is labelled by it."
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "optional": true,
+      "comment": "Text under the heading."
+    }
+  ],
+  "emits": [
+    {
+      "name": "update:open",
+      "type": "[open: boolean]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "footer",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

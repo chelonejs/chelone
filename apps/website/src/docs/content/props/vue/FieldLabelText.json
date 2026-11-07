@@ -1,0 +1,38 @@
+{
+  "name": "FieldLabelText",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": true,
+      "comment": "The field path; humanized (or key-translated) when no `label` is given."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Target resource for the translation key; defaults to the ambient resource."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "A string is translated; `false`/`\"\"` renders nothing. Pass a node via the default slot."
+    },
+    {
+      "name": "isRequired",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Append a thin-space `*` required marker after the label."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

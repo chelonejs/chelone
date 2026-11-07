@@ -1,0 +1,38 @@
+{
+  "name": "PresenceBar",
+  "props": [
+    {
+      "name": "topic",
+      "type": "string",
+      "optional": true,
+      "comment": "Defaults to the topic of the ambient resource and record."
+    },
+    {
+      "name": "currentUser",
+      "type": "PresenceUser",
+      "optional": true,
+      "comment": "Defaults to the auth provider's identity."
+    },
+    {
+      "name": "maxAvatars",
+      "type": "number",
+      "optional": true,
+      "default": "5",
+      "comment": "How many avatars show before the rest collapse into `+N`. Default 5."
+    },
+    {
+      "name": "heartbeatMs",
+      "type": "number",
+      "optional": true,
+      "comment": "How often the announce is republished. Default 15000."
+    },
+    {
+      "name": "staleMs",
+      "type": "number",
+      "optional": true,
+      "comment": "A user unheard for longer than this is dropped. Default 30000."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}
