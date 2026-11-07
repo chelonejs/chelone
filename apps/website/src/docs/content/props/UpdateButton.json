@@ -33,7 +33,7 @@
     },
     {
       "name": "data",
-      "type": "Partial<LooseRecord>",
+      "type": "Partial<NoInfer<TRecord>>",
       "optional": false,
       "comment": "The fields to patch onto the record."
     },
@@ -69,13 +69,13 @@
     },
     {
       "name": "onSuccess",
-      "type": "(data: LooseRecord) => void",
+      "type": "(data: TRecord) => void",
       "optional": true,
       "comment": "Receives the updated record. Runs only for a confirmed update, not for an undoable one."
     },
     {
       "name": "record",
-      "type": "LooseRecord",
+      "type": "TRecord",
       "optional": true,
       "comment": ""
     },

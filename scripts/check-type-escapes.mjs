@@ -30,7 +30,7 @@ const KINDS = ["double-cast", "unknown-cast", "as-never", "as-any", "cast", "non
 const SKIP = /(^|\/)(node_modules|dist|build|coverage|\.react-router|\.turbo)(\/|$)/;
 const JUSTIFIED = /\/\/\s*type-escape:\s*\S/;
 // @ts-expect-error is how a type test proves a call fails, so it is only counted outside tests.
-const TEST_FILE = /\.(test|spec)\.|\.test-d\.ts$|\/(__tests__|__fixtures__|e2e)\//;
+const TEST_FILE = /\.(test|spec)\.|\.test-d\.tsx?$|\/(__tests__|__fixtures__|e2e)\//;
 
 const byCodeUnit = (x, y) => (x < y ? -1 : x > y ? 1 : 0);
 

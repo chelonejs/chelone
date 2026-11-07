@@ -21,6 +21,7 @@ import {
   defineResources,
   fakeDataProvider,
   type GetListResult,
+  type LooseRecord,
   type NotificationStore,
   type NotifyOptions,
 } from "@chelone/core";
@@ -152,6 +153,8 @@ function captureUndoable(
   if (!options) throw new Error("undoable notification had no options");
   return options;
 }
+
+const viewsReset: Partial<LooseRecord> = { views: 0 };
 
 describe("undoable <BulkDeleteButton>", () => {
   it("removes rows optimistically and defers the provider call", async () => {
@@ -318,7 +321,7 @@ describe("undoable <BulkUpdateButton>", () => {
               h(BulkUpdateButton, {
                 resource: "posts",
                 mutationMode: "undoable",
-                data: { views: 0 },
+                data: viewsReset,
               }),
             ],
           },
@@ -360,7 +363,7 @@ describe("undoable <BulkUpdateButton>", () => {
               h(BulkUpdateButton, {
                 resource: "posts",
                 mutationMode: "undoable",
-                data: { views: 0 },
+                data: viewsReset,
               }),
             ],
           },

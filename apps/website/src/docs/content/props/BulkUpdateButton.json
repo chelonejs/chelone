@@ -27,7 +27,7 @@
     },
     {
       "name": "data",
-      "type": "Partial<LooseRecord>",
+      "type": "Partial<NoInfer<TRecord>>",
       "optional": true,
       "comment": ""
     },

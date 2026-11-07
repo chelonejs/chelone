@@ -189,6 +189,7 @@ describe("<CanAccess>", () => {
   });
 
   it("scopes the check to the record it is given", async () => {
+    const post = { id: 7, author: "rin" };
     const ids: (string | number | undefined)[] = [];
     const authProvider = baseAuth({
       canAccess: async ({ record }) => {
@@ -201,7 +202,7 @@ describe("<CanAccess>", () => {
       <CanAccess
         action="edit"
         resource="posts"
-        record={{ id: 7, author: "rin" }}
+        record={post}
         accessDenied={<span>no</span>}
       >
         <span>yes</span>

@@ -170,6 +170,7 @@ describe("<CanAccess>", () => {
   });
 
   it("scopes the check to the record it is given", async () => {
+    const post = { id: 7, author: "rin" };
     const ids: (string | number | undefined)[] = [];
     const { wrapper } = mountAdmin(
       () =>
@@ -178,7 +179,7 @@ describe("<CanAccess>", () => {
           {
             action: "edit",
             resource: "posts",
-            record: { id: 7, author: "rin" },
+            record: post,
           },
           { default: grantedSlot, accessDenied: deniedSlot },
         ),

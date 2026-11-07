@@ -13,6 +13,7 @@
 import {
   type LooseRecord,
   type MutationMode,
+  type ResourceRecord,
   updateRecordsInCache,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/react-query";
@@ -32,14 +33,13 @@ import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
 const defaultIcon = <RefreshCw />;
-const defaultData: Partial<LooseRecord> = {};
 
-interface BulkUpdateButtonProps {
+interface BulkUpdateButtonProps<TRecord extends ResourceRecord = LooseRecord> {
   className?: string;
   confirmContent?: ReactNode;
   confirmTitle?: ReactNode;
   confirmColor?: "primary" | "warning";
-  data?: Partial<LooseRecord>;
+  data?: Partial<NoInfer<TRecord>>;
   icon?: React.ReactNode;
   label?: string;
   onClick?: React.MouseEventHandler<HTMLButtonElement>;
@@ -72,13 +72,14 @@ interface BulkUpdateButtonProps {
  *   <BulkUpdateButton label="Reset Views" data={{ views: 0 }} />
  * );
  */
-function BulkUpdateButton(props: BulkUpdateButtonProps) {
+function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
+  props: BulkUpdateButtonProps<TRecord>,
+) {
   const {
     className,
     confirmTitle = "ra.message.bulk_update_title",
     confirmContent = "ra.message.bulk_update_content",
     confirmColor = "primary",
-    data = defaultData,
     icon = defaultIcon,
     label: labelProp,
     onClick,
@@ -86,6 +87,7 @@ function BulkUpdateButton(props: BulkUpdateButtonProps) {
     variant = "outline",
     mutationMode = "pessimistic",
   } = props;
+  const data: Partial<NoInfer<TRecord>> = props.data ?? {};
   const [isOpen, setOpen] = useState(false);
   const [isPending, setPending] = useState(false);
   const { selectedIds, unselectAll } = useListContext();

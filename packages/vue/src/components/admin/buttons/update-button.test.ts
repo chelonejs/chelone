@@ -15,6 +15,7 @@ import {
   type DataProvider,
   defineMessages,
   fakeDataProvider,
+  type LooseRecord,
   type NotificationStore,
   type NotifyOptions,
 } from "@chelone/core";
@@ -112,8 +113,10 @@ async function mountButton({
   return { wrapper, queryClient, notify };
 }
 
+const viewsReset: Partial<LooseRecord> = { views: 0 };
+
 const updateButton = (props: Record<string, unknown> = {}) =>
-  h(UpdateButton, { data: { views: 0 }, ...props });
+  h(UpdateButton, { data: viewsReset, ...props });
 
 const updateSelector = '[data-slot="update-button"]';
 const confirmSelector = '[data-slot="confirm-accept"]';

@@ -1,10 +1,17 @@
-<script lang="ts">
-import type { LooseRecord, MutationMode } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type {
+  LooseRecord,
+  MutationMode,
+  RecordResources,
+  ResourceRecord,
+} from "@chelone/core";
 
 /** Props for {@link UpdateButton}. */
-export interface UpdateButtonProps {
+export interface UpdateButtonProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** The fields to patch onto the record. */
-  data: Partial<LooseRecord>;
+  data: Partial<NoInfer<TRecord>>;
   /**
    * Read once at setup. `"undoable"` (default) patches the record now with an
    * Undo notification and no dialog; the server call is deferred until the Undo
@@ -23,7 +30,7 @@ export interface UpdateButtonProps {
     | "ghost"
     | "link";
   /** Override the ambient record. */
-  record?: LooseRecord;
+  record?: TRecord;
   /** Override the ambient `<Resource>`. */
   resource?: string;
   /** Confirmation-dialog title. Default `"ra.message.bulk_update_title"`. */
@@ -37,7 +44,7 @@ export interface UpdateButtonProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<UpdateButton>` — patches the ambient record with a fixed `data` payload. The
  * Vue twin of `@chelone/react`'s `buttons/update-button.tsx`, rebuilt on
@@ -56,19 +63,19 @@ export interface UpdateButtonProps {
  * The icon is the `icon` slot, defaulting to a refresh glyph.
  */
 
-import { computed, inject, ref } from "vue";
+import { computed, ref } from "vue";
 import { useCheloneNotifications } from "../../../context";
 import { useUpdate } from "../../../data/mutations";
 import { useTranslate } from "../../../i18n/use-translate";
 import { humanize, pluralize } from "../../../label/inflection";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
 import Confirm from "../feedback/confirm.vue";
 import { useMenuAccess } from "../layout/use-menu-access";
 import { RefreshCwIcon } from "./icons";
 
-const props = withDefaults(defineProps<UpdateButtonProps>(), {
+const props = withDefaults(defineProps<UpdateButtonProps<TRecord>>(), {
   mutationMode: "undoable",
   variant: "outline",
   confirmTitle: "ra.message.bulk_update_title",
@@ -78,13 +85,12 @@ const props = withDefaults(defineProps<UpdateButtonProps>(), {
 
 const emit = defineEmits<{
   (event: "click", e?: MouseEvent): void;
-  (event: "success", data: LooseRecord): void;
+  (event: "success", data: TRecord): void;
   (event: "error", error: unknown): void;
 }>();
 
 const resource = useResourceContext(props);
-const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
+const record = useRecordContextRef<TRecord>(() => props.record);
 const translate = useTranslate();
 const notifications = useCheloneNotifications();
 
@@ -97,7 +103,9 @@ const { canAccess, isPending: isAccessPending } = useMenuAccess(
 );
 // `useUpdate` binds the resource at call time; a missing one renders nothing
 // below, so the call is never dispatched.
-const update = useUpdate(resource ?? "", { mutationMode: props.mutationMode });
+const update = useUpdate<RecordResources<TRecord>, string>(resource ?? "", {
+  mutationMode: props.mutationMode,
+});
 
 const show = computed(
   () =>
@@ -131,7 +139,7 @@ const confirmOptions = computed(() => ({
 
 const open = ref(false);
 
-const params = (current: LooseRecord) => ({
+const params = (current: TRecord) => ({
   id: current.id,
   data: props.data,
   previousData: current,
