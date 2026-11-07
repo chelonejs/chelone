@@ -467,7 +467,7 @@ it.each(ADDON_PROPS_PAGES)(
 /**
  * The charts read `SeriesChartProps`, which typedoc documents only when
  * `typedoc.json` lists `packages/react/src/components/charts/chart-frame.tsx`.
- * `BarChartProps` is that type named outright, and `TrendChartProps` adds five
+ * `BarChartProps` extends it and adds `colors`, and `TrendChartProps` adds five
  * props of its own to it.
  */
 const SERIES_CHART_PROPS = [
@@ -482,11 +482,17 @@ const SERIES_CHART_PROPS = [
   "yField",
 ];
 
+/**
+ * `BarChartProps` is an interface, and typedoc lists an interface's members in
+ * name order, so its own `colors` sits beside the inherited `color`.
+ */
+const BAR_CHART_PROPS = [...SERIES_CHART_PROPS, "colors"].sort();
+
 it("lists the props each chart inherits from SeriesChartProps", () => {
   const bar: GeneratedPropsPage = JSON.parse(
     readFileSync(join(propsDir, "BarChart.json"), "utf8"),
   );
-  expect(bar.props.map((prop) => prop.name)).toEqual(SERIES_CHART_PROPS);
+  expect(bar.props.map((prop) => prop.name)).toEqual(BAR_CHART_PROPS);
 
   const trend: GeneratedPropsPage = JSON.parse(
     readFileSync(join(propsDir, "TrendChart.json"), "utf8"),
