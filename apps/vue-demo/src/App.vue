@@ -36,6 +36,10 @@ import PlaceList from "./resources/PlaceList.vue";
 import PostCreate from "./resources/PostCreate.vue";
 import PostEdit from "./resources/PostEdit.vue";
 import PostList from "./resources/PostList.vue";
+import ProductCreate from "./resources/ProductCreate.vue";
+import ProductEdit from "./resources/ProductEdit.vue";
+import ProductList from "./resources/ProductList.vue";
+import ProductShow from "./resources/ProductShow.vue";
 import { resources } from "./resources/schema";
 
 // A retry-off query client, the English i18n catalog and a notification store
@@ -73,6 +77,13 @@ const i18n = makeI18n();
         :create="PostCreate"
       />
       <Resource name="authors" :list="AuthorList" />
+      <Resource
+        name="products"
+        :list="ProductList"
+        :edit="ProductEdit"
+        :create="ProductCreate"
+        :show="ProductShow"
+      />
       <Resource name="places" :list="PlaceList" :edit="PlaceEdit" />
       <Resource
         name="customers"
