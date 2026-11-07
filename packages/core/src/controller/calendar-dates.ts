@@ -107,6 +107,26 @@ export function calendarDays(range: CalendarRange): Date[] {
   return days;
 }
 
+/** A selected day cell: the whole local day, as ISO strings. */
+export interface CalendarDaySlot {
+  startISO: string;
+  endISO: string;
+  allDay: true;
+}
+
+/**
+ * The slot a whole day is: its local midnight to its last millisecond, the same
+ * inclusive end {@link calendarRange} gives a range. A day carrying a time is
+ * read as its day, not that instant.
+ */
+export function calendarDaySlot(day: Date): CalendarDaySlot {
+  return {
+    startISO: atMidnight(day).toISOString(),
+    endISO: atEndOfDay(day).toISOString(),
+    allDay: true,
+  };
+}
+
 export function shiftCalendarAnchor(
   view: CalendarView,
   anchor: Date,
