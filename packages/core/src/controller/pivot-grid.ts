@@ -5,15 +5,15 @@
  */
 
 import { getAtPath } from "../resource/get-at-path";
-import type { SourcePath } from "../resource/source-path";
+import type { SourceProp } from "../resource/source-path";
 
 export type PivotAggregator = "count" | "sum" | "avg" | "min" | "max";
 
 export interface PivotOptions<R> {
-  rowSource: SourcePath<R>;
-  columnSource: SourcePath<R>;
+  rowSource: SourceProp<R>;
+  columnSource: SourceProp<R>;
   /** Read by every aggregator but `count`. */
-  valueSource?: SourcePath<R>;
+  valueSource?: SourceProp<R>;
   /** Defaults to `count`. */
   aggregator?: PivotAggregator;
 }

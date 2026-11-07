@@ -1,10 +1,10 @@
-<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 import type { Component } from "vue";
 
 /** Props for {@link RecordTimeline}. */
 export interface RecordTimelineProps<
-  TRecord extends LooseRecord = LooseRecord,
+  TRecord extends ResourceRecord = LooseRecord,
 > {
   /** The field printed as the entry's text; a dotted path reads a nested value. */
   messageSource: SourceProp<TRecord>;
@@ -23,7 +23,7 @@ export interface RecordTimelineProps<
 <script
   setup
   lang="ts"
-  generic="TRecord extends LooseRecord = LooseRecord"
+  generic="TRecord extends ResourceRecord = LooseRecord"
 >
 /**
  * `<RecordTimeline>` — the records of the ambient list as a dated activity
@@ -61,14 +61,14 @@ defineSlots<{
   empty?(): VNode[];
 }>();
 
-const list = useListContext<LooseRecord>();
 const translate = useTranslate();
 const locale = useLocale();
+const list = useListContext<TRecord>();
 
 const timeline = computed(() => {
   // The relative time is computed here, at render, and does not tick.
   const now = new Date();
-  return toTimelineEntries<LooseRecord>(list.data ?? [], {
+  return toTimelineEntries<TRecord>(list.data ?? [], {
     messageSource: props.messageSource,
     timestampSource: props.timestampSource,
     userSource: props.userSource,

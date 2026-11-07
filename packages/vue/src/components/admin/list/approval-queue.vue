@@ -1,8 +1,8 @@
-<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
-import type { LooseRecord, MutationMode, SourceProp } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, MutationMode, SourceProp } from "@chelone/core";
 
 /** Props for {@link ApprovalQueue}. */
-export interface ApprovalQueueProps<TRecord extends LooseRecord = LooseRecord> {
+export interface ApprovalQueueProps<TRecord extends ResourceRecord = LooseRecord> {
   /** The field shown as the row title; the record representation when it is null or undefined. */
   titleSource?: SourceProp<TRecord>;
   /** The field shown as a second line when its value is not empty. */
@@ -34,7 +34,7 @@ export interface ApprovalQueueProps<TRecord extends LooseRecord = LooseRecord> {
 <script
   setup
   lang="ts"
-  generic="TRecord extends LooseRecord = LooseRecord"
+  generic="TRecord extends ResourceRecord = LooseRecord"
 >
 /**
  * `<ApprovalQueue>` — the records of the ambient `<List>` as a queue, one card
