@@ -1,4 +1,11 @@
-import { latLngToLngLat, type MapStyleInput } from "@chelone/core";
+import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
+  DEFAULT_PIN_COLOR,
+  latLngToLngLat,
+  type MapStyleInput,
+  PIN_NS,
+} from "@chelone/core";
 import { Map as MapLibreMap, Marker } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
@@ -55,8 +62,8 @@ export interface MapCanvasProps {
  */
 export function MapCanvas({
   center = [0, 0],
-  zoom = 13,
-  height = 300,
+  zoom = DEFAULT_MAP_ZOOM,
+  height = DEFAULT_MAP_HEIGHT,
   mapStyle,
   scrollZoom = true,
   className,
@@ -144,9 +151,6 @@ export interface MapMarkerProps {
   /** Any CSS color. Defaults to red. */
   color?: string;
 }
-
-const PIN_NS = "http://www.w3.org/2000/svg";
-const DEFAULT_PIN_COLOR = "#dc2626";
 
 /** A pin whose tip is the bottom edge of the element. */
 function createPin(color: string) {

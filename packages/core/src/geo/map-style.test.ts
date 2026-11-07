@@ -1,10 +1,23 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
+  DEFAULT_PIN_COLOR,
   expandTileUrl,
   latLngToLngLat,
   lngLatToLatLng,
+  PIN_NS,
   rasterTileStyle,
 } from "./map-style";
+
+describe("map view defaults", () => {
+  it("pins the zoom, height and pin the map components default to", () => {
+    expect(DEFAULT_MAP_ZOOM).toBe(13);
+    expect(DEFAULT_MAP_HEIGHT).toBe(300);
+    expect(DEFAULT_PIN_COLOR).toBe("#dc2626");
+    expect(PIN_NS).toBe("http://www.w3.org/2000/svg");
+  });
+});
 
 describe("expandTileUrl", () => {
   it("turns a {s} template into three hosts", () => {

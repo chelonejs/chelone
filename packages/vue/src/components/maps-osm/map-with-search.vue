@@ -38,7 +38,7 @@ export interface MapWithSearchProps {
  * />
  */
 
-import { reverseGeocodeQueryOptions } from "@chelone/core";
+import { DEFAULT_MAP_ZOOM, reverseGeocodeQueryOptions } from "@chelone/core";
 import { useQueryClient } from "@tanstack/vue-query";
 import { onBeforeUnmount } from "vue";
 import { useCheloneFormContext, useWrappedSource } from "../../form/form-context";
@@ -49,7 +49,7 @@ import GeocodingInput from "./geocoding-input.vue";
 
 const props = withDefaults(defineProps<MapWithSearchProps>(), {
   height: 400,
-  zoom: 13,
+  zoom: DEFAULT_MAP_ZOOM,
 });
 
 const queryClient = useQueryClient();

@@ -675,7 +675,14 @@ export {
   minVertices,
   noSelfIntersection,
 } from "./geo/constraints";
-export { latitude, longitude, toCoordinate } from "./geo/coordinates";
+export {
+  LATITUDE_LIMIT,
+  LONGITUDE_LIMIT,
+  latitude,
+  longitude,
+  toCoordinate,
+  wrapLongitude,
+} from "./geo/coordinates";
 export type {
   EditorFeature,
   EditorSnapshotFeature,
@@ -736,9 +743,13 @@ export type {
   RasterTileStyleOptions,
 } from "./geo/map-style";
 export {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
+  DEFAULT_PIN_COLOR,
   expandTileUrl,
   latLngToLngLat,
   lngLatToLatLng,
+  PIN_NS,
   rasterTileStyle,
 } from "./geo/map-style";
 export { mapMessages } from "./geo/messages";
