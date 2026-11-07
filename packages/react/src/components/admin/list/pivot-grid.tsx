@@ -3,6 +3,7 @@ import {
   formatPivotValue,
   type LooseRecord,
   type PivotAggregator,
+  type ResourceRecord,
   type SourceProp,
 } from "@chelone/core";
 import { type ReactNode, useMemo } from "react";
@@ -20,7 +21,7 @@ import {
 import { ListNoResults } from "./list-no-results";
 import { SimpleListLoading } from "./simple-list-loading";
 
-export interface PivotGridProps<TRecord extends LooseRecord = LooseRecord> {
+export interface PivotGridProps<TRecord extends ResourceRecord = LooseRecord> {
   /** The field whose values become the rows; a dotted path reads a nested value. */
   rowSource: SourceProp<TRecord>;
   /** The field whose values become the columns. */
@@ -43,7 +44,7 @@ export interface PivotGridProps<TRecord extends LooseRecord = LooseRecord> {
  * fetches nothing and sets no `perPage`, so the list must hold every record to
  * pivot.
  */
-function PivotGrid<TRecord extends LooseRecord = LooseRecord>({
+function PivotGrid<TRecord extends ResourceRecord = LooseRecord>({
   rowSource,
   columnSource,
   valueSource,
@@ -60,7 +61,7 @@ function PivotGrid<TRecord extends LooseRecord = LooseRecord>({
 
   const table = useMemo(
     () =>
-      buildPivotTable<LooseRecord>(data ?? [], {
+      buildPivotTable<TRecord>(data ?? [], {
         rowSource,
         columnSource,
         valueSource,
