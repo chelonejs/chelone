@@ -72,7 +72,7 @@ const invalid = computed(() => touched.value && error.value != null);
     <FieldLabel v-if="label !== false" :html-for="id">
       <FieldLabelText :label="label" :source="source" :is-required="isRequired" />
     </FieldLabel>
-    <div :id="id">
+    <div :id="id" class="overflow-hidden rounded-md border">
       <CrepeEditor
         :markdown="markdown"
         :readonly="disabled === true || readOnly === true"
