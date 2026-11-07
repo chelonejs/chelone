@@ -36,7 +36,7 @@ import {
   useStore,
 } from "@chelone/react";
 import { Inspector, InspectorButton } from "@chelone/react/inspector";
-import { BookOpen, FileText } from "lucide-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { pageGroups } from "./pages";
@@ -104,7 +104,7 @@ function DemoMenu() {
                   key={path}
                   to={`/${path}`}
                   label={title}
-                  icon={<FileText />}
+                  icon={<PageIcon />}
                   keyboardShortcut={shortcuts.get(path)}
                 />
               ))}
@@ -142,6 +142,45 @@ function TakeTheTour() {
   );
 }
 
+function Icon({ children }: { children: ReactNode }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  );
+}
+
+function PageIcon() {
+  return (
+    <Icon>
+      <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+      <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+      <path d="M10 9H8" />
+      <path d="M16 13H8" />
+      <path d="M16 17H8" />
+    </Icon>
+  );
+}
+
+function DocsIcon() {
+  return (
+    <Icon>
+      <path d="M12 7v14" />
+      <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+    </Icon>
+  );
+}
+
 // The docs live beside the demo on the deployed site, so a new tab keeps the app open.
 function DocsButton() {
   return (
@@ -149,7 +188,7 @@ function DocsButton() {
       label="Documentation"
       onClick={() => window.open("/docs/", "_blank", "noopener")}
     >
-      <BookOpen />
+      <DocsIcon />
     </IconButtonWithTooltip>
   );
 }
