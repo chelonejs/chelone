@@ -584,7 +584,7 @@
     "react": {
       "docs": {
         "path": "/docs/viewing/number-field",
-        "see": ".not-prose .min-h-32 > span"
+        "see": ".not-prose .min-h-32 > span:not(.text-muted-foreground)"
       },
       "demo": {
         "path": "/demo/posts/1/show",
@@ -865,7 +865,7 @@
     "react": {
       "docs": {
         "path": "/docs/viewing/text-field",
-        "see": ".not-prose .min-h-32 > span"
+        "see": ".not-prose .min-h-32 > span:not(.text-muted-foreground)"
       },
       "demo": {
         "path": "/demo/posts/1/show",
