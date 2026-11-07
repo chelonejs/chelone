@@ -37,6 +37,8 @@ export const resources = defineResources({
   posts: { schema: postSchema },
   authors: { schema: authorSchema },
   products: {},
+  customers: {},
+  orders: {},
   places: {},
 });
 

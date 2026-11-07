@@ -35,12 +35,10 @@ export function OrderList() {
         <DataTable.Col source="status">
           <BadgeField source="status" />
         </DataTable.Col>
-        <DataTable.NumberCol source="total">
-          <NumberField
-            source="total"
-            options={{ style: "currency", currency: "USD" }}
-          />
-        </DataTable.NumberCol>
+        <DataTable.NumberCol
+          source="total"
+          options={{ style: "currency", currency: "USD" }}
+        />
       </DataTable>
     </List>
   );

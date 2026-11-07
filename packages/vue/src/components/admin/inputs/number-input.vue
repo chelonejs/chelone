@@ -11,6 +11,12 @@ export interface NumberInputProps<
   format?: (value: number | null) => string;
   /** The number to store for the text the user typed (`null` when empty or unparseable). */
   parse?: (value: string) => number | null;
+  /** Lowest value the native input accepts. */
+  min?: number;
+  /** Highest value the native input accepts. */
+  max?: number;
+  /** How far the native input's spinner steps. */
+  step?: number;
   class?: string;
 }
 </script>
@@ -90,6 +96,9 @@ function onBlur() {
     <Input
       :id="id"
       type="number"
+      :min="min"
+      :max="max"
+      :step="step"
       :model-value="buffer"
       :aria-invalid="invalid"
       @focus="focused = true"
