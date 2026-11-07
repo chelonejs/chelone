@@ -42,7 +42,10 @@ const classes = computed(() =>
     "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 [&>svg]:size-4 [&>svg]:shrink-0",
     props.isActive &&
       "bg-sidebar-accent font-medium text-sidebar-accent-foreground",
-    props.size === "sm" && "h-7 text-xs",
+    // A floor, not a fixed height, so a wrapped label grows the box and keeps
+    // its highlight; `py-1.5` keeps a one-line row at that floor.
+    props.size === "default" && "min-h-8 py-1.5",
+    props.size === "sm" && "min-h-7 py-1.5 text-xs",
     props.size === "lg" && "h-12 text-sm",
     props.class,
   ),
