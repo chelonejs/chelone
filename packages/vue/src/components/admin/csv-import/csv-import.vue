@@ -259,7 +259,7 @@ function downloadErrors() {
 </script>
 
 <template>
-  <Button type="button" variant="outline" size="sm" @click="open = true">
+  <Button type="button" variant="outline" @click="open = true">
     <slot name="icon"><UploadIcon /></slot>
     {{ label ?? translate("ra.csv_import.import", { _: "Import" }) }}
   </Button>

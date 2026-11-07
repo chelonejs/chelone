@@ -7,6 +7,8 @@ registry: "csv-import"
 
 An Import button that opens a four-step dialog: upload a `.csv` file, map its columns to the resource's fields, preview the rows as the `schema` returns them, and create them in batches of `batchSize` with `create` on the data provider. `fields` and `requiredFields` override the schema's keys, `mapping` replaces the automatic header match, and `transform` reshapes a row before the schema sees it. It creates into the ambient resource, so inside `<List>` it needs no `resource`. `children` renders inside the import context, where `useCsvImport()` reads the wizard's state.
 
+<ComponentPreview name="page-components/csv-import/basic" />
+
 ## Import
 
 ```tsx

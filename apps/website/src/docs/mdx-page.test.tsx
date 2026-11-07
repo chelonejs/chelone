@@ -139,7 +139,7 @@ it("keeps exactly one hand-placed preview on page-components/create", async () =
 // here, and the install block proves each `registry` frontmatter names a real
 // registry item.
 it.each([
-  ["viewing/fields-selector", "FieldsSelector", false],
+  ["viewing/fields-selector", "FieldsSelector", true],
   ["ui-layout/inspector", "Inspector", true],
   ["editing/configurable-inputs", "ConfigurableInputs", true],
 ])(
@@ -163,6 +163,26 @@ it.each([
     expect(screen.queryAllByRole("button", { name: "preview" })).toHaveLength(
       hasDemo ? 1 : 0,
     );
+  },
+);
+
+// `page-components` pages do not show their `basic` demo on their own, so the
+// csv-import page places its preview by hand.
+it.each([["page-components/csv-import", "CsvImport"]])(
+  "renders the %s reference page with its live preview",
+  async (slug, title) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: title }),
+    ).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
   },
 );
 

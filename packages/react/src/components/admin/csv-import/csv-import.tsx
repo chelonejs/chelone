@@ -178,7 +178,7 @@ export function CsvImport({
         }}
       >
         <DialogTrigger asChild>
-          <Button type="button" variant="outline" size="sm">
+          <Button type="button" variant="outline">
             {icon}
             {label ?? translate("ra.csv_import.import", { _: "Import" })}
           </Button>
