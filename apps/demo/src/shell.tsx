@@ -8,10 +8,11 @@
  * welcome tour, which opens on a first visit and again from the user menu.
  */
 
-import { onboardingTourKey } from "@chelone/core";
+import { type CanAccessParams, onboardingTourKey } from "@chelone/core";
 import {
   demoAssistantTools,
   demoAssistantTransport,
+  routeAccess,
   TOUR_ID,
   tourSteps,
 } from "@chelone/demo-data";
@@ -32,16 +33,20 @@ import {
   ResourceMenuItemGroup,
   ThemeModeToggle,
   UserMenu,
+  useCanAccess,
   useCommandMenu,
+  useLocation,
+  useRedirect,
   useStore,
 } from "@chelone/react";
 import { Inspector, InspectorButton } from "@chelone/react/inspector";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { pageGroups } from "./pages";
 import { dataProvider, dataProviderLog } from "./realtime";
 import { SimulateOtherUser } from "./realtime-sim";
+import { resources } from "./resources";
 
 // One transport and tool set for the app's lifetime: a new one starts a new conversation.
 const assistantTransport = demoAssistantTransport();
@@ -221,11 +226,37 @@ function DemoBar() {
   );
 }
 
-export function Shell(props: LayoutProps) {
+function Checked({
+  params,
+  children,
+}: {
+  params: CanAccessParams;
+  children: ReactNode;
+}) {
+  const { data: allowed } = useCanAccess(params);
+  const redirect = useRedirect();
+  useEffect(() => {
+    if (allowed === false) redirect("/access-denied");
+  }, [allowed, redirect]);
+  return allowed === false ? null : children;
+}
+
+// A role that may not open the page it is on is sent to /access-denied, as the
+// viewer is from /posts/create. The menu already hides what a role may not
+// list; this covers a typed or followed URL.
+function AccessGuard({ children }: { children: ReactNode }) {
+  const { pathname } = useLocation();
+  const params = routeAccess(pathname, Object.keys(resources));
+  return params ? <Checked params={params}>{children}</Checked> : children;
+}
+
+export function Shell({ children, ...props }: LayoutProps) {
   return (
     <CommandMenu>
       <Inspector>
-        <Layout menu={DemoMenu} appBar={DemoAppBar} {...props} />
+        <Layout menu={DemoMenu} appBar={DemoAppBar} {...props}>
+          <AccessGuard>{children}</AccessGuard>
+        </Layout>
         <OnboardingTour id={TOUR_ID} steps={tourSteps} />
         <Assistant
           transport={assistantTransport}

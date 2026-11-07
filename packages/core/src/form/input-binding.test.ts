@@ -351,6 +351,20 @@ describe("createFieldBinding — lifecycle", () => {
       expect(binding.getSnapshot().meta.isBlurred).toBe(true);
     });
 
+    it("blur before the binding attaches leaves the field meta whole", () => {
+      // An autofocused input loses focus in the commit that created it, before
+      // the attach effect runs. The write used to leave a meta with no
+      // `errorMap`, which the adapters' error selector throws on.
+      const controller = makeController({ title: "a" });
+      controller.subscribe(() => {});
+      const binding = createFieldBinding(controller.form, { source: "title" });
+      binding.blur();
+      binding.subscribe(() => {});
+      const { meta } = binding.getSnapshot();
+      expect(meta.errorMap).toEqual({});
+      expect(meta.isBlurred).toBe(false);
+    });
+
     it("getSnapshot returns field.store.state, reference-stable until a write", () => {
       const controller = makeController({ title: "a" });
       controller.subscribe(() => {});
