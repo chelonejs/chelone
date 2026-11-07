@@ -1,4 +1,4 @@
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import { isBlockDoc } from "@chelone/core";
 import type { FieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
@@ -7,7 +7,7 @@ import { useFieldValue } from "../../record/use-field-value";
 import { BlockEditor } from "./block-editor";
 import type { BlockDefinition } from "./block-nodes";
 
-interface BlockDocFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface BlockDocFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends Pick<
     FieldProps<RecordType>,
     "source" | "record" | "className" | "empty"
@@ -27,7 +27,7 @@ interface BlockDocFieldProps<RecordType extends LooseRecord = LooseRecord>
  *
  * <BlockDocField source="body" blocks={[callout]} empty="No content" />
  */
-function BlockDocField<RecordType extends LooseRecord = LooseRecord>({
+function BlockDocField<RecordType extends ResourceRecord = LooseRecord>({
   source,
   record,
   blocks,
