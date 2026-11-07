@@ -6,11 +6,11 @@
 // A site is not counted when its line, or the line above, carries a
 // `// type-escape: <why>` comment. That is the way to add a justified escape.
 //
-// `unknown-cast` is the exception: a cast from an `unknown` value, or to a function taking
-// `unknown`. It is a double cast split across two statements, so no comment excuses it. Finding
-// it needs the checker, so it reads each package's program, and a tree with no installed
-// dependencies (the pre-push hook's) skips that half with a warning. `.vue` files are outside
-// those programs, so there only the cast to a function is seen.
+// `unknown-cast` is the exception: a cast from an `unknown` value, `(meta ?? {}) as T` included,
+// or to a function taking `unknown`. It is a double cast split across two statements, so no comment
+// excuses it. Finding it needs the checker, so it reads each package's program, and a tree with no
+// installed dependencies (the pre-push hook's) skips that half with a warning. `.vue` files are
+// outside those programs, so there only the cast to a function is seen.
 //
 //   pnpm check:type-escapes                compare with where HEAD left origin/main
 //   pnpm check:type-escapes --base <ref>   compare with <ref> (CI passes HEAD^1)
@@ -19,7 +19,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, symlinkSync
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 // The pre-push hook runs this in a bare worktree and points it at the checkout's TypeScript.
 const ts = createRequire(import.meta.url)(process.env.TYPESCRIPT_PATH ?? "typescript");
@@ -125,7 +125,17 @@ function castsToUnknownParameter(type) {
     : ts.isFunctionTypeNode(type) && type.parameters.some((p) => p.type?.kind === ts.SyntaxKind.UnknownKeyword);
 }
 
-function classify(node) {
+/** The value a cast starts from: `x ?? {}` and `x || {}` are `{}` to the checker, but say nothing of `x`. */
+function castOperand(node) {
+  if (ts.isParenthesizedExpression(node)) return castOperand(node.expression);
+  const isFallback =
+    ts.isBinaryExpression(node) && [ts.SyntaxKind.QuestionQuestionToken, ts.SyntaxKind.BarBarToken].includes(node.operatorToken.kind);
+  return isFallback ? castOperand(node.left) : node;
+}
+
+export const startsFromUnknown = (cast, checker) => Boolean(checker.getTypeAtLocation(castOperand(cast.expression)).flags & ts.TypeFlags.Unknown);
+
+export function classify(node) {
   if (ts.isAsExpression(node) || ts.isTypeAssertionExpression(node)) {
     const type = node.type;
     if (ts.isTypeReferenceNode(type) && type.typeName.getText() === "const") return null;
@@ -190,7 +200,7 @@ function readUnknownCasts(tree) {
       const rel = path.relative(tree, source.fileName);
       if (!rel.startsWith(`packages/${entry.name}/src/`) || TEST_FILE.test(rel) || source.isDeclarationFile) continue;
       const visit = (node) => {
-        if (classify(node) === "cast" && checker.getTypeAtLocation(node.expression).flags & ts.TypeFlags.Unknown) {
+        if (classify(node) === "cast" && startsFromUnknown(node, checker)) {
           const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
           sites.push({ file: rel, line, kind: "unknown-cast" });
         }
@@ -242,37 +252,41 @@ function countAt(ref) {
   }
 }
 
-const sites = readEscapes(root);
-const counts = countByFile(sites);
-const base = baseRef();
-const baseline = countAt(base);
-const added = [];
-const removed = [];
-for (const [file, perKind] of counts) {
-  for (const kind of KINDS) {
-    const found = perKind[kind] ?? 0;
-    const allowed = baseline.get(file)?.[kind] ?? 0;
-    if (found > allowed) added.push({ file, kind, found, allowed });
+function main() {
+  const sites = readEscapes(root);
+  const counts = countByFile(sites);
+  const base = baseRef();
+  const baseline = countAt(base);
+  const added = [];
+  const removed = [];
+  for (const [file, perKind] of counts) {
+    for (const kind of KINDS) {
+      const found = perKind[kind] ?? 0;
+      const allowed = baseline.get(file)?.[kind] ?? 0;
+      if (found > allowed) added.push({ file, kind, found, allowed });
+    }
   }
-}
-for (const [file, perKind] of baseline) {
-  for (const [kind, allowed] of Object.entries(perKind)) {
-    const found = counts.get(file)?.[kind] ?? 0;
-    if (found < allowed) removed.push({ file, kind, found, allowed });
+  for (const [file, perKind] of baseline) {
+    for (const [kind, allowed] of Object.entries(perKind)) {
+      const found = counts.get(file)?.[kind] ?? 0;
+      if (found < allowed) removed.push({ file, kind, found, allowed });
+    }
   }
+
+  if (added.length > 0) {
+    console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard.\n");
+    for (const { file, kind, found, allowed } of added) {
+      console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
+      for (const site of sites.filter((s) => s.file === file && s.kind === kind)) console.error(`  ${site.file}:${site.line}`);
+    }
+  }
+  if (removed.length > 0) {
+    console.log(`Type escapes removed since ${base}:`);
+    for (const { file, kind, found, allowed } of removed) console.log(`${file}: ${found} ${kind}, ${base} had ${allowed}`);
+  }
+
+  if (added.length > 0) process.exit(1);
+  console.log(`No new type escapes: ${sites.length} in ${counts.size} files.`);
 }
 
-if (added.length > 0) {
-  console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard.\n");
-  for (const { file, kind, found, allowed } of added) {
-    console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
-    for (const site of sites.filter((s) => s.file === file && s.kind === kind)) console.error(`  ${site.file}:${site.line}`);
-  }
-}
-if (removed.length > 0) {
-  console.log(`Type escapes removed since ${base}:`);
-  for (const { file, kind, found, allowed } of removed) console.log(`${file}: ${found} ${kind}, ${base} had ${allowed}`);
-}
-
-if (added.length > 0) process.exit(1);
-console.log(`No new type escapes: ${sites.length} in ${counts.size} files.`);
+if (import.meta.url === pathToFileURL(process.argv[1]).href) main();
