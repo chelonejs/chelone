@@ -24,6 +24,7 @@ import {
   SimpleList,
   TextInput,
   useListController,
+  useRefresh,
 } from "@chelone/react";
 import { CsvImport } from "@chelone/react/csv-import";
 import { z } from "zod";
@@ -57,11 +58,19 @@ function CustomerBulkActions() {
   );
 }
 
+/** The import creates customers behind the list's back, so it refreshes the list when done. */
+function ImportCustomers() {
+  const refresh = useRefresh();
+  return (
+    <CsvImport schema={customerImportSchema} onComplete={() => refresh()} />
+  );
+}
+
 function CustomerActions() {
   return (
     <>
       <ColumnsButton />
-      <CsvImport schema={customerImportSchema} />
+      <ImportCustomers />
       <ExportButton />
       <RefreshIconButton label="Refresh customers" />
     </>

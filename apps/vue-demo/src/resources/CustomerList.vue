@@ -20,6 +20,7 @@ import {
   RefreshIconButton,
   SelectAllButton,
   SelectInput,
+  useRefresh,
 } from "@chelone/vue";
 import { CsvImport } from "@chelone/vue/csv-import";
 import { z } from "zod";
@@ -38,13 +39,16 @@ const customerImportSchema = z.object({
   plan: z.string().optional(),
   segment: z.string().optional(),
 });
+
+// The import creates customers behind the list's back, so refresh it when done.
+const refresh = useRefresh();
 </script>
 
 <template>
   <List resource="customers" :per-page="5">
     <template #actions>
       <ColumnsButton />
-      <CsvImport :schema="customerImportSchema" />
+      <CsvImport :schema="customerImportSchema" :on-complete="() => refresh()" />
       <ExportButton />
       <RefreshIconButton label="Refresh customers" />
     </template>
