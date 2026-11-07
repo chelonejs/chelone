@@ -11,6 +11,12 @@ import { csvSchemaFields, validateCsvRows } from "./validate-rows";
 
 const STEPS: CsvImportStep[] = ["upload", "map", "preview", "commit"];
 
+/** How many rows either adapter's preview step lists. */
+export const PREVIEW_ROWS = 50;
+
+/** What `readAsText` writes for each byte it cannot read as UTF-8. */
+export const REPLACEMENT_CHAR = "\uFFFD";
+
 export interface CsvImportController {
   store: MicroStore<CsvImportState>;
   /** Takes the file the adapter parsed. Does nothing while an import runs. */

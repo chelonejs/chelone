@@ -7328,6 +7328,7 @@
         "@chelone/block-toolbar"
       ],
       "dependencies": [
+        "@chelone/core",
         "@chelone/vue",
         "@dnd-kit/dom",
         "@dnd-kit/vue",

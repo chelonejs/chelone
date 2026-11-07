@@ -7065,6 +7065,7 @@
       ],
       "registryDependencies": ["@chelone/block-toolbar", "@chelone/lib-utils"],
       "dependencies": [
+        "@chelone/core",
         "@chelone/react",
         "@dnd-kit/dom",
         "@dnd-kit/react",

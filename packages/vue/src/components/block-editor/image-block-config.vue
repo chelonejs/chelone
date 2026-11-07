@@ -4,7 +4,7 @@
  * to 5 MB that the document stores as a data URL.
  */
 
-import { isSafeImageSrc } from "@chelone/core";
+import { isSafeImageSrc, MAX_IMAGE_BYTES } from "@chelone/core";
 import { ref, useId } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { FieldLabel } from "../ui/field";
@@ -15,8 +15,6 @@ const props = defineProps<{
   attrs: ImageAttrs;
   onChange: (attrs: Partial<ImageAttrs>) => void;
 }>();
-
-const maxImageBytes = 5 * 1024 * 1024;
 
 const translate = useTranslate();
 const ids = { src: useId(), alt: useId(), width: useId(), file: useId() };
@@ -40,7 +38,7 @@ function upload(event: Event) {
   // Read now: the toolbar hands a new `onChange` to whichever block is selected when the file finishes reading.
   const { onChange } = props;
   if (!file) return;
-  if (!file.type.startsWith("image/") || file.size > maxImageBytes) {
+  if (!file.type.startsWith("image/") || file.size > MAX_IMAGE_BYTES) {
     failed.value = true;
     return;
   }

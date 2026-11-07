@@ -2,7 +2,11 @@ import type { StandardSchemaV1 } from "@tanstack/form-core";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { fakeDataProvider } from "../data/fake-provider";
-import { createCsvImportController } from "./import-controller";
+import {
+  createCsvImportController,
+  PREVIEW_ROWS,
+  REPLACEMENT_CHAR,
+} from "./import-controller";
 import type { CsvImportOptions, ParsedCsv } from "./types";
 
 const schema = z.object({
@@ -378,5 +382,12 @@ describe("createCsvImportController", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 10));
     expect(state()).toEqual(initial);
+  });
+});
+
+describe("csv import constants", () => {
+  it("the preview lists 50 rows, and a byte readAsText cannot decode arrives as U+FFFD", () => {
+    expect(PREVIEW_ROWS).toBe(50);
+    expect(REPLACEMENT_CHAR).toBe("\uFFFD");
   });
 });
