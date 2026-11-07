@@ -29,7 +29,12 @@ export interface GeoJsonFieldProps<TRecord = unknown>
  * <GeoJsonField source="geometry" />
  */
 
-import { geoBounds, isGeoJsonValue, isLngLatBox } from "@chelone/core";
+import {
+  DEFAULT_MAP_HEIGHT,
+  geoBounds,
+  isGeoJsonValue,
+  isLngLatBox,
+} from "@chelone/core";
 import { computed } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
@@ -40,7 +45,7 @@ const props = withDefaults(defineProps<GeoJsonFieldProps<TRecord>>(), {
   fitBounds: true,
   fitPadding: 20,
   maxFitZoom: 18,
-  height: 300,
+  height: DEFAULT_MAP_HEIGHT,
   scrollZoom: false,
 });
 

@@ -54,6 +54,7 @@ export interface SimplifyInputProps {
  */
 
 import {
+  DEFAULT_MAP_ZOOM,
   deepEqual,
   isGeoJsonValue,
   type LngLatBox,
@@ -75,7 +76,7 @@ import { simplifyGeo } from "./geometry-ops";
 const props = withDefaults(defineProps<SimplifyInputProps>(), {
   label: undefined,
   helperText: undefined,
-  zoom: 13,
+  zoom: DEFAULT_MAP_ZOOM,
   defaultCenter: () => [0, 0],
   height: 400,
   mapStyle: undefined,
