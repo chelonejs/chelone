@@ -103,21 +103,6 @@ describe("ComponentPreview framework switch", () => {
     expect(source.textContent).toContain("<ResettableTextInput");
   });
 
-  it("leaves the Vue iframe's height to the fitting effect, not a fixed style", () => {
-    const { container } = renderPreview(
-      BOTH,
-      "/docs/editing/resettable-text-input?framework=vue",
-    );
-    const frame = container.querySelector("iframe");
-    if (!frame) throw new Error("the Vue demo renders no iframe");
-    // The frame is fitted to its content at runtime, with a floor so an empty
-    // frame is not a slit. jsdom never loads the frame, so there is nothing to
-    // fit here; what must not come back is a fixed inline height, which is what
-    // cut a list demo off.
-    expect(frame.style.height).toBe("");
-    expect(frame.className).toContain("min-h-56");
-  });
-
   it("a Vue choice on a React-only demo still previews React", () => {
     renderPreview(REACT_ONLY, "/docs/editing?framework=vue");
 
@@ -126,7 +111,69 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
-describe("the Vue frame's height", () => {
+// Every component given a Vue twin in this batch: the demo must exist beside its
+// React twin and preview in the Vue demo app when the page asks for Vue.
+const VUE_DEMOS = [
+  "app-config/admin",
+  "editing/edit-button",
+  "editing/save-button",
+  "page-components/create",
+  "page-components/list",
+  "ui-layout/app-bar",
+  "ui-layout/layout",
+  "ui-layout/menu",
+  "ui-layout/title",
+  "ui-layout/toolbar",
+  "ui-layout/user-menu",
+];
+
+describe.each(VUE_DEMOS)("the Vue demo of %s", (slug) => {
+  it("switches to the Vue demo app at ?framework=vue", () => {
+    renderPreview(`${slug}/basic`, `/docs/${slug}?framework=vue`);
+
+    expect(
+      screen.getByRole("button", { name: "Vue" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(screen.getByTitle(/Vue demo/).getAttribute("src")).toBe(
+      `/vue-demo/docs-preview/${slug}/basic`,
+    );
+  });
+});
+
+// The frame is a window into another app: it must be laid out wide enough for a
+// desktop shell and resized to whatever the demo inside it grows to.
+describe("the Vue demo frame", () => {
+  const VUE_URL = "/docs/editing/resettable-text-input?framework=vue";
+
+  function frame() {
+    const el = screen.getByTitle(/Vue demo/);
+    if (!(el instanceof HTMLIFrameElement)) {
+      throw new Error("the Vue demo renders an <iframe>");
+    }
+    return el;
+  }
+
+  it("lays the frame out at desktop width, not the panel width", () => {
+    renderPreview(BOTH, VUE_URL);
+
+    expect(frame().style.width).toBe("800px");
+  });
+
+  // The frame is fitted at runtime, so nothing may fix its height up front: a
+  // fixed height is what cut a list demo off. The floor that keeps an empty
+  // frame from collapsing to a slit is the panel's, not the frame's: `zoom`
+  // scales the frame's own lengths, so a height class on the frame is a height
+  // class on 800px of layout. `min-h-56` held a 108px demo's frame at 224px, and
+  // the band under it stayed after the frame was zoomed down to the panel.
+  it("gives the frame no height of its own, and the floor to the panel", () => {
+    const { container } = renderPreview(BOTH, VUE_URL);
+    const el = frame();
+
+    expect(el.style.height).toBe("");
+    expect(el.className).not.toContain("min-h");
+    expect(container.querySelector(".min-h-32")).not.toBeNull();
+  });
+
   // jsdom never loads the frame's `src`, so the test gives its document the
   // shape a loaded page has and fires the event a real load fires. jsdom lays
   // out nothing either, so a fitted frame reads 0px: what is pinned is that the
@@ -149,22 +196,21 @@ describe("the Vue frame's height", () => {
     fireEvent.click(screen.getByRole("button", { name: "Vue" }));
     fireEvent.click(screen.getByRole("button", { name: "preview" }));
 
-    const frame = screen.getByTitle(/Vue demo/);
-    loadFrame(frame);
-    expect(frame.style.height).not.toBe("");
+    loadFrame(frame());
+    expect(frame().style.height).not.toBe("");
   });
 
   it("fits the frame again when the preview tab comes back", () => {
-    renderPreview(BOTH, "/docs/editing?framework=vue");
+    renderPreview(BOTH, VUE_URL);
 
-    const left = screen.getByTitle(/Vue demo/);
+    const left = frame();
     loadFrame(left);
     expect(left.style.height).not.toBe("");
 
     fireEvent.click(screen.getByRole("button", { name: "code" }));
     fireEvent.click(screen.getByRole("button", { name: "preview" }));
 
-    const back = screen.getByTitle(/Vue demo/);
+    const back = frame();
     expect(back).not.toBe(left);
     loadFrame(back);
     expect(back.style.height).not.toBe("");

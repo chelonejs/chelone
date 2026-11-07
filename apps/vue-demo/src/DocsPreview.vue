@@ -38,15 +38,19 @@ const demo = shallowRef<VueDemoModule>();
 void load?.().then((loaded) => {
   demo.value = loaded;
 });
+
 </script>
 
 <template>
-  <!-- The box carries the same `min-h-56` the frame carries, so a demo shorter
-       than that floor is centred in it rather than stranded at its top. The
-       inner `flow-root` keeps the demo's own margins inside its box: the page
-       fits the iframe to this document's body, and a margin that collapsed out
-       of it would land outside the fitted height. -->
-  <div class="demo-box min-h-56">
+  <!-- `px-1` absorbs the 4px a `<DataTable>` header sort button pulls past its
+       own cell (`-mx-3` over the head's `px-2`, so its label lines up with the
+       cell text). A React demo overhangs into the preview panel's padding; an
+       iframe clips at its own edge, which cut the button's hover fill.
+
+       The inner `flow-root` keeps the demo's own margins inside its box: the
+       page fits the frame to this document's body, and a margin that collapsed
+       out of it would land outside the fitted height. -->
+  <div class="px-1">
     <div class="flow-root">
       <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
         <component :is="demo.default" />
@@ -56,19 +60,14 @@ void load?.().then((loaded) => {
 </template>
 
 <style scoped>
-/* The frame is as wide as the panel and has a height floor so an empty frame is
-   not a slit (see `ComponentPreview`). Centre the demo in it on both axes:
-   `justify-content` vertically; auto margins horizontally for a demo that caps
-   its own width, which do nothing to one that fills the frame; and `text-align`
-   for a bare field, which renders inline (a `<BadgeField>` is a span), reset
-   inside every demo so a table's cells stay left-aligned. The inner box stays a
-   block so a demo that fills the frame still does. */
-.demo-box {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
+/* The frame is laid out at desktop width and fitted to this document, and its
+   height floor sits on the docs panel, not here (see `ComponentPreview`): a
+   height floor inside the frame is zoomed with it, and a short demo would sit at
+   the top of a band. So the panel centres a short demo, and this only centres
+   across the frame: auto margins for a demo that caps its own width, which do
+   nothing to one that fills the frame, and `text-align` for a bare field, which
+   renders inline (a `<BadgeField>` is a span), reset inside every demo so a
+   table's cells stay left-aligned. */
 .flow-root {
   text-align: center;
 }

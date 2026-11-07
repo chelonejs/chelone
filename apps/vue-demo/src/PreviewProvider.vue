@@ -36,18 +36,15 @@ import { makeI18n, seedData } from "@chelone/demo-data";
 import {
   Admin,
   Create,
+  Edit,
+  List,
   provideRecordContext,
   provideResourceContext,
   Resource,
+  Show,
 } from "@chelone/vue";
 import { QueryClient } from "@tanstack/vue-query";
-import { defineComponent } from "vue";
 import { resources } from "./resources/schema";
-
-// The registry derives `hasCreate` from a registered create view, so the posts
-// resource gets one for `<ListActions>` and `<CreateButton>` to offer; no demo
-// navigates to it.
-const NoCreateView = defineComponent({ render: () => null });
 
 const props = withDefaults(defineProps<{ mode?: PreviewMode }>(), {
   mode: "view",
@@ -112,8 +109,21 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
     :notifications="notifications"
     :store="store"
   >
-    <Resource name="posts" :create="NoCreateView" record-representation="title" />
-    <Resource name="authors" record-representation="name" />
+    <!-- `posts` is registered with all four views and `authors` with a list, so
+         the sidebar `<Menu>` lists both, and the registered create view is what
+         lets the registry derive `hasCreate` for `<ListActions>` and
+         `<CreateButton>` to offer — the Vue form of the React preview's
+         `computeDefinition({ hasList: true, … })`. `#layout` below replaces the
+         shell, so these views never mount: the demo is the whole page. -->
+    <Resource
+      name="posts"
+      :list="List"
+      :create="Create"
+      :edit="Edit"
+      :show="Show"
+      record-representation="title"
+    />
+    <Resource name="authors" :list="List" record-representation="name" />
     <template #layout>
       <Create v-if="mode === 'input'" resource="posts" title="">
         <slot />
