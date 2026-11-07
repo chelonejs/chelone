@@ -158,6 +158,38 @@ describe("<TextInput>", () => {
     expect(input.value).toBe("line");
   });
 
+  it("renders controlSuffix in the input's own row", () => {
+    setup(
+      <TextInput
+        source="title"
+        controlSuffix={<button type="button" aria-label="Clear" />}
+      />,
+      { defaultValues: { title: "x" } },
+    );
+    const input = elementOf(screen.getByRole("textbox"), HTMLInputElement);
+    const suffix = screen.getByRole("button", { name: "Clear" });
+    expect(suffix.parentElement).toBe(input.parentElement);
+    expect(input.parentElement?.querySelector("label")).toBeNull();
+  });
+
+  it("renders controlSuffix in the textarea's own row when multiline is set", () => {
+    setup(
+      <TextInput
+        source="body"
+        multiline
+        controlSuffix={<button type="button" aria-label="Clear" />}
+      />,
+      { defaultValues: { body: "x" } },
+    );
+    const textarea = elementOf(
+      screen.getByRole("textbox"),
+      HTMLTextAreaElement,
+    );
+    const suffix = screen.getByRole("button", { name: "Clear" });
+    expect(suffix.parentElement).toBe(textarea.parentElement);
+    expect(textarea.parentElement?.querySelector("label")).toBeNull();
+  });
+
   it("omits the label when label is false", () => {
     setup(<TextInput source="title" label={false} />, {
       defaultValues: { title: "x" },

@@ -1102,6 +1102,7 @@ export {
   getFilterFormValues,
   ListContextProvider,
   TabbedForm,
+  useClearableFieldValue,
   useController,
   useFieldArray,
   useFilterForm,

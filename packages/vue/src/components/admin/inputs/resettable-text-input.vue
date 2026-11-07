@@ -22,10 +22,12 @@ export interface ResettableTextInputProps {
 /**
  * `<ResettableTextInput>` — a text input with a clear (×) button that resets the
  * field value, the Vue analog of `@chelone/react`'s
- * `inputs/resettable-text-input.tsx`. Wraps `<TextInput>` and hangs a ghost
- * button off the right edge; it appears only when the field has a value (unless
- * `clearAlwaysVisible`). Clicking it writes `""` (an empty string, not `null` —
- * consistent with the coercion fix) so the control stays a controlled string.
+ * `inputs/resettable-text-input.tsx`. Wraps `<TextInput>` and overlays a ghost
+ * button on the control through its `controlSuffix` slot, so the button is centred
+ * on the control with or without a label, helper text or an error. It appears only
+ * when the field has a value (unless `clearAlwaysVisible`). Clicking it writes `""`
+ * (an empty string, not `null` — consistent with the coercion fix) so the control
+ * stays a controlled string.
  *
  * Rebridge note: the React twin read the live value via the `useWatch` RHF shim
  * and cleared via `form.ambient.setFieldValue`. Here we OBSERVE the ambient form store
@@ -64,7 +66,6 @@ const hasValue = computed(() => {
   return v != null && v !== "";
 });
 
-const hasLabel = computed(() => props.label !== false);
 const showClearButton = computed(
   () => props.resettable && (props.clearAlwaysVisible || hasValue.value),
 );
@@ -78,45 +79,46 @@ function handleClear() {
 </script>
 
 <template>
-  <div :class="cn('relative', props.class)">
-    <TextInput
-      :source="source"
-      :label="label"
-      :default-value="defaultValue"
-      :validate="validate"
-      :helper-text="helperText"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :readonly="readonly"
-      :input-class="cn(resettable ? 'pr-9' : undefined, inputClass)"
-    />
-    <Button
-      v-if="showClearButton"
-      data-slot="reset"
-      type="button"
-      variant="ghost"
-      size="icon"
-      :class="cn('absolute right-1 size-7 text-muted-foreground', hasLabel ? 'top-6' : 'top-1')"
-      :disabled="disabled || readonly || !hasValue"
-      :aria-label="clearLabel"
-      :title="clearLabel"
-      :tabindex="-1"
-      @click="handleClear"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        class="size-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
+  <TextInput
+    :source="source"
+    :label="label"
+    :default-value="defaultValue"
+    :validate="validate"
+    :helper-text="helperText"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    :readonly="readonly"
+    :class="props.class"
+    :input-class="cn(resettable ? 'pr-9' : undefined, inputClass)"
+  >
+    <template v-if="showClearButton" #controlSuffix>
+      <Button
+        data-slot="reset"
+        type="button"
+        variant="ghost"
+        size="icon"
+        class="absolute right-1 top-1/2 size-7 -translate-y-1/2 text-muted-foreground"
+        :disabled="disabled || readonly || !hasValue"
+        :aria-label="clearLabel"
+        :title="clearLabel"
+        :tabindex="-1"
+        @click="handleClear"
       >
-        <path d="M18 6 6 18" />
-        <path d="m6 6 12 12" />
-      </svg>
-    </Button>
-  </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
+      </Button>
+    </template>
+  </TextInput>
 </template>

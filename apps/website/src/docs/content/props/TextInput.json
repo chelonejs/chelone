@@ -110,6 +110,12 @@
       "comment": ""
     },
     {
+      "name": "controlSuffix",
+      "type": "React.ReactNode",
+      "optional": true,
+      "comment": "Rendered over the control's right edge, inside the control's own row, so it\ncentres on the control whatever the field renders above or below it."
+    },
+    {
       "name": "inputClassName",
       "type": "string",
       "optional": true,
