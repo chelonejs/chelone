@@ -260,7 +260,24 @@
       }
     }
   },
-  "bar-chart": null,
+  "bar-chart": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/bar-chart",
+        "see": "[data-slot=\"bar-chart\"]"
+      },
+      "demo": {
+        "path": "/demo/",
+        "see": "[data-slot=\"bar-chart\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/",
+        "see": "[data-slot=\"bar-chart\"]"
+      }
+    }
+  },
   "bbox-field": {
     "react": {
       "docs": {
@@ -1009,7 +1026,24 @@
       }
     }
   },
-  "dashboard-menu-item": null,
+  "dashboard-menu-item": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/dashboard-menu-item",
+        "see": ".not-prose >> role=link[name=\"Dashboard\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=link[name=\"Dashboard\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=link[name=\"Dashboard\"]"
+      }
+    }
+  },
   "data-block-fields-input": {
     "shownBy": "block-editor-input"
   },
@@ -1189,7 +1223,24 @@
       }
     }
   },
-  "donut-chart": null,
+  "donut-chart": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/donut-chart",
+        "see": "[data-slot=\"donut-chart\"]"
+      },
+      "demo": {
+        "path": "/demo/",
+        "see": "[data-slot=\"donut-chart\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/",
+        "see": "[data-slot=\"donut-chart\"]"
+      }
+    }
+  },
   "draw-toolbar": {
     "shownBy": "shape-input"
   },
@@ -1819,7 +1870,24 @@
   "inspector-button": {
     "shownBy": "inspector"
   },
-  "job-monitor": null,
+  "job-monitor": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/job-monitor",
+        "see": "[data-slot=\"job-monitor\"]"
+      },
+      "demo": {
+        "path": "/demo/",
+        "see": "[data-slot=\"job-monitor\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/",
+        "see": "[data-slot=\"job-monitor\"]"
+      }
+    }
+  },
   "job-monitor-row": {
     "shownBy": "job-monitor"
   },
@@ -2374,7 +2442,24 @@
       }
     }
   },
-  "metric-card": null,
+  "metric-card": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/metric-card",
+        "see": "[data-slot=\"metric-card\"]"
+      },
+      "demo": {
+        "path": "/demo/",
+        "see": "[data-slot=\"metric-card\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/",
+        "see": "[data-slot=\"metric-card\"]"
+      }
+    }
+  },
   "monaco": {
     "shownBy": "monaco-json-input"
   },
@@ -2662,7 +2747,24 @@
       }
     }
   },
-  "pivot-grid": null,
+  "pivot-grid": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/pivot-grid",
+        "see": "[data-slot=\"pivot-grid\"]"
+      },
+      "demo": {
+        "path": "/demo/",
+        "see": "[data-slot=\"pivot-grid\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/",
+        "see": "[data-slot=\"pivot-grid\"]"
+      }
+    }
+  },
   "placeholder": {
     "react": {
       "docs": {
@@ -3926,7 +4028,24 @@
   "tree-list-node": {
     "shownBy": "tree-list"
   },
-  "trend-chart": null,
+  "trend-chart": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/trend-chart",
+        "see": "[data-slot=\"trend-chart\"]"
+      },
+      "demo": {
+        "path": "/demo/",
+        "see": "[data-slot=\"trend-chart\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/",
+        "see": "[data-slot=\"trend-chart\"]"
+      }
+    }
+  },
   "ui": {
     "shownBy": "layout"
   },

@@ -23,12 +23,14 @@ import {
   AppSidebar,
   Assistant,
   CommandMenu,
+  DashboardMenuItem,
   DataProviderDevtools,
   HideOnScroll,
   IconButtonWithTooltip,
   Layout,
   LoadingIndicator,
   LocalesMenuButton,
+  Menu,
   MenuItemLink,
   MenuLive,
   OnboardingTour,
@@ -37,8 +39,12 @@ import {
   ThemeModeToggle,
   ThemeProvider,
   UserMenu,
+  useBasename,
 } from "@chelone/vue";
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
+import { computed } from "vue";
+import { START_LOCATION, useRoute, useRouter } from "vue-router";
+import Dashboard from "./pages/Dashboard.vue";
 import { pageGroups } from "./pages";
 import SimulateOtherUser from "./realtime-sim.vue";
 import { dataProvider, dataProviderLog } from "./realtime";
@@ -48,6 +54,20 @@ import TakeTheTour from "./TakeTheTour.vue";
 // One transport and tool set for the app's lifetime: a new one starts a new conversation.
 const assistantTransport = demoAssistantTransport();
 const assistantTools = demoAssistantTools(dataProvider);
+
+// A `#layout` slot replaces the default shell, which is what renders the
+// `#dashboard` slot at the index, so this shell renders the dashboard itself.
+// Before the first navigation settles the router sits on `START_LOCATION`,
+// whose path is also `/`, so a deep link would flash the dashboard.
+// `useRoute()` wraps the location in a proxy, so compare the router's own object.
+const route = useRoute();
+const router = useRouter();
+const basename = useBasename();
+const isIndex = computed(
+  () =>
+    router.currentRoute.value !== START_LOCATION &&
+    route.path.replace(/\/$/, "") === basename.replace(/\/$/, ""),
+);
 
 // The area each resource sits under. A resource missing here is not in the menu.
 const resourceAreas: Record<string, string[]> = {
@@ -102,6 +122,7 @@ function openDocs() {
               <div class="px-4 py-2">
                 <SimulateOtherUser />
               </div>
+              <Menu><DashboardMenuItem /></Menu>
               <ResourceMenuItemGroup
                 v-for="{ area, resources, pages } in areas"
                 :key="area"
@@ -178,7 +199,8 @@ function openDocs() {
               </AppBar>
             </HideOnScroll>
           </template>
-          <router-view />
+          <Dashboard v-if="isIndex" />
+          <router-view v-else />
         </Layout>
         <OnboardingTour :id="TOUR_ID" :steps="tourSteps" />
         <Assistant
