@@ -1,0 +1,27 @@
+---
+title: "ShowGuesser"
+description: "A show page whose fields come from the resource's registered Zod schema."
+registry: "show-guesser"
+---
+
+`<ShowGuesser>` is a `<Show>` with a `<RecordField>` for each field of the
+resource's Zod schema, so the rows exist before the record loads. A resource
+without a schema shows `<GuesserEmpty>` and fetches no record.
+
+<ComponentPreview name="page-components/show-guesser/basic" />
+
+```tsx title="src/App.tsx"
+<Resource name="posts" show={ShowGuesser} />
+```
+
+Outside production it logs the hand-written show page it stands in for. Copy
+that code and replace the guesser when the page needs more. `enableLog` turns
+the log off. The [guessers guide](/docs/app-config/guessers) covers the
+schema-to-field mapping, the log and Vue.
+
+See also [`<ListGuesser>`](/docs/page-components/list-guesser) and
+[`<EditGuesser>`](/docs/page-components/edit-guesser).
+
+## Props
+
+<PropsTable name="ShowGuesser" />

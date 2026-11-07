@@ -648,7 +648,24 @@
   },
   "edit": null,
   "edit-button": null,
-  "edit-guesser": null,
+  "edit-guesser": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/edit-guesser",
+        "see": "role=spinbutton[name=\"Views\"]"
+      },
+      "demo": {
+        "path": "/demo/tags/1",
+        "see": "role=textbox[name=\"Color\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/tags/1",
+        "see": "role=textbox[name=\"Color\"]"
+      }
+    }
+  },
   "edit-live": null,
   "email-field": null,
   "embed-block": {
@@ -880,7 +897,24 @@
   "list": null,
   "list-actions": null,
   "list-button": null,
-  "list-guesser": null,
+  "list-guesser": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/list-guesser",
+        "see": "role=columnheader[name=\"Views\"]"
+      },
+      "demo": {
+        "path": "/demo/tags",
+        "see": "role=columnheader[name=\"Color\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/tags",
+        "see": "role=columnheader[name=\"Color\"]"
+      }
+    }
+  },
   "list-live": null,
   "list-no-results": {
     "shownBy": "simple-list"
@@ -1322,7 +1356,24 @@
   },
   "show": null,
   "show-button": null,
-  "show-guesser": null,
+  "show-guesser": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/show-guesser",
+        "see": "text=\"Views\""
+      },
+      "demo": {
+        "path": "/demo/tags/1/show",
+        "see": "text=\"Color\""
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/tags/1/show",
+        "see": "text=\"Color\""
+      }
+    }
+  },
   "show-live": null,
   "sidebar-toggle-button": null,
   "simple-form-iterator": {
