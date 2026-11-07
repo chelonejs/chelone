@@ -4738,7 +4738,7 @@
         "@chelone/menu",
         "@chelone/sidebar"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "layout"],
       "author": "Chelone <https://chelone.dev>"
     },

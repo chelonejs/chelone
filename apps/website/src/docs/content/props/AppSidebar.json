@@ -14,6 +14,12 @@
       "comment": "Brand label rendered in the sidebar header. Defaults to `\"Chelone\"`."
     },
     {
+      "name": "brandHref",
+      "type": "string",
+      "optional": true,
+      "comment": "Where the brand links to as a plain anchor, with no router and no basename\nprefix: for a link out of the app, such as the site home. Wins over\n`brandTo`. A `javascript:` or other unsafe scheme renders no `href`."
+    },
+    {
       "name": "brandIcon",
       "type": "ReactNode",
       "optional": true,

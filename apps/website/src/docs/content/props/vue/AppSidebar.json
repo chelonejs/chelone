@@ -6,19 +6,30 @@
       "type": "string",
       "optional": true,
       "default": "\"Chelone\"",
-      "comment": "Brand label in the sidebar header. Defaults to `\"Chelone\"`."
+      "comment": "Brand label in the sidebar header. Defaults to `\"Chelone\"`. The `#brand`\nslot replaces it."
     },
     {
       "name": "brandTo",
       "type": "string",
       "optional": true,
       "comment": "Where the brand links to, used as given (not prefixed with the basename).\nDefaults to the dashboard under the basename."
+    },
+    {
+      "name": "brandHref",
+      "type": "string",
+      "optional": true,
+      "comment": "Where the brand links to as a plain anchor, with no router and no basename\nprefix: for a link out of the app, such as the site home. Wins over\n`brandTo`. A `javascript:` or other unsafe scheme renders no `href`."
     }
   ],
   "emits": [],
   "slots": [
     {
       "name": "brand-icon",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "brand",
       "type": "{}",
       "comment": ""
     },

@@ -19,6 +19,8 @@ import {
 } from "@chelone/demo-data";
 import {
   AppBar,
+  AppSidebar,
+  type AppSidebarProps,
   Assistant,
   CommandMenu,
   DataProviderDevtools,
@@ -61,16 +63,6 @@ import {
 import { type ReactNode, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import { cssVars } from "@/lib/css-vars";
 import { pageGroups } from "./pages";
 import { dataProvider, dataProviderLog } from "./realtime";
 import { SimulateOtherUser } from "./realtime-sim";
@@ -128,37 +120,18 @@ const logoSrc = `${import.meta.env.BASE_URL}chelone-mark.svg`;
 /**
  * The sidebar header brands the demo as part of the site: the Chelone mark and
  * name link back to the site home, not to this app's dashboard. The demos are
- * separate SPAs under `/demo/`, so the home link is a plain anchor — a router
- * `Link` would prefix it with the basename and stay inside the demo.
+ * separate SPAs under `/demo/`, so the home link is `brandHref`, a plain anchor:
+ * `brandTo` is a router link and would prefix the basename.
  */
-function DemoSidebar({ children }: { children?: ReactNode }) {
+function DemoSidebar({ children, ...props }: AppSidebarProps) {
   return (
-    <Sidebar
-      variant="floating"
-      collapsible="icon"
-      style={cssVars({
-        "--sidebar-width": "240px",
-        "--sidebar-width-icon": "48px",
-      })}
+    <AppSidebar
+      {...props}
+      brandIcon={<img src={logoSrc} alt="" width={20} height={20} />}
+      brandHref="/"
     >
-      <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-            >
-              <a href="/">
-                <img src={logoSrc} alt="" width={20} height={20} />
-                <span className="text-base font-semibold">Chelone</span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarHeader>
-      <SidebarContent>{children}</SidebarContent>
-      <SidebarFooter />
-    </Sidebar>
+      {children}
+    </AppSidebar>
   );
 }
 
