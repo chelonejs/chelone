@@ -178,7 +178,7 @@ function DemoMenu() {
               to: "/posts",
               resource: "posts",
               label: getResourceLabel("posts"),
-              icon: <Newspaper size={16} />,
+              icon: <Newspaper size={16} className="shrink-0" />,
             },
           ]}
         />

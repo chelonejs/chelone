@@ -58,7 +58,7 @@ import {
   SquareKanban,
   UserCog,
 } from "lucide-vue-next";
-import { type Component, computed } from "vue";
+import { type Component, computed, h } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import AccessGuard from "./AccessGuard.vue";
 import DemoSidebar from "./DemoSidebar.vue";
@@ -105,6 +105,10 @@ const areas = [
     resources: resourceAreas[area],
     pages: pageGroups.find((g) => g.group === area)?.pages ?? [],
   }));
+
+// MenuLive draws its icon with no props, so the size is set here: the menu's own
+// items size theirs in CSS.
+const PostsIcon = () => h(Newspaper, { size: 16, class: "shrink-0" });
 
 // One glyph per page, by file name. A page missing here shows none, which the
 // sidebar test catches. Dashboard and the resources have theirs elsewhere (the
@@ -161,7 +165,7 @@ const t = (key: string, english: string) => translate(key, { _: english });
                       to: '/posts',
                       resource: 'posts',
                       label: getResourceLabel('posts'),
-                      icon: Newspaper,
+                      icon: PostsIcon,
                     },
                   ]"
                 />
