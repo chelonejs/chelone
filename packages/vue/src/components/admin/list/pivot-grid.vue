@@ -1,12 +1,13 @@
-<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type {
   LooseRecord,
+  ResourceRecord,
   PivotAggregator,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link PivotGrid}. */
-export interface PivotGridProps<TRecord extends LooseRecord = LooseRecord> {
+export interface PivotGridProps<TRecord extends ResourceRecord = LooseRecord> {
   /** The field whose values become the rows; a dotted path reads a nested value. */
   rowSource: SourceProp<TRecord>;
   /** The field whose values become the columns. */
@@ -24,7 +25,7 @@ export interface PivotGridProps<TRecord extends LooseRecord = LooseRecord> {
 <script
   setup
   lang="ts"
-  generic="TRecord extends LooseRecord = LooseRecord"
+  generic="TRecord extends ResourceRecord = LooseRecord"
 >
 /**
  * `<PivotGrid>` — the records of the ambient `<List>` as a row by column table
@@ -70,7 +71,7 @@ const translateLabel = useTranslateLabel();
 const locale = useLocale();
 
 const table = computed(() =>
-  buildPivotTable<LooseRecord>(list.data ?? [], {
+  buildPivotTable<TRecord>(list.data ?? [], {
     rowSource: props.rowSource,
     columnSource: props.columnSource,
     valueSource: props.valueSource,

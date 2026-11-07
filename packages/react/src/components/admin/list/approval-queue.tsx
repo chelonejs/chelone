@@ -1,8 +1,10 @@
 import {
   buildRejectionUpdate,
   getAtPath,
+  isLooseRecord,
   type LooseRecord,
   type MutationMode,
+  type ResourceRecord,
   type SourceProp,
 } from "@chelone/core";
 import { useIsMutating } from "@tanstack/react-query";
@@ -23,7 +25,9 @@ import { useResourceContext } from "../../../resource";
 import { DualApprovalButton } from "../buttons/dual-approval-button";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-export interface ApprovalQueueProps<TRecord extends LooseRecord = LooseRecord> {
+export interface ApprovalQueueProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** The field shown as the row title; the record representation when it is null or undefined. */
   titleSource?: SourceProp<TRecord>;
   /** The field shown as a second line when its value is not empty. */
@@ -53,7 +57,7 @@ export interface ApprovalQueueProps<TRecord extends LooseRecord = LooseRecord> {
   className?: string;
 }
 
-type RowProps<TRecord extends LooseRecord> = Omit<
+type RowProps<TRecord extends ResourceRecord> = Omit<
   ApprovalQueueProps<TRecord>,
   "className"
 > & { record: TRecord };
@@ -61,7 +65,7 @@ type RowProps<TRecord extends LooseRecord> = Omit<
 // type-escape: getAtPath reads a record by a runtime path and returns unknown
 const isEmpty = (value: unknown) => value == null || value === "";
 
-function ApprovalQueueRow<TRecord extends LooseRecord>({
+function ApprovalQueueRow<TRecord extends ResourceRecord>({
   record,
   titleSource,
   subtitleSource,
@@ -132,7 +136,7 @@ function ApprovalQueueRow<TRecord extends LooseRecord>({
   };
 
   const confirm = async () => {
-    if (!rejection) return;
+    if (!rejection || !isLooseRecord(record)) return;
     const update = mutateAsync({
       id: record.id,
       data: rejection,
@@ -269,7 +273,7 @@ function ApprovalQueueRow<TRecord extends LooseRecord>({
  *   <ApprovalQueue titleSource="title" subtitleSource="author" required={2} />
  * </List>
  */
-function ApprovalQueue<TRecord extends LooseRecord = LooseRecord>({
+function ApprovalQueue<TRecord extends ResourceRecord = LooseRecord>({
   className,
   ...rowProps
 }: ApprovalQueueProps<TRecord>) {

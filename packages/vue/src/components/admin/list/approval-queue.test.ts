@@ -81,7 +81,8 @@ async function mountQueue({
         List,
         { resource: "posts" },
         {
-          default: () => h(ApprovalQueue, queue, extra ? { extra } : undefined),
+          default: () =>
+            h(ApprovalQueue<LooseRecord>, queue, extra ? { extra } : undefined),
         },
       ),
   });

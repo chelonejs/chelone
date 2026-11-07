@@ -6,7 +6,7 @@
 
 import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
-import type { SourcePath } from "../resource/source-path";
+import type { SourceProp } from "../resource/source-path";
 import { parseCalendarDate } from "./calendar-dates";
 
 export interface RecordTimelineEntry<R> {
@@ -20,10 +20,10 @@ export interface RecordTimelineEntry<R> {
 }
 
 export interface ToTimelineEntriesOptions<R> {
-  messageSource: SourcePath<R>;
-  timestampSource: SourcePath<R>;
-  userSource?: SourcePath<R>;
-  iconSource?: SourcePath<R>;
+  messageSource: SourceProp<R>;
+  timestampSource: SourceProp<R>;
+  userSource?: SourceProp<R>;
+  iconSource?: SourceProp<R>;
 }
 
 /**
