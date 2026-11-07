@@ -8,20 +8,21 @@ import { statusChoices } from "@chelone/demo-data";
 import {
   Create,
   NumberInput,
-  ReferenceInput,
   SelectInput,
   TextInput,
   Toolbar,
 } from "@chelone/vue";
+import OrderDeliveryInputs from "./OrderDeliveryInputs.vue";
+import OrderRelationInputs from "./OrderRelationInputs.vue";
 </script>
 
 <template>
   <Create resource="orders">
     <div class="flex flex-col gap-4 max-w-xl">
       <TextInput source="reference" />
-      <ReferenceInput source="customer_id" reference="customers" />
-      <ReferenceInput source="product_id" reference="products" />
+      <OrderRelationInputs />
       <NumberInput source="quantity" :min="1" :default-value="1" />
+      <OrderDeliveryInputs />
       <SelectInput source="status" :choices="statusChoices" />
       <NumberInput source="total" :step="0.01" :min="0" :default-value="0" />
     </div>
