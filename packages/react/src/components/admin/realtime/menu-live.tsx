@@ -136,7 +136,10 @@ function MenuLiveItemLink({
   }, [active, count, store, resource, eventsKey]);
 
   return (
-    <Link to={to} className="flex items-center gap-2">
+    <Link
+      to={to}
+      className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent"
+    >
       {icon}
       {label}
       {count > 0 && (
@@ -162,7 +165,7 @@ function MenuLiveItemLink({
  */
 function MenuLive({ items }: MenuLiveProps) {
   return (
-    <nav>
+    <nav className="flex flex-col gap-1">
       {items.map((item) => (
         <MenuLiveItemLink key={item.to} {...item} />
       ))}

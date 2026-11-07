@@ -83,7 +83,8 @@ const queryClient = new QueryClient({
 });
 // Kept in `localStorage`, so the tour that opens on a first visit stays closed
 // and the Team page's role and role matrix survive a reload. The auth provider
-// answers every access check from them. The i18n instance is in ./i18n.
+// answers every access check from them. `<MenuLive>` keeps its unread counts
+// here too. The i18n instance is in ./i18n.
 const store = makeDemoStore();
 const authProvider = makeDemoAuthProvider(store);
 </script>

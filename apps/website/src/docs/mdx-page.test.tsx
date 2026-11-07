@@ -355,3 +355,21 @@ it.each([
     expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
   },
 );
+
+it.each([
+  ["edit-live", "Another user renames post 1"],
+  ["list-live", "Another user adds a post"],
+  ["lock-on-mount", "Grace opens post 1"],
+  ["lock-status", "Another user locks post 1"],
+  ["menu-live", "Another user adds a post"],
+])("shows the live demo on the realtime %s page", async (slug, button) => {
+  render(
+    <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(await screen.findByRole("button", { name: button })).toBeTruthy();
+});
