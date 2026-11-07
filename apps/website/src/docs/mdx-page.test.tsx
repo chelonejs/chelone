@@ -1,5 +1,11 @@
 import { Blob } from "node:buffer";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import MdxPage from "./mdx-page";
@@ -375,4 +381,38 @@ it.each([
   );
 
   expect(await screen.findByRole("button", { name: button })).toBeTruthy();
+});
+
+it("renders the h2 and h3 headings of a docs page as links to their own anchors", async () => {
+  render(
+    <MemoryRouter initialEntries={["/docs/app-config/supabase"]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  const authProvider = await screen.findByRole("heading", {
+    level: 2,
+    name: "Auth provider",
+  });
+  expect(authProvider.id).toBe("auth-provider");
+  expect(
+    within(authProvider)
+      .getByRole("link", { name: "Auth provider" })
+      .getAttribute("href"),
+  ).toBe("#auth-provider");
+  const oauth = screen.getByRole("heading", {
+    level: 3,
+    name: "OAuth sign-in",
+  });
+  expect(
+    within(oauth)
+      .getByRole("link", { name: "OAuth sign-in" })
+      .getAttribute("href"),
+  ).toBe(`#${oauth.id}`);
+  // The page title is not part of the rail, so it stays plain.
+  expect(
+    within(screen.getByRole("heading", { level: 1 })).queryByRole("link"),
+  ).toBeNull();
 });
