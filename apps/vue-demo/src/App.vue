@@ -26,6 +26,14 @@ import AuthorCreate from "./resources/AuthorCreate.vue";
 import AuthorEdit from "./resources/AuthorEdit.vue";
 import AuthorList from "./resources/AuthorList.vue";
 import AuthorShow from "./resources/AuthorShow.vue";
+import CustomerCreate from "./resources/CustomerCreate.vue";
+import CustomerEdit from "./resources/CustomerEdit.vue";
+import CustomerList from "./resources/CustomerList.vue";
+import CustomerShow from "./resources/CustomerShow.vue";
+import OrderCreate from "./resources/OrderCreate.vue";
+import OrderEdit from "./resources/OrderEdit.vue";
+import OrderList from "./resources/OrderList.vue";
+import OrderShow from "./resources/OrderShow.vue";
 import PlaceCreate from "./resources/PlaceCreate.vue";
 import PlaceEdit from "./resources/PlaceEdit.vue";
 import PlaceList from "./resources/PlaceList.vue";
@@ -88,6 +96,20 @@ const i18n = makeI18n();
         :edit="ProductEdit"
         :create="ProductCreate"
         :show="ProductShow"
+      />
+      <Resource
+        name="customers"
+        :list="CustomerList"
+        :edit="CustomerEdit"
+        :create="CustomerCreate"
+        :show="CustomerShow"
+      />
+      <Resource
+        name="orders"
+        :list="OrderList"
+        :edit="OrderEdit"
+        :create="OrderCreate"
+        :show="OrderShow"
       />
       <Resource
         name="places"
