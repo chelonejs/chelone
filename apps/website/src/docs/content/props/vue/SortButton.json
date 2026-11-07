@@ -1,0 +1,19 @@
+{
+  "name": "SortButton",
+  "props": [
+    {
+      "name": "fields",
+      "type": "string[]",
+      "optional": false,
+      "comment": "The sortable field names offered in the dropdown."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the auto-translated button label."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

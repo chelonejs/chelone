@@ -1,0 +1,67 @@
+{
+  "name": "ReferenceOneField",
+  "props": [
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": "The referenced resource holding the one-to-one record (e.g. `\"bios\"`)."
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": false,
+      "comment": "The FK field on the reference pointing back at this record (e.g. `\"author_id\"`)."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": true,
+      "comment": "The field on the current record the `target` matches. Default `\"id\"`."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record whose id is matched. Defaults to the ambient record."
+    },
+    {
+      "name": "sort",
+      "type": "SortPayload",
+      "optional": true,
+      "comment": "Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise."
+    },
+    {
+      "name": "filter",
+      "type": "FilterPayload",
+      "optional": true,
+      "comment": "Permanent filter merged into the reference lookup. Read when the record id changes; remount with a `key` to change it otherwise."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": "Rendered when no related record exists. A string is translated."
+    },
+    {
+      "name": "loading",
+      "type": "string",
+      "optional": true,
+      "comment": "Rendered while the referenced record is loading."
+    },
+    {
+      "name": "error",
+      "type": "string",
+      "optional": true,
+      "comment": "Rendered when the reference lookup errors."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{ record: LooseRecord; }",
+      "comment": ""
+    }
+  ]
+}

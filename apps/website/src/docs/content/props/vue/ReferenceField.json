@@ -1,0 +1,44 @@
+{
+  "name": "ReferenceField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "reference",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "link",
+      "type": "LinkToType",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Where the value links. Omit to infer the referenced record's show page, else\nits edit page, else no link; `false` renders no link."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

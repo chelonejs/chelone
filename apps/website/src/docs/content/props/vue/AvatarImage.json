@@ -1,0 +1,28 @@
+{
+  "name": "AvatarImage",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "src",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "alt",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

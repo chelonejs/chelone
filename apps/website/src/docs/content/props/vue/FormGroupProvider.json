@@ -1,0 +1,19 @@
+{
+  "name": "FormGroupProvider",
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The group name inputs below auto-register into (tab/step name)."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

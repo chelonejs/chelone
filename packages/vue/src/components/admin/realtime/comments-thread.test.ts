@@ -398,6 +398,26 @@ describe("CommentsThread", () => {
     expect(cards(resolvable)[1]?.text()).toContain("Resolved");
   });
 
+  it("a resolved comment says when it was resolved", async () => {
+    const resolvedAt = "2026-01-03T10:00:00.000Z";
+    const { dataProvider } = setup([
+      {
+        id: 1,
+        postId: 1,
+        body: "done",
+        createdAt: "2026-01-01T10:00:00.000Z",
+        resolvedAt,
+      },
+    ]);
+    const wrapper = mountThread(dataProvider);
+    await flushPromises();
+
+    const card = defined(cards(wrapper)[0]);
+    expect(card.text()).toContain("Resolved");
+    expect(card.text()).toContain(new Date(resolvedAt).toLocaleString());
+    expect(card.text()).not.toContain("{time}");
+  });
+
   it("CommentsThread resolves a comment with resolvedAt and previousData", async () => {
     const { dataProvider } = setup();
     const update = vi.spyOn(dataProvider, "update");

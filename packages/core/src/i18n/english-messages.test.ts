@@ -50,6 +50,20 @@ describe("englishMessages", () => {
     }
   });
 
+  it("no message uses a percent placeholder", () => {
+    const percentPlaceholder = /%\{\w+\}/;
+    const offenders = Object.entries(englishMessages)
+      .filter(([, value]) =>
+        typeof value === "string"
+          ? percentPlaceholder.test(value)
+          : Object.values(value).some(
+              (text) => text !== undefined && percentPlaceholder.test(text),
+            ),
+      )
+      .map(([key]) => key);
+    expect(offenders).toEqual([]);
+  });
+
   it("plugs into createI18n as a working English catalog", () => {
     const i18n = createI18n({
       locale: "en",

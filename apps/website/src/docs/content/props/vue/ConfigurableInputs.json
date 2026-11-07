@@ -1,0 +1,31 @@
+{
+  "name": "ConfigurableInputs",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource, used to label inputs. Defaults to the resource context."
+    },
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": true,
+      "comment": "Where the choice is stored. Defaults to `<resource>.inputs`."
+    },
+    {
+      "name": "defaultHiddenInputs",
+      "type": "string[]",
+      "optional": true,
+      "comment": "The ids (a `source`, else a `label`) hidden until the user stores a choice."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "The panel's title while this is selected. Defaults to \"Form\"."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,49 @@
+{
+  "name": "UrlField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "target",
+      "type": "string",
+      "optional": true,
+      "comment": "Anchor `target` (e.g. `_blank`)."
+    },
+    {
+      "name": "rel",
+      "type": "string",
+      "optional": true,
+      "comment": "Anchor `rel`; defaults to `noopener noreferrer` when `target=\"_blank\"`."
+    },
+    {
+      "name": "content",
+      "type": "string",
+      "optional": true,
+      "comment": "Link text; defaults to the URL value itself."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

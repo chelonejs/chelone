@@ -1,0 +1,19 @@
+{
+  "name": "FormGroupsProvider",
+  "props": [
+    {
+      "name": "groups",
+      "type": "FormGroups",
+      "optional": true,
+      "comment": "An externally created registry (advanced/testing). Omit to create one."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

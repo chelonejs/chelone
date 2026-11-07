@@ -1,0 +1,25 @@
+{
+  "name": "ResourceMenuItemGroup",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Optional section label. Omit for the ungrouped resource section."
+    },
+    {
+      "name": "resources",
+      "type": "string[]",
+      "optional": true,
+      "comment": "Resource names to render. When omitted, every registered resource that\nexposes a list view is rendered."
+    },
+    {
+      "name": "menuClass",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra CSS class appended to the underlying sidebar menu."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

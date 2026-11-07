@@ -1,0 +1,41 @@
+{
+  "name": "TabbedShowLayoutTab",
+  "props": [
+    {
+      "name": "icon",
+      "type": "Component",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "count",
+      "type": "number",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "contentClass",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,13 @@
+{
+  "name": "FilterButton",
+  "props": [
+    {
+      "name": "filters",
+      "type": "(FilterButtonEntry & { alwaysOn?: boolean | undefined; })[]",
+      "optional": false,
+      "comment": "The filters the dropdown can toggle; `alwaysOn` entries are skipped."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

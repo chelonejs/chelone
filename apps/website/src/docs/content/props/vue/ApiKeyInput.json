@@ -1,0 +1,31 @@
+{
+  "name": "ApiKeyInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<TRecord>",
+      "optional": false,
+      "comment": "Record field holding the API key."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override resource."
+    },
+    {
+      "name": "onRotate",
+      "type": "((record: TRecord) => void | Promise<void>)",
+      "optional": true,
+      "comment": "Async side-effect on rotate. When provided, replaces the default update mutation."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Disable the button."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

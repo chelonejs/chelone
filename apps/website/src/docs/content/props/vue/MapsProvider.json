@@ -1,0 +1,31 @@
+{
+  "name": "MapsProvider",
+  "props": [
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "The basemap: a MapLibre style URL, or an object from `rasterTileStyle`."
+    },
+    {
+      "name": "geocoder",
+      "type": "GeocodingProvider",
+      "optional": true,
+      "comment": "The geocoding service. The library names none: the app passes a provider."
+    },
+    {
+      "name": "overpass",
+      "type": "OverpassProvider",
+      "optional": true,
+      "comment": "The Overpass service. The library names none: the app passes a provider."
+    },
+    {
+      "name": "router",
+      "type": "RoutingProvider",
+      "optional": true,
+      "comment": "The routing service `LineStringInput` snaps drawn lines to roads with. The library names none."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

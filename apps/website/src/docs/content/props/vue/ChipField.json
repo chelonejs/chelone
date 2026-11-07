@@ -1,0 +1,37 @@
+{
+  "name": "ChipField",
+  "props": [
+    {
+      "name": "variant",
+      "type": "BadgeVariant",
+      "optional": true,
+      "comment": "Badge variant. Default `outline` (parity with the React twin)."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": "Name of the property to display (dot/bracket path)."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": "Replaces ONLY a resolved `undefined`, never a present `null` / `0` / `\"\"`."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": "Fallback text for a nullish value, translated through the catalog."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

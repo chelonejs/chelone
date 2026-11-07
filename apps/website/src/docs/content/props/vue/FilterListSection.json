@@ -1,0 +1,24 @@
+{
+  "name": "FilterListSection",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": false,
+      "comment": "Translated with itself as the fallback."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

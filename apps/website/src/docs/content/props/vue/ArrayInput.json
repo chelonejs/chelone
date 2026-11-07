@@ -1,0 +1,126 @@
+{
+  "name": "ArrayInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "TPath",
+      "optional": false,
+      "comment": "The array field path RELATIVE to the ambient source scope."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the ambient resource (label-key resolution)."
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": "Helper text rendered below the iterator."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "Array-level validators (e.g. `minLength`) — composed, first error wins."
+    },
+    {
+      "name": "defaultValue",
+      "type": "readonly ArrayItemOf<RecordType, TPath>[]",
+      "optional": true,
+      "default": "[]",
+      "comment": "The array's default value (seeds an untouched hole)."
+    },
+    {
+      "name": "scalar",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Force scalar-row mode (a `string[]`/`number[]`); DETECTED when omitted."
+    },
+    {
+      "name": "itemDefaults",
+      "type": "ItemDefaultsOf<ArrayItemOf<RecordType, TPath>>",
+      "optional": true,
+      "comment": "Object-row defaults merged into a new row (object mode)."
+    },
+    {
+      "name": "addLabel",
+      "type": "string",
+      "optional": true,
+      "comment": "Label for the add-row button. Absent → translated \"Add\"."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides every row control: add, clear, remove and reorder."
+    },
+    {
+      "name": "disableAdd",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the Add button."
+    },
+    {
+      "name": "disableClear",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the clear button."
+    },
+    {
+      "name": "disableRemove",
+      "type": "boolean | ((index: number) => boolean)",
+      "optional": true,
+      "comment": "Hides the remove buttons, and the clear button with them. A function\ndecides per row index."
+    },
+    {
+      "name": "disableReordering",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hides the move up / move down buttons."
+    },
+    {
+      "name": "inline",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Lays a row's inputs out in one line from the `sm` breakpoint up."
+    },
+    {
+      "name": "getItemLabel",
+      "type": "boolean | ((index: number) => string)",
+      "optional": true,
+      "comment": "A label per row. `true` numbers rows from 1; a function returns the label\nfor a row index; `false` renders none."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "remove-button",
+      "type": "{ index: number; remove: () => void; reOrder: (to: number) => void; }",
+      "comment": ""
+    },
+    {
+      "name": "reorder-buttons",
+      "type": "{ index: number; remove: () => void; reOrder: (to: number) => void; }",
+      "comment": ""
+    },
+    {
+      "name": "add-button",
+      "type": "{ add: () => void; }",
+      "comment": ""
+    }
+  ]
+}

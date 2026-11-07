@@ -1,0 +1,17 @@
+{
+  "name": "DropdownMenuItem",
+  "props": [],
+  "emits": [
+    {
+      "name": "select",
+      "type": "[]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

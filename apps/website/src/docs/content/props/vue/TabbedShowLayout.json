@@ -1,0 +1,44 @@
+{
+  "name": "TabbedShowLayout",
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "syncWithLocation",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": ""
+    },
+    {
+      "name": "spacing",
+      "type": "number",
+      "optional": true,
+      "default": "4",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "tabs",
+      "type": "TabbedShowLayoutTabsSlotProps",
+      "comment": ""
+    },
+    {
+      "name": "divider",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

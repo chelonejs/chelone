@@ -1,0 +1,31 @@
+{
+  "name": "AppSidebar",
+  "props": [
+    {
+      "name": "brand",
+      "type": "string",
+      "optional": true,
+      "default": "\"Chelone\"",
+      "comment": "Brand label in the sidebar header. Defaults to `\"Chelone\"`."
+    },
+    {
+      "name": "brandTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Where the brand links to, used as given (not prefixed with the basename).\nDefaults to the dashboard under the basename."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "brand-icon",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "TabsContent",
+  "props": [
+    {
+      "name": "value",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "ColorField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "showLabel",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "When false, hides the textual color value next to the chip. Default true."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

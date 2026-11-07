@@ -1,0 +1,83 @@
+{
+  "name": "LatLngInput",
+  "props": [
+    {
+      "name": "latSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the latitude."
+    },
+    {
+      "name": "lngSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The form field holding the longitude."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The legend. A string is translated; `false` renders none."
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "latValidate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "Run after the -90..90 range check."
+    },
+    {
+      "name": "lngValidate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "Run after the -180..180 range check."
+    },
+    {
+      "name": "defaultPosition",
+      "type": "readonly [lat: number, lng: number]",
+      "optional": true,
+      "default": "[0, 0]",
+      "comment": "`[lat, lng]`. The map centre while either field is empty. Defaults to `[0, 0]`."
+    },
+    {
+      "name": "zoom",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_MAP_ZOOM",
+      "comment": "Read once at mount. Defaults to 13."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "default": "DEFAULT_MAP_HEIGHT",
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Disables both text fields and the pin; pan and zoom still work."
+    }
+  ],
+  "emits": [
+    {
+      "name": "positionChange",
+      "type": "[lat: number, lng: number]"
+    }
+  ],
+  "slots": []
+}

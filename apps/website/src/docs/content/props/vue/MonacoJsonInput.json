@@ -1,0 +1,113 @@
+{
+  "name": "MonacoJsonInput",
+  "props": [
+    {
+      "name": "helperText",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "readOnly",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "schema",
+      "type": "object",
+      "optional": true,
+      "comment": "A JSON Schema the value is checked against. Object shape only."
+    },
+    {
+      "name": "schemaUri",
+      "type": "string",
+      "optional": true,
+      "comment": "A schema Monaco fetches from this URL. Ignored when `schema` is set."
+    },
+    {
+      "name": "allowComments",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Tolerate comments and trailing commas in the text."
+    },
+    {
+      "name": "autoHeight",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Grow with the content between `minHeight` and `maxHeight`. Defaults to false."
+    },
+    {
+      "name": "height",
+      "type": "number",
+      "optional": true,
+      "comment": "Editor height in pixels when `autoHeight` is false. Defaults to 300."
+    },
+    {
+      "name": "minHeight",
+      "type": "number",
+      "optional": true,
+      "comment": "Shortest the editor gets when `autoHeight` is on. Defaults to 120."
+    },
+    {
+      "name": "maxHeight",
+      "type": "number",
+      "optional": true,
+      "comment": "Tallest the editor grows to when `autoHeight` is on. Defaults to 600."
+    },
+    {
+      "name": "showFormatButton",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Show the Format button. Defaults to true."
+    },
+    {
+      "name": "editorClass",
+      "type": "string",
+      "optional": true,
+      "comment": "Class for the editor frame."
+    },
+    {
+      "name": "monacoOptions",
+      "type": "editor.IStandaloneEditorConstructionOptions",
+      "optional": true,
+      "comment": "Merged over the editor defaults, so it can override any of them."
+    },
+    {
+      "name": "source",
+      "type": "TPath",
+      "optional": false,
+      "comment": "The field path (dot/bracket), relative to the ambient source scope."
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Explicit label, or `false` to hide it. Absent → humanized `source`."
+    },
+    {
+      "name": "defaultValue",
+      "type": "NoInfer<SourceValue<RecordType, TPath>>",
+      "optional": true,
+      "comment": "Input-level default (seeds only into a hole), typed as the value at `source`."
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": "ra-contract validators — composed, first error wins."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

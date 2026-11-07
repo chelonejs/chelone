@@ -1,0 +1,37 @@
+{
+  "name": "Tabs",
+  "props": [
+    {
+      "name": "modelValue",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "orientation",
+      "type": "TabsOrientation",
+      "optional": true,
+      "default": "\"horizontal\"",
+      "comment": ""
+    }
+  ],
+  "emits": [
+    {
+      "name": "update:modelValue",
+      "type": "[value: string]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

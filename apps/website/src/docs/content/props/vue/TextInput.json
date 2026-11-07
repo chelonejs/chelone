@@ -1,0 +1,86 @@
+{
+  "name": "TextInput",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "type",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "validate",
+      "type": "Validator | readonly Validator[]",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "helperText",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "readonly",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "autocomplete",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "autofocus",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "inputClass",
+      "type": "string",
+      "optional": true,
+      "comment": "Class applied to the inner `<Input>` control (wrappers reserve trailing room)."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "controlSuffix",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

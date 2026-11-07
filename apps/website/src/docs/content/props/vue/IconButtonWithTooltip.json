@@ -1,0 +1,24 @@
+{
+  "name": "IconButtonWithTooltip",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "The button's label. It is translated, names the button (`aria-label`) and\nshows on hover as the native `title`. Use the `#label` slot for a label\nthat is not a string."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "label",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}
