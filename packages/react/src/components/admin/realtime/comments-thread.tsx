@@ -1,7 +1,8 @@
 import {
   type Identifier,
   isRealtimeDataProvider,
-  type LooseRecord,
+  type RecordResources,
+  type ResourceRecord,
   subscribeLiveResource,
 } from "@chelone/core";
 import { type KeyboardEvent, useEffect, useState } from "react";
@@ -27,10 +28,10 @@ export interface CommentRecord {
 }
 
 /** A row is a comment when it has a string `body`; any other row is skipped. */
-function isCommentRecord(
-  record: LooseRecord,
-): record is LooseRecord & CommentRecord {
-  return typeof record.body === "string";
+function isCommentRecord<TRecord extends ResourceRecord>(
+  record: TRecord,
+): record is TRecord & CommentRecord {
+  return "body" in record && typeof record.body === "string";
 }
 
 export interface CommentsThreadProps {
@@ -110,7 +111,9 @@ function CommentsThread({
     { enabled: hasRecord },
   );
   const { mutateAsync: create, isPending: isPosting } = useCreate(reference);
-  const { mutate: update } = useUpdate(reference);
+  const { mutate: update } = useUpdate<RecordResources<CommentRecord>, string>(
+    reference,
+  );
 
   const live = hasRecord && isRealtimeDataProvider(dataProvider);
   useEffect(() => {
@@ -148,7 +151,7 @@ function CommentsThread({
     }
   };
 
-  const resolve = (comment: LooseRecord & CommentRecord) =>
+  const resolve = (comment: CommentRecord) =>
     update(
       {
         id: comment.id,

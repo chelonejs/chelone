@@ -1,5 +1,5 @@
-<script lang="ts">
-import type { LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 
 /** Props for {@link SingleFieldList}. */
 export interface SingleFieldListProps {
@@ -7,13 +7,15 @@ export interface SingleFieldListProps {
 }
 
 /** What the `item` slot of a `<SingleFieldList>` is given. */
-export interface SingleFieldListItemSlotProps {
-  record: LooseRecord;
+export interface SingleFieldListItemSlotProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  record: TRecord;
   index: number;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type { VNode } from "vue";
 /**
  * `<SingleFieldList>` — the records of the ambient list as an inline row, for a
@@ -43,10 +45,10 @@ const props = defineProps<SingleFieldListProps>();
 defineSlots<{
   default?(): VNode[];
   /** Renders each record; wins over the default slot. */
-  item?(props: SingleFieldListItemSlotProps): VNode[];
+  item?(props: SingleFieldListItemSlotProps<TRecord>): VNode[];
 }>();
 
-const list = useListContext();
+const list = useListContext<TRecord>();
 const resource = useResourceContext();
 const getRecordRepresentation = useGetRecordRepresentation(resource);
 </script>
