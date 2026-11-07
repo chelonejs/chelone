@@ -32,7 +32,7 @@ export interface ThemeProviderProps {
    * (light/dark/system), not a palette.
    */
   defaultTheme?: Theme;
-  /** Store key the selected mode is persisted under. Defaults to `"theme"`. */
+  /** Store key the selected mode is persisted under. Defaults to `"chelone-theme"`. */
   storageKey?: string;
 }
 
@@ -166,7 +166,7 @@ function ModeContext({
 function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "theme",
+  storageKey = "chelone-theme",
 }: ThemeProviderProps) {
   const [mode, setMode] = useMode(storageKey, defaultTheme);
   return (

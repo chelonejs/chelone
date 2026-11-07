@@ -5,14 +5,15 @@ import { SiteNav } from "@/components/site-nav";
 import "./index.css";
 
 // No-flash theme bootstrap. Runs before hydration so the prerendered (default)
-// markup is corrected to the user's preference before paint. Shares the "theme"
-// localStorage key with next-themes; supports light / dark / system.
+// markup is corrected to the user's preference before paint. Shares the
+// "chelone-theme" localStorage key with next-themes and with `<Admin>`'s own
+// `<ThemeProvider>`; supports light / dark / system.
 const themeScript = `(() => {
   // Mark JS as active so scroll-reveal content is hidden (then animated in) only
   // when JS can reveal it again — without JS the content stays visible.
   document.documentElement.classList.add("js");
   try {
-    const t = localStorage.getItem("theme") || "system";
+    const t = localStorage.getItem("chelone-theme") || "system";
     const sys = window.matchMedia("(prefers-color-scheme: dark)").matches;
     document.documentElement.classList.toggle("dark", t === "dark" || (t === "system" && sys));
   } catch {
@@ -56,6 +57,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
+          storageKey="chelone-theme"
           enableSystem
           disableTransitionOnChange
         >
