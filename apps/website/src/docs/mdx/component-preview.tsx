@@ -71,25 +71,6 @@ interface ComponentPreviewProps {
   className?: string;
 }
 
-/** The height a Vue demo posts from its iframe when its content resizes. */
-interface PreviewHeight {
-  type: "chelone-docs-preview-height";
-  height: number;
-}
-
-function isPreviewHeight(value: unknown): value is PreviewHeight {
-  if (typeof value !== "object" || value === null) return false;
-  return (
-    "type" in value &&
-    value.type === "chelone-docs-preview-height" &&
-    "height" in value &&
-    typeof value.height === "number"
-  );
-}
-
-/** The frame height before the first report, matching the panel's own scale. */
-const DEFAULT_FRAME_HEIGHT = 224;
-
 type LoadedDemo =
   | {
       key: string;
@@ -105,7 +86,6 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
   const [loaded, setLoaded] = useState<LoadedDemo>();
   const [chosen, setFramework] = useFramework();
   const frameRef = useRef<HTMLIFrameElement>(null);
-  const [frameHeight, setFrameHeight] = useState<number>();
   const reactKey = keyFor(demoModules, name, "tsx");
   const vueKey = keyFor(vueSources, name, "vue");
   // The switch only offers a framework the demo exists in.
@@ -133,20 +113,44 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
     };
   }, [key, framework]);
 
-  // The Vue demo sizes its own frame: a fixed height clips a tall demo (an
-  // approval queue) and leaves dead space under a short one. Only this preview's
-  // own iframe may report.
+  // The Vue demo renders in an iframe of another app, which cannot size the
+  // panel it sits in, so a fixed height cuts a list demo off. Fit the frame to
+  // its content and keep it fitted while the demo changes size (its module
+  // loads after the frame does, and paging a list shrinks it). jsdom has no
+  // ResizeObserver, and a frame it cannot load has nothing to fit.
   useEffect(() => {
-    setFrameHeight(undefined);
-    if (framework !== "vue") return;
-    function onMessage(event: MessageEvent) {
-      if (event.source !== frameRef.current?.contentWindow) return;
-      if (!isPreviewHeight(event.data)) return;
-      setFrameHeight(event.data.height);
-    }
-    window.addEventListener("message", onMessage);
-    return () => window.removeEventListener("message", onMessage);
-  }, [key, framework]);
+    const frame = frameRef.current;
+    if (framework !== "vue" || tab !== "preview" || !frame) return;
+    const fit = () => {
+      // The body, not the document element: a document element is never shorter
+      // than the frame it fills, so measuring it can only ever grow the frame
+      // and a shrunk demo would leave an empty band under it. The body's bottom
+      // edge is measured in the frame, so it carries the body's own offset.
+      const body = frame.contentDocument?.body;
+      if (!body) return;
+      const height = Math.max(
+        body.scrollHeight,
+        body.getBoundingClientRect().bottom,
+      );
+      frame.style.height = `${Math.ceil(height)}px`;
+    };
+    const observer =
+      typeof ResizeObserver === "function"
+        ? new ResizeObserver(fit)
+        : undefined;
+    const onLoad = () => {
+      fit();
+      const body = frame.contentDocument?.body;
+      if (body) observer?.observe(body);
+    };
+    frame.addEventListener("load", onLoad);
+    if (frame.contentDocument?.readyState === "complete") onLoad();
+    return () => {
+      frame.removeEventListener("load", onLoad);
+      observer?.disconnect();
+      frame.style.height = "";
+    };
+  }, [framework, key, tab]);
 
   if (!key) {
     return (
@@ -211,13 +215,18 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
               ref={frameRef}
               title={`Vue demo: ${name}`}
               src={`/vue-demo/docs-preview/${name}`}
-              className="w-full border-0"
-              style={{ height: frameHeight ?? DEFAULT_FRAME_HEIGHT }}
+              className="min-h-56 w-full border-0"
             />
           ) : DemoComponent ? (
-            <PreviewProvider mode={mode}>
-              <DemoComponent />
-            </PreviewProvider>
+            // `min-w-0`: the panel is a flex row, and a flex item may not shrink
+            // below its min-content size by default. A table with a long-text
+            // column has a min-content wider than the panel, and without this it
+            // overflows the panel instead of scrolling inside the table.
+            <div className="min-w-0">
+              <PreviewProvider mode={mode}>
+                <DemoComponent />
+              </PreviewProvider>
+            </div>
           ) : (
             <span className="text-sm text-muted-foreground">
               {current?.status === "error"

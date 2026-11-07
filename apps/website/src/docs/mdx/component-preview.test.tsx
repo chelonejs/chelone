@@ -103,37 +103,19 @@ describe("ComponentPreview framework switch", () => {
     expect(source.textContent).toContain("<ResettableTextInput");
   });
 
-  it("sizes the Vue iframe to the height the demo reports", async () => {
+  it("leaves the Vue iframe's height to the fitting effect, not a fixed style", () => {
     const { container } = renderPreview(
       BOTH,
       "/docs/editing/resettable-text-input?framework=vue",
     );
     const frame = container.querySelector("iframe");
     if (!frame) throw new Error("the Vue demo renders no iframe");
-    expect(frame.style.height).toBe("224px");
-
-    // The demo posts from inside the frame, so the report carries the frame's
-    // own window as its source.
-    act(() => {
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          data: { type: "chelone-docs-preview-height", height: 312 },
-          source: frame.contentWindow,
-        }),
-      );
-    });
-    expect(frame.style.height).toBe("312px");
-
-    // A report from anywhere else is not this demo's height.
-    act(() => {
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          data: { type: "chelone-docs-preview-height", height: 999 },
-          source: null,
-        }),
-      );
-    });
-    expect(frame.style.height).toBe("312px");
+    // The frame is fitted to its content at runtime, with a floor so an empty
+    // frame is not a slit. jsdom never loads the frame, so there is nothing to
+    // fit here; what must not come back is a fixed inline height, which is what
+    // cut a list demo off.
+    expect(frame.style.height).toBe("");
+    expect(frame.className).toContain("min-h-56");
   });
 
   it("a Vue choice on a React-only demo still previews React", () => {
