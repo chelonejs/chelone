@@ -38,10 +38,14 @@
  *              create page.
  */
 import {
+  type AuthProvider,
+  addEventsForMutations,
   computeDefinition,
   createResourceRegistry,
   fakeDataProvider,
+  memoryTransport,
   type ResourceRegistry,
+  realtimeDataProvider,
 } from "@chelone/core";
 import {
   AdminContext,
@@ -59,6 +63,18 @@ import {
   previewResources,
   previewSeed,
 } from "./preview-fixtures";
+
+/**
+ * Signs every preview in as the first fixture author, so the components that
+ * act as a user (approve, comment, announce presence) have someone to act as.
+ */
+const previewAuthProvider: AuthProvider = {
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+  getIdentity: async () => ({ id: 1, fullName: "Ada Lovelace" }),
+};
 
 export type PreviewMode = "view" | "record" | "input";
 
@@ -111,7 +127,15 @@ export function PreviewProvider({
         },
       }),
   );
-  const [dataProvider] = useState(() => fakeDataProvider(previewSeed()));
+  // Realtime over an in-memory transport, so the live components work without a
+  // server and a write in one component reaches the others.
+  const [dataProvider] = useState(() => {
+    const transport = memoryTransport();
+    return addEventsForMutations(
+      realtimeDataProvider(fakeDataProvider(previewSeed()), transport),
+      transport,
+    );
+  });
   const [i18n] = useState(makePreviewI18n);
   const [notifications] = useState(makePreviewNotifications);
   const [store] = useState(makePreviewStore);
@@ -140,6 +164,7 @@ export function PreviewProvider({
   return (
     <AdminContext
       dataProvider={dataProvider}
+      authProvider={previewAuthProvider}
       queryClient={queryClient}
       i18n={i18n}
       notifications={notifications}

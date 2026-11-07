@@ -42,6 +42,7 @@ function referencesIn(seed: Seed): Reference[] {
         to: "authors",
         ids: post.approvals.map((approval) => approval.reviewer_id),
       },
+      { at: `posts#${post.id}.approvers`, to: "authors", ids: post.approvers },
     ]),
     ...seed.products.flatMap((product): Reference[] => [
       {
@@ -90,9 +91,9 @@ function referencesIn(seed: Seed): Reference[] {
         ids: [comment.post_id],
       },
       {
-        at: `comments#${comment.id}.author_id`,
+        at: `comments#${comment.id}.authorId`,
         to: "authors",
-        ids: [comment.author_id],
+        ids: [comment.authorId],
       },
     ]),
     ...seed.api_keys.map(
@@ -137,6 +138,12 @@ describe("seedData", () => {
     ] as const) {
       expect(seed[name].length, name).toBeGreaterThanOrEqual(5);
     }
+  });
+
+  it("leaves an in_review post one approval short of two, so the signed-in user's approval publishes it", () => {
+    const inReview = seed.posts.filter((post) => post.status === "in_review");
+    expect(inReview.some((post) => post.approvers.length === 1)).toBe(true);
+    expect(inReview.some((post) => post.approvers.length === 0)).toBe(true);
   });
 
   it("keeps ids unique within each resource", () => {

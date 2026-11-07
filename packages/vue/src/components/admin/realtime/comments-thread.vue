@@ -61,10 +61,11 @@ import { useOptionalIdentity } from "../../../auth/auth-hooks";
 import { useCheloneContext, useCheloneNotifications } from "../../../context";
 import { useGetList } from "../../../data/queries";
 import { useTranslate } from "../../../i18n/use-translate";
+import { cn } from "../../../lib/utils";
 import { RecordContextKey } from "../../../record/record-context";
 import { Badge } from "../../ui/badge";
 import Button from "../../ui/button.vue";
-import { Card, CardContent } from "../../ui/card";
+import { Card } from "../../ui/card";
 import Textarea from "../../ui/textarea.vue";
 
 const props = withDefaults(defineProps<CommentsThreadProps>(), {
@@ -196,16 +197,20 @@ function timeOf(iso: string | null | undefined) {
   <section
     v-if="recordId !== undefined"
     data-slot="comments-thread"
-    :class="props.class"
+    :class="cn('space-y-3', props.class)"
   >
-    <p v-if="isError" data-slot="comments-error">
+    <p v-if="isError" data-slot="comments-error" class="text-sm text-destructive">
       {{
         translate("chelone.comments.load_failed", {
           _: "Could not load the comments",
         })
       }}
     </p>
-    <p v-else-if="isSuccess && items.length === 0" data-slot="comments-empty">
+    <p
+      v-else-if="isSuccess && items.length === 0"
+      data-slot="comments-empty"
+      class="rounded-xl border bg-card p-4 text-sm text-muted-foreground shadow"
+    >
       {{
         translate("chelone.comments.empty", {
           _: "No comments yet. Be the first.",
@@ -217,42 +222,46 @@ function timeOf(iso: string | null | undefined) {
       :key="comment.id"
       data-slot="comment"
       :data-comment-id="comment.id"
+      :class="cn('flex flex-col items-start gap-2 p-4', comment.resolvedAt && 'opacity-60')"
     >
-      <CardContent>
-        <div>
-          <strong>{{ authorOf(comment) }}</strong>
-          <time
-            v-if="timeOf(comment.createdAt)"
-            :datetime="timeOf(comment.createdAt)?.iso"
-          >
-            {{ timeOf(comment.createdAt)?.label }}
-          </time>
-        </div>
-        <p>{{ comment.body }}</p>
-        <Badge v-if="comment.resolvedAt" variant="secondary">
-          {{
-            translate("chelone.comments.resolved", {
-              _: "Resolved {time}",
-              time: timeOf(comment.resolvedAt)?.label ?? "",
-            })
-          }}
-        </Badge>
-        <Button
-          v-else-if="props.resolvable"
-          variant="outline"
-          size="sm"
-          :disabled="update.isPending.value"
-          @click="resolve(comment)"
+      <div class="flex items-baseline gap-2 text-sm">
+        <strong class="font-medium">{{ authorOf(comment) }}</strong>
+        <time
+          v-if="timeOf(comment.createdAt)"
+          :datetime="timeOf(comment.createdAt)?.iso"
+          class="text-xs text-muted-foreground"
         >
-          {{
-            translate("chelone.comments.mark_resolved", {
-              _: "Mark resolved",
-            })
-          }}
-        </Button>
-      </CardContent>
+          {{ timeOf(comment.createdAt)?.label }}
+        </time>
+      </div>
+      <p class="whitespace-pre-wrap text-sm">{{ comment.body }}</p>
+      <Badge v-if="comment.resolvedAt" variant="secondary">
+        {{
+          translate("chelone.comments.resolved", {
+            _: "Resolved {time}",
+            time: timeOf(comment.resolvedAt)?.label ?? "",
+          })
+        }}
+      </Badge>
+      <Button
+        v-else-if="props.resolvable"
+        variant="outline"
+        size="sm"
+        :disabled="update.isPending.value"
+        @click="resolve(comment)"
+      >
+        {{
+          translate("chelone.comments.mark_resolved", {
+            _: "Mark resolved",
+          })
+        }}
+      </Button>
     </Card>
-    <p v-if="total > items.length" data-slot="comments-total">
+    <p
+      v-if="total > items.length"
+      data-slot="comments-total"
+      class="text-xs text-muted-foreground"
+    >
       {{
         translate("chelone.comments.showing", {
           shown: items.length,
@@ -261,7 +270,7 @@ function timeOf(iso: string | null | undefined) {
         })
       }}
     </p>
-    <div data-slot="comments-form">
+    <div data-slot="comments-form" class="space-y-2">
       <Textarea
         v-model="draft"
         :placeholder="
