@@ -22,12 +22,18 @@ import { QueryClient } from "@tanstack/vue-query";
 import { makeI18n } from "@chelone/demo-data";
 import { mapsConfig } from "./maps-services";
 import { dataProvider } from "./realtime";
+import AuthorCreate from "./resources/AuthorCreate.vue";
+import AuthorEdit from "./resources/AuthorEdit.vue";
 import AuthorList from "./resources/AuthorList.vue";
+import AuthorShow from "./resources/AuthorShow.vue";
+import PlaceCreate from "./resources/PlaceCreate.vue";
 import PlaceEdit from "./resources/PlaceEdit.vue";
 import PlaceList from "./resources/PlaceList.vue";
+import PlaceShow from "./resources/PlaceShow.vue";
 import PostCreate from "./resources/PostCreate.vue";
 import PostEdit from "./resources/PostEdit.vue";
 import PostList from "./resources/PostList.vue";
+import PostShow from "./resources/PostShow.vue";
 import { resources } from "./resources/schema";
 
 // A retry-off query client, the English i18n catalog and a notification store
@@ -63,9 +69,22 @@ const i18n = makeI18n();
         :list="PostList"
         :edit="PostEdit"
         :create="PostCreate"
+        :show="PostShow"
       />
-      <Resource name="authors" :list="AuthorList" />
-      <Resource name="places" :list="PlaceList" :edit="PlaceEdit" />
+      <Resource
+        name="authors"
+        :list="AuthorList"
+        :edit="AuthorEdit"
+        :create="AuthorCreate"
+        :show="AuthorShow"
+      />
+      <Resource
+        name="places"
+        :list="PlaceList"
+        :edit="PlaceEdit"
+        :create="PlaceCreate"
+        :show="PlaceShow"
+      />
     </Admin>
   </MapsProvider>
 </template>
