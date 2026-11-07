@@ -51,14 +51,20 @@ void load?.().then((loaded) => {
   demo.value = loaded;
 });
 
+// The frame is sized to the demo, so the UA body margin would inset the demo 8px
+// past the padding the docs preview panel already gives it.
+document.body.style.margin = "0";
+
 const mode = computed<PreviewMode>(() => demo.value?.mode ?? "view");
 const content = ref<HTMLElement>();
 
+// The html box is the demo's own height, margins included (the wrapper's
+// `offsetHeight` is not: `<Create>` carries an 8px margin above and below).
 function reportHeight(): void {
   parent.postMessage(
     {
       type: "chelone-docs-preview-height",
-      height: content.value?.offsetHeight ?? 0,
+      height: document.documentElement.getBoundingClientRect().height,
     },
     "*",
   );
