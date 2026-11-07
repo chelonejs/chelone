@@ -130,14 +130,18 @@ export function fakeDataProvider<TResources extends ResourceMap>(
   };
   let nextId = 1_000_000;
 
+  // Copies, like `getOne`: a mutation in place would otherwise change the rows
+  // a list already holds, so a refetch looks unchanged and nothing re-renders.
   const listLike = <TRecord extends ResourceRecord>(
     rows: TRecord[],
     params: GetListParams,
-  ) =>
-    paginate(
+  ) => {
+    const page = paginate(
       applySort(applyFilter(rows, params.filter), params.sort),
       params.pagination,
     );
+    return { ...page, data: structuredClone(page.data) };
+  };
 
   return {
     async getList(resource, params) {

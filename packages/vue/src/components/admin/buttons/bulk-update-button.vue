@@ -82,7 +82,9 @@ const updateMany = useUpdateMany(resource);
 
 const isPending = computed(() => updateMany.isPending.value);
 const label = computed(() =>
-  translate("ra.action.update", { _: props.label ?? "Update" }),
+  props.label
+    ? translate(props.label, { _: props.label })
+    : translate("ra.action.update", { _: "Update" }),
 );
 
 async function onClick(event: MouseEvent): Promise<void> {
