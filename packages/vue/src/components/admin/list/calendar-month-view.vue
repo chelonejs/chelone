@@ -60,6 +60,7 @@ export interface CalendarMonthViewProps<
 
 import {
   calendarDayKey,
+  calendarDaySlot,
   calendarEventsOnDay,
   moveCalendarEvent,
 } from "@chelone/core";
@@ -101,23 +102,7 @@ onBeforeUnmount(() => clearTimeout(midnightTimer));
 const eventsOn = (day: Date) => calendarEventsOnDay(props.events, day);
 
 function selectSlot(day: Date) {
-  emit("selectSlot", {
-    startISO: new Date(
-      day.getFullYear(),
-      day.getMonth(),
-      day.getDate(),
-    ).toISOString(),
-    endISO: new Date(
-      day.getFullYear(),
-      day.getMonth(),
-      day.getDate(),
-      23,
-      59,
-      59,
-      999,
-    ).toISOString(),
-    allDay: true,
-  });
+  emit("selectSlot", calendarDaySlot(day));
 }
 
 function onEventClick(event: MouseEvent, record: TRecord) {
