@@ -4642,6 +4642,7 @@
       "registryDependencies": [
         "@chelone/button",
         "@chelone/data-provider-devtools-entry",
+        "@chelone/layout-icons",
         "@chelone/lib-utils"
       ],
       "dependencies": ["@chelone/core", "@chelone/vue"],

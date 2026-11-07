@@ -63,3 +63,8 @@ export const SquareIcon: FunctionalComponent = glyph([
 
 /** The assistant close glyph (a cross). */
 export const XIcon: FunctionalComponent = glyph(["M18 6 6 18", "m6 6 12 12"]);
+
+/** The data provider devtools trigger glyph (a pulse line). */
+export const ActivityIcon: FunctionalComponent = glyph([
+  "M22 12h-4l-3 9L9 3l-3 9H2",
+]);

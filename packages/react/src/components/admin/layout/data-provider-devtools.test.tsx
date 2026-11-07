@@ -64,11 +64,30 @@ function mount(
   return { log, dataProvider };
 }
 
+/** The component's root in either state: the trigger button closed, the panel open. */
+function root(): HTMLElement {
+  const el = document.querySelector<HTMLElement>(
+    '[data-slot="data-provider-devtools"]',
+  );
+  if (!el) throw new Error("no data provider devtools");
+  return el;
+}
+
+const isOpen = () => root().getAttribute("data-open") === "true";
 const panel = () => screen.getByRole("region", { name: "Data provider" });
-const entries = () =>
-  within(panel())
-    .queryAllByRole("listitem")
-    .filter((el) => el instanceof HTMLLIElement);
+const trigger = () => screen.getByRole("button", { name: /^Data provider/ });
+const badge = () => {
+  const el = document.querySelector(
+    '[data-slot="data-provider-devtools-badge"]',
+  );
+  if (!el) throw new Error("no data provider devtools badge");
+  return el.textContent?.trim() ?? "";
+};
+const entries = () => [
+  ...document.querySelectorAll<HTMLElement>(
+    '[data-slot="data-provider-devtools-entry"]',
+  ),
+];
 
 describe("<DataProviderDevtools>", () => {
   it("lists the calls an Admin page makes through the wrapped provider", async () => {
@@ -148,24 +167,31 @@ describe("<DataProviderDevtools>", () => {
     expect(within(panel()).getByText("No calls yet")).toBeTruthy();
   });
 
-  it("starts closed with defaultOpen false and opens with the button", async () => {
+  it("closed shows a trigger button with the call count, and opens the panel", async () => {
     mount({ defaultOpen: false });
     await screen.findByText("1 posts");
 
-    expect(panel().getAttribute("data-open")).toBe("false");
+    expect(isOpen()).toBe(false);
     expect(entries()).toHaveLength(0);
-    const show = within(panel()).getByRole("button", { name: "Show" });
-    expect(show.getAttribute("aria-expanded")).toBe("false");
+    const button = trigger();
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(badge()).toBe("1");
 
-    fireEvent.click(show);
+    fireEvent.click(button);
 
-    expect(panel().getAttribute("data-open")).toBe("true");
+    expect(isOpen()).toBe(true);
     expect(entries().length).toBeGreaterThan(0);
     expect(
       within(panel())
         .getByRole("button", { name: "Hide" })
         .getAttribute("aria-expanded"),
     ).toBe("true");
+
+    fireEvent.click(within(panel()).getByRole("button", { name: "Hide" }));
+
+    expect(isOpen()).toBe(false);
+    expect(entries()).toHaveLength(0);
+    expect(badge()).toBe("1");
   });
 
   it("the shortcut toggles the panel", async () => {
@@ -176,9 +202,10 @@ describe("<DataProviderDevtools>", () => {
       fireEvent.keyDown(window, { key: "d", ctrlKey: true, shiftKey: true });
 
     expect(press()).toBe(false);
-    expect(panel().getAttribute("data-open")).toBe("false");
+    expect(isOpen()).toBe(false);
+    expect(trigger().getAttribute("aria-expanded")).toBe("false");
     press();
-    expect(panel().getAttribute("data-open")).toBe("true");
+    expect(isOpen()).toBe(true);
   });
 
   it("the shortcut prop replaces the default", async () => {
@@ -186,10 +213,10 @@ describe("<DataProviderDevtools>", () => {
     await screen.findByText("1 posts");
 
     fireEvent.keyDown(window, { key: "d", ctrlKey: true, shiftKey: true });
-    expect(panel().getAttribute("data-open")).toBe("true");
+    expect(isOpen()).toBe(true);
 
     fireEvent.keyDown(window, { key: "j", ctrlKey: true });
-    expect(panel().getAttribute("data-open")).toBe("false");
+    expect(isOpen()).toBe(false);
   });
 
   it("shows params that cannot be stringified as [unserializable]", async () => {
