@@ -36,6 +36,24 @@ export type PreviewPost = {
   status: "draft" | "review" | "published";
   /** ISO datetime inside the current month, for the calendar demo. */
   publish_at: string;
+  /** Ids of the authors who approved the post; `<DualApprovalButton>` writes it. */
+  approvers: number[];
+  revisions: PreviewRevision[];
+};
+export type PreviewRevision = {
+  id: number;
+  at: string;
+  author_id: number;
+  summary: string;
+};
+export type PreviewComment = {
+  id: number;
+  post_id: number;
+  authorId: number;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  resolvedAt: string | null;
 };
 
 const authors: PreviewAuthor[] = [
@@ -77,9 +95,16 @@ const postTitles = [
   "Turing Machines Made Concrete",
 ];
 
+const HOUR = 3_600_000;
+const hoursAgo = (hours: number) =>
+  new Date(Date.UTC(2026, 0, 15, 12) - hours * HOUR).toISOString();
+
+const revisionSummaries = ["First draft", "Fix typos", "Tighten the intro"];
+
 const postStatuses = ["draft", "review", "published"] as const;
 const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
+/** Post 2 is in review and already has Alan's approval. */
 const posts: PreviewPost[] = postTitles.map((title, i) => ({
   id: i + 1,
   title,
@@ -94,13 +119,42 @@ const posts: PreviewPost[] = postTitles.map((title, i) => ({
     1 + ((i * 5) % 28),
     9 + (i % 8),
   ).toISOString(),
+  approvers: i === 1 ? [2] : [],
+  revisions: revisionSummaries.map((summary, r) => ({
+    id: r + 1,
+    at: hoursAgo((revisionSummaries.length - r) * 20 + i),
+    author_id: authors[(i + r) % authors.length].id,
+    summary,
+  })),
 }));
+
+const comments: PreviewComment[] = [
+  {
+    id: 1,
+    post_id: 1,
+    authorId: 2,
+    authorName: "Alan Turing",
+    body: "The second section needs a source.",
+    createdAt: hoursAgo(5),
+    resolvedAt: null,
+  },
+  {
+    id: 2,
+    post_id: 1,
+    authorId: 3,
+    authorName: "Grace Hopper",
+    body: "Fixed the typo in the intro.",
+    createdAt: hoursAgo(2),
+    resolvedAt: hoursAgo(1),
+  },
+];
 
 /** Build a fresh seed object (fakeDataProvider mutates its data in place). */
 export function previewSeed() {
   return {
     posts: structuredClone(posts),
     authors: structuredClone(authors),
+    comments: structuredClone(comments),
   };
 }
 
