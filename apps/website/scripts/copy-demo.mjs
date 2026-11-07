@@ -19,7 +19,14 @@
 // loads `/demo/assets/*` and the demo's router renders the route. The status is
 // 404, which is fine for a client-rendered demo — see docs/deploying.md.
 import { execFileSync } from "node:child_process";
-import { copyFileSync, cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import {
+  copyFileSync,
+  cpSync,
+  existsSync,
+  mkdirSync,
+  realpathSync,
+  rmSync,
+} from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -73,4 +80,16 @@ function main() {
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) main();
+/**
+ * True when this module is the script Node was asked to run.
+ *
+ * Node resolves a module through symlinks, so `import.meta.url` is a realpath
+ * while `process.argv[1]` is the path as typed. Realpath the argument too, or a
+ * checkout reached through a symlink (macOS `/tmp` is `/private/tmp`) makes the
+ * two disagree, `main()` never runs, and the build ships no demos with no error.
+ */
+export function isMain(moduleUrl, argvPath) {
+  return Boolean(argvPath) && moduleUrl === pathToFileURL(realpathSync(argvPath)).href;
+}
+
+if (isMain(import.meta.url, process.argv[1])) main();

@@ -2,12 +2,22 @@
 // `404.html` nearest the requested path, so `/demo/posts` needs `demo/404.html`
 // or it lands on the docs site's shell instead of the demo's.
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, it } from "node:test";
+import { pathToFileURL } from "node:url";
 
-import { DEMOS, copyDemoBuild } from "./copy-demo.mjs";
+import { DEMOS, copyDemoBuild, isMain } from "./copy-demo.mjs";
 
 /** A stand-in for one demo's vite output: an index.html plus a hashed asset. */
 const fixtureDist = (dir) => {
@@ -26,6 +36,50 @@ describe("DEMOS", () => {
         ["vue-demo", "@chelone/vue-demo"],
       ],
     );
+  });
+});
+
+describe("isMain", () => {
+  let dir;
+
+  afterEach(() => {
+    if (dir) rmSync(dir, { recursive: true, force: true });
+  });
+
+  /** A script on disk, plus a folder that reaches it through a symlink. */
+  const paths = () => {
+    dir = mkdtempSync(join(tmpdir(), "copy-demo-main-"));
+    const script = join(dir, "copy-demo.mjs");
+    writeFileSync(script, "");
+    symlinkSync(dir, join(dir, "checkout"));
+    return {
+      // What Node reports for the module: the realpath it resolved to.
+      moduleUrl: pathToFileURL(realpathSync(script)).href,
+      direct: script,
+      linked: join(dir, "checkout", "copy-demo.mjs"),
+    };
+  };
+
+  it("runs the script when the checkout is reached through a symlink", () => {
+    const { moduleUrl, linked } = paths();
+    assert.equal(isMain(moduleUrl, linked), true);
+  });
+
+  it("runs the script when the path is typed directly", () => {
+    const { moduleUrl, direct } = paths();
+    assert.equal(isMain(moduleUrl, direct), true);
+  });
+
+  it("stays false for a test file that only imports the module", () => {
+    const { moduleUrl, direct } = paths();
+    const testFile = join(dir, "copy-demo.test.mjs");
+    writeFileSync(testFile, "");
+    assert.equal(isMain(moduleUrl, testFile), false);
+    assert.equal(isMain(moduleUrl, direct), true);
+  });
+
+  it("stays false with no script path", () => {
+    assert.equal(isMain(import.meta.url, undefined), false);
   });
 });
 
