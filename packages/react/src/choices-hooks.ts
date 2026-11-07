@@ -1,4 +1,5 @@
 import type {
+  ChoiceRecord,
   ChoicesController,
   ChoicesControllerContext,
   ChoicesControllerOptions,
@@ -10,6 +11,7 @@ import type {
   SourcePath,
 } from "@chelone/core";
 import {
+  choiceListsOf,
   createChoicesController,
   getAtPath,
   noop,
@@ -28,8 +30,8 @@ import {
 import { type CheloneContextValue, useCheloneContext } from "./context";
 import { useTranslate } from "./i18n-hooks";
 
-/** An erased choice record — choices carry arbitrary shapes (`{id, name, ...}`). */
-export type ChoiceRecord = Record<string, unknown>;
+/** An erased choice record — choices carry arbitrary shapes (`{id, name, ...}`). Core owns the type; both adapters re-export it. */
+export type { ChoiceRecord };
 
 /**
  * The unified choices context every choice input consumes — a reference-backed
@@ -232,14 +234,14 @@ const readChoicePath = (choice: ChoiceRecord, path: string): unknown =>
 export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
   options: UseChoicesOptions<TChoice> = {},
 ): UseChoicesResult<TChoice> {
-  // Erased to the loose choice: the `"name"`/`"id"`/`"disabled"` defaults are
-  // paths a `TChoice` need not have, and `readChoicePath` takes any string.
-  const {
-    optionText = "name",
-    optionValue = "id",
-    disableValue = "disabled",
-    translateChoice = true,
-  } = options as UseChoicesOptions;
+  // The `"name"`/`"id"`/`"disabled"` defaults are paths a `TChoice` need not
+  // have, so each lands on a plain local: `readChoicePath` takes any string,
+  // and only a formatter needs `TChoice`.
+  const optionText: ((choice: TChoice) => string) | string =
+    options.optionText ?? "name";
+  const optionValue: string = options.optionValue ?? "id";
+  const disableValue: string = options.disableValue ?? "disabled";
+  const translateChoice: boolean = options.translateChoice ?? true;
   const translate = useTranslate();
 
   return useMemo<UseChoicesResult<TChoice>>(
@@ -319,11 +321,13 @@ export function useReferenceInput<
     controller.getSnapshot,
   );
 
-  return useMemo<ChoicesContextValue>(
-    () => ({
-      allChoices: snapshot.allChoices as ChoiceRecord[],
-      availableChoices: snapshot.availableChoices as ChoiceRecord[],
-      selectedChoices: snapshot.selectedChoices as ChoiceRecord[],
+  return useMemo<ChoicesContextValue>(() => {
+    const { allChoices, availableChoices, selectedChoices } =
+      choiceListsOf(snapshot);
+    return {
+      allChoices,
+      availableChoices,
+      selectedChoices,
       total: snapshot.total,
       isPending: snapshot.isPending,
       isFetching: snapshot.isFetching,
@@ -343,7 +347,6 @@ export function useReferenceInput<
       setFilters: controller.setFilters,
       setValue: controller.setValue,
       refetch: controller.refetch,
-    }),
-    [snapshot, controller],
-  );
+    };
+  }, [snapshot, controller]);
 }
