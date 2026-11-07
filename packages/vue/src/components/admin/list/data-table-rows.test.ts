@@ -77,7 +77,7 @@ function mountTable(
                 {
                   default: () => [
                     h(probe),
-                    h(DataTable, props, {
+                    h(DataTable<LooseRecord>, props, {
                       default: () => h(DataTableCol, { source: "title" }),
                       ...slots,
                     }),

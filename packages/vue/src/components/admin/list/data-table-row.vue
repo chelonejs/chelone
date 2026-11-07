@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<DataTableRow>` — one body row of a `<DataTable>`, the Vue analog of
  * `@chelone/react`'s `DataTableRow`. It provides the row's record (so slotted
@@ -14,37 +14,27 @@
  * toggling it stops propagation so it never triggers the row-click navigation.
  */
 
-import type { Identifier, LooseRecord } from "@chelone/core";
-import { computed, inject, provide, ref, watch } from "vue";
+import type { Identifier, LooseRecord, ResourceRecord } from "@chelone/core";
+import { computed, provide } from "vue";
 import { useListContext } from "../../../list/list-context";
-import {
-  RecordContextKey,
-  type RecordValue,
-} from "../../../record/record-context";
+import { provideRecordContext } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useRouterAdapterOptional } from "../../../router/adapter";
 import { useCreatePath } from "../../../router/nav-composables";
 import Button from "../../ui/button.vue";
 import Checkbox from "../../ui/checkbox.vue";
 import { TableCell, TableRow } from "../../ui/table";
-import { DataTablePassKey, DataTableRowsKey } from "./data-table-context";
+import { DataTablePassKey, useDataTableRows } from "./data-table-context";
 import { ChevronDownIcon } from "../buttons/icons";
 import { ChevronRightIcon } from "./list-icons";
 
 const props = defineProps<{
-  record: LooseRecord;
+  record: TRecord;
   hasBulkActions?: boolean;
 }>();
 
 // Publish the row record (reactive ref) + the data render pass to the columns.
-const recordRef = ref<RecordValue>(props.record);
-watch(
-  () => props.record,
-  (next) => {
-    recordRef.value = next;
-  },
-);
-provide(RecordContextKey, recordRef);
+provideRecordContext(computed(() => props.record));
 provide(DataTablePassKey, "data");
 
 const list = useListContext();
@@ -64,7 +54,7 @@ const adapter = useRouterAdapterOptional();
 const resource = useResourceContext();
 const navigate = adapter?.useNavigate();
 const createPath = adapter ? useCreatePath() : undefined;
-const rows = inject(DataTableRowsKey, null);
+const rows = useDataTableRows<TRecord>();
 
 const link = computed(() => {
   const rowClick = rows?.rowClick.value ?? "edit";

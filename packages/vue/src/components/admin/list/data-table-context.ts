@@ -13,7 +13,12 @@
  * slot content" pattern.
  */
 
-import type { CreatePathType, Identifier, LooseRecord } from "@chelone/core";
+import type {
+  CreatePathType,
+  Identifier,
+  LooseRecord,
+  ResourceRecord,
+} from "@chelone/core";
 import {
   defineComponent,
   type InjectionKey,
@@ -77,14 +82,14 @@ export const ColumnsOutlet = defineComponent({
 });
 
 /** What a row click does: a link type, `"expand"`, `"toggleSelection"` or nothing. */
-export type DataTableRowClick =
+export type DataTableRowClick<TRecord extends ResourceRecord = LooseRecord> =
   | "edit"
   | "show"
   | "expand"
   | "toggleSelection"
   | false
   | ((
-      record: LooseRecord,
+      record: TRecord,
       id: Identifier,
     ) => CreatePathType | "expand" | "toggleSelection" | false);
 
@@ -93,16 +98,33 @@ export type DataTableRowClick =
  * ids live in `<DataTable>` so the header's expand-all button and every row's
  * toggle act on the same state.
  */
-export interface DataTableRowsContext {
-  rowClick: Ref<DataTableRowClick>;
+export interface DataTableRowsContext<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  rowClick: Ref<DataTableRowClick<TRecord>>;
   /** True when the `#expand` slot is passed. */
   expandEnabled: Ref<boolean>;
   expandedIds: Ref<Identifier[]>;
   toggleExpand: (id: Identifier) => void;
   /** Whether the record can expand (true when no `isRowExpandable` is set). */
-  canExpand: (record: LooseRecord) => boolean;
+  canExpand: (record: TRecord) => boolean;
 }
 
-export const DataTableRowsKey: InjectionKey<DataTableRowsContext> = Symbol(
-  "chelone-data-table-rows",
-);
+const DataTableRowsKey: InjectionKey<DataTableRowsContext<ResourceRecord>> =
+  Symbol("chelone-data-table-rows");
+
+/** Publish the table's row behaviour to its rows, typed at the table's record. */
+export function provideDataTableRows<TRecord extends ResourceRecord>(
+  context: DataTableRowsContext<TRecord>,
+): void {
+  // type-escape: an injection key cannot carry the table's record type; `useDataTableRows` reads it back at the same one
+  provide(DataTableRowsKey, context as DataTableRowsContext<ResourceRecord>);
+}
+
+/** The ambient table's row behaviour, or `null` outside a `<DataTable>`. */
+export function useDataTableRows<
+  TRecord extends ResourceRecord = LooseRecord,
+>(): DataTableRowsContext<TRecord> | null {
+  // type-escape: the table published its context at its own record type, which the row names
+  return inject(DataTableRowsKey, null) as DataTableRowsContext<TRecord> | null;
+}

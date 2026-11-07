@@ -5,6 +5,7 @@ import {
   getDataTableColumnId,
   type Identifier,
   type LooseRecord,
+  type ResourceRecord,
   type SortPayload,
   type SourceProp,
 } from "@chelone/core";
@@ -76,28 +77,36 @@ type DataTableSize = "small" | "medium";
 const DataTableSizeContext = createContext<DataTableSize>("medium");
 const useDataTableSizeContext = () => use(DataTableSizeContext);
 
-interface DataTableExpandProps {
+interface DataTableExpandProps<TRecord extends ResourceRecord = LooseRecord> {
   id: Identifier;
-  record: LooseRecord;
+  record: TRecord;
   resource: string;
 }
 
-interface DataTableBodyProps {
+interface DataTableBodyProps<TRecord extends ResourceRecord = LooseRecord> {
   children?: ReactNode;
-  rowClassName?: (record: LooseRecord, rowIndex: number) => string | undefined;
+  rowClassName?: (record: TRecord, rowIndex: number) => string | undefined;
 }
 
-interface DataTableExpandContextValue {
-  expand: ReactElement | ComponentType<DataTableExpandProps> | null;
+interface DataTableExpandContextValue<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  expand: ReactElement | ComponentType<DataTableExpandProps<TRecord>> | null;
   expandedIds: Identifier[];
   toggleExpand: (id: Identifier) => void;
   setExpandedIds: (ids: Identifier[]) => void;
   expandSingle: boolean;
-  isRowExpandable?: (record: LooseRecord) => boolean;
+  isRowExpandable?: (record: TRecord) => boolean;
 }
+// A context cannot carry the table's record type, so it holds the value at
+// `ResourceRecord`: the table casts it in and the hooks below cast it back out.
 const DataTableExpandContext =
-  createContext<DataTableExpandContextValue | null>(null);
-const useDataTableExpandContext = () => use(DataTableExpandContext);
+  createContext<DataTableExpandContextValue<ResourceRecord> | null>(null);
+const useDataTableExpandContext = <
+  TRecord extends ResourceRecord = LooseRecord,
+>() =>
+  // type-escape: the table published its expand context at its own record type, which the caller names
+  use(DataTableExpandContext) as DataTableExpandContextValue<TRecord> | null;
 
 /**
  * Whether the current DataTable renders selection checkboxes. Set by the top
@@ -132,7 +141,9 @@ const useDataTableHasBulk = () => use(DataTableBulkContext);
  *   </DataTable>
  * </List>
  */
-function DataTable(props: DataTableProps) {
+function DataTable<TRecord extends ResourceRecord = LooseRecord>(
+  props: DataTableProps<TRecord>,
+) {
   const {
     children,
     className,
@@ -151,7 +162,7 @@ function DataTable(props: DataTableProps) {
     defaultHiddenColumns,
   } = props;
 
-  const { data, isPending } = useListContext();
+  const { data, isPending } = useListContext<TRecord>();
   const resource = useResourceContext();
 
   const elements = Children.toArray(children);
@@ -206,27 +217,35 @@ function DataTable(props: DataTableProps) {
     },
     [expandSingle],
   );
-  const expandContextValue = useMemo<DataTableExpandContextValue | null>(
-    () =>
-      expand
-        ? {
-            expand,
-            expandedIds,
-            toggleExpand,
-            setExpandedIds,
-            expandSingle,
-            isRowExpandable,
-          }
-        : null,
-    [expand, expandedIds, toggleExpand, expandSingle, isRowExpandable],
-  );
+  const expandContextValue =
+    useMemo<DataTableExpandContextValue<TRecord> | null>(
+      () =>
+        expand
+          ? {
+              expand,
+              expandedIds,
+              toggleExpand,
+              setExpandedIds,
+              expandSingle,
+              isRowExpandable,
+            }
+          : null,
+      [expand, expandedIds, toggleExpand, expandSingle, isRowExpandable],
+    );
+
+  const erasedExpandContext =
+    // type-escape: the context holds the value at `ResourceRecord`; the hooks read it back at this table's record
+    expandContextValue as DataTableExpandContextValue<ResourceRecord> | null;
 
   const nbColumns = visibleChildren.length;
 
   return (
-    <DataTableRowClickContext.Provider value={rowClick ?? "edit"}>
+    <DataTableRowClickContext.Provider
+      // type-escape: the context holds `rowClick` at `ResourceRecord`; the row reads it back at this table's record
+      value={(rowClick ?? "edit") as DataTableProps<ResourceRecord>["rowClick"]}
+    >
       <DataTableBulkContext.Provider value={hasBulkActions}>
-        <DataTableExpandContext.Provider value={expandContextValue}>
+        <DataTableExpandContext.Provider value={erasedExpandContext}>
           <DataTableSizeContext.Provider value={size}>
             <DataTableHoverContext.Provider value={hover ?? true}>
               {isPending ? (
@@ -271,8 +290,12 @@ const DataTableHoverContext = createContext<boolean>(true);
 const useDataTableHoverContext = () => use(DataTableHoverContext);
 
 const DataTableRowClickContext =
-  createContext<DataTableProps["rowClick"]>("edit");
-const useDataTableRowClickContext = () => use(DataTableRowClickContext);
+  createContext<DataTableProps<ResourceRecord>["rowClick"]>("edit");
+const useDataTableRowClickContext = <
+  TRecord extends ResourceRecord = LooseRecord,
+>() =>
+  // type-escape: the table published its `rowClick` at its own record type, which the caller names
+  use(DataTableRowClickContext) as DataTableProps<TRecord>["rowClick"];
 
 DataTable.Col = DataTableColumn;
 DataTable.NumberCol = DataTableNumberColumn;
@@ -373,10 +396,13 @@ function ExpandAllButton() {
 /* -------------------------------------------------------------------------- */
 
 /** Body of a DataTable — one `<DataTableRow>` per record in the current page. */
-function DataTableBody({ children, rowClassName }: DataTableBodyProps) {
-  const { data } = useListContext<LooseRecord>();
+function DataTableBody<TRecord extends ResourceRecord = LooseRecord>({
+  children,
+  rowClassName,
+}: DataTableBodyProps<TRecord>) {
+  const { data } = useListContext<TRecord>();
   const hasBulkActions = useDataTableHasBulk();
-  const expandContext = useDataTableExpandContext();
+  const expandContext = useDataTableExpandContext<TRecord>();
   const resource = useResourceContext();
   const nbVisibleChildren = Children.count(children);
   const expandColSpan =
@@ -397,7 +423,7 @@ function DataTableBody({ children, rowClassName }: DataTableBodyProps) {
           : null;
         return (
           <RecordContextProvider value={record} key={key}>
-            <DataTableRow className={rowClassName?.(record, rowIndex)}>
+            <DataTableRow<TRecord> className={rowClassName?.(record, rowIndex)}>
               {children}
             </DataTableRow>
             {expandContext ? (
@@ -419,7 +445,7 @@ function DataTableBody({ children, rowClassName }: DataTableBodyProps) {
 }
 
 /** A row — wires row-click navigation + a row-selection checkbox. */
-function DataTableRow({
+function DataTableRow<TRecord extends ResourceRecord = LooseRecord>({
   children,
   className,
 }: {
@@ -429,10 +455,10 @@ function DataTableRow({
   const { selectedIds, toggleItem } = useListContext();
   const hasBulkActions = useDataTableHasBulk();
   const hover = useDataTableHoverContext();
-  const rowClick = useDataTableRowClickContext();
-  const expandContext = useDataTableExpandContext();
+  const rowClick = useDataTableRowClickContext<TRecord>();
+  const expandContext = useDataTableExpandContext<TRecord>();
 
-  const record = useRecordContext();
+  const record = useRecordContext<TRecord>();
   if (!record) {
     throw new Error("DataTableRow can only be used within a RecordContext");
   }
@@ -772,10 +798,10 @@ interface DataTableNumberColumnProps extends DataTableColumnProps {
   options?: Intl.NumberFormatOptions;
 }
 
-interface DataTableProps {
+interface DataTableProps<TRecord extends ResourceRecord = LooseRecord> {
   children: ReactNode;
   className?: string;
-  rowClassName?: (record: LooseRecord, rowIndex: number) => string | undefined;
+  rowClassName?: (record: TRecord, rowIndex: number) => string | undefined;
   /**
    * Bulk-action children rendered in the selection toolbar. `false` (default)
    * disables selection entirely, so pass your own bulk children (or a
@@ -788,11 +814,11 @@ interface DataTableProps {
    * Element or function component rendered as the expand panel under each row.
    * When provided, a chevron toggle column is added at the start of every row.
    */
-  expand?: ReactElement | ComponentType<DataTableExpandProps>;
+  expand?: ReactElement | ComponentType<DataTableExpandProps<TRecord>>;
   /** Expanding a row collapses any previously-expanded one. Default `false`. */
   expandSingle?: boolean;
   /** Predicate deciding whether a given record can be expanded. */
-  isRowExpandable?: (record: LooseRecord) => boolean;
+  isRowExpandable?: (record: TRecord) => boolean;
   /** Disable row hover highlighting. Default `true` (hover on). */
   hover?: boolean;
   /** Row density. `"small"` tightens cell padding; `"medium"` (default) is standard. */
@@ -805,7 +831,7 @@ interface DataTableProps {
   /** Ids of the columns hidden until a choice is stored. */
   defaultHiddenColumns?: string[];
   /** Override the table body component. */
-  body?: ComponentType<DataTableBodyProps>;
+  body?: ComponentType<DataTableBodyProps<TRecord>>;
   /** Override the table head component. */
   head?: ComponentType<{ children: ReactNode }>;
   /**
@@ -815,7 +841,7 @@ interface DataTableProps {
   rowClick?:
     | string
     | false
-    | ((record: LooseRecord, id: Identifier) => string | false);
+    | ((record: TRecord, id: Identifier) => string | false);
 }
 
 export {
@@ -825,6 +851,7 @@ export {
   DataTableColumn,
   type DataTableColumnProps,
   DataTableEmpty,
+  type DataTableExpandProps,
   DataTableHead,
   DataTableHeadCell,
   DataTableNumberColumn,

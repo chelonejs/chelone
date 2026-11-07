@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "body",
-      "type": "ComponentType<DataTableBodyProps>",
+      "type": "ComponentType<DataTableBodyProps<TRecord>>",
       "optional": true,
       "comment": "Override the table body component."
     },
@@ -39,7 +39,7 @@
     },
     {
       "name": "expand",
-      "type": "ReactElement<unknown, string | JSXElementConstructor<any>> | ComponentType<DataTableExpandProps>",
+      "type": "ReactElement<unknown, string | JSXElementConstructor<any>> | ComponentType<DataTableExpandProps<TRecord>>",
       "optional": true,
       "comment": "Element or function component rendered as the expand panel under each row.\nWhen provided, a chevron toggle column is added at the start of every row."
     },
@@ -63,19 +63,19 @@
     },
     {
       "name": "isRowExpandable",
-      "type": "(record: LooseRecord) => boolean",
+      "type": "(record: TRecord) => boolean",
       "optional": true,
       "comment": "Predicate deciding whether a given record can be expanded."
     },
     {
       "name": "rowClassName",
-      "type": "(record: LooseRecord, rowIndex: number) => string | undefined",
+      "type": "(record: TRecord, rowIndex: number) => string | undefined",
       "optional": true,
       "comment": ""
     },
     {
       "name": "rowClick",
-      "type": "string | false | (record: LooseRecord, id: Identifier) => string | false",
+      "type": "string | false | (record: TRecord, id: Identifier) => string | false",
       "optional": true,
       "comment": "Row-click action: `\"edit\"` (default) | `\"show\"` | `\"expand\"` |\n`\"toggleSelection\"` | `false` | a path string | `(record, id) => …`."
     },
