@@ -16,6 +16,8 @@ import { defineConfig } from "vite";
 const appSrc = fileURLToPath(new URL("./src", import.meta.url));
 
 export default defineConfig({
+  // The website serves this build at `/vue-demo/`, beside the React demo at `/demo/`.
+  base: "/vue-demo/",
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {

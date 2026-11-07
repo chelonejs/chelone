@@ -1,4 +1,8 @@
-import { formatJsonValue, type LooseRecord } from "@chelone/core";
+import {
+  formatJsonValue,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import type { HTMLAttributes, ReactNode } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
@@ -6,7 +10,7 @@ import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface JsonFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface JsonFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends ElementFieldProps<RecordType, HTMLAttributes<HTMLPreElement>> {
   /** Spaces per indentation level. Defaults to 2. */
   indent?: number;
@@ -31,7 +35,7 @@ interface JsonFieldProps<RecordType extends LooseRecord = LooseRecord>
  *   </Show>
  * );
  */
-function JsonField<RecordType extends LooseRecord = LooseRecord>({
+function JsonField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,

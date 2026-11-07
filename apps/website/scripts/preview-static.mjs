@@ -32,6 +32,9 @@ createServer((req, res) => {
   let fsPath = join(ROOT, normalize(urlPath));
   if (existsSync(fsPath) && statSync(fsPath).isDirectory()) fsPath = join(fsPath, "index.html");
   if (existsSync(fsPath) && statSync(fsPath).isFile()) return send(res, 200, fsPath);
+  // A demo's own client routes fall back to that demo.
+  const demo = /^\/(demo|vue-demo)\//.exec(urlPath)?.[1];
+  if (demo) return send(res, 200, join(ROOT, demo, "index.html"));
   // SPA fallback — hydrate the client router for non-prerendered routes.
   return send(res, 200, join(ROOT, "404.html"));
 }).listen(PORT, () => console.log(`[preview-static] serving ${ROOT} on :${PORT}`));

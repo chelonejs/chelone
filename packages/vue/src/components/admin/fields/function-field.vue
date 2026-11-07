@@ -1,8 +1,8 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link FunctionField}. */
-export interface FunctionFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface FunctionFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   record?: RecordType;
   /** Optional source, forwarded to the default slot for convenience. */
   source?: SourceProp<RecordType>;
@@ -10,7 +10,7 @@ export interface FunctionFieldProps<RecordType extends LooseRecord = LooseRecord
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<FunctionField>` — renders derived content from the ambient record, the Vue
  * analog of `@chelone/react`'s `fields/function-field.tsx`. Useful for composing

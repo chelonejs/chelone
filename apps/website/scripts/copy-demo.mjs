@@ -6,6 +6,7 @@
 // The demo is built with `base: "/demo/"` + `<BrowserRouter basename="/demo">`
 // (see apps/demo/{vite.config.ts,src/App.tsx}), so every asset URL and client
 // route already resolves under `/demo/`. This script only relocates the bundle.
+// The Vue demo does the same under `/vue-demo/`.
 //
 // A static host serving `build/client/` then serves the working admin at
 // `/demo/index.html`; the landing/footer "Demo" links are plain <a href="/demo/">
@@ -17,25 +18,32 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const websiteRoot = resolve(__dirname, "..");
-const demoRoot = resolve(websiteRoot, "../demo");
-const demoDist = resolve(demoRoot, "dist");
-const dest = resolve(websiteRoot, "build/client/demo");
 
-// Build the demo (its own vite build → apps/demo/dist with base "/demo/").
-// pnpm resolves the workspace member; stdio inherits so build errors surface.
-console.log("[copy-demo] building @chelone/demo…");
-execFileSync("pnpm", ["--filter", "@chelone/demo", "build"], {
-  cwd: websiteRoot,
-  stdio: "inherit",
-});
+const DEMOS = [
+  { app: "demo", name: "@chelone/demo" },
+  { app: "vue-demo", name: "@chelone/vue-demo" },
+];
 
-if (!existsSync(demoDist)) {
-  throw new Error(`[copy-demo] demo build produced no dist at ${demoDist}`);
+for (const { app, name } of DEMOS) {
+  const dist = resolve(websiteRoot, "..", app, "dist");
+  const dest = resolve(websiteRoot, "build/client", app);
+
+  // Build the demo (its own vite build, with its base under the app's name).
+  // pnpm resolves the workspace member; stdio inherits so build errors surface.
+  console.log(`[copy-demo] building ${name}…`);
+  execFileSync("pnpm", ["--filter", name, "build"], {
+    cwd: websiteRoot,
+    stdio: "inherit",
+  });
+
+  if (!existsSync(dist)) {
+    throw new Error(`[copy-demo] ${name} build produced no dist at ${dist}`);
+  }
+
+  // Fresh copy each run (avoid stale assets from a prior build lingering).
+  rmSync(dest, { recursive: true, force: true });
+  mkdirSync(dest, { recursive: true });
+  cpSync(dist, dest, { recursive: true });
+
+  console.log(`[copy-demo] copied ${dist} → ${dest}`);
 }
-
-// Fresh copy each run (avoid stale assets from a prior build lingering).
-rmSync(dest, { recursive: true, force: true });
-mkdirSync(dest, { recursive: true });
-cpSync(demoDist, dest, { recursive: true });
-
-console.log(`[copy-demo] copied ${demoDist} → ${dest}`);
