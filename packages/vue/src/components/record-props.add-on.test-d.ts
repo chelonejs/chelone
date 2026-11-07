@@ -44,14 +44,14 @@ describe("add-on field records", () => {
   });
 
   it("a field rejects a record with no id", () => {
+    // Named, so the error lands on the call line: a wrapped property would get
+    // the error to itself and leave the directive unused.
+    const noId = { title: "x" };
     // @ts-expect-error a record has an id
-    assertType<MdxFieldProps>({ source: "body", record: { title: "x" } });
+    assertType<MdxFieldProps>({ source: "body", record: noId });
     // @ts-expect-error a record has an id
-    assertType<RichTextFieldProps>({ source: "body", record: { title: "x" } });
+    assertType<RichTextFieldProps>({ source: "body", record: noId });
     // @ts-expect-error a record has an id
-    assertType<MonacoJsonFieldProps>({
-      source: "body",
-      record: { title: "x" },
-    });
+    assertType<MonacoJsonFieldProps>({ source: "body", record: noId });
   });
 });
