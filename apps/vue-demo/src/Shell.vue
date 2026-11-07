@@ -15,6 +15,7 @@
 import {
   demoAssistantTools,
   demoAssistantTransport,
+  demoMenuKey,
   TOUR_ID,
   tourSteps,
 } from "@chelone/demo-data";
@@ -39,6 +40,8 @@ import {
   ThemeProvider,
   UserMenu,
   useBasename,
+  useGetResourceLabel,
+  useTranslate,
 } from "@chelone/vue";
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
 import { computed } from "vue";
@@ -102,6 +105,11 @@ function openDocs() {
   window.open("/docs/", "_blank", "noopener");
 }
 
+const translate = useTranslate();
+const getResourceLabel = useGetResourceLabel();
+/** A demo string in the current locale, with the English text as its default. */
+const t = (key: string, english: string) => translate(key, { _: english });
+
 // Posts get a live unread badge; the other resources sit under their area.
 // The panel is repeated here because the badge clears while /posts is open:
 // adding a post from any other page is the only way to see it. It sits at the
@@ -117,7 +125,13 @@ function openDocs() {
             <DemoSidebar>
               <div class="px-2 pt-2">
                 <MenuLive
-                  :items="[{ to: '/posts', resource: 'posts', label: 'Posts' }]"
+                  :items="[
+                    {
+                      to: '/posts',
+                      resource: 'posts',
+                      label: getResourceLabel('posts'),
+                    },
+                  ]"
                 />
               </div>
               <div class="px-4 py-2">
@@ -127,14 +141,14 @@ function openDocs() {
               <ResourceMenuItemGroup
                 v-for="{ area, resources, pages } in areas"
                 :key="area"
-                :label="area"
+                :label="t(demoMenuKey('group', area), area)"
                 :resources="resources ?? []"
               >
                 <MenuItemLink
                   v-for="{ path, title } in pages"
                   :key="path"
                   :to="`/${path}`"
-                  :label="title"
+                  :label="t(demoMenuKey('page', path), title)"
                   :keyboard-shortcut="shortcuts.get(path)"
                 >
                   <template #icon>

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { fileName, frameSee, MARKER, section } from "./showcase-shots.mjs";
+import { fileName, inVueFrame, MARKER, section } from "./showcase-shots.mjs";
 import { componentsIn, docsPageHasDemo, owner, problems, targets, vueDocsShot } from "./showcase.mjs";
 
 const shot = (path) => ({ path, see: "role=textbox" });
@@ -44,15 +44,11 @@ describe("vueDocsShot", () => {
   });
 });
 
-describe("frameSee", () => {
-  it("drops the docs-page scope so the Vue demo frame can match", () => {
-    assert.equal(frameSee(".not-prose #main-content"), "#main-content");
-    assert.equal(frameSee('.not-prose >> [data-slot="block-editor"]'), '[data-slot="block-editor"]');
-  });
-
-  it("leaves a selector with no docs-page scope alone", () => {
-    assert.equal(frameSee('role=link[name="Unread posts"]'), 'role=link[name="Unread posts"]');
-    assert.equal(frameSee(".not-prose-thing #x"), ".not-prose-thing #x");
+describe("inVueFrame", () => {
+  it("is true only for a Vue docs shot, whose demo sits in the docs page's frame", () => {
+    assert.ok(inVueFrame({ adapter: "vue", view: "docs" }));
+    assert.ok(!inVueFrame({ adapter: "vue", view: "demo" }));
+    assert.ok(!inVueFrame({ adapter: "react", view: "docs" }));
   });
 });
 

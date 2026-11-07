@@ -13,6 +13,7 @@ import {
   PivotGrid,
   ResourceContextProvider,
   useListController,
+  useTranslate,
 } from "@chelone/react";
 import { BarChart, DonutChart, TrendChart } from "@chelone/react/charts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +25,7 @@ const money = new Intl.NumberFormat("en-US", {
 });
 
 export default function Dashboard() {
+  const translate = useTranslate();
   // 16 orders: one page holds every record the pivot needs.
   const list = useListController("orders", {
     perPage: 100,
@@ -36,31 +38,37 @@ export default function Dashboard() {
   return (
     <ResourceContextProvider value="orders">
       <div className="flex flex-col gap-6">
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {translate("demo.dashboard.title", { _: "Dashboard" })}
+        </h1>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard
-            label="Revenue"
+            label={translate("demo.dashboard.revenue", { _: "Revenue" })}
             value={metrics.revenue}
             format={money.format}
             delta={metrics.revenueDelta}
             loading={loading}
           />
           <MetricCard
-            label="Orders"
+            label={translate("demo.dashboard.orders", { _: "Orders" })}
             value={metrics.orders}
             delta={metrics.ordersDelta}
             loading={loading}
           />
           <MetricCard
-            label="Average order"
+            label={translate("demo.dashboard.average_order", {
+              _: "Average order",
+            })}
             value={metrics.averageOrder}
             format={money.format}
             delta={metrics.averageOrderDelta}
             loading={loading}
           />
           <MetricCard
-            label="Pending orders"
+            label={translate("demo.dashboard.pending_orders", {
+              _: "Pending orders",
+            })}
             value={metrics.pending}
             loading={loading}
           />
@@ -69,7 +77,9 @@ export default function Dashboard() {
         <div className="grid gap-4 lg:grid-cols-3">
           <TrendChart
             className="lg:col-span-2"
-            title="Revenue by delivery day"
+            title={translate("demo.dashboard.revenue_by_delivery_day", {
+              _: "Revenue by delivery day",
+            })}
             data={revenueByDay}
             xField="day"
             yField="revenue"
@@ -80,7 +90,9 @@ export default function Dashboard() {
             loading={loading}
           />
           <DonutChart
-            title="Orders by status"
+            title={translate("demo.dashboard.orders_by_status", {
+              _: "Orders by status",
+            })}
             data={ordersByStatus}
             labelField="status"
             valueField="orders"
@@ -91,7 +103,9 @@ export default function Dashboard() {
         <div className="grid gap-4 lg:grid-cols-2">
           <BarChart
             height={260}
-            title="Revenue by status"
+            title={translate("demo.dashboard.revenue_by_status", {
+              _: "Revenue by status",
+            })}
             data={revenueByStatus}
             xField="status"
             yField="revenue"
@@ -99,7 +113,11 @@ export default function Dashboard() {
           />
           <Card>
             <CardHeader>
-              <CardTitle>Order value by status and delivery slot</CardTitle>
+              <CardTitle>
+                {translate("demo.dashboard.order_value_by_status_and_slot", {
+                  _: "Order value by status and delivery slot",
+                })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ListContextProvider value={list}>
@@ -118,7 +136,9 @@ export default function Dashboard() {
         {/* The seeded jobs are cron jobs: idle, running or failed. */}
         <JobMonitor
           resource="jobs"
-          title="Running jobs"
+          title={translate("demo.dashboard.running_jobs", {
+            _: "Running jobs",
+          })}
           tabs={["running", "idle", "failed"]}
           typeSource="name"
           createdAtSource="last_run_at"

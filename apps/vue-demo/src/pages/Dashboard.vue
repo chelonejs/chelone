@@ -15,6 +15,7 @@ import {
   provideListContext,
   provideResourceContext,
   useListController,
+  useTranslate,
 } from "@chelone/vue";
 import { BarChart, DonutChart, TrendChart } from "@chelone/vue/charts";
 import { computed } from "vue";
@@ -25,6 +26,10 @@ const money = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 0,
 });
 const formatMoney = (value: number) => money.format(value);
+
+const translate = useTranslate();
+/** A demo string in the current locale, with the English text as its default. */
+const t = (key: string, english: string) => translate(key, { _: english });
 
 provideResourceContext("orders");
 // 16 orders: one page holds every record the pivot needs.
@@ -41,31 +46,33 @@ const stats = computed(() => dashboardStats(list.data ?? []));
 
 <template>
   <div class="flex flex-col gap-6">
-    <h1 class="text-2xl font-bold tracking-tight">Dashboard</h1>
+    <h1 class="text-2xl font-bold tracking-tight">
+      {{ t("demo.dashboard.title", "Dashboard") }}
+    </h1>
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <MetricCard
-        label="Revenue"
+        :label="t('demo.dashboard.revenue', 'Revenue')"
         :value="stats.metrics.revenue"
         :format="formatMoney"
         :delta="stats.metrics.revenueDelta"
         :loading="loading"
       />
       <MetricCard
-        label="Orders"
+        :label="t('demo.dashboard.orders', 'Orders')"
         :value="stats.metrics.orders"
         :delta="stats.metrics.ordersDelta"
         :loading="loading"
       />
       <MetricCard
-        label="Average order"
+        :label="t('demo.dashboard.average_order', 'Average order')"
         :value="stats.metrics.averageOrder"
         :format="formatMoney"
         :delta="stats.metrics.averageOrderDelta"
         :loading="loading"
       />
       <MetricCard
-        label="Pending orders"
+        :label="t('demo.dashboard.pending_orders', 'Pending orders')"
         :value="stats.metrics.pending"
         :loading="loading"
       />
@@ -74,7 +81,7 @@ const stats = computed(() => dashboardStats(list.data ?? []));
     <div class="grid gap-4 lg:grid-cols-3">
       <TrendChart
         class="lg:col-span-2"
-        title="Revenue by delivery day"
+        :title="t('demo.dashboard.revenue_by_delivery_day', 'Revenue by delivery day')"
         :data="stats.revenueByDay"
         x-field="day"
         y-field="revenue"
@@ -85,7 +92,7 @@ const stats = computed(() => dashboardStats(list.data ?? []));
         :loading="loading"
       />
       <DonutChart
-        title="Orders by status"
+        :title="t('demo.dashboard.orders_by_status', 'Orders by status')"
         :data="stats.ordersByStatus"
         label-field="status"
         value-field="orders"
@@ -96,7 +103,7 @@ const stats = computed(() => dashboardStats(list.data ?? []));
     <div class="grid gap-4 lg:grid-cols-2">
       <BarChart
         :height="260"
-        title="Revenue by status"
+        :title="t('demo.dashboard.revenue_by_status', 'Revenue by status')"
         :data="stats.revenueByStatus"
         x-field="status"
         y-field="revenue"
@@ -106,7 +113,7 @@ const stats = computed(() => dashboardStats(list.data ?? []));
         class="flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground shadow-sm"
       >
         <h2 class="px-6 leading-none font-semibold">
-          Order value by status and delivery slot
+          {{ t("demo.dashboard.order_value_by_status_and_slot", "Order value by status and delivery slot") }}
         </h2>
         <div class="px-6">
           <PivotGrid
@@ -123,7 +130,7 @@ const stats = computed(() => dashboardStats(list.data ?? []));
     <!-- The seeded jobs are cron jobs: idle, running or failed. -->
     <JobMonitor
       resource="jobs"
-      title="Running jobs"
+      :title="t('demo.dashboard.running_jobs', 'Running jobs')"
       :tabs="['running', 'idle', 'failed']"
       type-source="name"
       created-at-source="last_run_at"
