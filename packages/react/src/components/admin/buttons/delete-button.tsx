@@ -20,8 +20,10 @@
 
 import {
   definedParams,
+  isLooseRecord,
   type LooseRecord,
   type MutationMode,
+  type ResourceRecord,
   removeRecordsFromCache,
 } from "@chelone/core";
 import { useQueryClient } from "@tanstack/react-query";
@@ -44,10 +46,10 @@ import { useUndoable } from "../../../undoable-hooks";
 import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-interface DeleteButtonProps {
+interface DeleteButtonProps<TRecord extends ResourceRecord = LooseRecord> {
   label?: string;
   size?: "default" | "sm" | "lg" | "icon";
-  record?: LooseRecord;
+  record?: TRecord;
   onClick?: React.ReactEventHandler<HTMLButtonElement>;
   /**
    * `"undoable"` deletes optimistically with an Undo notification (no confirm
@@ -90,7 +92,9 @@ const defaultDestructiveClassName =
  *   </Edit>
  * );
  */
-function DeleteButton(props: DeleteButtonProps) {
+function DeleteButton<TRecord extends ResourceRecord = LooseRecord>(
+  props: DeleteButtonProps<TRecord>,
+) {
   const {
     label: labelProp,
     onClick,
@@ -104,7 +108,7 @@ function DeleteButton(props: DeleteButtonProps) {
     confirmColor = "primary",
     mutationMode = "pessimistic",
   } = props;
-  const record = useRecordContext(props);
+  const record = useRecordContext<TRecord>(props);
   const resource = useResourceContext(props);
   if (!resource) {
     throw new Error(
@@ -184,7 +188,7 @@ function DeleteButton(props: DeleteButtonProps) {
     event.stopPropagation();
     if (mutationMode === "undoable") {
       if (onClick) onClick(event);
-      if (record?.id == null) return;
+      if (!record || !isLooseRecord(record) || record.id == null) return;
       const id = record.id;
       const previousData = record;
       runUndoable({
@@ -210,7 +214,7 @@ function DeleteButton(props: DeleteButtonProps) {
     setOpen(false);
   };
   const handleDelete = async () => {
-    if (record?.id == null) return;
+    if (!record || !isLooseRecord(record) || record.id == null) return;
     await deleteOne(record.id, { previousData: record });
     setOpen(false);
     // The controller's default success already requests the list redirect;

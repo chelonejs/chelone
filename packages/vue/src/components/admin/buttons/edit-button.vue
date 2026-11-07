@@ -1,20 +1,18 @@
-<script lang="ts">
-import { definedParams, type LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import {
+  definedParams,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
+import type { RecordLinkButtonProps } from "./record-button-props";
 
 /** Props for {@link EditButton}. */
-export interface EditButtonProps {
-  /** Override the ambient record. */
-  record?: LooseRecord;
-  /** Override the ambient `<Resource>`. */
-  resource?: string;
-  /** Override the auto-translated label. */
-  label?: string;
-  /** Extra CSS class appended to the anchor. */
-  class?: string;
-}
+export interface EditButtonProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> extends RecordLinkButtonProps<TRecord> {}
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<EditButton>` — navigates to a record's edit page. The Vue twin of
  * `@chelone/react`'s `buttons/edit-button.tsx`. Reads the record from the
@@ -27,24 +25,21 @@ export interface EditButtonProps {
  * check is pending and when denied (allow when access control is unconfigured).
  */
 
-import { computed, inject } from "vue";
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useGetResourceLabel } from "../../../label/use-get-resource-label";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath } from "../../../router";
 import { useMenuAccess } from "../layout/use-menu-access";
 import { buttonVariants } from "../../ui/button-variants";
 import { PencilIcon } from "./icons";
 
-const props = defineProps<EditButtonProps>();
+const props = defineProps<EditButtonProps<TRecord>>();
 
 const resource = useResourceContext(props);
-// Inject the ambient record REF once (reactive) and honor a `record` prop
-// override — so an async-loading `<Show>`/`<Edit>` record flows through.
-const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
+const record = useRecordContextRef<TRecord | LooseRecord>(() => props.record);
 const createPath = useCreatePath();
 const getResourceLabel = useGetResourceLabel();
 const translate = useTranslate();

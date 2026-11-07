@@ -45,7 +45,7 @@
     },
     {
       "name": "record",
-      "type": "LooseRecord",
+      "type": "TRecord",
       "optional": true,
       "comment": ""
     },

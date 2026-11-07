@@ -1,20 +1,18 @@
-<script lang="ts">
-import { definedParams, type LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import {
+  definedParams,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
+import type { RecordLinkButtonProps } from "./record-button-props";
 
 /** Props for {@link ShowButton}. */
-export interface ShowButtonProps {
-  /** Override the ambient record. */
-  record?: LooseRecord;
-  /** Override the ambient `<Resource>`. */
-  resource?: string;
-  /** Override the auto-translated label. */
-  label?: string;
-  /** Extra CSS class appended to the anchor. */
-  class?: string;
-}
+export interface ShowButtonProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> extends RecordLinkButtonProps<TRecord> {}
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<ShowButton>` — navigates to a record's show page. The Vue twin of
  * `@chelone/react`'s `buttons/show-button.tsx`. Reads the record from the
@@ -27,22 +25,21 @@ export interface ShowButtonProps {
  * check is pending and when denied (allow when access control is unconfigured).
  */
 
-import { computed, inject } from "vue";
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useGetResourceLabel } from "../../../label/use-get-resource-label";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath } from "../../../router";
 import { useMenuAccess } from "../layout/use-menu-access";
 import { buttonVariants } from "../../ui/button-variants";
 import { EyeIcon } from "./icons";
 
-const props = defineProps<ShowButtonProps>();
+const props = defineProps<ShowButtonProps<TRecord>>();
 
 const resource = useResourceContext(props);
-const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
+const record = useRecordContextRef<TRecord | LooseRecord>(() => props.record);
 const createPath = useCreatePath();
 const getResourceLabel = useGetResourceLabel();
 const translate = useTranslate();
