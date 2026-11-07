@@ -68,6 +68,19 @@ describe("useResourceTranslation", () => {
     expect(result.current).toBe("My Label");
   });
 
+  it("keeps a string userText when options carry another fallback", () => {
+    const { result } = renderHook(
+      () =>
+        useResourceTranslation({
+          baseI18nKey: "chelone.action.update",
+          userText: "Mark champion",
+          options: { _: "Update" },
+        }),
+      { wrapper: makeWrapper() },
+    );
+    expect(result.current).toBe("Mark champion");
+  });
+
   it("translates baseI18nKey when no resourceI18nKey is given", () => {
     const { result } = renderHook(
       () => useResourceTranslation({ baseI18nKey: "chelone.action.delete" }),

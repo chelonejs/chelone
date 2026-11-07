@@ -33,6 +33,16 @@ describe("fakeDataProvider", () => {
     expect(r.total).toBe(2);
   });
 
+  it("getList returns copies, so an update does not change rows it already returned", async () => {
+    const dp = seed();
+    const before = await dp.getList("posts", {
+      sort: { field: "id", order: "ASC" },
+      pagination: { page: 1, perPage: 3 },
+    });
+    await dp.updateMany("posts", { ids: [1], data: { title: "changed" } });
+    expect(before.data.map((p) => p.title)).toEqual(["a", "b", "c"]);
+  });
+
   it("getList cursor-paginates with pageInfo", async () => {
     const dp = seed();
     const p1 = await dp.getList("posts", {
