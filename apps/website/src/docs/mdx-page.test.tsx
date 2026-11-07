@@ -246,7 +246,8 @@ it.each([
 );
 
 // Both block editor pages are hand-written MDX whose prose names components,
-// and their install block comes from the page's registry frontmatter.
+// and their install block comes from the page's registry frontmatter. Each has
+// a `basic` demo, so the page opens on its live preview.
 it.each([
   ["editing/block-editor-input", "BlockEditorInput"],
   ["viewing/block-doc-field", "BlockDocField"],
@@ -268,7 +269,7 @@ it.each([
       screen.getByText("pnpm dlx shadcn@latest add @chelone/block-editor"),
     ).toBeTruthy();
     expect(screen.getByRole("button", { name: "Vue" })).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
+    expect(screen.getByRole("button", { name: "preview" })).toBeTruthy();
   },
 );
 
