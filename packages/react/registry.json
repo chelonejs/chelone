@@ -3376,7 +3376,10 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-field-types"],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/lib-utils"
+      ],
       "dependencies": ["@chelone/core", "@chelone/react", "libphonenumber-js"],
       "categories": ["chelone", "fields"],
       "author": "Chelone <https://chelone.dev>"
