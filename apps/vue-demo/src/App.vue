@@ -107,6 +107,10 @@ const authProvider = makeDemoAuthProvider(store);
       :custom-routes="customRoutes"
     >
       <template #layout><Shell /></template>
+      <!-- Shell.vue renders the dashboard, since a #layout slot replaces the
+           shell that would. This empty slot keeps the index from redirecting to
+           the first resource. -->
+      <template #dashboard />
       <!-- A URL no route owns, such as /nowhere. -->
       <template #catchAll><NotFound /></template>
       <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
