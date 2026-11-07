@@ -142,15 +142,66 @@
   "bar-chart": null,
   "bbox-field": null,
   "bbox-input": null,
-  "block-doc-field": null,
+  "block-doc-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/block-doc-field",
+        "see": ".not-prose >> [data-slot=\"block-doc-field\"]"
+      },
+      "demo": {
+        "path": "/demo/landing-page",
+        "see": "section[aria-label=\"Landing page preview\"] >> [data-slot=\"block-doc-field\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/LandingPage",
+        "see": "section[aria-label=\"Landing page preview\"] >> [data-slot=\"block-doc-field\"]"
+      }
+    }
+  },
   "block-drag-handle": {
     "shownBy": "block-editor-input"
   },
   "block-drop-gap": {
     "shownBy": "block-editor-input"
   },
-  "block-editor": null,
-  "block-editor-input": null,
+  "block-editor": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/block-editor-input",
+        "see": ".not-prose >> [data-slot=\"block-editor\"] >> role=button[name=\"Add block\"]"
+      },
+      "demo": {
+        "path": "/demo/landing-page",
+        "see": "section[aria-label=\"Landing page editor\"] >> [data-slot=\"block-editor\"] >> role=button[name=\"Add block\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/LandingPage",
+        "see": "section[aria-label=\"Landing page editor\"] >> [data-slot=\"block-editor\"] >> role=button[name=\"Add block\"]"
+      }
+    }
+  },
+  "block-editor-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/block-editor-input",
+        "see": ".not-prose >> [data-slot=\"block-editor-input\"]"
+      },
+      "demo": {
+        "path": "/demo/landing-page",
+        "see": "section[aria-label=\"Landing page editor\"] >> [data-slot=\"block-editor-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/LandingPage",
+        "see": "section[aria-label=\"Landing page editor\"] >> [data-slot=\"block-editor-input\"]"
+      }
+    }
+  },
   "block-editor-shell": {
     "shownBy": "block-editor-input"
   },
