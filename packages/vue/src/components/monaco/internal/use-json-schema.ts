@@ -1,3 +1,4 @@
+import { MODEL_PREFIX } from "@chelone/core";
 import type * as Monaco from "monaco-editor";
 import {
   computed,
@@ -10,9 +11,6 @@ import {
 type JsonDefaults = typeof Monaco.json.jsonDefaults;
 type Options = JsonDefaults["diagnosticsOptions"];
 type SchemaEntry = NonNullable<Options["schemas"]>[number];
-
-/** Every model path this add-on creates starts with this. */
-const MODEL_PREFIX = "inmemory://monaco-json-input/";
 
 interface Registration {
   entry?: SchemaEntry;

@@ -7,6 +7,7 @@
 import {
   composeValidators,
   detectJsonShape,
+  ERROR_SEVERITY,
   fromJsonText,
   type JsonShape,
   stripJsonComments,
@@ -37,7 +38,6 @@ import type { MonacoJsonInputProps } from "./monaco-json-input.vue";
 // Serve the bundled copy instead of the binding's default CDN fetch.
 loader.config({ monaco });
 
-const ERROR_SEVERITY = 8;
 const identity = (value: unknown) => value;
 
 // Explicit `undefined` defaults disable Vue's absent-Boolean cast of the

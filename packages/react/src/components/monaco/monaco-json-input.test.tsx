@@ -9,6 +9,7 @@ import {
   defineMessages,
   type FieldErrors,
   fakeDataProvider,
+  MONACO_DIAGNOSTICS_DELAY_MS,
 } from "@chelone/core";
 import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
@@ -34,7 +35,6 @@ import {
 import { CheloneProvider } from "../../context";
 import { CheloneFormProvider } from "../../form-context";
 import { useForm, useInput } from "../../form-hooks";
-import { MONACO_DIAGNOSTICS_DELAY_MS } from "./internal/use-monaco-markers";
 import { MonacoJsonInput } from "./monaco-json-input";
 
 vi.mock("monaco-editor", () => ({}));
