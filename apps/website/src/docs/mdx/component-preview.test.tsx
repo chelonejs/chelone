@@ -126,6 +126,51 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
+describe("the Vue frame's height", () => {
+  // jsdom never loads the frame's `src`, so the test gives its document the
+  // shape a loaded page has and fires the event a real load fires. jsdom lays
+  // out nothing either, so a fitted frame reads 0px: what is pinned is that the
+  // frame was fitted at all, which a frame the effect never saw is not.
+  function loadFrame(frame: HTMLIFrameElement): void {
+    const doc = frame.contentDocument;
+    if (!doc) throw new Error("the frame has no content document");
+    const html = doc.createElement("html");
+    const body = doc.createElement("body");
+    body.innerHTML = '<div id="demo">the demo</div>';
+    html.append(body);
+    doc.append(html);
+    fireEvent.load(frame);
+  }
+
+  it("fits a frame that mounts while the preview tab is hidden", () => {
+    renderPreview(BOTH);
+
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "Vue" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+    const frame = screen.getByTitle(/Vue demo/);
+    loadFrame(frame);
+    expect(frame.style.height).not.toBe("");
+  });
+
+  it("fits the frame again when the preview tab comes back", () => {
+    renderPreview(BOTH, "/docs/editing?framework=vue");
+
+    const left = screen.getByTitle(/Vue demo/);
+    loadFrame(left);
+    expect(left.style.height).not.toBe("");
+
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+    const back = screen.getByTitle(/Vue demo/);
+    expect(back).not.toBe(left);
+    loadFrame(back);
+    expect(back.style.height).not.toBe("");
+  });
+});
+
 describe("ComponentPreview with a name that matches no demo", () => {
   it("renders no switch, preview or iframe", () => {
     const { container } = renderPreview(

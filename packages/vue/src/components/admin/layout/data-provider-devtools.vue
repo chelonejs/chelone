@@ -123,7 +123,9 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
       <p v-if="entries.length === 0" class="px-3 py-2 text-muted-foreground">
         {{ translate("chelone.devtools.empty", { _: "No calls yet" }) }}
       </p>
-      <ul v-else class="overflow-y-auto">
+      <!-- `min-h-0`: a flex child keeps its content height otherwise, and the
+           list would spill past the panel's `max-h` instead of scrolling. -->
+      <ul v-else class="min-h-0 flex-1 overflow-y-auto">
         <DataProviderDevtoolsEntry
           v-for="entry in entries"
           :key="entry.id"
