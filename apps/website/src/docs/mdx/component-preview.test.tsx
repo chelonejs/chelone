@@ -103,6 +103,21 @@ describe("ComponentPreview framework switch", () => {
     expect(source.textContent).toContain("<ResettableTextInput");
   });
 
+  it("leaves the Vue iframe's height to the fitting effect, not a fixed style", () => {
+    const { container } = renderPreview(
+      BOTH,
+      "/docs/editing/resettable-text-input?framework=vue",
+    );
+    const frame = container.querySelector("iframe");
+    if (!frame) throw new Error("the Vue demo renders no iframe");
+    // The frame is fitted to its content at runtime, with a floor so an empty
+    // frame is not a slit. jsdom never loads the frame, so there is nothing to
+    // fit here; what must not come back is a fixed inline height, which is what
+    // cut a list demo off.
+    expect(frame.style.height).toBe("");
+    expect(frame.className).toContain("min-h-56");
+  });
+
   it("a Vue choice on a React-only demo still previews React", () => {
     renderPreview(REACT_ONLY, "/docs/editing?framework=vue");
 

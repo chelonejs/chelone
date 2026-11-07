@@ -59,13 +59,6 @@ const dataProvider = addEventsForMutations(
   }),
   transport,
 );
-const authProvider: AuthProvider = {
-  login: async () => {},
-  logout: async () => {},
-  checkAuth: async () => {},
-  checkError: async () => {},
-  getIdentity: async () => ({ id: 1, fullName: "Ada Lovelace" }),
-};
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, staleTime: Number.POSITIVE_INFINITY },
@@ -76,6 +69,16 @@ const i18n = makeI18n();
 const notifications = createNotificationStore();
 // `<ColumnsButton>` / `<FieldsSelector>` read the table's column choice from here.
 const store = createStore();
+
+// Signs every preview in as the first fixture author, so the components that act
+// as a user (approve, reject) have someone to act as — as the React preview does.
+const authProvider: AuthProvider = {
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+  getIdentity: async () => ({ id: 1, fullName: "Ada Lovelace" }),
+};
 
 provideResourceContext("posts");
 if (props.mode === "record") provideRecordContext(seed.posts[0]);
