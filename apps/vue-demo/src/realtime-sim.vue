@@ -6,14 +6,36 @@
  */
 
 import type { Identifier } from "@chelone/core";
-import { Button, useGetLockLive, useNotify } from "@chelone/vue";
-import { computed } from "vue";
+import {
+  Button,
+  SidebarContextKey,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useGetLockLive,
+  useNotify,
+} from "@chelone/vue";
+import { Lock, Plus } from "lucide-vue-next";
+import { computed, inject } from "vue";
 import { dataProvider, locks } from "./realtime";
 
-// The post the lock button takes. Defaults to the first seeded post.
-const props = withDefaults(defineProps<{ postId?: Identifier }>(), {
-  postId: 1,
-});
+// `postId` is the post the lock button takes, the first seeded post by default.
+// `sidebar` renders the buttons as sidebar entries, for a `<SidebarMenu>`: a
+// collapsed sidebar shows them as icon buttons, with the text as the tooltip
+// and the accessible name.
+const props = withDefaults(
+  defineProps<{ postId?: Identifier; sidebar?: boolean }>(),
+  { postId: 1, sidebar: false },
+);
+
+const sidebarContext = inject(SidebarContextKey, null);
+// The mobile drawer shows the full sidebar whatever the desktop rail does.
+const collapsed = computed(
+  () =>
+    props.sidebar &&
+    sidebarContext !== null &&
+    !sidebarContext.open.value &&
+    !sidebarContext.isMobile.value,
+);
 
 const notify = useNotify();
 const { data: lock } = useGetLockLive("posts", () => ({ id: props.postId }));
@@ -38,15 +60,38 @@ function toggleLock() {
     identity: "alice",
   }).catch((error: Error) => notify(error.message, { type: "error" }));
 }
+
+const addPostLabel = "Another user adds a post";
+const lockLabel = computed(
+  () =>
+    `Another user ${heldByAlice.value ? "unlocks" : "locks"} post ${String(props.postId)}`,
+);
+const entries = computed(() => [
+  { icon: Plus, label: addPostLabel, run: addPost },
+  { icon: Lock, label: lockLabel.value, run: toggleLock },
+]);
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-2">
+  <template v-if="sidebar">
+    <SidebarMenuItem v-for="(entry, index) in entries" :key="index">
+      <SidebarMenuButton
+        type="button"
+        :title="collapsed ? entry.label : undefined"
+        :aria-label="collapsed ? entry.label : undefined"
+        @click="entry.run"
+      >
+        <component :is="entry.icon" />
+        <span v-if="!collapsed">{{ entry.label }}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  </template>
+  <div v-else class="flex flex-wrap items-center gap-2">
     <Button type="button" variant="outline" size="sm" @click="addPost">
-      Another user adds a post
+      {{ addPostLabel }}
     </Button>
     <Button type="button" variant="outline" size="sm" @click="toggleLock">
-      Another user {{ heldByAlice ? "unlocks" : "locks" }} post {{ String(postId) }}
+      {{ lockLabel }}
     </Button>
   </div>
 </template>

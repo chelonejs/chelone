@@ -65,7 +65,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { pageGroups } from "./pages";
 import { dataProvider, dataProviderLog } from "./realtime";
-import { SimulateOtherUser } from "./realtime-sim";
+import { SimulateOtherUserMenuItems } from "./realtime-sim";
 import { resources } from "./resources";
 
 // One transport and tool set for the app's lifetime: a new one starts a new conversation.
@@ -136,32 +136,34 @@ function DemoSidebar({ children, ...props }: AppSidebarProps) {
 }
 
 // Posts get a live unread badge; the other resources sit under their area.
-// The panel is repeated here because the badge clears while /posts is open:
-// adding a post from any other page is the only way to see it. It sits at the
-// top of the sidebar: at the bottom it scrolls under the devtools panel.
+// The simulation buttons are repeated here because the badge clears while
+// /posts is open: adding a post from any other page is the only way to see it.
+// The group sits right under the dashboard item: at the bottom it scrolls under
+// the devtools panel.
 function DemoMenu() {
   const translate = useTranslate();
   const getResourceLabel = useGetResourceLabel();
   return (
     <>
-      <div className="px-2 pt-2">
+      <Menu>
+        <Menu.DashboardItem />
+      </Menu>
+      <ResourceMenuItemGroup
+        label={translate(demoMenuKey("group", "Realtime"), { _: "Realtime" })}
+        resources={[]}
+      >
         <MenuLive
           items={[
             {
               to: "/posts",
               resource: "posts",
               label: getResourceLabel("posts"),
-              icon: <Newspaper size={16} className="shrink-0" />,
+              icon: <Newspaper />,
             },
           ]}
         />
-      </div>
-      <div className="px-4 py-2">
-        <SimulateOtherUser />
-      </div>
-      <Menu>
-        <Menu.DashboardItem />
-      </Menu>
+        <SimulateOtherUserMenuItems />
+      </ResourceMenuItemGroup>
       {areas.map((area) => {
         const pages = pageGroups.find((g) => g.group === area)?.pages ?? [];
         return (

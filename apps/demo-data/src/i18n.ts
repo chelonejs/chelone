@@ -41,6 +41,7 @@ const frenchMessages: MessageCatalog = {
   "demo.menu.group.catalog": "Catalogue",
   "demo.menu.group.content": "Contenu",
   "demo.menu.group.orders": "Commandes",
+  "demo.menu.group.realtime": "Temps réel",
   "demo.menu.group.settings": "Paramètres",
   "demo.menu.group.shop": "Boutique",
   "demo.menu.group.system": "Système",

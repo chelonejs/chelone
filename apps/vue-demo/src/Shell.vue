@@ -59,7 +59,7 @@ import {
   SquareKanban,
   UserCog,
 } from "lucide-vue-next";
-import { type Component, computed, h } from "vue";
+import { type Component, computed } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import AccessGuard from "./AccessGuard.vue";
 import Dashboard from "./pages/Dashboard.vue";
@@ -106,10 +106,6 @@ const areas = [
     pages: pageGroups.find((g) => g.group === area)?.pages ?? [],
   }));
 
-// MenuLive draws its icon with no props, so the size is set here: the menu's own
-// items size theirs in CSS.
-const PostsIcon = () => h(Newspaper, { size: 16, class: "shrink-0" });
-
 // One glyph per page, by file name. A page missing here shows none, which the
 // sidebar test catches. Dashboard and the resources have theirs elsewhere (the
 // menu's house, each `<Resource icon>`).
@@ -152,9 +148,10 @@ const getResourceLabel = useGetResourceLabel();
 const t = (key: string, english: string) => translate(key, { _: english });
 
 // Posts get a live unread badge; the other resources sit under their area.
-// The panel is repeated here because the badge clears while /posts is open:
-// adding a post from any other page is the only way to see it. It sits at the
-// top of the sidebar: at the bottom it scrolls under the devtools panel.
+// The simulation buttons are repeated in the Realtime group because the badge
+// clears while /posts is open: adding a post from any other page is the only
+// way to see it. The group sits right under the dashboard item: at the bottom
+// it scrolls under the devtools panel.
 </script>
 
 <template>
@@ -167,22 +164,23 @@ const t = (key: string, english: string) => translate(key, { _: english });
               <template #brand-icon>
                 <img :src="logoSrc" alt="" width="20" height="20" />
               </template>
-              <div class="px-2 pt-2">
+              <Menu><DashboardMenuItem /></Menu>
+              <ResourceMenuItemGroup
+                :label="t(demoMenuKey('group', 'Realtime'), 'Realtime')"
+                :resources="[]"
+              >
                 <MenuLive
                   :items="[
                     {
                       to: '/posts',
                       resource: 'posts',
                       label: getResourceLabel('posts'),
-                      icon: PostsIcon,
+                      icon: Newspaper,
                     },
                   ]"
                 />
-              </div>
-              <div class="px-4 py-2">
-                <SimulateOtherUser />
-              </div>
-              <Menu><DashboardMenuItem /></Menu>
+                <SimulateOtherUser sidebar />
+              </ResourceMenuItemGroup>
               <ResourceMenuItemGroup
                 v-for="{ area, resources, pages } in areas"
                 :key="area"

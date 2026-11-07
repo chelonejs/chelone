@@ -13,6 +13,7 @@ import {
   computed,
   defineComponent,
   h,
+  inject,
   type PropType,
   shallowRef,
   watchEffect,
@@ -22,6 +23,11 @@ import { useCheloneContext, useCheloneStore } from "../../../context";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useMatch } from "../../../router";
 import { Badge } from "../../ui/badge";
+import {
+  SidebarContextKey,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "../../ui/sidebar";
 
 /** Props for {@link MenuLiveItemLink}, and the shape of one `<MenuLive>` item. */
 export interface MenuLiveItemLinkProps {
@@ -108,7 +114,9 @@ function acquire(
 /**
  * A menu link with a badge counting the resource's new records. The count
  * lives in the store, so it survives a remount; it clears while the link's
- * route is active. Divergence from the React twin: the render props are slots.
+ * route is active. Inside a `<SidebarProvider>` it is a sidebar menu button,
+ * with the label as a `title` while the desktop rail is collapsed; elsewhere it is
+ * a plain link. Divergence from the React twin: the render props are slots.
  * Declared as a render component so the file can also hold {@link MenuLive}.
  */
 export const MenuLiveItemLink = defineComponent({
@@ -131,6 +139,8 @@ export const MenuLiveItemLink = defineComponent({
     const { dataProvider } = useCheloneContext();
     const store = useCheloneStore();
     const translate = useTranslate();
+    // Absent in the docs demo and any other use outside a `<SidebarProvider>`.
+    const sidebar = inject(SidebarContextKey, null);
     // `end: false`, so `/posts` is active on `/posts/1` but not on `/posts-archive`.
     const match = useMatch({ path: props.to, end: false });
 
@@ -163,6 +173,49 @@ export const MenuLiveItemLink = defineComponent({
     return () => {
       const n = count.value ?? 0;
       const text = translate(props.label, { _: props.label });
+      const badge =
+        n > 0
+          ? h(
+              Badge,
+              {
+                "data-testid": "menu-live-badge",
+                // The collapsed rail clips the button to its icon, so the
+                // badge moves onto the icon's corner instead of the row's end.
+                class: sidebar
+                  ? "group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-0 group-data-[collapsible=icon]:right-0 group-data-[collapsible=icon]:h-4 group-data-[collapsible=icon]:min-w-4 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:text-[10px]"
+                  : undefined,
+              },
+              () => props.badgeLabel?.(n) ?? (n > 99 ? "99+" : String(n)),
+            )
+          : null;
+      const content = () => [
+        props.icon ? h(props.icon) : null,
+        slots.icon?.(),
+        h("span", { class: "flex-1" }, text),
+        badge,
+      ];
+      if (sidebar)
+        return h(SidebarMenuItem, null, () =>
+          h(
+            SidebarMenuButton,
+            {
+              as: RouterLink,
+              to: props.to,
+              isActive: match.value != null,
+              class: "relative",
+              // The Vue `ui` slice has no tooltip primitive, so the native
+              // `title` stands in while the rail hides the label.
+              title:
+                sidebar.state.value === "collapsed" && !sidebar.isMobile.value
+                  ? text
+                  : undefined,
+              onClick: () => {
+                if (sidebar.openMobile.value) sidebar.setOpenMobile(false);
+              },
+            },
+            content,
+          ),
+        );
       return h(
         RouterLink,
         {
@@ -170,18 +223,7 @@ export const MenuLiveItemLink = defineComponent({
           class:
             "flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-accent",
         },
-        () => [
-          props.icon ? h(props.icon) : null,
-          slots.icon?.(),
-          h("span", { class: "flex-1" }, text),
-          n > 0
-            ? h(
-                Badge,
-                { "data-testid": "menu-live-badge" },
-                () => props.badgeLabel?.(n) ?? (n > 99 ? "99+" : String(n)),
-              )
-            : null,
-        ],
+        content,
       );
     };
   },
@@ -190,14 +232,22 @@ export const MenuLiveItemLink = defineComponent({
 
 <script setup lang="ts">
 /**
- * `<MenuLive>` — a list of {@link MenuLiveItemLink}s, one per item.
+ * `<MenuLive>` — a list of {@link MenuLiveItemLink}s, one per item. Inside a
+ * sidebar it renders the items as sidebar menu entries with no wrapper, so
+ * place it in a `<SidebarMenu>`, such as a `<ResourceMenuItemGroup>`'s default
+ * slot.
  */
 
 defineProps<MenuLiveProps>();
+
+const sidebar = inject(SidebarContextKey, null);
 </script>
 
 <template>
-  <nav class="flex flex-col gap-1">
+  <template v-if="sidebar">
+    <MenuLiveItemLink v-for="item in items" :key="item.to" v-bind="item" />
+  </template>
+  <nav v-else class="flex flex-col gap-1">
     <MenuLiveItemLink v-for="item in items" :key="item.to" v-bind="item" />
   </nav>
 </template>

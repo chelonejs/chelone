@@ -121,3 +121,75 @@ it("no two sidebar entries render the same icon", async () => {
     owners.set(icon, href);
   }
 });
+
+/** The app, signed in, with its sidebar menu listed. */
+async function mountApp() {
+  const router = makeRouter();
+  await router.push("/posts");
+  const wrapper = mount(App, { global: { plugins: [router] } });
+  await vi.waitFor(async () => {
+    await flushPromises();
+    expect(
+      wrapper.find('[data-slot="sidebar-content"]').findAll("a").length,
+    ).toBeGreaterThan(20);
+  });
+  return wrapper;
+}
+
+const addPost = "Another user adds a post";
+const lockPost = "Another user locks post 1";
+
+it("the Realtime group follows the dashboard item and holds the posts entry, then the simulation buttons", async () => {
+  const wrapper = await mountApp();
+
+  const entries = wrapper
+    .find('[data-slot="sidebar-content"]')
+    .findAll(
+      '[data-slot="sidebar-menu-button"], [data-slot="sidebar-group-label"]',
+    )
+    .map((entry) => entry.text());
+  expect(entries.slice(0, 5)).toEqual([
+    "Dashboard",
+    "Realtime",
+    "Posts",
+    addPost,
+    lockPost,
+  ]);
+});
+
+it("the simulation buttons keep their text and have no tooltip while the sidebar is open", async () => {
+  const wrapper = await mountApp();
+  const content = wrapper.find('[data-slot="sidebar-content"]');
+
+  for (const name of [addPost, lockPost]) {
+    const button = content
+      .findAll("button")
+      .find((candidate) => candidate.text() === name);
+    expect(button, name).toBeDefined();
+    expect(button?.attributes("title")).toBeUndefined();
+  }
+});
+
+it("a collapsed sidebar turns the simulation buttons into named icon buttons with tooltips", async () => {
+  const wrapper = await mountApp();
+  await wrapper.get('button[aria-label="Close menu"]').trigger("click");
+
+  const content = wrapper.find('[data-slot="sidebar-content"]');
+  for (const name of [addPost, lockPost]) {
+    const button = content.get(`button[aria-label="${name}"]`);
+    expect(button.text()).toBe("");
+    expect(button.attributes("title")).toBe(name);
+    expect(button.find("svg").exists()).toBe(true);
+  }
+});
+
+it("a collapsed sidebar keeps the posts entry's name, and shows it as a tooltip", async () => {
+  const wrapper = await mountApp();
+  await wrapper.get('button[aria-label="Close menu"]').trigger("click");
+
+  const posts = wrapper
+    .find('[data-slot="sidebar-content"]')
+    .get('a[href="/vue-demo/posts"]');
+  expect(posts.text()).toBe("Posts");
+  expect(posts.attributes("title")).toBe("Posts");
+});
