@@ -164,7 +164,9 @@ export function DataProviderDevtools({
             {translate("chelone.devtools.empty", { _: "No calls yet" })}
           </p>
         ) : (
-          <ul className="overflow-y-auto">
+          // `min-h-0`: a flex child keeps its content height otherwise, and the
+          // list would spill past the panel's `max-h` instead of scrolling.
+          <ul className="min-h-0 flex-1 overflow-y-auto">
             {[...entries].reverse().map((entry) => (
               <Entry key={entry.id} entry={entry} />
             ))}

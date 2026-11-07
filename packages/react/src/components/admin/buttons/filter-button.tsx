@@ -191,7 +191,7 @@ function FilterButton(props: FilterButtonProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
-          align="start"
+          align="end"
           className="w-56"
           onCloseAutoFocus={handleCloseAutoFocus}
         >
