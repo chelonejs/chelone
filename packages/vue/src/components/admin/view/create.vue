@@ -121,7 +121,7 @@ const form = useForm<Partial<TRecord>>({
       </h2>
       <slot name="actions" />
     </div>
-    <div class="my-2">
+    <div class="my-2 space-y-4">
       <slot />
       <slot name="toolbar" />
     </div>
