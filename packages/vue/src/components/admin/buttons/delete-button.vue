@@ -1,13 +1,19 @@
-<script lang="ts">
-import type { LooseRecord, MutationMode } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type {
+  LooseRecord,
+  MutationMode,
+  ResourceRecord,
+} from "@chelone/core";
 
 /** Where to go after a successful delete. */
 export type DeleteRedirect = "list" | "show" | "edit" | false;
 
 /** Props for {@link DeleteButton}. */
-export interface DeleteButtonProps {
+export interface DeleteButtonProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** Override the ambient record. */
-  record?: LooseRecord;
+  record?: TRecord | LooseRecord;
   /** Override the ambient `<Resource>`. */
   resource?: string;
   /** Override the auto-translated label. */
@@ -40,7 +46,7 @@ export interface DeleteButtonProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<DeleteButton>` — deletes the ambient record after a confirmation. The Vue
  * twin of `@chelone/react`'s `buttons/delete-button.tsx`, rebridged onto
@@ -65,16 +71,17 @@ export interface DeleteButtonProps {
 import {
   definedParams,
   type Identifier,
+  isLooseRecord,
   removeRecordsFromCache,
 } from "@chelone/core";
-import { computed, inject, ref } from "vue";
+import { computed, ref } from "vue";
 import { useCheloneContext } from "../../../context";
 import { useDeleteController } from "../../../controllers";
 import { useUndoable } from "../../../data/undoable";
 import { useTranslate } from "../../../i18n/use-translate";
 import { humanize, pluralize } from "../../../label/inflection";
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import { useRedirect } from "../../../router";
 import { useMenuAccess } from "../layout/use-menu-access";
@@ -82,7 +89,7 @@ import Button from "../../ui/button.vue";
 import Confirm from "../feedback/confirm.vue";
 import { TrashIcon } from "./icons";
 
-const props = withDefaults(defineProps<DeleteButtonProps>(), {
+const props = withDefaults(defineProps<DeleteButtonProps<TRecord>>(), {
   redirect: "list",
   variant: "outline",
   confirmTitle: "ra.message.delete_title",
@@ -97,8 +104,7 @@ if (!ambientResource) {
   );
 }
 const resource: string = ambientResource;
-const injectedRecord = inject(RecordContextKey, null);
-const record = computed(() => props.record ?? injectedRecord?.value);
+const record = useRecordContextRef<TRecord | LooseRecord>(() => props.record);
 const translate = useTranslate();
 const redirect = useRedirect();
 const ctx = useCheloneContext();
@@ -156,7 +162,7 @@ const open = ref(false);
 
 function onClick(): void {
   const current = record.value;
-  if (current?.id == null) return;
+  if (!current || !isLooseRecord(current) || current.id == null) return;
   if (props.mutationMode === "undoable") {
     const id = current.id;
     runUndoable({
@@ -187,7 +193,7 @@ function onCancel(): void {
 async function onConfirm(): Promise<void> {
   const current = record.value;
   const id = current?.id;
-  if (id == null) {
+  if (!current || !isLooseRecord(current) || id == null) {
     open.value = false;
     return;
   }
