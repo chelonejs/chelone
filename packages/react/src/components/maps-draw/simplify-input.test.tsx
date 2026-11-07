@@ -131,6 +131,11 @@ describe("SimplifyInput", () => {
     await mount(<SimplifyInput source="shape" tolerance={0} />, polygon());
 
     expect(maps[0]?.fits).toHaveLength(1);
+    expect(maps[0]?.fits[0]?.options).toEqual({
+      padding: 20,
+      maxZoom: 18,
+      duration: 0,
+    });
   });
 
   it("keeps all 21 ring entries of a 20 vertex ring at tolerance 0", async () => {

@@ -32,15 +32,21 @@ export interface GeoJsonLayersProps {
  * </MapCanvas>
  */
 
-import { asFeatureCollection, geoBounds, isLngLatBox } from "@chelone/core";
+import {
+  asFeatureCollection,
+  DEFAULT_FIT_PADDING,
+  DEFAULT_MAX_FIT_ZOOM,
+  geoBounds,
+  isLngLatBox,
+} from "@chelone/core";
 import { computed, toRaw, watch } from "vue";
 import { uniqueGeoJsonSourceId, useGeoJsonSource } from "./use-geo-json-source";
 import { useMap } from "./use-map";
 
 const props = withDefaults(defineProps<GeoJsonLayersProps>(), {
   fitBounds: true,
-  fitPadding: 20,
-  maxFitZoom: 18,
+  fitPadding: DEFAULT_FIT_PADDING,
+  maxFitZoom: DEFAULT_MAX_FIT_ZOOM,
 });
 
 const map = useMap();

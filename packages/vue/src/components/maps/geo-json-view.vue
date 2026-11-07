@@ -24,13 +24,14 @@ export interface GeoJsonViewProps extends GeoJsonLayersProps {
  * <GeoJsonView :data="{ type: 'Point', coordinates: [2.35, 48.85] }" />
  */
 
+import { DEFAULT_FIT_PADDING, DEFAULT_MAX_FIT_ZOOM } from "@chelone/core";
 import GeoJsonLayers from "./geo-json-layers.vue";
 import MapCanvas from "./map-canvas.vue";
 
 const props = withDefaults(defineProps<GeoJsonViewProps>(), {
   fitBounds: true,
-  fitPadding: 20,
-  maxFitZoom: 18,
+  fitPadding: DEFAULT_FIT_PADDING,
+  maxFitZoom: DEFAULT_MAX_FIT_ZOOM,
   scrollZoom: false,
 });
 </script>

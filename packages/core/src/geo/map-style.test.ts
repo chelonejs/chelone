@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  DEFAULT_FIT_PADDING,
   DEFAULT_MAP_HEIGHT,
   DEFAULT_MAP_ZOOM,
+  DEFAULT_MAX_FIT_ZOOM,
   DEFAULT_PIN_COLOR,
   expandTileUrl,
   latLngToLngLat,
@@ -16,6 +18,11 @@ describe("map view defaults", () => {
     expect(DEFAULT_MAP_HEIGHT).toBe(300);
     expect(DEFAULT_PIN_COLOR).toBe("#dc2626");
     expect(PIN_NS).toBe("http://www.w3.org/2000/svg");
+  });
+
+  it("pins the padding and max zoom a bounds fit defaults to", () => {
+    expect(DEFAULT_FIT_PADDING).toBe(20);
+    expect(DEFAULT_MAX_FIT_ZOOM).toBe(18);
   });
 });
 

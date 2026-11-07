@@ -1,6 +1,8 @@
 import {
+  DEFAULT_FIT_PADDING,
   DEFAULT_MAP_HEIGHT,
   DEFAULT_MAP_ZOOM,
+  DEFAULT_MAX_FIT_ZOOM,
   deepEqual,
   featuresToShape,
   geoBounds,
@@ -226,7 +228,11 @@ function FitToShape({
     if (fitted.current || !isLngLatBox(box)) return;
     fitted.current = true;
     if (value === written.current) return;
-    map.fitBounds(box, { padding: 20, maxZoom: 18, duration: 0 });
+    map.fitBounds(box, {
+      padding: DEFAULT_FIT_PADDING,
+      maxZoom: DEFAULT_MAX_FIT_ZOOM,
+      duration: 0,
+    });
   }, [map, box, value, written]);
   return null;
 }
