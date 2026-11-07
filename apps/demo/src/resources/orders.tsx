@@ -50,7 +50,11 @@ function OrderDeliveryInputs() {
   return (
     <>
       <DateTimeInput source="delivery_at" label="Delivery" />
-      <TimeInput source="slot" label="Slot opens" />
+      <TimeInput
+        source="slot"
+        label="Slot opens"
+        parse={(time) => time || null}
+      />
       <DurationInput
         source="handling"
         label="Handling time"
