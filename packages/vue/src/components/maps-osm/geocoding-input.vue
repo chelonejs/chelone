@@ -170,7 +170,15 @@ function move(step: 1 | -1) {
   const count = results.value.length;
   if (count === 0) return;
   open.value = true;
-  active.value = (active.value + step + count) % count;
+  const current = active.value;
+  // Nothing is highlighted yet, which is not the same as being before the
+  // first option: each arrow lands on the end it points at.
+  active.value =
+    current < 0
+      ? step === 1
+        ? 0
+        : count - 1
+      : (current + step + count) % count;
 }
 
 // An option's mousedown is prevented, so a click on one never blurs the input.
