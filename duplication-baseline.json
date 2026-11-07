@@ -25,7 +25,6 @@
   "packages/react/src/components/admin/auth/login-form.tsx <-> packages/react/src/components/admin/auth/login-with-email.tsx": 2,
   "packages/react/src/components/admin/auth/login-form.tsx <-> packages/react/src/components/admin/supabase/forgot-password-form.tsx": 1,
   "packages/react/src/components/admin/buttons/bulk-delete-button.tsx <-> packages/react/src/components/admin/buttons/bulk-update-button.tsx": 6,
-  "packages/react/src/components/admin/buttons/bulk-delete-button.tsx <-> packages/react/src/components/admin/buttons/delete-button.tsx": 1,
   "packages/react/src/components/admin/buttons/bulk-export-button.tsx <-> packages/react/src/components/admin/buttons/export-button.tsx": 2,
   "packages/react/src/components/admin/buttons/bulk-update-button.tsx <-> packages/react/src/components/admin/buttons/update-button.tsx": 1,
   "packages/react/src/components/admin/buttons/clone-button.tsx <-> packages/react/src/components/admin/buttons/create-button.tsx": 1,

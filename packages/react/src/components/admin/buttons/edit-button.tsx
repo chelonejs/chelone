@@ -7,7 +7,7 @@
  * edit link.
  */
 
-import type { LooseRecord } from "@chelone/core";
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import { definedParams } from "@chelone/core";
 import { Pencil } from "lucide-react";
 import type { Ref } from "react";
@@ -23,8 +23,8 @@ import { useCreatePath } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-interface EditButtonProps {
-  record?: LooseRecord;
+interface EditButtonProps<TRecord extends ResourceRecord = LooseRecord> {
+  record?: TRecord;
   resource?: string;
   label?: string;
   icon?: React.ReactNode;
@@ -54,7 +54,9 @@ const stopPropagation = (e: React.MouseEvent) => e.stopPropagation();
  *   </DataTable>
  * );
  */
-function EditButton(props: EditButtonProps) {
+function EditButton<TRecord extends ResourceRecord = LooseRecord>(
+  props: EditButtonProps<TRecord>,
+) {
   const {
     label: labelProp,
     icon = defaultIcon,
@@ -62,7 +64,7 @@ function EditButton(props: EditButtonProps) {
     ref,
   } = props;
   const resource = useResourceContext(props);
-  const record = useRecordContext(props);
+  const record = useRecordContext<TRecord>(props);
   const createPath = useCreatePath();
   const { Link } = useRouterAdapter();
   const { canAccess, isPending: isAccessPending } = useMenuAccess({
