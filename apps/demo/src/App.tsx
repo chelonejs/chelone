@@ -10,10 +10,14 @@
 import { createNotificationStore } from "@chelone/core";
 import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
 import {
+  AccessDenied,
   Admin,
+  AuthCallback,
+  AuthenticationError,
   CustomRoutes,
   EditGuesser,
   ListGuesser,
+  LoginPage,
   NotFound,
   Resource,
   ShowGuesser,
@@ -76,12 +80,13 @@ const queryClient = new QueryClient({
 });
 
 // The notification store (the Layout toaster reads it), the KV store (list
-// scroll / preferences, whether the tour is done, who the Team page browses as)
-// and the auth provider that answers from it — the services a real app
-// configures. The i18n instance is in ./i18n.
+// scroll / preferences, whether the tour is done, who the Team page browses as,
+// whether anyone is signed in) and the auth provider that answers from it, and
+// invalidates the query client's cached answers when someone signs in or out —
+// the services a real app configures. The i18n instance is in ./i18n.
 const notifications = createNotificationStore();
 const store = makeDemoStore();
-const authProvider = makeDemoAuthProvider(store);
+const authProvider = makeDemoAuthProvider(store, queryClient);
 
 export function App() {
   return (
@@ -100,6 +105,7 @@ export function App() {
           store={store}
           authProvider={authProvider}
           resources={resources}
+          requireAuth
         >
           {/* Opt-in shadcn shell (sidebar + app bar + toaster). */}
           <Admin.Layout>
@@ -110,6 +116,28 @@ export function App() {
           <Admin.Dashboard>
             <Dashboard />
           </Admin.Dashboard>
+
+          {/* Shown in place of the app while nobody is signed in: log out from
+              the user menu to see it. Any email and password sign in. */}
+          <Admin.LoginPage>
+            <LoginPage />
+          </Admin.LoginPage>
+
+          {/* Where an OAuth provider sends the visitor back: /auth-callback with
+              a code signs in, with an error shows <AuthError>. */}
+          <Admin.AuthCallback>
+            <AuthCallback />
+          </Admin.AuthCallback>
+
+          {/* /access-denied is where a role that may not open a page lands, as
+              the Team page's viewer does on /posts/create. */}
+          <Admin.AccessDenied>
+            <AccessDenied />
+          </Admin.AccessDenied>
+
+          <Admin.AuthenticationError>
+            <AuthenticationError />
+          </Admin.AuthenticationError>
 
           {/* A URL no route owns, such as /nowhere. */}
           <Admin.CatchAll>
