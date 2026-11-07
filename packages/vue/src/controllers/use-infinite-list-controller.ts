@@ -54,10 +54,10 @@ export function useInfiniteListController<
 ): UseInfiniteListControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
-  const resource = useRequiredResource(
+  const resource = useRequiredResource<TName>(
     "useInfiniteListController",
     options,
-  ) as TName;
+  );
 
   const controller: InfiniteListController<TRecord> =
     createInfiniteListController(toControllerContext(ctx), resource, options);

@@ -77,7 +77,7 @@ export function useListController<
 ): UseListControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
-  const resource = useRequiredResource("useListController", options) as TName;
+  const resource = useRequiredResource<TName>("useListController", options);
 
   // URL-sync is enabled for a top-level list (default on) AND only when a
   // RouterAdapter is present. Vue has no Rules of Hooks, so the adapter readers
