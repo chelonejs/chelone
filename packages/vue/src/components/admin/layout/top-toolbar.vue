@@ -18,7 +18,7 @@ const props = defineProps<TopToolbarProps>();
 </script>
 
 <template>
-  <div :class="cn('flex items-center justify-end gap-2 mb-2', props.class)">
+  <div data-slot="top-toolbar" :class="cn('flex items-center justify-end gap-2 mb-2', props.class)">
     <slot />
   </div>
 </template>

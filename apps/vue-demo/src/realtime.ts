@@ -13,7 +13,7 @@ import {
   memoryTransport,
   realtimeDataProvider,
 } from "@chelone/core";
-import { seedData } from "@chelone/demo-data";
+import { seedData, withTextSearch } from "@chelone/demo-data";
 
 export const transport = memoryTransport();
 export const locks = inMemoryLockProvider({ publisher: transport });
@@ -23,11 +23,16 @@ export const locks = inMemoryLockProvider({ publisher: transport });
 // the log's wrapper would return a promise.
 export const dataProviderLog = createDataProviderLog();
 
-// Seeded once: the in-memory provider mutates its data in place. Writes made
+// Seeded once: the in-memory provider mutates its data in place. It matches
+// filters by equality, so `withTextSearch` adds the product list's `q` and SKU searches. Writes made
 // through `dataProvider` publish on the transport, so open lists refetch.
 export const dataProvider = addEventsForMutations(
   realtimeDataProvider(
-    dataProviderLog.wrap(fakeDataProvider(seedData())),
+    dataProviderLog.wrap(
+      withTextSearch(fakeDataProvider(seedData()), {
+        products: { q: ["name", "sku", "keywords"], contains: ["sku"] },
+      }),
+    ),
     transport,
     { locks },
   ),
