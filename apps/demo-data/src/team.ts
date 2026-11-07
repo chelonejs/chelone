@@ -6,7 +6,7 @@ export const ROLE_KEY = "demo.team.role";
 export const PERMISSIONS_KEY = "demo.team.permissions";
 
 /** A visitor opens as an admin, so the rest of the demo reads as it always did. */
-export const DEFAULT_ROLE = "admin";
+export const DEFAULT_ROLE: string = "admin";
 
 /** The tab order: the first one is editable, `admin` holds a locked wildcard. */
 export const TEAM_ROLES = ["editor", "viewer", "admin"] as const;

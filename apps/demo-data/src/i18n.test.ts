@@ -32,18 +32,31 @@ describe("the demo i18n", () => {
     expect(i18n.translate("ra.action.refresh")).toBe("Actualiser");
   });
 
-  it("tells subscribers, so a mounted component re-reads, and keeps the locale", async () => {
-    const { i18n, missingKeys } = makeDemoI18n();
-    i18n.setLocale("fr");
-    i18n.translate("ra.action.refresh");
+  it("tells subscribers once the new text is in place, and keeps the locale", async () => {
+    const demo = makeDemoI18n();
+    demo.i18n.setLocale("fr");
+    demo.i18n.translate("ra.action.refresh");
     const seen: string[] = [];
-    i18n.subscribe(() => seen.push(i18n.translate("ra.action.refresh")));
+    demo.subscribe(() => seen.push(demo.i18n.translate("ra.action.refresh")));
+    const before = demo.version();
 
-    missingKeys.setTranslation("fr", "ra.action.refresh", "Actualiser");
+    demo.missingKeys.setTranslation("fr", "ra.action.refresh", "Actualiser");
     await flush();
 
-    expect(seen.at(-1)).toBe("Actualiser");
-    expect(i18n.getLocale()).toBe("fr");
+    expect(seen).toEqual(["Actualiser"]);
+    expect(demo.version()).not.toBe(before);
+    expect(demo.i18n.getLocale()).toBe("fr");
+  });
+
+  it("stays quiet when a key is recorded but nothing was typed", async () => {
+    const demo = makeDemoI18n();
+    const seen: string[] = [];
+    demo.subscribe(() => seen.push("changed"));
+
+    demo.missingKeys.record("demo.unknown", "en", undefined);
+    await flush();
+
+    expect(seen).toEqual([]);
   });
 
   it("goes back to English when the typed translation is cleared", async () => {

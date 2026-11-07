@@ -25,14 +25,32 @@ export interface DemoI18n {
   i18n: AnyCheloneI18n;
   /** Fed by every key the current locale lacks; mount `<I18nKeyEditor>` with it. */
   missingKeys: MissingKeyStore;
+  /**
+   * Called after a typed translation went into a catalog. The adapters' hooks
+   * re-read `translate` on a locale change only, so a page that should show the
+   * new text as it is typed subscribes here and re-renders itself.
+   */
+  subscribe(callback: () => void): () => void;
+  /** A number that changes with every such notification: the snapshot to subscribe with. */
+  version(): number;
 }
 
 /**
- * The i18n catalog. `englishMessages` is core's English for the `ra.*` keys the
- * components translate, the `chelone.*` controller messages and the map labels;
- * an `<Admin>` with no `i18n` prop reads the same. To add or override entries,
- * spread it: `{ ...englishMessages, "ra.page.list": "All {name}" }`.
- *
+ * The English i18n catalog. `englishMessages` is core's English for the `ra.*`
+ * keys the components translate, the `chelone.*` controller messages and the
+ * map labels; an `<Admin>` with no `i18n` prop reads the same. To add or
+ * override entries, spread it: `{ ...englishMessages, "ra.page.list": "All {name}" }`.
+ */
+export function makeI18n() {
+  return createI18n({
+    locale: "en",
+    messages: { en: englishMessages },
+    fallbackLocale: "en",
+  });
+}
+
+/**
+ * The apps' i18n: `makeI18n`'s English with a French catalog beside it.
  * French is partial, with English as its fallback. A translation typed into
  * `<I18nKeyEditor>` goes into the French catalog, so the demo's own strings
  * change as it is typed; clearing the text puts the English back.
@@ -73,16 +91,21 @@ export function makeDemoI18n(): DemoI18n {
     return changed;
   };
 
+  const subscribers = new Set<() => void>();
+  let version = 0;
   missingKeys.subscribe(() => {
     if (!apply()) return;
-    // The adapters' hooks re-read on a locale change only, so a round trip
-    // through another locale is what makes every mounted label read the new text.
-    const current = base.getLocale();
-    const other = base.getLocales().find((locale) => locale !== current);
-    if (other === undefined) return;
-    base.setLocale(other);
-    base.setLocale(current);
+    version += 1;
+    for (const callback of [...subscribers]) callback();
   });
 
-  return { i18n: base, missingKeys };
+  return {
+    i18n: base,
+    missingKeys,
+    subscribe(callback) {
+      subscribers.add(callback);
+      return () => void subscribers.delete(callback);
+    },
+    version: () => version,
+  };
 }
