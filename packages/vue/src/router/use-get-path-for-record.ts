@@ -10,7 +10,7 @@
  * resource registered: an explicit `link` fires no `canAccess` call.
  */
 
-import type { CreatePathType, Identifier, LooseRecord } from "@chelone/core";
+import type { CreatePathType, Identifier, ResourceRecord } from "@chelone/core";
 import {
   type ComputedRef,
   computed,
@@ -27,13 +27,13 @@ import { useCreatePath } from "./nav-composables";
 export type LinkToType =
   | CreatePathType
   | false
-  | ((record: LooseRecord, resource: string) => CreatePathType | false);
+  | ((record: ResourceRecord, resource: string) => CreatePathType | false);
 
 export interface UseGetPathForRecordOptions {
   /** The resource the record belongs to. */
   resource: MaybeRefOrGetter<string>;
   /** The record whose id the link targets. No record (or no id) gives `false`. */
-  record: MaybeRefOrGetter<LooseRecord | undefined>;
+  record: MaybeRefOrGetter<ResourceRecord | undefined>;
   /**
    * An explicit link type or function, or omitted to infer show, then edit. A
    * function is the link function itself, never a getter, so a reactive `link`

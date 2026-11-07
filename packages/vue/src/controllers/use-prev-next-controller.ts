@@ -21,9 +21,9 @@ import {
   getListOptions,
   getPrevNextParams,
   type Identifier,
-  type LooseRecord,
   type PrevNextOptions,
   type PrevNextStoredParams,
+  type ResourceRecord,
   resolvePrevNext,
 } from "@chelone/core";
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
@@ -44,7 +44,7 @@ const FIVE_MINUTES = 5 * 60 * 1000;
 
 export interface UsePrevNextControllerOptions extends PrevNextOptions {
   /** Step from this record instead of the ambient one. */
-  record?: LooseRecord;
+  record?: ResourceRecord;
 }
 
 export interface UsePrevNextControllerReturn {

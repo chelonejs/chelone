@@ -457,7 +457,7 @@ interface Account extends Record<string, unknown> {
 
 /** Mount `<ApiKeyInput>` under `<Admin>` with an ambient resource + record. */
 function mountApiKey(
-  props: ApiKeyInputProps,
+  props: ApiKeyInputProps<Account>,
   {
     record,
     resource = "accounts",
@@ -494,7 +494,7 @@ function mountApiKey(
           {
             default: () =>
               h(Host, null, {
-                default: () => h(ApiKeyInput, props),
+                default: () => h(ApiKeyInput<Account>, { ...props }),
               }),
           },
         );

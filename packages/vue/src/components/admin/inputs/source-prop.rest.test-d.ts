@@ -12,7 +12,8 @@ import type WebhookEndpointInput from "./webhook-endpoint-input.vue";
 
 describe("api-key, webhook-endpoint, mdx and monaco-json sources", () => {
   it("the ApiKeyInput source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ApiKeyInput>["$props"];
+    // A generic SFC is a function whose first parameter is its props.
+    type Props = Parameters<typeof ApiKeyInput>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
