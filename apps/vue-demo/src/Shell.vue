@@ -249,11 +249,13 @@ const t = (key: string, english: string) => translate(key, { _: english });
           :tools="assistantTools"
           welcome-message="Hi! Ask me how many posts there are."
         />
-        <!-- Left of the Assistant trigger, which sits at `bottom-4 right-4`. -->
+        <!-- Left of the Assistant trigger, which sits at `bottom-4 right-4`.
+             Below `md` the panel would run off the left edge at that offset, so
+             the button moves above the Assistant trigger instead. -->
         <DataProviderDevtools
           :log="dataProviderLog"
           :default-open="false"
-          class="right-32"
+          class="max-md:bottom-20 md:right-32"
         />
       </Inspector>
     </CommandMenu>
