@@ -89,7 +89,7 @@ export const AvatarFallback: FunctionalComponent<ClassProps> = (
     {
       "data-slot": "avatar-fallback",
       class: cn(
-        "flex size-full items-center justify-center rounded-full bg-muted text-sm group-data-[size=sm]/avatar:text-xs",
+        "flex size-full items-center justify-center rounded-full bg-muted text-sm text-muted-foreground group-data-[size=sm]/avatar:text-xs",
         props.class,
       ),
     },
