@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { fileName, MARKER, section } from "./showcase-shots.mjs";
+import { fileName, inVueFrame, MARKER, section } from "./showcase-shots.mjs";
 import { componentsIn, docsPageHasDemo, owner, problems, targets, vueDocsShot } from "./showcase.mjs";
 
 const shot = (path) => ({ path, see: "role=textbox" });
@@ -41,6 +41,14 @@ describe("vueDocsShot", () => {
 
   it("is nothing when the entry has no docs shot at all", () => {
     assert.equal(vueDocsShot({ react: { demo: shot("/demo/posts") } }), undefined);
+  });
+});
+
+describe("inVueFrame", () => {
+  it("is true only for a Vue docs shot, whose demo sits in the docs page's frame", () => {
+    assert.ok(inVueFrame({ adapter: "vue", view: "docs" }));
+    assert.ok(!inVueFrame({ adapter: "vue", view: "demo" }));
+    assert.ok(!inVueFrame({ adapter: "react", view: "docs" }));
   });
 });
 

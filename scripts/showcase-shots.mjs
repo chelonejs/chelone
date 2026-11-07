@@ -54,18 +54,31 @@ function serve() {
   });
 }
 
-// The component a shot photographs. A docs page shows its Vue demo inside an iframe of
-// the Vue demo app, so the selector sits in that frame; a docs page's own heading sits
-// on the page. Whichever answers first wins.
+// A docs page shows its Vue demo inside an iframe of the Vue demo app, so that shot's
+// selectors sit in the frame; a docs page's own heading sits on the page. Whichever
+// answers first wins.
 const VUE_DEMO_FRAME = "iframe[title^='Vue demo']";
 
+// Whether a shot's selectors sit in the Vue demo frame as well as on the page: only a
+// Vue docs shot, whose demo the docs page shows inside that frame.
+export const inVueFrame = ({ adapter, view }) => adapter === "vue" && view === "docs";
+
+// Where a shot's selector can be: on the page, and for a Vue docs shot also in the
+// frame that holds its Vue demo.
+function roots(page, shot, selector) {
+  const onPage = page.locator(selector).first();
+  if (!inVueFrame(shot)) return [onPage];
+  const inFrame = page
+    .locator(VUE_DEMO_FRAME)
+    .first()
+    .contentFrame()
+    .locator(selector)
+    .first();
+  return [onPage, inFrame];
+}
+
 async function component(page, shot) {
-  const roots = [page.locator(shot.see).first()];
-  if (shot.adapter === "vue" && shot.view === "docs") {
-    const frame = page.locator(VUE_DEMO_FRAME).first().contentFrame();
-    roots.push(frame.locator(shot.see).first());
-  }
-  const visible = roots.map(async (root) => {
+  const visible = roots(page, shot, shot.see).map(async (root) => {
     await root.waitFor({ state: "visible", timeout: VISIBLE_WITHIN_MS });
     return root;
   });
@@ -77,12 +90,27 @@ async function component(page, shot) {
   }
 }
 
+// The button a shot presses first. A Vue docs shot's button sits in the frame holding
+// its demo, so the press is tried on the page and in that frame, whichever answers.
+// The docs page zooms that frame to fit its panel, which puts Playwright's click point
+// off the button, so a press in the frame is a click event sent to the button itself.
+async function press(page, shot, selector) {
+  const [onPage, inFrame] = roots(page, shot, selector);
+  const presses = [onPage.click({ timeout: VISIBLE_WITHIN_MS })];
+  if (inFrame) presses.push(inFrame.dispatchEvent("click", undefined, { timeout: VISIBLE_WITHIN_MS }));
+  try {
+    await Promise.any(presses);
+  } catch (error) {
+    throw error instanceof AggregateError ? error.errors[0] : error;
+  }
+}
+
 async function shoot(browser, shot) {
   const page = await browser.newPage({ viewport: VIEWPORT });
   try {
     await page.goto(`http://localhost:${PORT}${shot.path}`);
     for (const selector of shot.click ?? []) {
-      await page.locator(selector).first().click({ timeout: VISIBLE_WITHIN_MS });
+      await press(page, shot, selector);
     }
     const target = await component(page, shot);
     await target.scrollIntoViewIfNeeded();

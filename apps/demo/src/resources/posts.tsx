@@ -49,7 +49,11 @@ import {
   useParams,
   useRecordContext,
 } from "@chelone/react";
-import { ConfigurableInputs } from "@chelone/react/inspector";
+import {
+  Configurable,
+  ConfigurableInputs,
+  SortableFieldsSelector,
+} from "@chelone/react/inspector";
 import { type ReactNode, useMemo, useState } from "react";
 import { z } from "zod";
 import { SimulatedViewer, SimulateOtherUser } from "../realtime-sim";
@@ -72,21 +76,30 @@ export const postSchema = z.object({
 export function PostList() {
   return (
     <ListLive actions={<SimulateOtherUser />}>
-      <DataTable>
-        <DataTable.Col source="title" />
-        <DataTable.Col label="Author">
-          <ReferenceField source="author_id" reference="authors">
-            <TextField source="name" />
-          </ReferenceField>
-        </DataTable.Col>
-        <DataTable.NumberCol source="views" />
-        <DataTable.Col source="published">
-          <BooleanField source="published" />
-        </DataTable.Col>
-        <DataTable.Col>
-          <EditButton />
-        </DataTable.Col>
-      </DataTable>
+      {/* Configure mode outlines the table so its columns can be hidden and
+          reordered from the inspector. The table publishes them under
+          `posts.datatable`, which is what the editor reads. */}
+      <Configurable
+        preferenceKey="posts.columns"
+        title="Columns"
+        editor={<SortableFieldsSelector storeKey="posts.datatable" />}
+      >
+        <DataTable>
+          <DataTable.Col source="title" />
+          <DataTable.Col label="Author">
+            <ReferenceField source="author_id" reference="authors">
+              <TextField source="name" />
+            </ReferenceField>
+          </DataTable.Col>
+          <DataTable.NumberCol source="views" />
+          <DataTable.Col source="published">
+            <BooleanField source="published" />
+          </DataTable.Col>
+          <DataTable.Col>
+            <EditButton />
+          </DataTable.Col>
+        </DataTable>
+      </Configurable>
       <ListPagination />
     </ListLive>
   );
