@@ -131,7 +131,9 @@ function ShowView(props: ShowViewProps) {
         )}
         {resolvedActions}
       </div>
-      <Wrapper className="my-2 space-y-4">{children}</Wrapper>
+      <Wrapper data-slot="show" className="my-2 space-y-4">
+        {children}
+      </Wrapper>
     </>
   );
 }
