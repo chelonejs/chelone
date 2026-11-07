@@ -444,8 +444,42 @@
   "in-place-editor-form": {
     "shownBy": "in-place-editor"
   },
-  "infinite-list": null,
-  "infinite-pagination": null,
+  "infinite-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/list/infinite-list",
+        "see": ".not-prose >> role=heading[name=\"Latest posts\"]"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> role=heading[name=\"Activity\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> role=heading[name=\"Activity\"]"
+      }
+    }
+  },
+  "infinite-pagination": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/infinite-pagination",
+        "see": ".not-prose >> role=button[name=\"Load more\"]"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> text=/Load more|No more rows/"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Activity feed\"] >> text=/Load more|No more rows/"
+      }
+    }
+  },
   "input-helper-text": {
     "shownBy": "text-input"
   },
@@ -698,26 +732,60 @@
     "react": {
       "docs": {
         "path": "/docs/viewing/simple-list",
-        "see": "text=On Computable Numbers"
+        "see": ".not-prose >> role=list"
       },
       "demo": {
-        "path": "/demo/customers",
-        "see": "[aria-label=\"At-risk customers\"] >> role=list"
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=list"
       }
     },
     "vue": {
       "demo": {
-        "path": "/vue-demo/customers",
-        "see": "[aria-label=\"At-risk customers\"] >> role=list"
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=list"
       }
     }
   },
-  "simple-list-item": null,
+  "simple-list-item": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/simple-list-item",
+        "see": ".not-prose >> text=On Computable Numbers"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=link[name=/River Stone/]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> role=link[name=/River Stone/]"
+      }
+    }
+  },
   "simple-list-loading": {
     "shownBy": "simple-list"
   },
   "simplify-input": null,
-  "single-field-list": null,
+  "single-field-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/single-field-list",
+        "see": ".not-prose >> [data-slot=badge]"
+      },
+      "demo": {
+        "path": "/demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> text=ORD-2001"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/activity",
+        "see": "section[aria-label=\"Recent customers\"] >> text=ORD-2001"
+      }
+    }
+  },
   "single-field-list-record": {
     "shownBy": "single-field-list"
   },
