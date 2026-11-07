@@ -115,15 +115,24 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
 
   // The Vue demo renders in an iframe of another app, which cannot size the
   // panel it sits in, so a fixed height cuts a list demo off. Fit the frame to
-  // its content and keep it fitted while the demo grows (its module loads
-  // after the frame does). jsdom has no ResizeObserver, and a frame it cannot
-  // load has nothing to fit.
+  // its content and keep it fitted while the demo changes size (its module
+  // loads after the frame does, and paging a list shrinks it). jsdom has no
+  // ResizeObserver, and a frame it cannot load has nothing to fit.
   useEffect(() => {
     const frame = frameRef.current;
     if (framework !== "vue" || tab !== "preview" || !frame) return;
     const fit = () => {
-      const doc = frame.contentDocument?.documentElement;
-      if (doc) frame.style.height = `${doc.scrollHeight}px`;
+      // The body, not the document element: a document element is never shorter
+      // than the frame it fills, so measuring it can only ever grow the frame
+      // and a shrunk demo would leave an empty band under it. The body's bottom
+      // edge is measured in the frame, so it carries the body's own offset.
+      const body = frame.contentDocument?.body;
+      if (!body) return;
+      const height = Math.max(
+        body.scrollHeight,
+        body.getBoundingClientRect().bottom,
+      );
+      frame.style.height = `${Math.ceil(height)}px`;
     };
     const observer =
       typeof ResizeObserver === "function"
