@@ -1,14 +1,15 @@
 /**
- * `<DonutChart>` mounted the way an app uses it: inside the Chelone provider,
- * with assertions on the DOM recharts draws. jsdom measures every element as
- * 0x0, so `ResponsiveContainer` is replaced by one that hands its chart a size.
+ * `<DonutChart>` mounted the way the demos use it: as a resource page inside
+ * `<Admin>`, with assertions on the DOM recharts draws. jsdom measures every
+ * element as 0x0, so `ResponsiveContainer` is replaced by one that hands its
+ * chart a size.
  */
-import { createStore, fakeDataProvider } from "@chelone/core";
-import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render } from "@testing-library/react";
+import { defineResources, fakeDataProvider } from "@chelone/core";
+import { cleanup } from "@testing-library/react";
 import { cloneElement, isValidElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CheloneProvider } from "../../context";
+import { z } from "zod";
+import { mountInAdmin } from "./__fixtures__/admin-mount";
 import { DonutChart, type DonutChartProps } from "./donut-chart";
 
 vi.mock("recharts", async (importOriginal) => ({
@@ -29,16 +30,22 @@ const ROWS: Row[] = [
   { plan: "Team", seats: 60 },
 ];
 
+const resources = defineResources({
+  plans: {
+    schema: z.object({ plan: z.string(), seats: z.number() }),
+  },
+});
+
+/** The chart as the `plans` list page, inside `<Admin>`. */
 function mount(props: Partial<DonutChartProps<Row>> = {}) {
-  return render(
-    <CheloneProvider
-      dataProvider={fakeDataProvider({})}
-      queryClient={new QueryClient()}
-      store={createStore()}
-    >
+  return mountInAdmin({
+    name: "plans",
+    resources,
+    dataProvider: fakeDataProvider({ plans: [] }),
+    page: () => (
       <DonutChart data={ROWS} labelField="plan" valueField="seats" {...props} />
-    </CheloneProvider>,
-  );
+    ),
+  });
 }
 
 function sectorFills(container: HTMLElement) {

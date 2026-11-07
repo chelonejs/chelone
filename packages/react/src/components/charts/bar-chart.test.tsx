@@ -1,14 +1,15 @@
 /**
- * `<BarChart>` mounted the way an app uses it: inside the Chelone provider,
- * with assertions on the DOM recharts draws. jsdom measures every element as
- * 0x0, so `ResponsiveContainer` is replaced by one that hands its chart a size.
+ * `<BarChart>` mounted the way the demos use it: as a resource page inside
+ * `<Admin>`, with assertions on the DOM recharts draws. jsdom measures every
+ * element as 0x0, so `ResponsiveContainer` is replaced by one that hands its
+ * chart a size.
  */
-import { createStore, fakeDataProvider } from "@chelone/core";
-import { QueryClient } from "@tanstack/react-query";
-import { cleanup, render } from "@testing-library/react";
+import { defineResources, fakeDataProvider } from "@chelone/core";
+import { cleanup } from "@testing-library/react";
 import { cloneElement, isValidElement, type ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CheloneProvider } from "../../context";
+import { z } from "zod";
+import { mountInAdmin } from "./__fixtures__/admin-mount";
 import { BarChart, type BarChartProps } from "./bar-chart";
 
 vi.mock("recharts", async (importOriginal) => ({
@@ -29,16 +30,22 @@ const ROWS: Row[] = [
   { day: "Wed", visits: 5 },
 ];
 
+const resources = defineResources({
+  posts: {
+    schema: z.object({ day: z.string(), visits: z.number() }),
+  },
+});
+
+/** The chart as the `posts` list page, inside `<Admin>`. */
 function mount(props: Partial<BarChartProps<Row>> = {}) {
-  return render(
-    <CheloneProvider
-      dataProvider={fakeDataProvider({})}
-      queryClient={new QueryClient()}
-      store={createStore()}
-    >
+  return mountInAdmin({
+    name: "posts",
+    resources,
+    dataProvider: fakeDataProvider({ posts: [] }),
+    page: () => (
       <BarChart data={ROWS} xField="day" yField="visits" {...props} />
-    </CheloneProvider>,
-  );
+    ),
+  });
 }
 
 /** How each drawn bar is filled: the attribute recharts writes and the style that paints. */
