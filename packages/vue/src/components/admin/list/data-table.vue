@@ -311,7 +311,7 @@ function handleToggleSelectAll(checked: boolean) {
         </template>
       </TableBody>
     </Table>
-    <ListPagination v-if="pagination" class="mt-2" />
+    <ListPagination v-if="pagination" />
     <BulkActionsToolbar v-if="hasBulkActions">
       <slot name="bulkActions" />
     </BulkActionsToolbar>
