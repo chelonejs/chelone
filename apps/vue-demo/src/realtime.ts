@@ -7,6 +7,7 @@
 
 import {
   addEventsForMutations,
+  createDataProviderLog,
   fakeDataProvider,
   inMemoryLockProvider,
   memoryTransport,
@@ -17,9 +18,18 @@ import { seedData } from "@chelone/demo-data";
 export const transport = memoryTransport();
 export const locks = inMemoryLockProvider({ publisher: transport });
 
+// What `<DataProviderDevtools>` lists. It wraps the in-memory provider alone:
+// the realtime layer on top adds `subscribe`, which returns a function where
+// the log's wrapper would return a promise.
+export const dataProviderLog = createDataProviderLog();
+
 // Seeded once: the in-memory provider mutates its data in place. Writes made
 // through `dataProvider` publish on the transport, so open lists refetch.
 export const dataProvider = addEventsForMutations(
-  realtimeDataProvider(fakeDataProvider(seedData()), transport, { locks }),
+  realtimeDataProvider(
+    dataProviderLog.wrap(fakeDataProvider(seedData())),
+    transport,
+    { locks },
+  ),
   transport,
 );
