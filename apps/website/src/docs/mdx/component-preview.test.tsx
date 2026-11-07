@@ -159,22 +159,61 @@ describe("the Vue demo frame", () => {
     expect(frame().style.width).toBe("800px");
   });
 
-  // jsdom never loads the frame, so it has no contentDocument and nothing to
-  // measure: the fitting effect has nothing to fit, which is what must show up
-  // here as no height at all. The fitting itself is checked in a browser.
-  it("leaves the frame's height to the fitting effect, with the floor on the panel", () => {
+  // The frame is fitted at runtime, so nothing may fix its height up front: a
+  // fixed height is what cut a list demo off. The floor that keeps an empty
+  // frame from collapsing to a slit is the panel's, not the frame's: `zoom`
+  // scales the frame's own lengths, so a height class on the frame is a height
+  // class on 800px of layout. `min-h-56` held a 108px demo's frame at 224px, and
+  // the band under it stayed after the frame was zoomed down to the panel.
+  it("gives the frame no height of its own, and the floor to the panel", () => {
     const { container } = renderPreview(BOTH, VUE_URL);
     const el = frame();
 
-    expect(el.contentDocument?.body).toBeNull();
     expect(el.style.height).toBe("");
-    // The floor that keeps an empty frame from collapsing to a slit is the
-    // panel's, not the frame's. `zoom` scales the frame's own lengths, so a
-    // height class on the frame is a height class on 800px of layout: `min-h-56`
-    // held a 108px demo's frame at 224px, and the band under it stayed after the
-    // frame was zoomed down to the panel.
     expect(el.className).not.toContain("min-h");
     expect(container.querySelector(".min-h-32")).not.toBeNull();
+  });
+
+  // jsdom never loads the frame's `src`, so the test gives its document the
+  // shape a loaded page has and fires the event a real load fires. jsdom lays
+  // out nothing either, so a fitted frame reads 0px: what is pinned is that the
+  // frame was fitted at all, which a frame the effect never saw is not.
+  function loadFrame(frame: HTMLIFrameElement): void {
+    const doc = frame.contentDocument;
+    if (!doc) throw new Error("the frame has no content document");
+    const html = doc.createElement("html");
+    const body = doc.createElement("body");
+    body.innerHTML = '<div id="demo">the demo</div>';
+    html.append(body);
+    doc.append(html);
+    fireEvent.load(frame);
+  }
+
+  it("fits a frame that mounts while the preview tab is hidden", () => {
+    renderPreview(BOTH);
+
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "Vue" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+    loadFrame(frame());
+    expect(frame().style.height).not.toBe("");
+  });
+
+  it("fits the frame again when the preview tab comes back", () => {
+    renderPreview(BOTH, VUE_URL);
+
+    const left = frame();
+    loadFrame(left);
+    expect(left.style.height).not.toBe("");
+
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+    const back = frame();
+    expect(back).not.toBe(left);
+    loadFrame(back);
+    expect(back.style.height).not.toBe("");
   });
 });
 
