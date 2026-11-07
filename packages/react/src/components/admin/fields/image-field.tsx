@@ -1,4 +1,8 @@
-import { getAtPath, type LooseRecord } from "@chelone/core";
+import {
+  getAtPath,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
@@ -6,7 +10,7 @@ import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface ImageFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface ImageFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   /** The path to the image url on each item, for an array of images. */
   src?: string;
@@ -31,7 +35,7 @@ interface ImageFieldProps<RecordType extends LooseRecord = LooseRecord>
  *   empty={<div className="size-8 rounded-full bg-muted">👤</div>}
  * />
  */
-function ImageField<RecordType extends LooseRecord = LooseRecord>(
+function ImageField<RecordType extends ResourceRecord = LooseRecord>(
   props: ImageFieldProps<RecordType>,
 ) {
   const { src, defaultValue, source, record, empty, title, ...rest } = props;

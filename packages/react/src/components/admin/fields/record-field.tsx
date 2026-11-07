@@ -1,4 +1,4 @@
-import type { LooseRecord, SourceProp } from "@chelone/core";
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 import {
   createElement,
   type ElementType,
@@ -13,7 +13,7 @@ import { useRecordContext } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource";
 import { TextField } from "./text-field";
 
-interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface RecordFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends Omit<FieldProps<RecordType>, "source" | "record">,
     Omit<HTMLAttributes<HTMLDivElement>, "className"> {
   children?: ReactNode;
@@ -45,7 +45,7 @@ interface RecordFieldProps<RecordType extends LooseRecord = LooseRecord>
  *   </Show>
  * );
  */
-function RecordField<RecordType extends LooseRecord = LooseRecord>(
+function RecordField<RecordType extends ResourceRecord = LooseRecord>(
   props: RecordFieldProps<RecordType>,
 ) {
   const {
