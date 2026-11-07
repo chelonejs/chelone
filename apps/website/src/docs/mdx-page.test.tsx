@@ -253,7 +253,9 @@ it.each([
     expect(
       screen.getByText("pnpm dlx shadcn@latest add @chelone/rich-text-input"),
     ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Vue" }));
+    // A page with a Vue demo has a second switch, in its preview. The install
+    // block's comes first, and both follow the same choice.
+    fireEvent.click(screen.getAllByRole("button", { name: "Vue" })[0]);
     expect(
       screen.getByText(
         "pnpm dlx shadcn-vue@latest add @chelone/rich-text-input",

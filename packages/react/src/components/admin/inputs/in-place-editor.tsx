@@ -301,7 +301,7 @@ function InPlaceEditorForm<TRecord extends ResourceRecord>(
         <SourceContextProvider scope={sourceScope}>
           <form
             data-slot="in-place-editor-editing"
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 [&>:first-child]:min-w-0 [&>:first-child]:flex-1"
             onClick={(event) => event.stopPropagation()}
             onSubmit={(event) => {
               event.preventDefault();

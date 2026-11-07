@@ -1,6 +1,6 @@
 <script lang="ts">
 /** How much admin context a docs demo needs; the Vue twin of the React `PreviewMode`. */
-export type PreviewMode = "view" | "record" | "input";
+export type PreviewMode = "view" | "record" | "input" | "realtime";
 </script>
 
 <script setup lang="ts">
@@ -16,13 +16,21 @@ export type PreviewMode = "view" | "record" | "input";
  * - `view`: the demo is the view and renders as is.
  * - `record`: the first post is the ambient record, for a bare field.
  * - `input`: the demo sits in a `<Create>` form, titleless, for a bare input.
+ * - `realtime`: a `view` whose data provider also has record locks, for the
+ *   components that take or show one. Every mode is realtime over an in-memory
+ *   transport, so a write the demo makes reaches its subscribers, and every
+ *   mode signs in as Ada, so the components that act as a user have a name.
  */
 
 import {
   type AuthProvider,
+  addEventsForMutations,
   createNotificationStore,
   createStore,
   fakeDataProvider,
+  inMemoryLockProvider,
+  memoryTransport,
+  realtimeDataProvider,
 } from "@chelone/core";
 import { makeI18n, seedData } from "@chelone/demo-data";
 import {
@@ -56,7 +64,16 @@ seed.posts = seed.posts.map((post, i) => ({
     9 + (i % 8),
   ).toISOString(),
 }));
-const dataProvider = fakeDataProvider(seed);
+const transport = memoryTransport();
+const dataProvider = addEventsForMutations(
+  realtimeDataProvider(fakeDataProvider(seed), transport, {
+    locks:
+      props.mode === "realtime"
+        ? inMemoryLockProvider({ publisher: transport })
+        : undefined,
+  }),
+  transport,
+);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, staleTime: Number.POSITIVE_INFINITY },
