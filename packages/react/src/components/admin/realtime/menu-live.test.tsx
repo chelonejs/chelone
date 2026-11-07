@@ -16,7 +16,11 @@ import {
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { SidebarMenu, SidebarProvider } from "@/components/ui/sidebar";
+import {
+  SidebarMenu,
+  SidebarProvider,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { CheloneProvider } from "../../../context";
 import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
@@ -395,6 +399,34 @@ describe("<MenuLive> in a sidebar", () => {
 
     fireEvent.focus(link);
     expect((await screen.findByRole("tooltip")).textContent).toBe("Posts");
+  });
+
+  it("closes the mobile drawer when an entry is followed", () => {
+    const { Providers } = setup();
+    function Drawer() {
+      const { openMobile, setOpenMobile } = useSidebar();
+      return (
+        <button type="button" onClick={() => setOpenMobile(true)}>
+          {openMobile ? "drawer open" : "drawer closed"}
+        </button>
+      );
+    }
+    render(
+      <Providers>
+        <SidebarProvider>
+          <Drawer />
+          <SidebarMenu>
+            <MenuLive items={items} />
+          </SidebarMenu>
+        </SidebarProvider>
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "drawer closed" }));
+    expect(screen.getByRole("button", { name: "drawer open" })).toBeTruthy();
+
+    fireEvent.click(screen.getByRole("link", { name: /posts/i }));
+
+    expect(screen.getByRole("button", { name: "drawer closed" })).toBeTruthy();
   });
 });
 

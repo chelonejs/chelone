@@ -171,7 +171,12 @@ function MenuLiveItemLink({
           tooltip={{ children: label }}
           className="relative"
         >
-          <Link to={to}>
+          <Link
+            to={to}
+            onClick={() => {
+              if (sidebar.openMobile) sidebar.setOpenMobile(false);
+            }}
+          >
             {icon}
             {label}
             {badge}

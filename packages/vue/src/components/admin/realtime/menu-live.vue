@@ -115,7 +115,7 @@ function acquire(
  * A menu link with a badge counting the resource's new records. The count
  * lives in the store, so it survives a remount; it clears while the link's
  * route is active. Inside a `<SidebarProvider>` it is a sidebar menu button,
- * with the label as a `title` while the sidebar is collapsed; elsewhere it is
+ * with the label as a `title` while the desktop rail is collapsed; elsewhere it is
  * a plain link. Divergence from the React twin: the render props are slots.
  * Declared as a render component so the file can also hold {@link MenuLive}.
  */
@@ -205,7 +205,13 @@ export const MenuLiveItemLink = defineComponent({
               class: "relative",
               // The Vue `ui` slice has no tooltip primitive, so the native
               // `title` stands in while the rail hides the label.
-              title: sidebar.state.value === "collapsed" ? text : undefined,
+              title:
+                sidebar.state.value === "collapsed" && !sidebar.isMobile.value
+                  ? text
+                  : undefined,
+              onClick: () => {
+                if (sidebar.openMobile.value) sidebar.setOpenMobile(false);
+              },
             },
             content,
           ),

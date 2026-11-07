@@ -14,12 +14,12 @@ import {
   realtimeDataProvider,
 } from "@chelone/core";
 import { flushPromises, mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h } from "vue";
 import { createMemoryHistory, createRouter } from "vue-router";
 import { z } from "zod";
 import Admin from "../../../admin/admin.vue";
-import { SidebarMenu, SidebarProvider } from "../../ui/sidebar";
+import { SidebarMenu, SidebarProvider, useSidebar } from "../../ui/sidebar";
 import MenuLive, {
   MenuLiveItemLink,
   type MenuLiveItemLinkProps,
@@ -330,6 +330,50 @@ describe("<MenuLive> in a sidebar", () => {
     expect(link.attributes("title")).toBe("Posts");
     expect(link.text()).toContain("Posts");
     expect(link.get('[data-testid="menu-live-badge"]').text()).toBe("1");
+  });
+
+  it("closes the mobile drawer when an entry is followed", async () => {
+    const env = setup();
+    const Drawer = defineComponent({
+      setup() {
+        const { openMobile, setOpenMobile } = useSidebar();
+        return () =>
+          h(
+            "button",
+            { onClick: () => setOpenMobile(true) },
+            openMobile.value ? "drawer open" : "drawer closed",
+          );
+      },
+    });
+    const { wrapper } = mountUnderAdmin(env, () =>
+      h(SidebarProvider, null, () => [
+        h(Drawer),
+        h(SidebarMenu, null, () => h(MenuLive, { items })),
+      ]),
+    );
+    await flushPromises();
+    await wrapper.get("button").trigger("click");
+    expect(wrapper.get("button").text()).toBe("drawer open");
+
+    await wrapper.get("a").trigger("click");
+
+    expect(wrapper.get("button").text()).toBe("drawer closed");
+  });
+
+  describe("in the mobile drawer", () => {
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("has no tooltip, since the drawer shows the label", async () => {
+      vi.stubGlobal("innerWidth", 500);
+      vi.stubGlobal("matchMedia", () => ({
+        addEventListener() {},
+        removeEventListener() {},
+      }));
+      const { wrapper } = mountInSidebar(false);
+      await flushPromises();
+
+      expect(wrapper.get("a").attributes("title")).toBeUndefined();
+    });
   });
 });
 
