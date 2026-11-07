@@ -39,6 +39,8 @@ export interface CommandMenuProps {
 
 import {
   createCommandRegistry,
+  DEFAULT_RECENTS_LIMIT,
+  DEFAULT_SEARCH_DEBOUNCE_MS,
   shouldHandleHotkey,
 } from "@chelone/core";
 import {
@@ -70,10 +72,10 @@ const props = withDefaults(defineProps<CommandMenuProps>(), {
   resources: undefined,
   searchFields: () => ({}),
   perResourceLimit: 5,
-  recentsLimit: 10,
+  recentsLimit: DEFAULT_RECENTS_LIMIT,
   actions: () => [],
   placeholder: undefined,
-  searchDebounceMs: 250,
+  searchDebounceMs: DEFAULT_SEARCH_DEBOUNCE_MS,
 });
 
 defineSlots<{ default?: () => VNode[] }>();
