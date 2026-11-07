@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { fileName, MARKER, section } from "./showcase-shots.mjs";
-import { componentsIn, owner, problems, targets } from "./showcase.mjs";
+import { componentsIn, docsPageHasDemo, owner, problems, targets, vueDocsShot } from "./showcase.mjs";
 
 const shot = (path) => ({ path, see: "role=textbox" });
 // `vue.docs` is never written: it is the React docs shot with `?framework=vue`.
@@ -26,6 +26,34 @@ describe("componentsIn", () => {
     ];
     assert.deepEqual([...componentsIn({ items }, "vue").keys()], ["a", "b"]);
     assert.deepEqual(componentsIn({ items }, "vue").get("a"), ["packages/vue/src/a.tsx"]);
+  });
+});
+
+describe("vueDocsShot", () => {
+  it("is the React docs shot with the framework set", () => {
+    assert.deepEqual(vueDocsShot(complete), { path: vueDocs, see: "role=textbox" });
+  });
+
+  it("leaves an entry that names its own Vue docs shot alone", () => {
+    const entry = { ...complete, vue: { ...complete.vue, docs: shot("/docs/vue/own") } };
+    assert.deepEqual(vueDocsShot(entry), shot("/docs/vue/own"));
+  });
+
+  it("is nothing when the entry has no docs shot at all", () => {
+    assert.equal(vueDocsShot({ react: { demo: shot("/demo/posts") } }), undefined);
+  });
+});
+
+describe("docsPageHasDemo", () => {
+  it("reads a query string as the same docs page", () => {
+    assert.ok(docsPageHasDemo(vueDocs, "vue"));
+    assert.ok(docsPageHasDemo("/docs/editing/text-input", "react"));
+  });
+
+  it("asks for the demo of the adapter it is asked for", () => {
+    assert.ok(!docsPageHasDemo("/docs/editing/simple-form-iterator", "vue"));
+    assert.ok(docsPageHasDemo("/docs/editing/simple-form-iterator", "react"));
+    assert.ok(!docsPageHasDemo("/docs/no/such/page", "react"));
   });
 });
 
