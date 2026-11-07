@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { fileName, MARKER, section } from "./showcase-shots.mjs";
+import { fileName, frameSee, MARKER, section } from "./showcase-shots.mjs";
 import { componentsIn, docsPageHasDemo, owner, problems, targets, vueDocsShot } from "./showcase.mjs";
 
 const shot = (path) => ({ path, see: "role=textbox" });
@@ -41,6 +41,18 @@ describe("vueDocsShot", () => {
 
   it("is nothing when the entry has no docs shot at all", () => {
     assert.equal(vueDocsShot({ react: { demo: shot("/demo/posts") } }), undefined);
+  });
+});
+
+describe("frameSee", () => {
+  it("drops the docs-page scope so the Vue demo frame can match", () => {
+    assert.equal(frameSee(".not-prose #main-content"), "#main-content");
+    assert.equal(frameSee('.not-prose >> [data-slot="block-editor"]'), '[data-slot="block-editor"]');
+  });
+
+  it("leaves a selector with no docs-page scope alone", () => {
+    assert.equal(frameSee('role=link[name="Unread posts"]'), 'role=link[name="Unread posts"]');
+    assert.equal(frameSee(".not-prose-thing #x"), ".not-prose-thing #x");
   });
 });
 

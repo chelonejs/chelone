@@ -59,11 +59,18 @@ function serve() {
 // on the page. Whichever answers first wins.
 const VUE_DEMO_FRAME = "iframe[title^='Vue demo']";
 
+// A `see` scoped to `.not-prose` is scoped to the docs page's own content area, so it
+// can never match inside the Vue demo frame, whose document has no `.not-prose`. The
+// frame looks for the same selector with that scope dropped.
+export function frameSee(see) {
+  return see.replace(/^\.not-prose(?:\s*>>\s*|\s+)/, "");
+}
+
 async function component(page, shot) {
   const roots = [page.locator(shot.see).first()];
   if (shot.adapter === "vue" && shot.view === "docs") {
     const frame = page.locator(VUE_DEMO_FRAME).first().contentFrame();
-    roots.push(frame.locator(shot.see).first());
+    roots.push(frame.locator(frameSee(shot.see)).first());
   }
   const visible = roots.map(async (root) => {
     await root.waitFor({ state: "visible", timeout: VISIBLE_WITHIN_MS });
