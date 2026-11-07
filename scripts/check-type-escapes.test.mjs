@@ -72,6 +72,15 @@ test("a bound in a Vue generic attribute is counted", () => {
   );
 });
 
+test("only the opening tag's generic attribute is read", () => {
+  assert.deepEqual(bounds("quoted.vue", "<script setup lang=\"ts\">\nconst s = 'generic=\"T extends LooseRecord\"';\n</script>\n"), []);
+  assert.deepEqual(bounds("data.vue", '<script setup lang="ts" data-generic="T extends LooseRecord">\n</script>\n'), []);
+  assert.deepEqual(
+    bounds("nested.vue", '<script setup lang="ts" generic="T extends Array<LooseRecord>, U extends LooseRecord">\n</script>\n'),
+    [{ line: 1, kind: "loose-bound" }],
+  );
+});
+
 test("a comment does not excuse a bound", () => {
   assert.deepEqual(
     bounds(

@@ -65,13 +65,15 @@ function scripts(file, text) {
     return [{ text, line0: 0, kind: file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS }];
   }
   const blocks = [];
-  for (const match of text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)) {
-    const start = match.index + match[0].indexOf(">") + 1;
-    blocks.push({ text: match[1], line0: text.slice(0, start).split("\n").length - 1, kind: ts.ScriptKind.TS });
+  // The opening tag may hold `>` inside a quoted attribute, as in `generic="T extends Array<U>"`.
+  for (const match of text.matchAll(/(<script\b(?:[^>"']|"[^"]*"|'[^']*')*>)([\s\S]*?)<\/script>/g)) {
+    const [, tag, body] = match;
+    const start = match.index + tag.length;
+    blocks.push({ text: body, line0: text.slice(0, start).split("\n").length - 1, kind: ts.ScriptKind.TS });
     // An SFC declares its type parameters in the tag's `generic` attribute, outside every script block.
-    const generic = /\bgeneric\s*=\s*"([^"]*)"/.exec(match[0]);
+    const generic = /\sgeneric\s*=\s*"([^"]*)"/.exec(tag);
     if (!generic) continue;
-    const at = match.index + match[0].indexOf(generic[0]);
+    const at = match.index + generic.index + 1;
     blocks.push({
       text: `type __generic<${generic[1]}> = never;`,
       line0: text.slice(0, at).split("\n").length - 1,
