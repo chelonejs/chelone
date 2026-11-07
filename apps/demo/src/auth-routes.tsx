@@ -4,10 +4,14 @@
  * gate. They run against the stub provider from `@chelone/demo-data`, which
  * makes no network call, so any email and password sign in and no email is sent.
  *
- * The login page links to `/forgot-password`, its static path, so that path
- * shows the same page as `/auth/forgot-password`.
+ * The pages link to each other by their static paths: the login page to
+ * `/forgot-password`, and the forgot-password and set-password pages (and the
+ * redirect after a reset email) to `/login`. Those paths show the same pages
+ * as `/auth/forgot-password` and `/auth/login`, so no step of the flow ends on
+ * the demo's not-found page.
  */
 
+import { DEFAULT_LOGIN_PATH } from "@chelone/core";
 import { stubSupabaseAuthProvider } from "@chelone/demo-data";
 import { CheloneProvider, useCheloneContext } from "@chelone/react";
 import {
@@ -62,6 +66,7 @@ const setPasswordPage = (
 
 export const authRoutes = [
   <Route key="login" path="auth/login" element={loginPage} />,
+  <Route key="login-static" path={DEFAULT_LOGIN_PATH} element={loginPage} />,
   <Route
     key="forgot-password"
     path="auth/forgot-password"
