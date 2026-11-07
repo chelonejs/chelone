@@ -22,7 +22,10 @@ import { QueryClient } from "@tanstack/vue-query";
 import { makeI18n } from "@chelone/demo-data";
 import { mapsConfig } from "./maps-services";
 import { dataProvider } from "./realtime";
+import AuthorCreate from "./resources/AuthorCreate.vue";
+import AuthorEdit from "./resources/AuthorEdit.vue";
 import AuthorList from "./resources/AuthorList.vue";
+import AuthorShow from "./resources/AuthorShow.vue";
 import CustomerCreate from "./resources/CustomerCreate.vue";
 import CustomerEdit from "./resources/CustomerEdit.vue";
 import CustomerList from "./resources/CustomerList.vue";
@@ -31,11 +34,14 @@ import OrderCreate from "./resources/OrderCreate.vue";
 import OrderEdit from "./resources/OrderEdit.vue";
 import OrderList from "./resources/OrderList.vue";
 import OrderShow from "./resources/OrderShow.vue";
+import PlaceCreate from "./resources/PlaceCreate.vue";
 import PlaceEdit from "./resources/PlaceEdit.vue";
 import PlaceList from "./resources/PlaceList.vue";
+import PlaceShow from "./resources/PlaceShow.vue";
 import PostCreate from "./resources/PostCreate.vue";
 import PostEdit from "./resources/PostEdit.vue";
 import PostList from "./resources/PostList.vue";
+import PostShow from "./resources/PostShow.vue";
 import ProductCreate from "./resources/ProductCreate.vue";
 import ProductEdit from "./resources/ProductEdit.vue";
 import ProductList from "./resources/ProductList.vue";
@@ -75,8 +81,15 @@ const i18n = makeI18n();
         :list="PostList"
         :edit="PostEdit"
         :create="PostCreate"
+        :show="PostShow"
       />
-      <Resource name="authors" :list="AuthorList" />
+      <Resource
+        name="authors"
+        :list="AuthorList"
+        :edit="AuthorEdit"
+        :create="AuthorCreate"
+        :show="AuthorShow"
+      />
       <Resource
         name="products"
         :list="ProductList"
@@ -84,7 +97,6 @@ const i18n = makeI18n();
         :create="ProductCreate"
         :show="ProductShow"
       />
-      <Resource name="places" :list="PlaceList" :edit="PlaceEdit" />
       <Resource
         name="customers"
         :list="CustomerList"
@@ -98,6 +110,13 @@ const i18n = makeI18n();
         :edit="OrderEdit"
         :create="OrderCreate"
         :show="OrderShow"
+      />
+      <Resource
+        name="places"
+        :list="PlaceList"
+        :edit="PlaceEdit"
+        :create="PlaceCreate"
+        :show="PlaceShow"
       />
     </Admin>
   </MapsProvider>
