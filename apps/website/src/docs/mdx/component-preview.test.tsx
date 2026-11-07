@@ -25,9 +25,10 @@ vi.mock("react-shiki", () => ({
   }) => <pre data-language={language}>{children}</pre>,
 }));
 
-// `resettable-text-input` ships `basic.tsx` and `basic.vue`; `text-input` ships `basic.tsx` only.
+// `resettable-text-input` ships `basic.tsx` and `basic.vue`; `simple-form-iterator`,
+// which has no Vue counterpart at all, ships `basic.tsx` only.
 const BOTH = "editing/resettable-text-input/basic";
-const REACT_ONLY = "editing/text-input/basic";
+const REACT_ONLY = "editing/simple-form-iterator/basic";
 
 function renderPreview(name: string, url = "/docs/editing") {
   return render(
@@ -122,6 +123,7 @@ const VUE_DEMOS = [
   "editing/reference-input",
   "editing/save-button",
   "editing/select-input",
+  "editing/text-input",
   "page-components/create",
   "page-components/edit",
   "page-components/list",
