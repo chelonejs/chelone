@@ -6233,7 +6233,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["monaco-editor"],
+      "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -6247,7 +6247,7 @@
           "type": "registry:component"
         }
       ],
-      "dependencies": ["monaco-editor"],
+      "dependencies": ["@chelone/core", "monaco-editor"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

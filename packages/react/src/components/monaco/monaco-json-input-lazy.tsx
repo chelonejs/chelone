@@ -1,8 +1,10 @@
 import {
   composeValidators,
   detectJsonShape,
+  ERROR_SEVERITY,
   fromJsonText,
   type JsonShape,
+  MODEL_PREFIX,
   stripJsonComments,
   toJsonText,
 } from "@chelone/core";
@@ -32,7 +34,6 @@ import type { MonacoJsonInputProps } from "./monaco-json-input";
 // Serve the bundled copy instead of the binding's default CDN fetch.
 loader.config({ monaco });
 
-const ERROR_SEVERITY = 8;
 const identity = (value: unknown) => value;
 
 /** The only file that imports `monaco-editor` at run time. */
@@ -195,7 +196,7 @@ export default function MonacoJsonInputLazy({
     maxHeight,
   );
   useMonacoLayout(instance, container);
-  const modelPath = `inmemory://monaco-json-input/${id.replace(/[^\w-]/g, "-")}.json`;
+  const modelPath = `${MODEL_PREFIX}${id.replace(/[^\w-]/g, "-")}.json`;
   useJsonSchema(monacoApi, {
     path: modelPath,
     schema,

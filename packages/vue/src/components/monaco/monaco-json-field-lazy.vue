@@ -9,7 +9,11 @@
  */
 
 import { loader, VueMonacoEditor } from "@guolao/vue-monaco-editor";
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import {
+  type LooseRecord,
+  MONACO_MIN_HEIGHT,
+  type ResourceRecord,
+} from "@chelone/core";
 import type { editor } from "monaco-editor";
 import * as monaco from "monaco-editor";
 import { computed, shallowRef, type VNode } from "vue";
@@ -25,8 +29,6 @@ import type { MonacoJsonFieldProps } from "./monaco-json-field.vue";
 
 // Serve the bundled copy instead of the binding's default CDN fetch.
 loader.config({ monaco });
-
-const MIN_HEIGHT = 120;
 
 const props = withDefaults(
   defineProps<MonacoJsonFieldProps<RecordType>>(),
@@ -59,7 +61,7 @@ const theme = useMonacoTheme();
 const contentHeight = useAutoHeight(
   instance,
   () => props.autoHeight,
-  MIN_HEIGHT,
+  MONACO_MIN_HEIGHT,
   () => props.maxHeight,
 );
 const container = useMonacoLayout(instance);

@@ -1,3 +1,22 @@
+// Monaco numbers and strings both adapters share. Plain values: core imports nothing from Monaco.
+
+/** Monaco's `MarkerSeverity.Error`. */
+export const ERROR_SEVERITY = 8;
+
+/**
+ * How long after the last edit `settled` waits for Monaco's markers. Monaco
+ * posts them about 500 ms after an edit.
+ */
+export const MARKERS_SETTLE_MS = 750;
+
+// Monaco's JSON diagnostics adapter debounces validation by this long after an edit.
+export const MONACO_DIAGNOSTICS_DELAY_MS = 500;
+
+export const MONACO_MIN_HEIGHT = 120;
+
+/** Every model path the Monaco add-on creates starts with this. */
+export const MODEL_PREFIX = "inmemory://monaco-json-input/";
+
 export type JsonShape = "string" | "object";
 
 export function detectJsonShape(value: unknown): JsonShape | null {
