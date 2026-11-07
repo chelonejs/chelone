@@ -12,7 +12,20 @@ const fieldsOf4 = (
 ) =>
   describeResource("things", { schema: z4.object(shape), references })?.fields;
 
-const only = (schema: z.ZodTypeAny) => fieldsOf({ value: schema })?.[0];
+const only = (schema: z4.core.$ZodType) => fieldsOf({ value: schema })?.[0];
+
+/**
+ * A schema whose def is not the shape a real Zod def has. Only `~standard` is
+ * real, and `describeResource` never reads it.
+ */
+const brokenSchema = (def: { _def?: object; _zod?: object }) => ({
+  ...def,
+  "~standard": {
+    version: 1 as const,
+    vendor: "fake",
+    validate: () => ({ value: undefined }),
+  },
+});
 
 describe("describeResource", () => {
   it("returns undefined without a schema and for a schema that is not an object", () => {
@@ -399,5 +412,37 @@ describe("describeResource with a Zod 4 schema", () => {
       },
     } as const;
     expect(describeResource("posts", { schema })).toBeUndefined();
+  });
+});
+
+describe("describeResource with a def that is not what it claims", () => {
+  it("ignores a Zod 3 enum whose values are not an array", () => {
+    const schema = brokenSchema({
+      _def: {
+        typeName: "ZodObject",
+        shape: () => ({
+          value: { _def: { typeName: "ZodEnum", values: "a,b" } },
+        }),
+      },
+    });
+    expect(describeResource("posts", { schema })?.fields[0]).toMatchObject({
+      kind: "select",
+      choices: [],
+    });
+  });
+
+  it("ignores a Zod 4 enum whose entries are not a record", () => {
+    const schema = brokenSchema({
+      _zod: {
+        def: {
+          type: "object",
+          shape: { value: { _zod: { def: { type: "enum", entries: "a,b" } } } },
+        },
+      },
+    });
+    expect(describeResource("posts", { schema })?.fields[0]).toMatchObject({
+      kind: "select",
+      choices: [],
+    });
   });
 });

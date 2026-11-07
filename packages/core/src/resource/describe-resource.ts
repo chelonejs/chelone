@@ -1,3 +1,4 @@
+import { isRecord } from "../guards";
 import type { ResourceConfig } from "./registry";
 
 /** The field components both adapters export. Each adapter keeps one exhaustive map over this. */
@@ -90,7 +91,28 @@ interface Node {
 type Bag = Record<string, unknown>;
 
 const bagOf = (value: unknown): Bag | undefined =>
-  typeof value === "object" && value !== null ? (value as Bag) : undefined;
+  isRecord(value) ? value : undefined;
+
+/** A Zod 3 enum's `values`: the declared strings, in declaration order. */
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((item) => typeof item === "string");
+
+/** A native enum's `values` or a Zod 4 enum's `entries`: each key to its value. */
+const isEnumEntries = (
+  value: unknown,
+): value is Record<string, string | number> =>
+  isRecord(value) &&
+  Object.values(value).every(
+    (item) => typeof item === "string" || typeof item === "number",
+  );
+
+/** A union's `options`, or a Zod 4 literal's `values`. */
+const isUnknownArray = (value: unknown): value is unknown[] =>
+  Array.isArray(value);
+
+/** A Zod 3 object's `shape` is a function over its keys, not the keys themselves. */
+const isShapeFunction = (value: unknown): value is () => unknown =>
+  typeof value === "function";
 
 const stripZod = (typeName: string) =>
   typeName.replace(/^Zod/, "").toLowerCase();
@@ -135,16 +157,18 @@ function readZod3(def: Bag): Node {
       node.inner = def.in;
       break;
     case "ZodEnum":
-      node.entries = Object.fromEntries(
-        (def.values as string[]).map((value) => [value, value]),
-      );
+      if (isStringArray(def.values)) {
+        node.entries = Object.fromEntries(
+          def.values.map((value) => [value, value]),
+        );
+      }
       break;
     case "ZodNativeEnum":
       node.type = "enum";
-      node.entries = def.values as Record<string, string | number>;
+      if (isEnumEntries(def.values)) node.entries = def.values;
       break;
     case "ZodUnion":
-      node.options = def.options as unknown[];
+      if (isUnknownArray(def.options)) node.options = def.options;
       break;
     case "ZodLiteral":
       node.value = def.value;
@@ -152,11 +176,11 @@ function readZod3(def: Bag): Node {
     case "ZodArray":
       node.element = def.type;
       break;
-    case "ZodObject":
-      if (typeof def.shape === "function") {
-        node.shape = (def.shape as () => Record<string, unknown>)();
-      }
+    case "ZodObject": {
+      const shape = isShapeFunction(def.shape) ? def.shape() : undefined;
+      if (isRecord(shape)) node.shape = shape;
       break;
+    }
   }
   return node;
 }
@@ -184,23 +208,23 @@ function readZod4(def: Bag): Node {
       break;
     }
     case "enum":
-      node.entries = def.entries as Record<string, string | number>;
+      if (isEnumEntries(def.entries)) node.entries = def.entries;
       break;
     case "union":
-      node.options = def.options as unknown[];
+      if (isUnknownArray(def.options)) node.options = def.options;
       break;
-    case "literal":
-      node.value = (def.values as unknown[] | undefined)?.[0];
+    case "literal": {
+      const values = isUnknownArray(def.values) ? def.values : undefined;
+      node.value = values?.[0];
       // A literal of several values is not one choice.
-      if ((def.values as unknown[] | undefined)?.length !== 1) {
-        node.type = "literals";
-      }
+      if (values?.length !== 1) node.type = "literals";
       break;
+    }
     case "array":
       node.element = def.element;
       break;
     case "object":
-      node.shape = def.shape as Record<string, unknown>;
+      if (isRecord(def.shape)) node.shape = def.shape;
       break;
   }
   return node;
