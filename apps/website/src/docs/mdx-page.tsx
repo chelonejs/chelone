@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import { Navigate, useParams } from "react-router";
 import { CategoryIndex } from "./category-index";
-import { ComponentPreview } from "./mdx/component-preview";
+import { ComponentPreview, hasDemo } from "./mdx/component-preview";
 import { InstallCommand } from "./mdx/install-command";
 import { introSlugToSection, navTree } from "./nav-content";
 import { findGroup } from "./nav-sequence";
@@ -16,10 +16,8 @@ const guides = import.meta.glob<GuideModule>("./content/**/*.mdx", {
   eager: true,
 });
 
-// Inspect paths without importing demos into the docs entry chunk.
-const basicDemos = import.meta.glob(
-  "./content/{viewing,editing,ui-layout}/*/demos/basic.tsx",
-);
+// Only these sections show their `basic` demo automatically.
+const AUTO_DEMO_SECTION = /^(viewing|editing|ui-layout)\/[^/]+$/;
 
 const bySlug = new Map(
   Object.entries(guides).map(([k, m]) => [
@@ -78,7 +76,7 @@ export default function MdxPage() {
           <InstallCommand install={install} vue={vue} />
         </div>
       )}
-      {basicDemos[`./content/${slug}/demos/basic.tsx`] && (
+      {AUTO_DEMO_SECTION.test(slug) && hasDemo(`${slug}/basic`) && (
         <ComponentPreview key={slug} name={`${slug}/basic`} />
       )}
       <Content />
