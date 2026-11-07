@@ -119,6 +119,20 @@ describe("<DeleteButton>", () => {
     expect(screen.getByRole("button", { name: /confirm/i })).toBeTruthy();
   });
 
+  it("the confirm button is destructive by default", () => {
+    render(
+      <Providers>
+        <RecordContextProvider value={{ id: 1, title: "One" }}>
+          <DeleteButton />
+        </RecordContextProvider>
+      </Providers>,
+    );
+    fireEvent.click(screen.getByRole("button", { name: /delete/i }));
+    expect(
+      screen.getByRole("button", { name: /confirm/i }).dataset.variant,
+    ).toBe("destructive");
+  });
+
   it("removes the record through the data provider on confirm", async () => {
     const dataProvider = makeDataProvider();
     render(
