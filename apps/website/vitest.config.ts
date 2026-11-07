@@ -1,5 +1,6 @@
 import path from "node:path";
 import mdx from "@mdx-js/rollup";
+import rehypeSlug from "rehype-slug";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
@@ -17,6 +18,8 @@ const reactPkgSrc = path.resolve(__dirname, "../../packages/react/src");
 const mdxPlugin = mdx({
   providerImportSource: "@/docs/mdx/mdx-components",
   remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
+  // The build gives headings their ids with rehype-slug; the linkable headings need them.
+  rehypePlugins: [rehypeSlug],
 });
 
 export default defineConfig({
