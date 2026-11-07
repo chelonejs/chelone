@@ -105,7 +105,7 @@
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent: oklch(0.93 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.87 0 0);
   --sidebar-ring: oklch(0.708 0 0)
@@ -212,8 +212,8 @@
    whether a page uses markdown tables or the component. */
 
 .prose table {
-  @apply my-6 w-full overflow-hidden rounded-lg border border-border text-sm;
-  border-collapse: collapse;
+  @apply my-6 w-full overflow-hidden rounded-lg border border-separate border-border text-sm;
+  border-spacing: 0;
 }
 
 .prose thead {
@@ -226,6 +226,11 @@
 
 .prose td {
   @apply border-t border-border/60 px-4 py-2 align-top text-muted-foreground;
+}
+
+/* the header row's border-b already draws the line above the first body row */
+.prose tbody tr:first-child td {
+  border-top-width: 0;
 }
 
 /* zebra striping */

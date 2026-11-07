@@ -60,11 +60,11 @@ function CalendarWeekView<RecordType extends ResourceRecord>({
       aria-busy={busy}
       data-slot="calendar-week-view"
       data-calendar-view="week"
-      className="w-full table-fixed border-collapse overflow-hidden rounded-md border"
+      className="w-full table-fixed border-separate border-spacing-0 overflow-hidden rounded-md border"
     >
       <thead>
-        <tr className="border-b bg-muted/50">
-          <td aria-hidden="true" className="w-16" />
+        <tr className="bg-muted/50">
+          <td aria-hidden="true" className="w-16 border-b" />
           {days.map((day) => {
             const key = calendarDayKey(day);
             return (
@@ -74,7 +74,7 @@ function CalendarWeekView<RecordType extends ResourceRecord>({
                 data-day={key}
                 data-today={key === todayKey}
                 aria-current={key === todayKey ? "date" : undefined}
-                className="px-2 py-1 text-center text-xs font-medium text-muted-foreground"
+                className="border-b px-2 py-1 text-center text-xs font-medium text-muted-foreground"
               >
                 {labels.weekday(day)} {labels.dayNumber(day)}
               </th>
@@ -82,12 +82,12 @@ function CalendarWeekView<RecordType extends ResourceRecord>({
           })}
         </tr>
       </thead>
-      <tbody>
+      <tbody className="[&_tr:last-child_:is(th,td)]:border-b-0">
         {HOURS.map((hour) => (
-          <tr key={hour} className="border-b last:border-b-0">
+          <tr key={hour}>
             <th
               scope="row"
-              className="px-2 py-1 text-right align-top text-xs font-normal tabular-nums text-muted-foreground"
+              className="border-b px-2 py-1 text-right align-top text-xs font-normal tabular-nums text-muted-foreground"
             >
               {labels.hour(hour)}
             </th>
@@ -107,7 +107,7 @@ function CalendarWeekView<RecordType extends ResourceRecord>({
                   onClick={() => selectSlot(day, hour)}
                   onKeyDown={(event) => onCellKeyDown(event, day, hour)}
                   className={cn(
-                    "h-12 border-l p-1 align-top",
+                    "h-12 border-b border-l p-1 align-top",
                     onSelectSlot && "cursor-pointer",
                   )}
                 >
