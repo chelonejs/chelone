@@ -1,4 +1,4 @@
-import type { LooseRecord, ResourceRecord } from "../resource/record";
+import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import type {
   CreateParams,
@@ -73,7 +73,7 @@ interface RecordFreeCallbacks<TResources extends ResourceMap> {
  */
 export interface LifecycleCallbacks<
   TResources extends ResourceMap,
-  TRecord extends LooseRecord,
+  TRecord extends ResourceRecord,
 > extends RecordFreeCallbacks<TResources> {
   afterGetList?(
     result: GetListResult<TRecord>,

@@ -7,9 +7,14 @@
  * (no `resource`, no DataTable column keys, `class` where React has `className`).
  */
 
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+import type {
+  LooseRecord,
+  ResourceRecord,
+  SourceProp,
+  SourceValue,
+} from "@chelone/core";
 
-export interface FieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface FieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** Name of the property to display (dot/bracket path). */
   source: SourceProp<RecordType>;
   /** The record to render. Defaults to the ambient `RecordContext` value. */
