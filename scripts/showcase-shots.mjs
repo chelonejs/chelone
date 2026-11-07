@@ -91,13 +91,15 @@ async function component(page, shot) {
 }
 
 // The button a shot presses first. A Vue docs shot's button sits in the frame holding
-// its demo, so the click is tried on the page and in that frame, whichever answers.
+// its demo, so the press is tried on the page and in that frame, whichever answers.
+// The docs page zooms that frame to fit its panel, which puts Playwright's click point
+// off the button, so a press in the frame is a click event sent to the button itself.
 async function press(page, shot, selector) {
-  const clicks = roots(page, shot, selector).map((root) =>
-    root.click({ timeout: VISIBLE_WITHIN_MS }),
-  );
+  const [onPage, inFrame] = roots(page, shot, selector);
+  const presses = [onPage.click({ timeout: VISIBLE_WITHIN_MS })];
+  if (inFrame) presses.push(inFrame.dispatchEvent("click", undefined, { timeout: VISIBLE_WITHIN_MS }));
   try {
-    await Promise.any(clicks);
+    await Promise.any(presses);
   } catch (error) {
     throw error instanceof AggregateError ? error.errors[0] : error;
   }
