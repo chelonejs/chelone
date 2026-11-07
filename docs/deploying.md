@@ -49,13 +49,13 @@ curl -sI https://chelone.dev/r/registry.json | grep -iE '^(HTTP|content-type)'
 Each answers 200, and the registry answers with `application/json`. The landing page sends a
 103 Early Hints line first, which is why the commands keep the last status line.
 
-A demo deep link answers 404 and still serves the demo:
+A demo deep link ends at 404 and still serves the demo:
 
 ```sh
-curl -sI https://chelone.dev/demo/posts | grep -E '^HTTP' | tail -1
+curl -sIL https://chelone.dev/demo/posts | grep -E '^HTTP' | tail -1
 curl -s https://chelone.dev/demo/posts | grep -c '/demo/assets/'
 ```
 
-The status line is 404, and the count is how many of the demo's own asset URLs the shell it
+The last status line is 404, and the count is how many of the demo's own asset URLs the shell it
 returned holds. Any count above 0 means `demo/404.html` answered; 0 means the site root's
 fallback did. `/vue-demo/posts` is the same pair with `vue-demo`.
