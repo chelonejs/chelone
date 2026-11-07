@@ -110,7 +110,11 @@ const cellClasses = computed(() =>
         :class="primarySort?.order === 'ASC' ? 'rotate-180' : ''"
       />
     </Button>
-    <FieldLabelText v-else :label="label" :source="source" />
+    <!-- text-xs: the sortable header's ghost Button is text-xs, so a header with
+         no sort button reads the same size beside it. -->
+    <span v-else class="text-xs">
+      <FieldLabelText :label="label" :source="source" />
+    </span>
   </TableHead>
   <TableCell v-else :class="cellClasses">
     <slot :record="record">{{ cellText }}</slot>

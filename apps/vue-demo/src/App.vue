@@ -23,6 +23,14 @@ import { makeI18n } from "@chelone/demo-data";
 import { mapsConfig } from "./maps-services";
 import { dataProvider } from "./realtime";
 import AuthorList from "./resources/AuthorList.vue";
+import CustomerCreate from "./resources/CustomerCreate.vue";
+import CustomerEdit from "./resources/CustomerEdit.vue";
+import CustomerList from "./resources/CustomerList.vue";
+import CustomerShow from "./resources/CustomerShow.vue";
+import OrderCreate from "./resources/OrderCreate.vue";
+import OrderEdit from "./resources/OrderEdit.vue";
+import OrderList from "./resources/OrderList.vue";
+import OrderShow from "./resources/OrderShow.vue";
 import PlaceEdit from "./resources/PlaceEdit.vue";
 import PlaceList from "./resources/PlaceList.vue";
 import PostCreate from "./resources/PostCreate.vue";
@@ -66,6 +74,20 @@ const i18n = makeI18n();
       />
       <Resource name="authors" :list="AuthorList" />
       <Resource name="places" :list="PlaceList" :edit="PlaceEdit" />
+      <Resource
+        name="customers"
+        :list="CustomerList"
+        :edit="CustomerEdit"
+        :create="CustomerCreate"
+        :show="CustomerShow"
+      />
+      <Resource
+        name="orders"
+        :list="OrderList"
+        :edit="OrderEdit"
+        :create="OrderCreate"
+        :show="OrderShow"
+      />
     </Admin>
   </MapsProvider>
 </template>
