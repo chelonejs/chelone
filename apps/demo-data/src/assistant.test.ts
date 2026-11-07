@@ -3,8 +3,12 @@ import { describe, expect, it } from "vitest";
 import { demoAssistantTools, demoAssistantTransport } from "./assistant";
 import { seedData } from "./seed";
 
-function ask(question: string) {
+function ask(
+  question: string,
+  adjust?: (seed: ReturnType<typeof seedData>) => void,
+) {
   const seed = seedData();
+  adjust?.(seed);
   const session = createAssistantSession({
     transport: demoAssistantTransport(),
     tools: demoAssistantTools(fakeDataProvider(seed)),
@@ -39,6 +43,37 @@ describe("the demo assistant", () => {
 
     expect(messages.at(-1)).toMatchObject({
       content: `There are ${seed.posts.length} posts.`,
+    });
+  });
+
+  it("uses the singular when the count is one", async () => {
+    const { messages } = await ask(
+      "How many in review posts are there?",
+      (seed) => {
+        let kept = false;
+        seed.posts = seed.posts.filter((post) => {
+          if (post.status !== "in_review") return true;
+          const keep = !kept;
+          kept = true;
+          return keep;
+        });
+      },
+    );
+
+    expect(messages.at(-1)).toMatchObject({
+      content: "There is 1 in review post.",
+    });
+  });
+
+  it("does not take unpublished for published", async () => {
+    const { messages } = await ask("How many unpublished posts are there?");
+
+    expect(messages.map((message) => message.role)).toEqual([
+      "user",
+      "assistant",
+    ]);
+    expect(messages.at(-1)).toMatchObject({
+      content: expect.stringContaining("How many posts are there?"),
     });
   });
 

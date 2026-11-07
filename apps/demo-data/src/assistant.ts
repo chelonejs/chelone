@@ -13,12 +13,16 @@ const STATUSES: Record<string, PostStatus> = {
   "in review": "in_review",
 };
 
+// "unpublished" names no single status, so counting all posts would mislead
+const UNSUPPORTED = /\bunpublished\b/i;
+
 const HELP =
   "I can count posts. Try: How many posts are there? Or: How many published posts are there?";
 
 function statusIn(text: string): PostStatus | undefined {
-  const lower = text.toLowerCase();
-  return Object.entries(STATUSES).find(([word]) => lower.includes(word))?.[1];
+  return Object.entries(STATUSES).find(([word]) =>
+    new RegExp(`\\b${word}\\b`, "i").test(text),
+  )?.[1];
 }
 
 function lastUserText(messages: readonly AssistantMessage[]): string {
@@ -69,10 +73,12 @@ export function demoAssistantTransport(): AssistantTransport {
       const status = statusIn(question);
       const last = messages.at(-1);
       if (last?.role === "tool") {
-        const noun = status ? `${status.replace("_", " ")} posts` : "posts";
-        const verb = last.result === 1 ? "is" : "are";
+        const one = last.result === 1;
+        const post = one ? "post" : "posts";
+        const noun = status ? `${status.replace("_", " ")} ${post}` : post;
+        const verb = one ? "is" : "are";
         yield* say(last.error ?? `There ${verb} ${last.result} ${noun}.`);
-      } else if (/\bposts?\b/i.test(question)) {
+      } else if (/\bposts?\b/i.test(question) && !UNSUPPORTED.test(question)) {
         yield {
           type: "tool-call",
           id: `count-${messages.length}`,
