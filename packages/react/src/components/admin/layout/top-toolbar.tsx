@@ -7,6 +7,7 @@ export type TopToolbarProps = ComponentProps<"div">;
 export function TopToolbar({ className, ...props }: TopToolbarProps) {
   return (
     <div
+      data-slot="top-toolbar"
       className={cn("flex items-center justify-end gap-2 mb-2", className)}
       {...props}
     />
