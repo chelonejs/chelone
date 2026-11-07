@@ -1,9 +1,11 @@
 /*
  * The editor's palette follows the Chelone tokens in dark mode. The editor's own
  * stylesheet sets the same variables on `.mdxeditor` and loads after this one,
- * so the extra class keeps these from losing the tie.
+ * so the class is doubled to win the tie. The editor puts `mdxeditor-dark` on
+ * its popup container too, which has no `mdxeditor` class, so the rule cannot
+ * name that one.
  */
-.mdxeditor.mdxeditor-dark {
+.mdxeditor-dark.mdxeditor-dark {
   --mdxeditor-bg-color: var(--background);
   --mdxeditor-text-color: var(--foreground);
   --mdxeditor-toolbar-bg-color: var(--card);
@@ -19,7 +21,7 @@
   color: var(--mdxeditor-text-color);
 }
 
-.mdxeditor.mdxeditor-dark [role="toolbar"] {
+.mdxeditor-dark.mdxeditor-dark [role="toolbar"] {
   background-color: var(--mdxeditor-toolbar-bg-color);
 }
 
