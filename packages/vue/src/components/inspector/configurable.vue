@@ -34,6 +34,7 @@ export interface ConfigurableProps {
  * </Configurable>
  */
 
+import { INSPECTOR_OPEN_LABEL } from "@chelone/core";
 import { computed, onScopeDispose, type VNode, watch } from "vue";
 import { useTranslate } from "../../i18n/use-translate";
 import { cn } from "../../lib/utils";
@@ -55,7 +56,6 @@ const translate = useTranslate();
 const inspector = useInspector();
 const body = useInspectorBody();
 
-const defaultOpenLabel = "chelone.inspector.customize";
 const enabled = computed(() => inspector?.value.enabled ?? false);
 const isSelected = computed(
   () => inspector?.value.selected?.key === props.preferenceKey,
@@ -111,7 +111,7 @@ watch(
     >
       <SlidersHorizontalIcon />
       {{
-        translate(props.openButtonLabel ?? defaultOpenLabel, {
+        translate(props.openButtonLabel ?? INSPECTOR_OPEN_LABEL, {
           _: props.openButtonLabel ?? "Customize",
         })
       }}

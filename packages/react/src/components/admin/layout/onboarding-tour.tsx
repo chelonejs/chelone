@@ -8,6 +8,7 @@
 import {
   createTourController,
   placeTourCard,
+  REMEASURE_MS,
   type TourEnd,
   type TourPlacement,
   type TourRect,
@@ -56,8 +57,6 @@ export interface OnboardingTourHandle {
   /** Opens the tour on its first step, or restarts it from there while open. */
   start(): void;
 }
-
-const REMEASURE_MS = 250;
 
 function findTarget(selector: string): Element | null {
   try {

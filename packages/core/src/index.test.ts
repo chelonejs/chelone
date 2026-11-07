@@ -384,6 +384,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.toLocationState).toBeTypeOf("function");
   });
 
+  it("exports the location state keys", () => {
+    expect(barrel.NEXT_PATHNAME_KEY).toBe("nextPathname");
+  });
+
   it("exports the P6 runtime resource registry (W1-T2)", () => {
     expect(barrel.createResourceRegistry).toBeTypeOf("function");
     expect(barrel.computeDefinition).toBeTypeOf("function");
@@ -516,6 +520,13 @@ describe("@chelone/core barrel", () => {
     );
     expect(barrel.placeTourCard).toBeTypeOf("function");
     expect(barrel.tourSpotlightPath).toBeTypeOf("function");
+    expect(barrel.REMEASURE_MS).toBe(250);
+  });
+
+  it("exports the inspector panel constants", () => {
+    expect(barrel.PANEL_WIDTH).toBe(320);
+    expect(barrel.INSPECTOR_KEY_STEP).toBe(16);
+    expect(barrel.INSPECTOR_OPEN_LABEL).toBe("chelone.inspector.customize");
   });
 
   it("exports the environment stores", () => {
