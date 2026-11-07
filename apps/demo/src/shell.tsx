@@ -20,19 +20,23 @@ import {
   Assistant,
   CommandMenu,
   DataProviderDevtools,
+  HideOnScroll,
+  IconButtonWithTooltip,
   Layout,
   type LayoutProps,
+  LoadingIndicator,
   LocalesMenuButton,
   Menu,
   MenuLive,
   OnboardingTour,
+  ResourceMenuItemGroup,
   ThemeModeToggle,
   UserMenu,
   useCommandMenu,
-  useResourceDefinitions,
   useStore,
 } from "@chelone/react";
 import { Inspector, InspectorButton } from "@chelone/react/inspector";
+import { BookOpen, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { pageGroups } from "./pages";
@@ -43,15 +47,35 @@ import { SimulateOtherUser } from "./realtime-sim";
 const assistantTransport = demoAssistantTransport();
 const assistantTools = demoAssistantTools(dataProvider);
 
-// Posts get a live unread badge; the other resources keep their plain links.
+// The area each resource sits under. A resource missing here is not in the menu.
+const resourceAreas: Record<string, string[]> = {
+  Catalog: ["products"],
+  Content: ["pages", "categories", "tags"],
+  Orders: ["orders"],
+  Shop: ["customers", "places"],
+  Team: ["authors"],
+};
+
+const areas = [
+  ...new Set([
+    ...Object.keys(resourceAreas),
+    ...pageGroups.map((g) => g.group),
+  ]),
+].sort((a, b) => a.localeCompare(b));
+
+// Mod+1 to mod+9 open the first nine pages, in menu order.
+const shortcuts = new Map(
+  areas
+    .flatMap((area) => pageGroups.find((g) => g.group === area)?.pages ?? [])
+    .slice(0, 9)
+    .map(({ path }, index) => [path, `mod+${index + 1}`]),
+);
+
+// Posts get a live unread badge; the other resources sit under their area.
 // The panel is repeated here because the badge clears while /posts is open:
 // adding a post from any other page is the only way to see it. It sits at the
 // top of the sidebar: at the bottom it scrolls under the devtools panel.
 function DemoMenu() {
-  const definitions = useResourceDefinitions();
-  const others = Object.entries(definitions).filter(
-    ([name, { hasList }]) => hasList && name !== "posts",
-  );
   return (
     <>
       <div className="px-2 pt-2">
@@ -62,23 +86,32 @@ function DemoMenu() {
       <div className="px-4 py-2">
         <SimulateOtherUser />
       </div>
-      <Menu>
-        {others.map(([name]) => (
-          <Menu.ResourceItem key={name} name={name} />
-        ))}
-      </Menu>
-      {pageGroups.map(({ group, pages }) => (
-        <section key={group}>
-          <h2 className="px-4 pt-2 text-xs font-medium text-muted-foreground">
-            {group}
-          </h2>
-          <Menu>
-            {pages.map(({ path, title }) => (
-              <Menu.Item key={path} to={`/${path}`} label={title} />
-            ))}
-          </Menu>
-        </section>
-      ))}
+      {areas.map((area) => {
+        const resources = resourceAreas[area];
+        const pages = pageGroups.find((g) => g.group === area)?.pages ?? [];
+        return (
+          <section key={area}>
+            {resources ? (
+              <ResourceMenuItemGroup label={area} resources={resources} />
+            ) : (
+              <h2 className="px-4 pt-2 text-xs font-medium text-muted-foreground">
+                {area}
+              </h2>
+            )}
+            <Menu>
+              {pages.map(({ path, title }) => (
+                <Menu.Item
+                  key={path}
+                  to={`/${path}`}
+                  label={title}
+                  icon={<FileText />}
+                  keyboardShortcut={shortcuts.get(path)}
+                />
+              ))}
+            </Menu>
+          </section>
+        );
+      })}
     </>
   );
 }
@@ -109,13 +142,36 @@ function TakeTheTour() {
   );
 }
 
+// The docs live beside the demo on the deployed site, so a new tab keeps the app open.
+function DocsButton() {
+  return (
+    <IconButtonWithTooltip
+      label="Documentation"
+      onClick={() => window.open("/docs/", "_blank", "noopener")}
+    >
+      <BookOpen />
+    </IconButtonWithTooltip>
+  );
+}
+
+// The bar is sticky so that hiding it on scroll has something to hide.
 function DemoAppBar() {
+  return (
+    <HideOnScroll className="sticky top-0 z-20 bg-background">
+      <DemoBar />
+    </HideOnScroll>
+  );
+}
+
+function DemoBar() {
   return (
     <AppBar
       toolbar={
         <>
           <SearchButton />
           <InspectorButton data-tour="configure" />
+          <DocsButton />
+          <LoadingIndicator className="mx-2" />
           <LocalesMenuButton />
           <ThemeModeToggle />
         </>
