@@ -15,6 +15,7 @@
  */
 
 import {
+  type ChoiceRecord,
   type ChoiceValueOf,
   getAtPath,
   resolveChoiceValue,
@@ -23,8 +24,8 @@ import {
 } from "@chelone/core";
 import { useTranslate } from "../i18n/use-translate";
 
-/** An erased choice record — choices carry arbitrary shapes (`{id, name, ...}`). */
-export type ChoiceRecord = Record<string, unknown>;
+/** An erased choice record — choices carry arbitrary shapes (`{id, name, ...}`). Core owns the type; both adapters re-export it. */
+export type { ChoiceRecord };
 
 /** The display path (dot or bracket) or a formatter over the whole choice. */
 export type OptionText<TChoice extends ChoiceRecord = ChoiceRecord> =
@@ -76,32 +77,33 @@ export function useChoices<TChoice extends ChoiceRecord = ChoiceRecord>(
   options: UseChoicesOptions<TChoice> = {},
 ): UseChoicesResult<TChoice> {
   const translate = useTranslate();
-  // Read live off `options`, erased to the loose choice: the `"name"`/`"id"`/
+  // Read live off `options`, one typed local per option: the `"name"`/`"id"`/
   // `"disabled"` defaults are paths a `TChoice` need not have, and
-  // `getChoicePath` takes any string.
-  const loose = (): UseChoicesOptions => options as UseChoicesOptions;
+  // `getChoicePath` takes any string, so only a formatter needs `TChoice`.
+  const optionText = (): ((choice: TChoice) => string) | string =>
+    options.optionText ?? "name";
+  const optionValue = (): string => options.optionValue ?? "id";
+  const disableValue = (): string => options.disableValue ?? "disabled";
+  const translateChoice = (): boolean => options.translateChoice ?? true;
 
   return {
     getChoiceText(choice) {
-      const optionText = loose().optionText ?? "name";
-      if (typeof optionText === "function") return optionText(choice);
-      const raw = getChoicePath(choice, optionText);
-      const text = textOf(raw);
-      if (loose().translateChoice === false) return text;
+      const text = optionText();
+      if (typeof text === "function") return text(choice);
+      const raw = getChoicePath(choice, text);
+      const label = textOf(raw);
+      if (!translateChoice()) return label;
       // ra's `{ _: name }` convention: translate the text as a key, falling
       // back to the raw text when it is not a catalog key (chelone's translate
       // echoes the key on a miss).
-      const translated = translate(text, { _: text });
-      return translated === text ? text : translated;
+      const translated = translate(label, { _: label });
+      return translated === label ? label : translated;
     },
     getChoiceValue(choice) {
-      return resolveChoiceValue(
-        choice,
-        getChoicePath(choice, loose().optionValue ?? "id"),
-      );
+      return resolveChoiceValue(choice, getChoicePath(choice, optionValue()));
     },
     getDisableValue(choice) {
-      return getChoicePath(choice, loose().disableValue ?? "disabled") === true;
+      return getChoicePath(choice, disableValue()) === true;
     },
   };
 }

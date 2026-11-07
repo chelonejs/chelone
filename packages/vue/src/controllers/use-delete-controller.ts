@@ -43,7 +43,7 @@ export function useDeleteController<
 ): UseDeleteControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
-  const resource = useRequiredResource("useDeleteController", options) as TName;
+  const resource = useRequiredResource<TName>("useDeleteController", options);
 
   const controller: DeleteController<TRecord> = createDeleteController(
     toControllerContext(ctx),

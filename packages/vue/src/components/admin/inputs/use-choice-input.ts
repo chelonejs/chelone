@@ -23,6 +23,7 @@
  */
 
 import {
+  type ChoiceRecord,
   type ChoiceValueOf,
   isResourceRecord,
   type SourcePath,
@@ -33,11 +34,7 @@ import {
   type ChoicesContextValue,
   useChoicesContext,
 } from "../../../choices/choices-context";
-import {
-  type ChoiceRecord,
-  type OptionText,
-  useChoices,
-} from "../../../choices/use-choices";
+import { type OptionText, useChoices } from "../../../choices/use-choices";
 import { useGetRecordRepresentation } from "../../../label/use-get-record-representation";
 
 /** Options for {@link useChoiceInput}. */
@@ -124,9 +121,9 @@ export function useChoiceInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     resource,
     // Computeds re-read the reference context's getters inside a tracking scope
     // so the list stays live; for an inline context they read static fields.
-    // The cast: the context list is erased. Inline `choices` are `TChoice`
-    // records, and under a reference the choices come from context, where
-    // `TChoice` stays the default.
+    // Inline `choices` are `TChoice` records, and under a reference the choices
+    // come from the context.
+    // type-escape: a provided context cannot carry `TChoice`.
     allChoices: computed(() => (ctx.allChoices ?? []) as TChoice[]),
     isPending: computed(() => ctx.isPending),
     fetchError: computed(() => ctx.error),

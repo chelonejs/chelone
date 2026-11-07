@@ -50,7 +50,7 @@ export function useCreateController<
 ): UseCreateControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
-  const resource = useRequiredResource("useCreateController", options) as TName;
+  const resource = useRequiredResource<TName>("useCreateController", options);
 
   const controller: CreateController<TRecord> = createCreateController(
     toControllerContext(ctx),

@@ -51,16 +51,21 @@ export function useResourceContext(
  * Read the required resource name, throwing a descriptive error when absent.
  * The controller composables call this: a controller with no resource is a
  * wiring bug (parity with the React views' explicit throw).
+ *
+ * `TName` is the caller's claim about the injected name, so a controller can
+ * pass its own `TName` down and get the resource typed instead of casting the
+ * result at every call site. With no type argument the name is a plain `string`.
  */
-export function useRequiredResource(
+export function useRequiredResource<TName extends string = string>(
   composable: string,
   options?: UseResourceContextOptions,
-): string {
+): TName {
   const resource = useResourceContext(options);
   if (!resource) {
     throw new Error(
       `${composable}: no resource. Pass a \`resource\` option or render inside a <Resource>.`,
     );
   }
-  return resource;
+  // type-escape: the name arrives through `inject`, which carries no evidence for `TName`.
+  return resource as TName;
 }

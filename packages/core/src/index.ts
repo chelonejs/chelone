@@ -478,12 +478,17 @@ export type {
 export { createArrayBinding } from "./form/array-binding";
 export { toIdentifierList } from "./form/choice-ids";
 export type {
+  ChoiceLists,
+  ChoiceRecord,
   ChoicesController,
   ChoicesControllerContext,
   ChoicesControllerOptions,
   ChoicesControllerState,
 } from "./form/choices-controller";
-export { createChoicesController } from "./form/choices-controller";
+export {
+  choiceListsOf,
+  createChoicesController,
+} from "./form/choices-controller";
 export {
   formatDate,
   formatDateTime,

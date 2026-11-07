@@ -4,7 +4,7 @@ import { z } from "zod";
 import { fakeDataProvider } from "../data/fake-provider";
 import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
-import { createChoicesController } from "./choices-controller";
+import { choiceListsOf, createChoicesController } from "./choices-controller";
 
 const resources = defineResources({
   posts: {
@@ -497,6 +497,59 @@ describe("createChoicesController — status union", () => {
     expect(c.getSnapshot().resource).toBe("posts");
     expect(c.getSnapshot().source).toBe("post_id");
     expect(c.getSnapshot().isFromReference).toBe(true);
+    c.destroy();
+  });
+});
+
+describe("choiceListsOf", () => {
+  it("choiceListsOf returns the three lists of a state", async () => {
+    const ctx = makeCtx();
+    const c = createChoicesController(ctx, { reference: "posts" });
+    c.setValue(3);
+    attach(c);
+    await settled(c);
+    const state = c.getSnapshot();
+    const lists = choiceListsOf(state);
+    // The default sort is `id DESC`, so the page reads newest first.
+    const pageIds = rows.map((r) => r.id).reverse();
+    // The views are the state's own arrays, not copies.
+    expect(lists.availableChoices).toBe(state.availableChoices);
+    expect(lists.selectedChoices).toBe(state.selectedChoices);
+    expect(lists.allChoices).toBe(state.allChoices);
+    expect(lists.availableChoices.map((r) => r.id)).toEqual(pageIds);
+    expect(lists.selectedChoices.map((r) => r.id)).toEqual([3]);
+    // Record 3 is on the page, so `allChoices` is the page itself.
+    expect(lists.allChoices.map((r) => r.id)).toEqual(pageIds);
+    c.destroy();
+  });
+
+  it("choiceListsOf carries a selected record prepended over the page", async () => {
+    const ctx = makeCtx();
+    const c = createChoicesController(ctx, { reference: "posts", perPage: 5 });
+    attach(c);
+    await settled(c);
+    c.setValue(20);
+    await vi.waitFor(() =>
+      expect(c.getSnapshot().selectedChoices.length).toBe(1),
+    );
+    const lists = choiceListsOf(c.getSnapshot());
+    expect(lists.availableChoices.map((r) => r.id)).toEqual([
+      25, 24, 23, 22, 21,
+    ]);
+    expect(lists.selectedChoices.map((r) => r.id)).toEqual([20]);
+    expect(lists.allChoices.map((r) => r.id)).toEqual([20, 25, 24, 23, 22, 21]);
+    c.destroy();
+  });
+
+  it("choiceListsOf of a fresh state is three empty lists", () => {
+    const ctx = makeCtx();
+    const c = createChoicesController(ctx, { reference: "posts" });
+    const lists = choiceListsOf(c.getSnapshot());
+    expect(lists).toEqual({
+      allChoices: [],
+      availableChoices: [],
+      selectedChoices: [],
+    });
     c.destroy();
   });
 });
