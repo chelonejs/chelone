@@ -56,7 +56,7 @@ function AuthLayout(props: AuthLayoutProps) {
                   </h1>
                 )}
                 {subtitle && (
-                  <p className="text-sm leading-none text-muted-foreground">
+                  <p className="text-sm leading-normal text-muted-foreground">
                     {subtitle}
                   </p>
                 )}

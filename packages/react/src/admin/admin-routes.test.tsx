@@ -379,6 +379,46 @@ describe("AdminRoutes — custom routes in all branches (§0a-10)", () => {
     await waitFor(() => expect(screen.getByTestId("public2")).toBeDefined());
   });
 
+  it("no-layout customs render outside the Layout while authenticated (BRANCH 4)", async () => {
+    function Frame({ children }: { children?: React.ReactNode }) {
+      return <div data-testid="layout">{children}</div>;
+    }
+    const checkAuth = vi.fn(async () => {});
+    render(
+      <MemoryRouter initialEntries={["/public"]}>
+        <Admin
+          dataProvider={dataProvider}
+          queryClient={makeQueryClient()}
+          authProvider={makeAuthProvider({ checkAuth })}
+          requireAuth
+        >
+          <Resource name="posts" list={() => <div>L</div>} />
+          <Admin.Layout>
+            <Frame />
+          </Admin.Layout>
+          <CustomRoutes noLayout>
+            <Route
+              path="public"
+              element={<div data-testid="public3">public</div>}
+            />
+          </CustomRoutes>
+          <CustomRoutes>
+            <Route
+              path="settings"
+              element={<div data-testid="settings3">settings</div>}
+            />
+          </CustomRoutes>
+        </Admin>
+      </MemoryRouter>,
+    );
+    await waitFor(() => expect(screen.getByTestId("public3")).toBeDefined());
+    // The page also shows while the gate is pending, so let the check settle.
+    await waitFor(() => expect(checkAuth).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.getByTestId("public3")).toBeDefined();
+    expect(screen.queryByTestId("layout")).toBeNull();
+  });
+
   it("with-layout customs render inside the authenticated tree (BRANCH 4)", async () => {
     render(
       <MemoryRouter initialEntries={["/settings"]}>

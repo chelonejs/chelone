@@ -21,6 +21,7 @@ import {
 import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Route } from "react-router";
+import { authRoutes } from "./auth-routes";
 import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { pages } from "./pages";
@@ -166,6 +167,9 @@ export function App() {
               show={ShowGuesser}
             />
           ))}
+
+          {/* The Supabase auth pages, outside the layout (see auth-routes.tsx). */}
+          <CustomRoutes noLayout>{authRoutes}</CustomRoutes>
 
           {/* One route per file in src/pages (see pages.tsx). */}
           <CustomRoutes>

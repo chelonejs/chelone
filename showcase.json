@@ -1553,7 +1553,24 @@
   "forgot-password-form": {
     "shownBy": "forgot-password-page"
   },
-  "forgot-password-page": null,
+  "forgot-password-page": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/forgot-password-page",
+        "see": "role=heading[name=\"Forgot your password?\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/forgot-password",
+        "see": "role=heading[name=\"Forgot your password?\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/forgot-password",
+        "see": "role=heading[name=\"Forgot your password?\"]"
+      }
+    }
+  },
   "function-field": {
     "react": {
       "docs": {
@@ -3252,7 +3269,24 @@
   "set-password-form": {
     "shownBy": "set-password-page"
   },
-  "set-password-page": null,
+  "set-password-page": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/set-password-page",
+        "see": "role=button[name=\"Save\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/set-password?access_token=demo-access&refresh_token=demo-refresh&type=recovery",
+        "see": "role=button[name=\"Save\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/set-password?access_token=demo-access&refresh_token=demo-refresh&type=recovery",
+        "see": "role=button[name=\"Save\"]"
+      }
+    }
+  },
   "shape-fields": {
     "react": {
       "docs": {
@@ -3490,7 +3524,24 @@
       }
     }
   },
-  "social-auth-button": null,
+  "social-auth-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/social-auth-button",
+        "see": "role=button[name=\"Sign in with Github\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/login",
+        "see": "role=button[name=\"Sign in with Github\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/login",
+        "see": "role=button[name=\"Sign in with Github\"]"
+      }
+    }
+  },
   "social-icons": {
     "shownBy": "social-auth-button"
   },
@@ -3572,7 +3623,24 @@
       }
     }
   },
-  "supabase-login-page": null,
+  "supabase-login-page": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/supabase-login-page",
+        "see": "role=heading[name=\"Sign in\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/login",
+        "see": "role=heading[name=\"Sign in\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/login",
+        "see": "role=heading[name=\"Sign in\"]"
+      }
+    }
+  },
   "tabbed-show-layout": {
     "react": {
       "docs": {

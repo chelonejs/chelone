@@ -54,12 +54,13 @@ export function makeI18n() {
  * are copies, since typed translations are written into them.
  * French is partial, with English as its fallback. A translation typed into
  * `<I18nKeyEditor>` goes into the French catalog, so the demo's own strings
- * change as it is typed; clearing the text puts the English back.
+ * change as it is typed; clearing the text puts the English back. `extra` goes
+ * into the English catalog, for an add-on's messages such as Supabase's.
  */
-export function makeDemoI18n(): DemoI18n {
+export function makeDemoI18n(extra: MessageCatalog = {}): DemoI18n {
   const missingKeys = createMissingKeyStore();
   const messages: Record<string, MessageCatalog> = {
-    en: { ...englishMessages },
+    en: { ...englishMessages, ...extra },
     fr: { ...frenchMessages },
   };
   const base: AnyCheloneI18n = createI18n({
