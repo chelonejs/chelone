@@ -7,9 +7,13 @@ export default function WrapperFieldDemo() {
   return (
     <Labeled>
       <WrapperField label="Publication">
-        <TextField source="title" />
-        {" · "}
-        <NumberField source="views" /> views
+        {/* `<WrapperField>` renders no element, and `<Labeled>` stacks its
+            children, so the span keeps the fields on one line. */}
+        <span>
+          <TextField source="title" />
+          {" · "}
+          <NumberField source="views" /> views
+        </span>
       </WrapperField>
     </Labeled>
   );
