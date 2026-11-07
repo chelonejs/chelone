@@ -8,7 +8,7 @@
  * that arrive on a later navigation replace the kept ones.
  */
 
-import type { AuthProvider } from "@chelone/core";
+import { type AuthProvider, DEFAULT_LOGIN_PATH } from "@chelone/core";
 import type { ResetPasswordParams, SetPasswordParams } from "@chelone/supabase";
 import { readSupabaseUrlParams } from "@chelone/supabase";
 import {
@@ -74,7 +74,7 @@ export function useResetPassword(options: UseResetPasswordOptions = {}) {
     },
     onSuccess: (...args) => {
       notify("ra-supabase.auth.password_reset", { type: "info" });
-      redirect("/login");
+      redirect(DEFAULT_LOGIN_PATH);
       return options.onSuccess?.(...args);
     },
   });

@@ -23,6 +23,7 @@ export interface AuthErrorProps {
  * rather than the React `<Button asChild><Link>`.
  */
 
+import { DEFAULT_LOGIN_PATH } from "@chelone/core";
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -48,7 +49,7 @@ const linkClasses = computed(() => buttonVariants({ variant: "default" }));
       {{ translate(props.title, { _: props.title }) }}
     </h1>
     <p class="my-5">{{ translate(props.message, { _: props.message }) }}</p>
-    <RouterLink to="/login" :class="linkClasses" data-slot="auth-error-signin">
+    <RouterLink :to="DEFAULT_LOGIN_PATH" :class="linkClasses" data-slot="auth-error-signin">
       <LockIcon /> {{ translate("ra.auth.sign_in", { _: "Sign in" }) }}
     </RouterLink>
   </div>

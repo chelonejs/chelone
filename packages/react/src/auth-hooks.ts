@@ -3,6 +3,7 @@ import {
   type CanAccessParams,
   canAccessQueryOptions,
   checkError,
+  DEFAULT_LOGIN_PATH,
   identityQueryOptions,
   permissionsQueryOptions,
   type RegisteredPermissions,
@@ -141,9 +142,6 @@ export function usePermissions(
 /* -------------------------------------------------------------------------- */
 /* R2 — logout-if-access-denied + data-error wiring                           */
 /* -------------------------------------------------------------------------- */
-
-/** The default path a logged-out session is redirected to. */
-const DEFAULT_LOGIN_PATH = "/login";
 
 /**
  * Module-level debounce (mirrors ra-core): side-effects fire at most once per

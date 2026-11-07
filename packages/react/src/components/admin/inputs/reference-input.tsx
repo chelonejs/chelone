@@ -1,6 +1,7 @@
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
@@ -14,7 +15,7 @@ import { useWatch } from "../../../form";
 import { ResourceContextProvider } from "../../../resource";
 import { AutocompleteInput } from "./autocomplete-input";
 
-interface ReferenceInputProps<RecordType extends LooseRecord = LooseRecord> {
+interface ReferenceInputProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The FK field on the current record (e.g. `"company_id"`). */
   source: SourceProp<RecordType>;
   /** The referenced resource choices are fetched from (e.g. `"companies"`). */
@@ -71,7 +72,7 @@ interface ReferenceInputProps<RecordType extends LooseRecord = LooseRecord> {
  *   </Edit>
  * );
  */
-function ReferenceInput<RecordType extends LooseRecord = LooseRecord>(
+function ReferenceInput<RecordType extends ResourceRecord = LooseRecord>(
   props: ReferenceInputProps<RecordType>,
 ): ReactNode {
   const {

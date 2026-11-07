@@ -32,6 +32,7 @@ export {
   authStateQueryOptions,
   canAccessQueryOptions,
   checkError,
+  DEFAULT_LOGIN_PATH,
   identityQueryOptions,
   permissionsQueryOptions,
 } from "./auth/auth-options";
@@ -197,6 +198,7 @@ export type {
 export {
   DEFAULT_JOB_TABS,
   getJobActions,
+  jobStatusSource,
   planJobCancel,
   planJobRetry,
 } from "./controller/job-monitor";
