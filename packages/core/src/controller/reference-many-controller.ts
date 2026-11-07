@@ -50,7 +50,8 @@ export interface ReferenceManyControllerOptions {
 /** Same state and actions as {@link ListController}, so it drops into a list context. */
 export type ReferenceManyController<TRecord> = ListController<TRecord>;
 
-const DEFAULT_PER_PAGE = 25;
+/** The `perPage` a reference list starts at when nothing is persisted. The single definition: the choices controller and Vue's `<ReferenceInput>` read this. */
+export const DEFAULT_REFERENCE_PER_PAGE = 25;
 
 /**
  * A server-paged list of the rows whose `target` equals `id`, read through
@@ -90,7 +91,7 @@ export function createReferenceManyController<
     { ...ctx, notifications: undefined },
     reference,
     {
-      perPage: options.perPage ?? DEFAULT_PER_PAGE,
+      perPage: options.perPage ?? DEFAULT_REFERENCE_PER_PAGE,
       sort: options.sort,
       filterDefaultValues: options.filterDefaultValues,
       storeKey,

@@ -222,6 +222,8 @@ export type {
 } from "./controller/list-controller";
 export {
   createListController,
+  DEFAULT_DEBOUNCE_MS,
+  DEFAULT_PER_PAGE,
   listControllerActions,
 } from "./controller/list-controller";
 export type {
@@ -314,7 +316,10 @@ export type {
   ReferenceManyController,
   ReferenceManyControllerOptions,
 } from "./controller/reference-many-controller";
-export { createReferenceManyController } from "./controller/reference-many-controller";
+export {
+  createReferenceManyController,
+  DEFAULT_REFERENCE_PER_PAGE,
+} from "./controller/reference-many-controller";
 export type {
   ReferenceOneController,
   ReferenceOneControllerOptions,
