@@ -56,12 +56,12 @@
       "type": "[event: FocusEvent]"
     },
     {
-      "name": "update:modelValue",
-      "type": "[value: string]"
-    },
-    {
       "name": "focus",
       "type": "[event: FocusEvent]"
+    },
+    {
+      "name": "update:modelValue",
+      "type": "[value: string]"
     }
   ],
   "slots": []

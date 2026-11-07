@@ -6,7 +6,7 @@ import { basename, dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { createVueChecker, exportedComponents, vuePropsPage } from "./vue-props.mjs";
+import { createVueChecker, exportedComponents, vuePropsPage, vuePropsPages } from "./vue-props.mjs";
 
 const fixtures = join(dirname(fileURLToPath(import.meta.url)), "fixtures/vue-props");
 
@@ -41,16 +41,54 @@ describe("vuePropsPage", () => {
   });
 });
 
-describe("exportedComponents", () => {
-  it("names the default export of each .vue file a barrel re-exports, through nested barrels", () => {
-    const components = exportedComponents(join(fixtures, "index.ts"));
+describe("vuePropsPage with a type from a bundled dependency", () => {
+  const checker = createVueChecker(join(fixtures, "tsconfig.json"));
+  const page = vuePropsPage(checker, "Linked", join(fixtures, "Linked.vue"));
 
+  it("prints the name the dependency declares, not its mangled export", () => {
+    assert.equal(page.props[0]?.type, "Client");
+  });
+
+  it("does the same inside a slot's props", () => {
+    assert.equal(page.slots[0]?.type, "{ client: Client; others: Client[]; }");
+  });
+});
+
+describe("exportedComponents", () => {
+  const components = exportedComponents(join(fixtures, "index.ts"));
+
+  it("names the default export of each .vue file a barrel re-exports, through nested barrels", () => {
     assert.deepEqual(
-      [...components].map(([name, file]) => [name, basename(file)]),
+      [...components]
+        .filter(([, { exportName }]) => exportName === "default")
+        .map(([name, { file }]) => [name, basename(file)]),
       [
         ["Panel", "Card.vue"],
         ["Card", "Card.vue"],
       ],
     );
+  });
+
+  it("names a component a .ts file declares as a const, such as PointField", () => {
+    const tile = components.get("Tile");
+    assert.deepEqual(tile && [basename(tile.file), tile.exportName], ["shapes.ts", "Tile"]);
+  });
+
+  it("reads such a component's props from the .ts file", () => {
+    const tile = components.get("Tile");
+    assert.ok(tile);
+    const checker = createVueChecker(join(fixtures, "tsconfig.json"));
+    const page = vuePropsPage(checker, "Tile", tile.file, tile.exportName);
+    assert.deepEqual(
+      page.props.map((prop) => prop.name),
+      ["title", "size"],
+    );
+  });
+
+  it("drops a const that is no component", () => {
+    assert.ok(components.has("SIZES"));
+    const checker = createVueChecker(join(fixtures, "tsconfig.json"));
+    const pages = vuePropsPages(checker, components);
+    assert.deepEqual([...pages.keys()].sort(), ["Card", "Panel", "Tile"]);
   });
 });

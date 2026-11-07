@@ -1,0 +1,14 @@
+{
+  "name": "AlertDescription",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

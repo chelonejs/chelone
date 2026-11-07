@@ -33,7 +33,7 @@
     },
     {
       "name": "variant",
-      "type": "\"default\" | \"link\" | \"outline\" | \"secondary\" | \"destructive\" | \"ghost\"",
+      "type": "\"default\" | \"destructive\" | \"link\" | \"outline\" | \"secondary\" | \"ghost\"",
       "optional": true,
       "default": "\"outline\"",
       "comment": "Button variant. Default `\"outline\"`."

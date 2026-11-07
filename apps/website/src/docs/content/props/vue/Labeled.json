@@ -9,6 +9,13 @@
       "comment": ""
     },
     {
+      "name": "label",
+      "type": "string | false",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
       "name": "source",
       "type": "string",
       "optional": true,
@@ -23,8 +30,8 @@
       "comment": ""
     },
     {
-      "name": "label",
-      "type": "string | false",
+      "name": "htmlFor",
+      "type": "string",
       "optional": true,
       "default": "undefined",
       "comment": ""
@@ -34,13 +41,6 @@
       "type": "boolean",
       "optional": true,
       "default": "false",
-      "comment": ""
-    },
-    {
-      "name": "htmlFor",
-      "type": "string",
-      "optional": true,
-      "default": "undefined",
       "comment": ""
     },
     {

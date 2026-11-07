@@ -33,7 +33,7 @@
     },
     {
       "name": "to",
-      "type": "string | et | X",
+      "type": "string | RouteLocationAsRelativeGeneric | RouteLocationAsPathGeneric",
       "optional": false,
       "comment": "Route Location the link should navigate to when clicked on."
     },
@@ -48,7 +48,7 @@
   "slots": [
     {
       "name": "default",
-      "type": "{ route: _t; href: string; isActive: boolean; isExactActive: boolean; navigate: (e?: MouseEvent | undefined) => Promise<void | jr>; }",
+      "type": "{ route: RouteLocationResolvedGeneric; href: string; isActive: boolean; isExactActive: boolean; navigate: (e?: MouseEvent | undefined) => Promise<void | NavigationFailure>; }",
       "comment": ""
     }
   ]

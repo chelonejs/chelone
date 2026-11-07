@@ -1,0 +1,19 @@
+{
+  "name": "Avatar",
+  "props": [
+    {
+      "name": "size",
+      "type": "\"default\" | \"sm\" | \"lg\"",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

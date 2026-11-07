@@ -80,16 +80,16 @@
   ],
   "emits": [
     {
+      "name": "drop",
+      "type": "[record: TRecord, range: CalendarDrop]"
+    },
+    {
       "name": "selectEvent",
       "type": "[record: TRecord]"
     },
     {
       "name": "selectSlot",
       "type": "[slot: CalendarSlot]"
-    },
-    {
-      "name": "drop",
-      "type": "[record: TRecord, range: CalendarDrop]"
     }
   ],
   "slots": [

@@ -32,12 +32,12 @@
   ],
   "emits": [
     {
-      "name": "change",
-      "type": "[value: BlockDocNode]"
-    },
-    {
       "name": "blur",
       "type": "[event: FocusEvent]"
+    },
+    {
+      "name": "change",
+      "type": "[value: BlockDocNode]"
     }
   ],
   "slots": []

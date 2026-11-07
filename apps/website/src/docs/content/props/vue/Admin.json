@@ -9,7 +9,7 @@
     },
     {
       "name": "queryClient",
-      "type": "t",
+      "type": "QueryClient",
       "optional": true,
       "comment": "An existing vue-query client. Omit to have `<Admin>` create one."
     },
