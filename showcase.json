@@ -1,5 +1,22 @@
 {
-  "access-denied": null,
+  "access-denied": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/access-denied",
+        "see": "h5:text-matches(\"access[ _.]denied\", \"i\")"
+      },
+      "demo": {
+        "path": "/demo/access-denied",
+        "see": "role=heading[name=\"Access denied\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/access-denied",
+        "see": "role=heading[name=\"Access denied\"]"
+      }
+    }
+  },
   "addon-csv-import": {
     "shownBy": "csv-import"
   },
@@ -199,10 +216,63 @@
       }
     }
   },
-  "auth-callback": null,
-  "auth-error": null,
-  "auth-layout": null,
-  "authentication-error": null,
+  "auth-callback": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/auth-callback",
+        "see": "div:has(> [role=\"status\"].size-9)"
+      },
+      "demo": {
+        "path": "/demo/auth-callback",
+        "see": "main div:has(> [role=\"status\"].size-9)"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth-callback",
+        "see": ".min-h-svh div:has(> [role=\"status\"].size-9)"
+      }
+    }
+  },
+  "auth-error": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/auth-error",
+        "see": "h1[role=\"alert\"]"
+      },
+      "demo": {
+        "path": "/demo/auth-callback?error=access_denied&error_description=The%20provider%20refused%20the%20sign-in",
+        "see": "[role=\"alert\"]:has-text(\"Something went wrong\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth-callback?error=access_denied&error_description=The%20provider%20refused%20the%20sign-in",
+        "see": "[role=\"alert\"]:has-text(\"Something went wrong\")"
+      }
+    }
+  },
+  "auth-layout": {
+    "shownBy": "login-page"
+  },
+  "authentication-error": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/authentication-error",
+        "see": "h5:text-matches(\"authentication[ _.]error\", \"i\")"
+      },
+      "demo": {
+        "path": "/demo/authentication-error",
+        "see": "role=heading[name=\"Authentication error\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/authentication-error",
+        "see": "role=heading[name=\"Authentication error\"]"
+      }
+    }
+  },
   "auto-config-form": {
     "shownBy": "block-editor-input"
   },
@@ -2310,10 +2380,88 @@
       }
     }
   },
-  "login-form": null,
-  "login-page": null,
-  "login-with-email": null,
-  "logout": null,
+  "login-form": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/login-form",
+        "see": "fieldset[disabled] form"
+      },
+      "demo": {
+        "path": "/demo/login",
+        "see": "[aria-label=\"Sign in through the auth provider\"] form"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/login",
+        "see": "[aria-label=\"Sign in through the auth provider\"] form"
+      }
+    }
+  },
+  "login-page": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/login-page",
+        "see": "role=heading[name=\"Sign in\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=heading[name=\"Sign in\"]",
+        "click": [
+          "[aria-label=\"Demo User\"]",
+          "role=menuitem[name=\"Logout\"]"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=heading[name=\"Sign in\"]",
+        "click": [
+          "[aria-label=\"Demo User\"]",
+          "role=menuitem[name=\"Logout\"]"
+        ]
+      }
+    }
+  },
+  "login-with-email": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/login-with-email",
+        "see": "role=button[name=\"Sign in through onSubmit\"]"
+      },
+      "demo": {
+        "path": "/demo/login",
+        "see": "[aria-label=\"Sign in through your own code\"] form"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/login",
+        "see": "[aria-label=\"Sign in through your own code\"] form"
+      }
+    }
+  },
+  "logout": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/logout",
+        "see": "role=menuitem[name=/log ?out/i]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=menuitem[name=\"Logout\"]",
+        "click": ["[aria-label=\"Demo User\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=menuitem[name=\"Logout\"]",
+        "click": ["[aria-label=\"Demo User\"]"]
+      }
+    }
+  },
   "map-canvas": {
     "shownBy": "geo-json-field"
   },

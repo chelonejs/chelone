@@ -44,6 +44,7 @@ import {
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
 import { computed } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
+import AccessGuard from "./AccessGuard.vue";
 import Dashboard from "./pages/Dashboard.vue";
 import { pageGroups } from "./pages";
 import SimulateOtherUser from "./realtime-sim.vue";
@@ -200,7 +201,7 @@ function openDocs() {
             </HideOnScroll>
           </template>
           <Dashboard v-if="isIndex" />
-          <router-view v-else />
+          <AccessGuard v-else><router-view /></AccessGuard>
         </Layout>
         <OnboardingTour :id="TOUR_ID" :steps="tourSteps" />
         <Assistant
