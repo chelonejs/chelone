@@ -32,8 +32,16 @@ import {
       <ShapeInput source="zone" kind="Polygon" label="Delivery zone" />
     </div>
     <!-- Draw the zone above, then thin it here: a drawn value becomes the
-         original the slider simplifies from. -->
-    <SimplifyInput source="zone" label="Simplify the delivery zone" />
+         original the slider simplifies from. A zone spans about a hundredth of
+         a degree, so the slider is scaled to it and starts at 0, which leaves
+         the zone as it was until moved. -->
+    <SimplifyInput
+      source="zone"
+      label="Simplify the delivery zone"
+      :tolerance="0"
+      :max-tolerance="0.002"
+      :step="0.0001"
+    />
     <div data-field="zone-water">
       <OsmFeatureOperator
         source="zone"

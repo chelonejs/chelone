@@ -39,7 +39,7 @@ export function PreviewMaps({ children }: { children: ReactNode }) {
 export function PreviewPlaceForm({ children }: { children: ReactNode }) {
   return (
     <PreviewMaps>
-      <div className="w-full max-w-xl">
+      <div className="flex w-full max-w-xl flex-col gap-4">
         <Create record={previewPlace} title={false}>
           {children}
         </Create>
