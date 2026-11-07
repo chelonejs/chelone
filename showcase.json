@@ -309,7 +309,24 @@
   },
   "can-access": null,
   "cancel-button": null,
-  "card-content-inner": null,
+  "card-content-inner": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/card-content-inner",
+        "see": "[data-slot=\"card\"] > div:has-text(\"On Computable Numbers\")"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> [data-slot=\"tabs\"])"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "div:has(> [data-slot=\"tabbed-show-layout\"])"
+      }
+    }
+  },
   "chart-block": {
     "shownBy": "block-editor-input"
   },
@@ -341,9 +358,62 @@
       }
     }
   },
-  "chip-field": null,
-  "clone-button": null,
-  "color-field": null,
+  "chip-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/chip-field",
+        "see": "[data-slot=\"badge\"]:text-is(\"Science\")"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "[data-slot=\"badge\"]:text-matches(\"^SKU-\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"badge\"]:text-matches(\"^SKU-\")"
+      }
+    }
+  },
+  "clone-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/clone-button",
+        "see": "role=link[name=\"Clone\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "role=link[name=\"Clone\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"clone-button\"]"
+      }
+    }
+  },
+  "color-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/color-field",
+        "see": "span:has(> [data-color-chip])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "span:has(> [data-color-chip])",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"color-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
   "color-input": {
     "react": {
       "docs": {
@@ -525,7 +595,24 @@
       }
     }
   },
-  "currency-field": null,
+  "currency-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/currency-field",
+        "see": "text=\"$1,234.50\""
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Price\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"currency-field\"]"
+      }
+    }
+  },
   "currency-input": {
     "react": {
       "docs": {
@@ -637,7 +724,24 @@
   "default-plugins": {
     "shownBy": "mdx-input"
   },
-  "delete-button": null,
+  "delete-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/delete-button",
+        "see": "role=button[name=\"Delete\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "role=button[name=\"Delete\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"delete-button\"]"
+      }
+    }
+  },
   "diff-viewer": {
     "react": {
       "docs": {
@@ -764,7 +868,26 @@
       }
     }
   },
-  "file-field": null,
+  "file-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/file-field",
+        "see": "div:has(> a[title=\"Chelone logo\"])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> a[title=\"Download PDF\"])",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"file-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
   "file-input": {
     "react": {
       "docs": {
@@ -796,7 +919,24 @@
     "shownBy": "forgot-password-page"
   },
   "forgot-password-page": null,
-  "function-field": null,
+  "function-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/function-field",
+        "see": "text=\"On Computable Numbers (50 views)\""
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "span:text-matches(\"^(In stock|Low stock: [0-9]+ left|Out of stock)$\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"function-field\"]"
+      }
+    }
+  },
   "geo-json-field": null,
   "geo-json-layers": {
     "shownBy": "geo-json-field"
@@ -817,7 +957,26 @@
   "image-block-config": {
     "shownBy": "block-editor-input"
   },
-  "image-field": null,
+  "image-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/image-field",
+        "see": "span:has(> img[alt=\"Chelone logo\"])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "span:has(> img[alt=\"Product photo\"])",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"image-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
   "image-input": {
     "react": {
       "docs": {
@@ -927,7 +1086,26 @@
   "job-monitor-row": {
     "shownBy": "job-monitor"
   },
-  "json-field": null,
+  "json-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/json-field",
+        "see": "pre"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "pre",
+        "click": ["role=tab[name=\"Raw data\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"json-field\"]",
+        "click": ["role=tab[name=\"Raw data\"]"]
+      }
+    }
+  },
   "kanban": {
     "shownBy": "kanban-board"
   },
@@ -956,7 +1134,24 @@
     "shownBy": "kanban-board"
   },
   "keyboard-shortcut": null,
-  "labeled": null,
+  "labeled": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/labeled",
+        "see": "div:has(> label > span:text-is(\"Title\"))"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Rating\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"labeled\"]:has(> label:has-text(\"Rating\"))"
+      }
+    }
+  },
   "lat-lng-field": null,
   "lat-lng-input": null,
   "layout": null,
@@ -964,7 +1159,24 @@
   "link": null,
   "list": null,
   "list-actions": null,
-  "list-button": null,
+  "list-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/list-button",
+        "see": "role=link[name=\"List\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "role=link[name=\"List\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"list-button\"]"
+      }
+    }
+  },
   "list-guesser": null,
   "list-live": null,
   "list-no-results": {
@@ -1142,7 +1354,24 @@
       }
     }
   },
-  "prev-next-buttons": null,
+  "prev-next-buttons": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/prev-next-buttons",
+        "see": "nav:has(> [aria-label*=\"next\" i])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "nav:has(> [aria-label*=\"next\" i])"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "nav:has(> [aria-label*=\"next\" i])"
+      }
+    }
+  },
   "radio-button-group-input": {
     "react": {
       "docs": {
@@ -1161,7 +1390,24 @@
       }
     }
   },
-  "rating-field": null,
+  "rating-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/rating-field",
+        "see": "role=img[name=\"4.5 out of 5\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "[role=\"img\"][aria-label$=\"out of 5\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"rating-field\"]"
+      }
+    }
+  },
   "rating-input": {
     "react": {
       "docs": {
@@ -1428,7 +1674,24 @@
       }
     }
   },
-  "select-field": null,
+  "select-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/select-field",
+        "see": "text=\"Published\""
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Category\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"select-field\"]:has-text(\"Electronics\")"
+      }
+    }
+  },
   "select-input": null,
   "set-password-form": {
     "shownBy": "set-password-page"
@@ -1440,7 +1703,24 @@
     "shownBy": "shape-input"
   },
   "show": null,
-  "show-button": null,
+  "show-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/show-button",
+        "see": "role=link[name=\"Show\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=link[name=\"Show\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "[data-slot=\"show-button\"]"
+      }
+    }
+  },
   "show-guesser": null,
   "show-live": {
     "react": {
@@ -1567,11 +1847,45 @@
   "subscription-plan-field": null,
   "subscription-plan-picker": null,
   "supabase-login-page": null,
-  "tabbed-show-layout": null,
+  "tabbed-show-layout": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/tabbed-show-layout",
+        "see": "[data-slot=\"tabs\"]:has-text(\"Summary\")"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "[data-slot=\"tabs\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"tabbed-show-layout\"]"
+      }
+    }
+  },
   "tabbed-show-layout-tab": {
     "shownBy": "tabbed-show-layout"
   },
-  "text-array-field": null,
+  "text-array-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/text-array-field",
+        "see": "div:has(> [data-slot=\"badge\"]:text-is(\"Science\"))"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Keywords\")) > div"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"text-array-field\"]:has-text(\"mechanical\")"
+      }
+    }
+  },
   "text-array-input": {
     "react": {
       "docs": {
@@ -1670,7 +1984,26 @@
     "shownBy": "layout"
   },
   "update-button": null,
-  "url-field": null,
+  "url-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/url-field",
+        "see": "role=link[name=\"https://chelone.dev\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "a[href^=\"https://example.com/products/\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"url-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
   "usage-meter-field": null,
   "user-menu": null,
   "user-menu-inner": {
@@ -1681,5 +2014,22 @@
   },
   "webhook-endpoint-field": null,
   "webhook-endpoint-input": null,
-  "wrapper-field": null
+  "wrapper-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/wrapper-field",
+        "see": "div:has(> label > span:text-is(\"Publication\"))"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Fulfilment\")) > div"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "div:has(> label:has-text(\"Fulfilment\")) > div"
+      }
+    }
+  }
 }
