@@ -18,8 +18,10 @@ import {
   ShowGuesser,
 } from "@chelone/react";
 import { MapsProvider } from "@chelone/react/maps";
+import { supabaseEnglishMessages } from "@chelone/supabase";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Route } from "react-router";
+import { authRoutes } from "./auth-routes";
 import { mapsConfig } from "./maps-services";
 import { pages } from "./pages";
 import { dataProvider } from "./realtime";
@@ -69,7 +71,7 @@ const queryClient = new QueryClient({
 // The i18n instance, notification store (the Layout toaster reads it), and the
 // KV store (list scroll / preferences, whether the tour is done) — the
 // services a real app configures.
-const i18n = makeI18n();
+const i18n = makeI18n(supabaseEnglishMessages);
 const notifications = createNotificationStore();
 const store = makeDemoStore();
 
@@ -158,6 +160,9 @@ export function App() {
               show={ShowGuesser}
             />
           ))}
+
+          {/* The Supabase auth pages, outside the layout (see auth-routes.tsx). */}
+          <CustomRoutes noLayout>{authRoutes}</CustomRoutes>
 
           {/* One route per file in src/pages (see pages.tsx). */}
           <CustomRoutes>

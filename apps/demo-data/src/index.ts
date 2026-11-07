@@ -25,4 +25,8 @@ export type {
 } from "./seed";
 export { categoryChoices, seedData, statusChoices } from "./seed";
 export { makeDemoStore } from "./store";
+export {
+  type StubSupabaseAuthProvider,
+  stubSupabaseAuthProvider,
+} from "./supabase-auth";
 export { type DemoTourStep, TOUR_ID, tourSteps } from "./tour";

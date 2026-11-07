@@ -18,8 +18,10 @@
 import { createNotificationStore } from "@chelone/core";
 import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
+import { supabaseEnglishMessages } from "@chelone/supabase";
 import { QueryClient } from "@tanstack/vue-query";
 import { demoAuthProvider, makeDemoStore, makeI18n } from "@chelone/demo-data";
+import { authRoutes } from "./auth-routes";
 import { mapsConfig } from "./maps-services";
 import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
@@ -53,6 +55,10 @@ import ProductShow from "./resources/ProductShow.vue";
 import { resources } from "./resources/schema";
 import Shell from "./Shell.vue";
 
+// The Supabase auth pages render outside the layout (see auth-routes.ts); the
+// files in `src/pages/` render inside it.
+const customRoutes = [...authRoutes, ...pageRoutes];
+
 // No hand-written views yet: the guessers build them from the schemas in
 // resources/schema.ts.
 const guessedResources = ["categories", "tags"];
@@ -68,7 +74,7 @@ const queryClient = new QueryClient({
     mutations: { retry: false },
   },
 });
-const i18n = makeI18n();
+const i18n = makeI18n(supabaseEnglishMessages);
 // Kept in `localStorage`, so the tour that opens on a first visit stays closed.
 const store = makeDemoStore();
 </script>
@@ -85,7 +91,7 @@ const store = makeDemoStore();
       :notifications="notifications"
       :store="store"
       :auth-provider="demoAuthProvider"
-      :custom-routes="pageRoutes"
+      :custom-routes="customRoutes"
     >
       <template #layout><Shell /></template>
       <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
