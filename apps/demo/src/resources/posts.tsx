@@ -21,6 +21,7 @@ import {
   EditButton,
   EditLive,
   ListLive,
+  ListPagination,
   LockOnMount,
   LockStatus,
   NumberField,
@@ -33,6 +34,7 @@ import {
   Show,
   TextField,
   TextInput,
+  Title,
   Toolbar,
 } from "@chelone/react";
 import { z } from "zod";
@@ -68,6 +70,7 @@ export function PostList() {
           <EditButton />
         </DataTable.Col>
       </DataTable>
+      <ListPagination />
     </ListLive>
   );
 }
@@ -108,6 +111,7 @@ export function PostCreate() {
 export function PostShow() {
   return (
     <Show>
+      <Title title="Post details" />
       <RecordField source="title" />
       <RecordField source="body" />
       <RecordField label="Author">

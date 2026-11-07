@@ -13,11 +13,13 @@ import {
   ReferenceField,
   Show,
   TextField,
+  Title,
 } from "@chelone/vue";
 </script>
 
 <template>
   <Show resource="posts">
+    <Title title="Post details" />
     <div class="flex flex-col gap-4 max-w-xl">
       <RecordField source="title" />
       <RecordField source="body" />

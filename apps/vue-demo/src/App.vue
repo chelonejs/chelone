@@ -20,6 +20,7 @@ import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from "@chelone
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
 import { makeI18n } from "@chelone/demo-data";
+import { authProvider } from "./auth";
 import { mapsConfig } from "./maps-services";
 import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
@@ -74,6 +75,7 @@ const i18n = makeI18n();
   <MapsProvider v-bind="mapsConfig">
     <Admin
       :data-provider="dataProvider"
+      :auth-provider="authProvider"
       :query-client="queryClient"
       :registry="resources"
       :i18n="i18n"

@@ -20,6 +20,7 @@ import {
 import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Route } from "react-router";
+import { authProvider } from "./auth";
 import { mapsConfig } from "./maps-services";
 import { pages } from "./pages";
 import { dataProvider } from "./realtime";
@@ -82,6 +83,7 @@ export function App() {
       <MapsProvider {...mapsConfig}>
         <Admin
           dataProvider={dataProvider}
+          authProvider={authProvider}
           queryClient={queryClient}
           i18n={i18n}
           notifications={notifications}
