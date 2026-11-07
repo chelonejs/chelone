@@ -15,6 +15,7 @@ import {
   defaultMessages,
   defineMessages,
   defineResources,
+  englishMessages,
 } from "@chelone/core";
 import { z } from "zod";
 
@@ -133,6 +134,14 @@ const en = defineMessages({
   "ra.navigation.no_results": "No {name} found",
   "ra.navigation.page_range_info": "{offsetBegin}-{offsetEnd} of {total}",
   "ra.navigation.page_rows_per_page": "Rows per page:",
+  // The drop-zone prompts of `<FileInput>` and `<ImageInput>`.
+  "ra.input.file.upload_several":
+    englishMessages["ra.input.file.upload_several"],
+  "ra.input.file.upload_single": englishMessages["ra.input.file.upload_single"],
+  "ra.input.image.upload_several":
+    englishMessages["ra.input.image.upload_several"],
+  "ra.input.image.upload_single":
+    englishMessages["ra.input.image.upload_single"],
 });
 
 export function makePreviewI18n() {
