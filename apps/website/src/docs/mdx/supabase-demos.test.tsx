@@ -1,5 +1,5 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router";
+import { MemoryRouter, useLocation } from "react-router";
 import { afterEach, describe, expect, it } from "vitest";
 import ForgotPasswordPageDemo from "../content/supabase/forgot-password-page/demos/basic";
 import SetPasswordPageDemo from "../content/supabase/set-password-page/demos/basic";
@@ -9,11 +9,17 @@ import { PreviewProvider } from "./preview-provider";
 
 afterEach(cleanup);
 
-function mount(Demo: () => React.ReactNode) {
+function Where() {
+  const { pathname, search, hash } = useLocation();
+  return <output data-testid="where">{`${pathname}${search}${hash}`}</output>;
+}
+
+function mount(Demo: () => React.ReactNode, entry = "/docs/preview") {
   return render(
-    <MemoryRouter initialEntries={["/docs/preview"]}>
+    <MemoryRouter initialEntries={[entry]}>
       <PreviewProvider>
         <Demo />
+        <Where />
       </PreviewProvider>
     </MemoryRouter>,
   );
@@ -52,6 +58,15 @@ describe("the Supabase page demos", () => {
     ).toBeTruthy();
     expect(await screen.findByRole("button", { name: "Save" })).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Back to login" })).toBeNull();
+  });
+
+  it("the set password demo keeps the docs URL's query and anchor and leaves no token on it", async () => {
+    mount(SetPasswordPageDemo, "/docs/preview?tab=2#some-heading");
+
+    expect(await screen.findByRole("button", { name: "Save" })).toBeTruthy();
+    expect(screen.getByTestId("where").textContent).toBe(
+      "/docs/preview?tab=2#some-heading",
+    );
   });
 
   it("a provider button reports that the stub declines the sign-in", async () => {

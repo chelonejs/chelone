@@ -1,5 +1,5 @@
 import { SetPasswordPage } from "@chelone/react/supabase";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { StubSupabaseClient } from "@/docs/mdx/stub-supabase-client";
 
@@ -9,14 +9,17 @@ import { StubSupabaseClient } from "@/docs/mdx/stub-supabase-client";
  * form keeps them and removes them from the URL, as it does for a real link.
  */
 export default function SetPasswordPageDemo() {
-  const { pathname } = useLocation();
+  // The location as the page opened, so a query or an anchor on the docs URL survives.
+  const opened = useRef(useLocation());
   const navigate = useNavigate();
   useEffect(() => {
-    navigate(
-      `${pathname}?access_token=preview-access&refresh_token=preview-refresh&type=recovery`,
-      { replace: true },
-    );
-  }, [pathname, navigate]);
+    const { pathname, search, hash } = opened.current;
+    const params = new URLSearchParams(search);
+    params.set("access_token", "preview-access");
+    params.set("refresh_token", "preview-refresh");
+    params.set("type", "recovery");
+    navigate(`${pathname}?${params.toString()}${hash}`, { replace: true });
+  }, [navigate]);
 
   return (
     <StubSupabaseClient>
