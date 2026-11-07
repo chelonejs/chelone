@@ -24,6 +24,18 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - Run `pnpm format` before every commit: `pnpm lint` fails on any file Biome would reformat. The pre-push hook in `.githooks/` runs `pnpm lint` and refuses the push when it fails; it also runs the duplication check, and skips it with a warning when jscpd is not installed (CI still runs it); `pnpm install` turns it on.
 - Commits: a conventional prefix (`feat:`, `fix:`, `test:`, `chore:`, `docs:`, `refactor:`) and a body that says why. Pull request bodies: a short bullet list of what changed, no em dashes, no bold.
 
+## The showcase
+
+Every component has a full demo in the docs and a place in the demos, in both adapters, and every pull request that touches one shows both. `showcase.json` says where.
+
+- A new component lands with a docs demo in `apps/website/src/docs/content/<section>/<name>/demos/`, a place in `apps/demo` and `apps/vue-demo` where it does real work, and a complete entry: `{ "react": { "docs": SHOT, "demo": SHOT }, "vue": { "demo": SHOT } }`. A component in one adapter has that adapter's side only.
+- A SHOT is `{ "path": "/demo/posts/create", "see": "role=textbox[name=\"Title\"]", "click": ["..."] }`: the page, a Playwright selector that proves the component is on it, and what to click first when it sits behind a dialog or a tab. The demos live under `/demo/` and `/vue-demo/`.
+- A part that only renders inside another component is `{ "shownBy": "<that component>" }`.
+- `null` is a component older than this rule, still owed. A ticket fills it in; nothing new gets one.
+- The Vue `docs` shot is optional until docs pages render Vue demos.
+- Look at the component in a browser before finishing, at the width and in the states it ships in. The `showcase` entry in `.claude/launch.json` serves the docs, `/demo/` and `/vue-demo/` on one port, and that is the dev server a kelpie worker's `browser_*` tools reach.
+- CI photographs each changed component's docs page and demo and posts them as one comment on the pull request (`scripts/showcase-shots.mjs`). A `see` that never appears fails the `check` job. Pull request authors post nothing themselves.
+
 ## Checks
 
 From the root, the same commands CI runs (`.github/workflows/ci.yml`):
@@ -35,6 +47,7 @@ pnpm lint        # biome
 pnpm check:duplication
 pnpm check:type-escapes
 pnpm check:type-cost
+pnpm check:showcase
 pnpm typecheck   # tsc, vue-tsc, react-router typegen
 pnpm test        # vitest --typecheck in every package
 pnpm build       # demo, vue-demo, website

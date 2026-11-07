@@ -24,7 +24,7 @@ the root `package.json`, and `NODE_VERSION` with the Node version in `.github/wo
 - `/`, `/docs/<section>` and `/docs/<slug>`: the docs site, prerendered by `react-router build`
 - `404.html`: the SPA fallback from `apps/website/scripts/copy-spa-fallback.mjs`, which Pages
   serves for any unknown path
-- `/demo/`: the React demo, from `apps/website/scripts/copy-demo.mjs`
+- `/demo/` and `/vue-demo/`: the React and Vue demos, from `apps/website/scripts/copy-demo.mjs`
 - `/r/`: the shadcn registry, from `apps/website/scripts/copy-registry.mjs`
 
 Pages redirects a path without a trailing slash to the one with it, so
