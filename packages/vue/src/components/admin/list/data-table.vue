@@ -2,7 +2,12 @@
 import type { Identifier, LooseRecord, ResourceRecord } from "@chelone/core";
 import type { DataTableRowClick } from "./data-table-context";
 
-/** Props for {@link DataTable}. */
+/**
+ * Props for {@link DataTable}. A caller of `h()` with loosely typed callbacks
+ * writes `h(DataTable<LooseRecord>, ...)`: `h()` resolves a generic component
+ * to its constraint, `ResourceRecord`, which refuses a `(record: LooseRecord)`
+ * callback.
+ */
 export interface DataTableProps<
   TRecord extends ResourceRecord = LooseRecord,
 > {
