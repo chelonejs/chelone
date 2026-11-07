@@ -32,6 +32,35 @@ export const authorSchema = z.object({
   email: z.string().email().optional(),
 });
 
+/**
+ * The schemas behind the guessed views of `pages`, `categories` and `tags`: a
+ * guesser builds its columns and inputs from the registered Zod schema, so a
+ * resource without one shows an empty state.
+ */
+export const pageSchema = z.object({
+  id: z.number().optional(),
+  title: z.string().min(1),
+  slug: z.string().min(1),
+  body: z.string(),
+  status: z.enum(["draft", "published"]),
+  author_id: z.number(),
+  parent_id: z.number().nullable(),
+  updated_at: z.string(),
+  published_at: z.string().nullable(),
+});
+
+export const categorySchema = z.object({
+  id: z.number().optional(),
+  name: z.object({ en: z.string(), pt: z.string(), fr: z.string() }),
+  parent_id: z.number().nullable(),
+});
+
+export const tagSchema = z.object({
+  id: z.number().optional(),
+  name: z.string().min(1),
+  color: z.string(),
+});
+
 /** The registry passed to `<Admin :registry>` — the D6 default-validator seam. */
 export const resources = defineResources({
   posts: { schema: postSchema },
@@ -40,6 +69,9 @@ export const resources = defineResources({
   customers: {},
   orders: {},
   places: {},
+  pages: { schema: pageSchema },
+  categories: { schema: categorySchema },
+  tags: { schema: tagSchema },
 });
 
 /**

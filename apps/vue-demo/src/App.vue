@@ -7,20 +7,21 @@
  * is built from the `@chelone/vue` components over the in-memory
  * `fakeDataProvider`, wrapped for realtime (`realtime.ts`) — no server.
  *
- * No `#layout` override: `<Admin>` renders its DEFAULT shell — the `<Layout>`
- * (a `<Sidebar>` with a resource `<Menu>` linking each registered resource + an
- * `<AppBar>` carrying the page title and a `<UserMenu>`), wrapped in a
- * `<ThemeProvider>`. The routed resource view mounts in the shell's main content
- * area. The default slot holds the `<Resource>` markers (they register and
- * render no DOM).
+ * The `#layout` slot is `Shell.vue`: the default `<Layout>` (a `<Sidebar>` with a
+ * resource `<Menu>` linking each registered resource + an `<AppBar>` carrying
+ * the page title and a `<UserMenu>`) plus a menu entry per file in `src/pages/`,
+ * which `pages.ts` also turns into the custom routes. The routed view mounts in
+ * the shell's main content area. The default slot holds the `<Resource>` markers
+ * (they register and render no DOM).
  */
 
 import { createNotificationStore } from "@chelone/core";
-import { Admin, Resource } from "@chelone/vue";
+import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
 import { makeI18n } from "@chelone/demo-data";
 import { mapsConfig } from "./maps-services";
+import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
 import AuthorCreate from "./resources/AuthorCreate.vue";
 import AuthorEdit from "./resources/AuthorEdit.vue";
@@ -47,6 +48,11 @@ import ProductEdit from "./resources/ProductEdit.vue";
 import ProductList from "./resources/ProductList.vue";
 import ProductShow from "./resources/ProductShow.vue";
 import { resources } from "./resources/schema";
+import Shell from "./Shell.vue";
+
+// No hand-written views yet: the guessers build them from the schemas in
+// resources/schema.ts.
+const guessedResources = ["pages", "categories", "tags"];
 
 // A retry-off query client, the English i18n catalog and a notification store
 // (the simulated user's failed lock reports through it) — the services a real
@@ -72,7 +78,9 @@ const i18n = makeI18n();
       :registry="resources"
       :i18n="i18n"
       :notifications="notifications"
+      :custom-routes="pageRoutes"
     >
+      <template #layout><Shell /></template>
       <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
            Edit/Create forms validate against it automatically (the D6
            registry-schema default validator). -->
@@ -117,6 +125,14 @@ const i18n = makeI18n();
         :edit="PlaceEdit"
         :create="PlaceCreate"
         :show="PlaceShow"
+      />
+      <Resource
+        v-for="name in guessedResources"
+        :key="name"
+        :name="name"
+        :list="ListGuesser"
+        :edit="EditGuesser"
+        :show="ShowGuesser"
       />
     </Admin>
   </MapsProvider>
