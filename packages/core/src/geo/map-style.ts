@@ -63,6 +63,12 @@ export const DEFAULT_MAP_ZOOM = 13;
 /** The height in pixels a map view builds when the app passes none. */
 export const DEFAULT_MAP_HEIGHT = 300;
 
+/** The pixels a bounds fit keeps free around the box when the app passes none. */
+export const DEFAULT_FIT_PADDING = 20;
+
+/** The highest zoom a bounds fit may reach when the app passes none. */
+export const DEFAULT_MAX_FIT_ZOOM = 18;
+
 /** The pin fill a map marker uses when the app passes no color. */
 export const DEFAULT_PIN_COLOR = "#dc2626";
 

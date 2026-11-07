@@ -1,5 +1,7 @@
 <script lang="ts">
 import {
+  DEFAULT_FIT_PADDING,
+  DEFAULT_MAX_FIT_ZOOM,
   geoBounds,
   isLngLatBox,
   type MapStyleInput,
@@ -207,7 +209,11 @@ const Editor = defineComponent(
         fitted = true;
         if (props.getValue() === props.written.current) return;
         if (!isLngLatBox(corners)) return;
-        map.fitBounds(corners, { padding: 20, maxZoom: 18, duration: 0 });
+        map.fitBounds(corners, {
+          padding: DEFAULT_FIT_PADDING,
+          maxZoom: DEFAULT_MAX_FIT_ZOOM,
+          duration: 0,
+        });
       },
       { immediate: true },
     );

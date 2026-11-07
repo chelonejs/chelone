@@ -151,6 +151,16 @@ const simplifyInput =
     h(SimplifyInput, { source: "shape", ...props });
 
 describe("SimplifyInput", () => {
+  it("fits the value with the shared padding and max fit zoom", async () => {
+    await mountInput(simplifyInput({ tolerance: 0 }), polygon());
+
+    expect(maps[0]?.fits[0]?.options).toEqual({
+      padding: 20,
+      maxZoom: 18,
+      duration: 0,
+    });
+  });
+
   it("keeps all 21 ring entries of a 20 vertex ring at tolerance 0", async () => {
     expect(bumpySquare()).toHaveLength(21);
     const { ringLength, wrapper } = await mountInput(
