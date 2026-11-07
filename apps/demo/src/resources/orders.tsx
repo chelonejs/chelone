@@ -1,3 +1,4 @@
+import { statusChoices } from "@chelone/demo-data";
 import {
   BadgeField,
   Create,
@@ -14,7 +15,6 @@ import {
   TextField,
   TextInput,
 } from "@chelone/react";
-import { statusChoices } from "../seed";
 
 export function OrderList() {
   return (

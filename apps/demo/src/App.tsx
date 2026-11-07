@@ -8,6 +8,7 @@
  */
 
 import { createNotificationStore, createStore } from "@chelone/core";
+import { makeI18n } from "@chelone/demo-data";
 import {
   Admin,
   Layout,
@@ -19,7 +20,6 @@ import {
 import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router";
-import { makeI18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { dataProvider } from "./realtime";
 import { SimulateOtherUser } from "./realtime-sim";
