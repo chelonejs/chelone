@@ -9,13 +9,7 @@
  * renders nothing.
  */
 
-import {
-  type Component,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  shallowRef,
-} from "vue";
+import { type Component, shallowRef } from "vue";
 import PreviewProvider, { type PreviewMode } from "./PreviewProvider.vue";
 
 interface VueDemoModule {
@@ -45,29 +39,6 @@ void load?.().then((loaded) => {
   demo.value = loaded;
 });
 
-// The docs page sizes this frame to the demo: a fixed height clipped a table or
-// a whole admin shell. Report the demo's height whenever it changes.
-let resizeObserver: ResizeObserver | undefined;
-
-onMounted(() => {
-  if (window.parent === window) return;
-  const report = () => {
-    window.parent.postMessage(
-      {
-        type: "chelone-docs-demo-height",
-        height: document.body.scrollHeight,
-      },
-      window.location.origin,
-    );
-  };
-  resizeObserver = new ResizeObserver(report);
-  resizeObserver.observe(document.body);
-  void nextTick(report);
-});
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect();
-});
 </script>
 
 <template>

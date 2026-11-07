@@ -159,40 +159,13 @@ describe("the Vue demo frame", () => {
     expect(frame().style.width).toBe("800px");
   });
 
-  it("grows and shrinks the frame to the height the demo reports", async () => {
+  // jsdom never loads the frame, so it has no contentDocument and nothing to
+  // measure: the height fitting is checked in a browser, not here.
+  it("leaves the frame unmeasured where jsdom cannot load it", () => {
     renderPreview(BOTH, VUE_URL);
-    expect(frame().style.height).toBe("224px");
 
-    for (const [reported, expected] of [
-      [431, "431px"],
-      [5000, "1000px"],
-      [10, "128px"],
-    ] as const) {
-      await act(async () => {
-        window.dispatchEvent(
-          new MessageEvent("message", {
-            data: { type: "chelone-docs-demo-height", height: reported },
-            source: frame().contentWindow,
-          }),
-        );
-      });
-      expect(frame().style.height).toBe(expected);
-    }
-  });
-
-  it("ignores a height from a frame that is not the demo", async () => {
-    renderPreview(BOTH, VUE_URL);
-    const before = frame().style.height;
-
-    await act(async () => {
-      window.dispatchEvent(
-        new MessageEvent("message", {
-          data: { type: "chelone-docs-demo-height", height: 900 },
-        }),
-      );
-    });
-
-    expect(frame().style.height).toBe(before);
+    expect(frame().contentDocument?.body).toBeNull();
+    expect(frame().style.height).toBe("");
   });
 });
 

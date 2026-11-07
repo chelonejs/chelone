@@ -1,4 +1,4 @@
-import { DataTable, FieldsSelector, List } from "@chelone/react";
+import { BooleanField, DataTable, FieldsSelector, List } from "@chelone/react";
 
 const storeKey = "posts.datatable";
 
@@ -6,15 +6,19 @@ const storeKey = "posts.datatable";
 export default function FieldsSelectorDemo() {
   return (
     <List perPage={5}>
-      <div className="flex flex-col gap-4 md:flex-row md:items-start">
-        <div className="min-w-0 flex-1">
+      {/* Stacked, not side by side: the preview is 590px wide, and a 256px
+          selector beside the table leaves the table too narrow to read. */}
+      <div className="flex min-w-0 flex-col gap-4">
+        <div className="min-w-0">
           <DataTable rowClick={false} storeKey={storeKey}>
             <DataTable.Col source="title" />
             <DataTable.NumberCol source="views" />
-            <DataTable.Col source="body" />
+            <DataTable.Col source="published">
+              <BooleanField source="published" />
+            </DataTable.Col>
           </DataTable>
         </div>
-        <div className="rounded-md border p-4 md:w-64 md:shrink-0">
+        <div className="min-w-0 rounded-md border p-4">
           <FieldsSelector storeKey={storeKey} />
         </div>
       </div>

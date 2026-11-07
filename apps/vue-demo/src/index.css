@@ -10,9 +10,8 @@
  */
 @source "../../../packages/vue/src/components";
 
-/* Docs demos live in the website's content folder and are compiled here (see
- * `src/DocsPreview.vue`), so the classes their templates use must be generated
- * into this bundle too. */
+/* The docs demos render here in an iframe, and are the only place their
+   wrapper classes appear. Without this source they are tree-shaken away. */
 @source "../../website/src/docs/content";
 
 @custom-variant dark (&:is(.dark *));
