@@ -45,7 +45,7 @@
     },
     {
       "name": "onSelect",
-      "type": "(record: LooseRecord) => void",
+      "type": "(record: TRecord) => void",
       "optional": true,
       "comment": "Called with the record when a row is selected, in place of navigating."
     },

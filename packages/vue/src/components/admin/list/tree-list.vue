@@ -1,9 +1,11 @@
-<script lang="ts">
-import type { SourceProp } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 import type { Component } from "vue";
 
 /** Props for {@link TreeList}. */
-export interface TreeListProps {
+export interface TreeListProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** The field holding the parent's id; a dot or bracket path reads a nested value. */
   parentSource: SourceProp;
   /** The string field shown as the row title; the record representation otherwise. */
@@ -21,9 +23,17 @@ export interface TreeListProps {
   linkType?: "edit" | "show" | false;
   class?: string;
 }
+
+/** What `<TreeList>` emits. */
+export interface TreeListEmits<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  /** A row was activated. A `select` listener replaces the row's navigation. */
+  select: [record: TRecord];
+}
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<TreeList>` — the records of the ambient `<List>` as a collapsible tree,
  * nested by a parent field. The Vue analog of `@chelone/react`'s
@@ -45,8 +55,8 @@ import {
   buildRecordTree,
   getAtPath,
   type Identifier,
-  type LooseRecord,
   type RecordTreeNode,
+  type SourcePath,
 } from "@chelone/core";
 import { computed, getCurrentInstance, provide, ref, type VNode } from "vue";
 import { useResourceDefinition } from "../../../admin/resource-registry";
@@ -61,13 +71,13 @@ import { type TreeListContext, TreeListKey } from "./tree-list-context";
 import TreeListNode from "./tree-list-node.vue";
 
 // A `false` in the union makes Vue cast an absent prop to `false`.
-const props = withDefaults(defineProps<TreeListProps>(), {
+const props = withDefaults(defineProps<TreeListProps<TRecord>>(), {
   linkType: undefined,
   titleSource: undefined,
   iconSource: undefined,
   iconMap: undefined,
 });
-const emit = defineEmits<{ select: [record: LooseRecord] }>();
+const emit = defineEmits<TreeListEmits<TRecord>>();
 defineSlots<{
   /** Rendered while the list is pending, in place of `SimpleListLoading`. */
   loading?(): VNode[];
@@ -75,7 +85,7 @@ defineSlots<{
   empty?(): VNode[];
 }>();
 
-const list = useListContext<LooseRecord>();
+const list = useListContext<TRecord>();
 const resource = useResourceContext();
 const getRepresentation = useGetRecordRepresentation(resource);
 const navigate = useNavigate();
@@ -90,8 +100,11 @@ const hasListener = () => {
   return !!(listeners?.onSelect || listeners?.onSelectOnce);
 };
 
+// buildRecordTree walks the parent source with getAtPath, which reads any
+// string off any record.
 const roots = computed(() =>
-  buildRecordTree(list.data ?? [], props.parentSource),
+  // type-escape: `parentSource` is the loose `SourceProp` a list source is.
+  buildRecordTree<TRecord>(list.data ?? [], props.parentSource as SourcePath<TRecord>),
 );
 
 // Keyed by id, not by node, so a refetch that rebuilds the tree keeps it.
@@ -100,7 +113,7 @@ const isExpanded = (id: Identifier) =>
   expanded.value[String(id)] ?? props.defaultExpanded;
 
 const focusedId = ref<Identifier>();
-function visibleIds(nodes: RecordTreeNode<LooseRecord>[]): Identifier[] {
+function visibleIds(nodes: RecordTreeNode<TRecord>[]): Identifier[] {
   return nodes.flatMap(({ record, children }) => [
     record.id,
     ...(isExpanded(record.id) ? visibleIds(children) : []),
@@ -123,12 +136,12 @@ const type = computed(
         ? "show"
         : false),
 );
-const linkTo = (record: LooseRecord) =>
+const linkTo = (record: TRecord) =>
   resource && type.value
     ? createPath({ resource, id: record.id, type: type.value })
     : undefined;
 
-function titleFor(record: LooseRecord): string {
+function titleFor(record: TRecord): string {
   if (props.titleSource) {
     const value = getAtPath(record, props.titleSource);
     if (typeof value === "string") return value;
@@ -136,7 +149,7 @@ function titleFor(record: LooseRecord): string {
   return getRepresentation(record);
 }
 
-function iconFor(record: LooseRecord) {
+function iconFor(record: TRecord) {
   if (!props.iconSource || !props.iconMap) return undefined;
   const value = getAtPath(record, props.iconSource);
   return value == null ? undefined : props.iconMap[String(value)];
@@ -147,14 +160,14 @@ provide(TreeListKey, {
   toggle(id) {
     expanded.value = { ...expanded.value, [String(id)]: !isExpanded(id) };
   },
-  select(record) {
+  select(record: TRecord) {
     if (hasListener()) return emit("select", record);
     const to = linkTo(record);
     if (to) navigate(to);
   },
   // A listener replaces the link, so the row is a button then.
-  hrefFor: (record) => (hasListener() ? undefined : linkTo(record)),
-  isSelectable: (record) => hasListener() || linkTo(record) !== undefined,
+  hrefFor: (record: TRecord) => (hasListener() ? undefined : linkTo(record)),
+  isSelectable: (record: TRecord) => hasListener() || linkTo(record) !== undefined,
   titleFor,
   iconFor,
   isTabStop: (id) => tabStop.value === id,
