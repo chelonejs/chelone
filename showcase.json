@@ -112,11 +112,112 @@
   },
   "boolean-field": null,
   "boolean-input": null,
-  "bulk-actions-toolbar": null,
-  "bulk-delete-button": null,
-  "bulk-edit-drawer": null,
-  "bulk-export-button": null,
-  "bulk-update-button": null,
+  "bulk-actions-toolbar": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/bulk-actions-toolbar",
+        "see": "text=/\\d+ (items|rows) selected/"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=/\\d+ (items|rows) selected/",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=/\\d+ (items|rows) selected/",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
+  "bulk-delete-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-delete-button",
+        "see": "role=button[name=\"Delete\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Delete\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Delete\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
+  "bulk-edit-drawer": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-edit-drawer",
+        "see": "text=Edit posts"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=Edit selected customers",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "text=Edit customers"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=Edit selected customers",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "text=Edit customers"
+        ]
+      }
+    }
+  },
+  "bulk-export-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-export-button",
+        "see": "role=button[name=\"Export\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "[data-slot=\"card\"] >> role=button[name=\"Export\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "[data-slot=\"bulk-export-button\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
+  "bulk-update-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/bulk-update-button",
+        "see": "role=button[name=\"Publish\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Mark champion\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Mark champion\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
   "calendar-agenda-view": {
     "shownBy": "calendar-list"
   },
@@ -174,7 +275,24 @@
   "clone-button": null,
   "color-field": null,
   "color-input": null,
-  "columns-button": null,
+  "columns-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/columns-button",
+        "see": "role=button[name=\"Columns\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Columns\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Columns\"]"
+      }
+    }
+  },
   "command-menu": {
     "react": {
       "docs": {
@@ -245,7 +363,33 @@
       }
     }
   },
-  "confirm": null,
+  "confirm": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/confirm",
+        "see": "text=This action cannot be undone.",
+        "click": ["role=button[name=\"Delete post\"]"]
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=Are you sure you want to delete these 5 items?",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "role=button[name=\"Delete\"]"
+        ]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=Are you sure you want to delete these 5 items?",
+        "click": [
+          "role=checkbox[name=\"Select all rows on this page\"]",
+          "role=button[name=\"Delete\"]"
+        ]
+      }
+    }
+  },
   "count": null,
   "count-spinner": {
     "shownBy": "count"
@@ -257,7 +401,26 @@
   },
   "cron-field": null,
   "cron-input": null,
-  "csv-import": null,
+  "csv-import": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/csv-import",
+        "see": "role=button[name=\"Import\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "text=Drop a CSV file here, or click to choose one",
+        "click": ["role=button[name=\"Import\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "text=Drop a CSV file here, or click to choose one",
+        "click": ["role=button[name=\"Import\"]"]
+      }
+    }
+  },
   "currency-field": null,
   "currency-input": null,
   "dashboard-menu-item": null,
@@ -386,11 +549,47 @@
     "shownBy": "block-editor-input"
   },
   "error": null,
-  "export-button": null,
+  "export-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/export-button",
+        "see": "role=button[name=\"Export\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Export\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Export\"]"
+      }
+    }
+  },
   "field-label-text": {
     "shownBy": "text-input"
   },
-  "fields-selector": null,
+  "fields-selector": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/fields-selector",
+        "see": "role=button[name=\"Reset\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Reset\"]",
+        "click": ["role=button[name=\"Columns\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Reset\"]",
+        "click": ["role=button[name=\"Columns\"]"]
+      }
+    }
+  },
   "file-field": null,
   "file-input": null,
   "file-input-preview": {
@@ -543,7 +742,9 @@
   "list-button": null,
   "list-guesser": null,
   "list-live": null,
-  "list-no-results": null,
+  "list-no-results": {
+    "shownBy": "simple-list"
+  },
   "list-pagination": null,
   "list-toolbar": null,
   "loading": null,
@@ -750,8 +951,42 @@
   "reference-record-config": {
     "shownBy": "block-editor-input"
   },
-  "refresh-button": null,
-  "refresh-icon-button": null,
+  "refresh-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/refresh-button",
+        "see": "role=button[name=\"Refresh\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Refresh at-risk list\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "[data-slot=\"refresh-button\"]"
+      }
+    }
+  },
+  "refresh-icon-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/refresh-icon-button",
+        "see": "role=button[name=\"Refresh\"]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Refresh customers\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "[data-slot=\"refresh-icon-button\"]"
+      }
+    }
+  },
   "resettable-text-input": null,
   "resource-menu-item": null,
   "resource-menu-item-group": null,
@@ -819,7 +1054,26 @@
   "save-button": null,
   "saved-queries-list": null,
   "search-input": null,
-  "select-all-button": null,
+  "select-all-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/select-all-button",
+        "see": "role=button[name=/^(Select all|ra\\.action\\.select_all)$/]"
+      },
+      "demo": {
+        "path": "/demo/customers",
+        "see": "role=button[name=\"Select all\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers",
+        "see": "role=button[name=\"Select all\"]",
+        "click": ["role=checkbox[name=\"Select all rows on this page\"]"]
+      }
+    }
+  },
   "select-array-input": null,
   "select-field": null,
   "select-input": null,
@@ -874,7 +1128,9 @@
       }
     }
   },
-  "simple-list-loading": null,
+  "simple-list-loading": {
+    "shownBy": "simple-list"
+  },
   "simplify-input": null,
   "single-field-list": {
     "react": {
