@@ -11,7 +11,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 
 ## Working on a ticket
 
-- One ticket, one pull request. Anything you notice outside the ticket goes in the pull request as a note, not in the diff.
+- One ticket, one pull request. Anything you notice outside the ticket goes in the pull request as a note, not in the diff. A visual defect in a component the pull request shows is inside the ticket: see The showcase.
 - Test first. Tests use vitest and run with `--typecheck`; a run passes only when the summary shows `Type Errors  no errors` and the command exits 0.
 - Test from the outside: mount the component under `<Admin>` (see the harnesses in `packages/vue/src/components/admin/inputs/*.test.ts` and `packages/react/src/components/admin/inputs/*.test.tsx`) and assert DOM, roles and data-provider calls. jsdom applies no CSS, so never assert styling.
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
@@ -34,8 +34,9 @@ Every component has a full demo in the docs and a place in the demos, in both ad
 - `null` is a component older than this rule, still owed. A ticket fills it in; nothing new gets one.
 - The Vue `docs` shot is optional until docs pages render Vue demos.
 - Look at the component in a browser before finishing, at the width and in the states it ships in. The `showcase` entry in `.claude/launch.json` serves the docs, `/demo/` and `/vue-demo/` on one port, and that is the dev server a kelpie worker's `browser_*` tools reach.
+- The shots exist so every component looks right. Take a screenshot with `browser_take_screenshot`, since a snapshot shows no position, and fix whatever looks out of place, such as a button off centre, in the component, in both adapters, in the same pull request, even when the ticket only asked for a demo and the file is not in its `Touches:`. A fix that needs a redesign goes in the pull request as a note.
 - CI photographs each changed component's docs page and demo and writes them into a section at the bottom of the pull request body (`scripts/showcase-shots.mjs`), replaced on every run. A `see` that never appears fails the `check` job. Pull request authors post nothing themselves.
-- A reviewer checks the diff for presence: a new component has its complete `showcase.json` entry, a docs demo file, and a use in `apps/demo` and `apps/vue-demo`, and a changed component's `see` still matches what it renders. Report each one missing.
+- A reviewer checks the diff for presence: a new component has its complete `showcase.json` entry, a docs demo file, and a use in `apps/demo` and `apps/vue-demo`, and a changed component's `see` still matches what it renders. Report each one missing. A visual fix to a component the pull request shows counts as asked for.
 
 ## Checks
 
