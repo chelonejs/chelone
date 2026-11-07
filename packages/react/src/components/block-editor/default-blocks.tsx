@@ -1,4 +1,4 @@
-import { isSafeImageSrc, toEmbedSrc } from "@chelone/core";
+import { isSafeImageSrc, MAX_IMAGE_BYTES, toEmbedSrc } from "@chelone/core";
 import {
   ChevronRightIcon,
   ImageIcon,
@@ -113,8 +113,6 @@ const imageSchema = z.object({
 });
 type ImageAttrs = z.infer<typeof imageSchema>;
 
-const maxImageBytes = 5 * 1024 * 1024;
-
 function ImageView({ attrs }: BlockRenderProps<ImageAttrs>) {
   const translate = useTranslate();
   if (
@@ -145,7 +143,7 @@ function ImageConfig({ attrs, onChange }: BlockConfigProps<ImageAttrs>) {
 
   const upload = (file: File | undefined) => {
     if (!file) return;
-    if (!file.type.startsWith("image/") || file.size > maxImageBytes) {
+    if (!file.type.startsWith("image/") || file.size > MAX_IMAGE_BYTES) {
       setFailed(true);
       return;
     }

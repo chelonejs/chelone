@@ -5,6 +5,7 @@ import {
   clampRichTextImageWidth,
   defaultRichTextImageRules,
   endColorOnEnter,
+  MAX_IMAGE_BYTES,
   normalizeRichTextUpload,
   richTextCodeBlockOptions,
   richTextColors,
@@ -16,6 +17,25 @@ import {
 } from "./rich-text-extras";
 
 const MB = 1024 * 1024;
+
+describe("MAX_IMAGE_BYTES", () => {
+  it("is 5 MB, and the default rules accept a file up to it and refuse one byte over", () => {
+    expect(MAX_IMAGE_BYTES).toBe(5 * MB);
+    expect(defaultRichTextImageRules.maxFileSize).toBe(MAX_IMAGE_BYTES);
+    expect(
+      checkRichTextImageFile(
+        { type: "image/png", size: MAX_IMAGE_BYTES },
+        defaultRichTextImageRules,
+      ),
+    ).toBeNull();
+    expect(
+      checkRichTextImageFile(
+        { type: "image/png", size: MAX_IMAGE_BYTES + 1 },
+        defaultRichTextImageRules,
+      ),
+    ).toBe("size");
+  });
+});
 
 describe("defaultRichTextImageRules", () => {
   it("allows any image, up to 5 MB, as base64", () => {

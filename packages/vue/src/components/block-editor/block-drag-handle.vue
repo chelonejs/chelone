@@ -25,6 +25,7 @@ export const BLOCK_DRAG_PLUGINS: DragDropProviderProps["plugins"] = (
  * `@chelone/react`'s `block-editor/block-drag-handle.tsx`, on `@dnd-kit/vue`.
  */
 
+import { GAP_PREFIX, HANDLE_ID } from "@chelone/core";
 import { useDragDropMonitor, useDraggable } from "@dnd-kit/vue";
 import {
   computed,
@@ -40,9 +41,6 @@ import BlockDropGap from "./block-drop-gap.vue";
 import { moveTopLevelBlock } from "./block-toolbar.vue";
 
 const props = defineProps<BlockDragHandleProps>();
-
-const HANDLE_ID = "block-drag-handle";
-const GAP_PREFIX = "block-gap-";
 
 interface BlockBox {
   top: number;
