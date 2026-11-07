@@ -111,31 +111,43 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
-// Every component given a Vue twin in this batch: the demo must exist beside its
-// React twin and preview in the Vue demo app when the page asks for Vue.
+// Every component given a Vue twin by these docs batches: the demo must exist
+// beside its React twin and preview in the Vue demo app when the page asks for
+// Vue.
 const VUE_DEMOS = [
   "app-config/admin",
+  "editing/boolean-input",
   "editing/edit-button",
+  "editing/number-input",
+  "editing/reference-input",
   "editing/save-button",
+  "editing/select-input",
   "page-components/create",
+  "page-components/edit",
   "page-components/list",
-  "ui-layout/app-bar",
-  "ui-layout/layout",
-  "ui-layout/menu",
-  "ui-layout/title",
-  "ui-layout/toolbar",
-  "ui-layout/user-menu",
+  "page-components/show",
   "ui-layout/access-denied",
+  "ui-layout/app-bar",
   "ui-layout/application-updated-notification",
   "ui-layout/auth-callback",
   "ui-layout/auth-error",
   "ui-layout/auth-layout",
   "ui-layout/authentication-error",
   "ui-layout/check-for-application-update",
+  "ui-layout/layout",
   "ui-layout/login-form",
   "ui-layout/login-page",
   "ui-layout/login-with-email",
   "ui-layout/logout",
+  "ui-layout/menu",
+  "ui-layout/title",
+  "ui-layout/toolbar",
+  "ui-layout/user-menu",
+  "viewing/boolean-field",
+  "viewing/data-table",
+  "viewing/number-field",
+  "viewing/record-field",
+  "viewing/reference-field",
 ];
 
 describe.each(VUE_DEMOS)("the Vue demo of %s", (slug) => {
