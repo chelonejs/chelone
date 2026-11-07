@@ -17,7 +17,13 @@
       "name": "color",
       "type": "string",
       "optional": true,
-      "comment": "Any CSS color. Defaults to `var(--primary)`."
+      "comment": "Any CSS color. Left out, each bar draws in the next theme chart color."
+    },
+    {
+      "name": "colors",
+      "type": "readonly string[]",
+      "optional": true,
+      "comment": "Any CSS colors, cycled over the bars when `color` is left out. Defaults to the theme's chart colors."
     },
     {
       "name": "data",

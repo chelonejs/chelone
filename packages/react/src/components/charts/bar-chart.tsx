@@ -20,17 +20,15 @@ import {
 } from "@/components/ui/chart";
 import { ChartFrame, type SeriesChartProps } from "./chart-frame";
 
-/**
- * The props of `<BarChart>`. Unlike the other series charts, `color` has no
- * default here: left out, each bar draws in the next theme chart color.
- */
-export type BarChartProps<
+export interface BarChartProps<
   TRow extends object = LooseRecord,
   TX extends keyof TRow & string = keyof TRow & string,
-> = SeriesChartProps<TRow, TX> & {
+> extends SeriesChartProps<TRow, TX> {
+  /** Any CSS color. Left out, each bar draws in the next theme chart color. */
+  color?: string;
   /** Any CSS colors, cycled over the bars when `color` is left out. Defaults to the theme's chart colors. */
   colors?: readonly string[];
-};
+}
 
 export function BarChart<
   TRow extends object = LooseRecord,

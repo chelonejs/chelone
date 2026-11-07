@@ -2,17 +2,15 @@
 import type { LooseRecord } from "@chelone/core";
 import type { SeriesChartProps } from "./series-chart";
 
-/**
- * Props for {@link BarChart}. Unlike the other series charts, `color` has no
- * default here: left out, each bar draws in the next theme chart color.
- */
-export type BarChartProps<
+export interface BarChartProps<
   TRow extends object = LooseRecord,
   TX extends keyof TRow & string = keyof TRow & string,
-> = SeriesChartProps<TRow, TX> & {
+> extends SeriesChartProps<TRow, TX> {
+  /** Any CSS color. Left out, each bar draws in the next theme chart color. */
+  color?: string;
   /** Any CSS colors, cycled over the bars when `color` is left out. Defaults to the theme's chart colors. */
   colors?: readonly string[];
-};
+}
 </script>
 
 <script setup lang="ts" generic="TRow extends object = LooseRecord, TX extends keyof TRow & string = keyof TRow & string">
