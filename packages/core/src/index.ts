@@ -113,6 +113,7 @@ export {
   groupCommands,
 } from "./command-menu/registry";
 export type {
+  CalendarDaySlot,
   CalendarLabels,
   CalendarRange,
   CalendarView,
@@ -120,6 +121,7 @@ export type {
 } from "./controller/calendar-dates";
 export {
   calendarDayKey,
+  calendarDaySlot,
   calendarDays,
   calendarLabels,
   calendarRange,

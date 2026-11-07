@@ -5,6 +5,7 @@
  * from Sunday 26 April to Saturday 6 June, 42 days.
  */
 import {
+  calendarDaySlot,
   createI18n,
   createResourceRegistry,
   type DataProvider,
@@ -486,15 +487,12 @@ describe("<CalendarList> month view", () => {
     expect(screen.getByTestId("location").textContent).toBe("/");
   });
 
-  it("an empty cell calls onSelectSlot with the whole day, an event click does not", async () => {
+  it("selecting a month day reports the slot from core", async () => {
     const onSelectSlot = vi.fn();
     mount(calendar({ onSelectSlot }));
     await screen.findByText("Standup");
-    const slot = {
-      startISO: new Date(2026, 4, 22).toISOString(),
-      endISO: new Date(2026, 4, 23).toISOString(),
-      allDay: true,
-    };
+    // The slot is core's `calendarDaySlot`, not a date the view builds itself.
+    const slot = calendarDaySlot(new Date(2026, 4, 22));
 
     fireEvent.click(cell("2026-05-22"));
     expect(onSelectSlot).toHaveBeenLastCalledWith(slot);
