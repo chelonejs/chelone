@@ -96,7 +96,7 @@ function onSelect(plan: SubscriptionPlan) {
     <div
       :id="id"
       role="radiogroup"
-      class="grid gap-3 sm:grid-cols-3"
+      class="grid grid-cols-[repeat(auto-fit,minmax(11rem,1fr))] gap-3"
       :aria-disabled="disabled || undefined"
       :aria-invalid="invalid || undefined"
     >

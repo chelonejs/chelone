@@ -39,6 +39,7 @@ function FilterForm(inProps: FilterFormProps) {
   return (
     <FilterLiveForm resource={resource}>
       <div
+        data-slot="filter-form"
         className={cn(
           "flex flex-col sm:flex-row justify-start items-end gap-x-2 gap-y-3 flex-wrap",
         )}

@@ -52,6 +52,7 @@ function ToggleFilterButton({
       type="button"
       variant={selected ? "secondary" : "ghost"}
       size={size}
+      data-slot="toggle-filter-button"
       className={className}
       aria-pressed={selected}
       onClick={() => setFilters(toggleFilterValue(value, filterValues))}

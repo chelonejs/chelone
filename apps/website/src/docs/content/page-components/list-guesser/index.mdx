@@ -1,0 +1,28 @@
+---
+title: "ListGuesser"
+description: "A list page whose columns come from the resource's registered Zod schema."
+registry: "list-guesser"
+---
+
+`<ListGuesser>` is a `<List>` with a `<DataTable>` it builds itself. Each field
+of the resource's Zod schema becomes a column, so the columns exist before any
+record loads. A resource without a schema shows `<GuesserEmpty>` and makes no
+list request.
+
+<ComponentPreview name="page-components/list-guesser/basic" />
+
+```tsx title="src/App.tsx"
+<Resource name="posts" list={ListGuesser} />
+```
+
+Outside production it logs the hand-written list it stands in for. Copy that
+code and replace the guesser when the page needs more. `enableLog` turns the log
+off. The [guessers guide](/docs/app-config/guessers) covers the schema-to-column
+mapping, the log and Vue.
+
+See also [`<ShowGuesser>`](/docs/page-components/show-guesser) and
+[`<EditGuesser>`](/docs/page-components/edit-guesser).
+
+## Props
+
+<PropsTable name="ListGuesser" />

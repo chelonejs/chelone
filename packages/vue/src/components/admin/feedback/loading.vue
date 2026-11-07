@@ -44,7 +44,9 @@ const ready = useTimeout(props.delay);
     aria-live="polite"
   >
     <div class="text-center font-sans text-muted-foreground py-1">
-      <Spinner size="large" class="size-9" />
+      <div class="flex justify-center">
+        <Spinner size="large" class="size-9" />
+      </div>
       <h5 class="mt-3 text-2xl text-secondary-foreground">
         {{ translate(loadingPrimary, { _: loadingPrimary }) }}
       </h5>

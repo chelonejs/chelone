@@ -49,11 +49,15 @@ export default defineConfig({
       // safe for the render test.
       { find: /^@\/lib\//, replacement: `${reactPkgSrc}/lib/` },
       { find: /^@\//, replacement: `${wwwSrc}/` },
-      // jsdom has no WebGL, so the maps demos mount against the stand-in the
-      // package's own maps tests mock `maplibre-gl` with.
+      // jsdom has no WebGL, so the maps demos mount against the stand-ins the
+      // package's own maps tests mock `maplibre-gl` and Terra Draw with.
       {
         find: /^maplibre-gl$/,
         replacement: `${reactPkgSrc}/components/maps/__fixtures__/fake-maplibre.ts`,
+      },
+      {
+        find: /^terra-draw(-maplibre-gl-adapter)?$/,
+        replacement: `${reactPkgSrc}/components/maps-draw/__fixtures__/fake-terra-draw.ts`,
       },
     ],
     dedupe: ["react", "react-dom", "react/jsx-runtime"],
