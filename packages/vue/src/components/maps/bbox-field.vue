@@ -14,15 +14,20 @@ export type BBoxFieldProps<TRecord = unknown> = GeoJsonFieldProps<TRecord>;
  * <BBoxField source="bbox" />
  */
 
-import { bboxToPolygon, DEFAULT_MAP_HEIGHT } from "@chelone/core";
+import {
+  bboxToPolygon,
+  DEFAULT_FIT_PADDING,
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAX_FIT_ZOOM,
+} from "@chelone/core";
 import { computed } from "vue";
 import { useFieldValue } from "../../record/use-field-value";
 import GeoJsonField from "./geo-json-field.vue";
 
 const props = withDefaults(defineProps<BBoxFieldProps<TRecord>>(), {
   fitBounds: true,
-  fitPadding: 20,
-  maxFitZoom: 18,
+  fitPadding: DEFAULT_FIT_PADDING,
+  maxFitZoom: DEFAULT_MAX_FIT_ZOOM,
   height: DEFAULT_MAP_HEIGHT,
   scrollZoom: false,
 });

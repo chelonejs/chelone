@@ -1,6 +1,8 @@
 import {
   asFeatureCollection,
+  DEFAULT_FIT_PADDING,
   DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAX_FIT_ZOOM,
   geoBounds,
   isGeoJsonValue,
   isLngLatBox,
@@ -138,8 +140,8 @@ export function GeoJsonLayers({
   data: value,
   shapeStyle,
   fitBounds = true,
-  fitPadding = 20,
-  maxFitZoom = 18,
+  fitPadding = DEFAULT_FIT_PADDING,
+  maxFitZoom = DEFAULT_MAX_FIT_ZOOM,
 }: GeoJsonLayersProps) {
   const map = useMap();
   const sourceId = `geo-json-${useId()}`;
