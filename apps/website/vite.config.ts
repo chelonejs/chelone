@@ -20,10 +20,20 @@ import { SHIKI_THEME } from "./src/lib/shiki-theme";
 // which must resolve within the package's OWN src (see cheloneSourcePlugin).
 const reactPkgSrc = path.resolve(__dirname, "../../packages/react/src");
 
+// `scripts/dev-showcase.mjs` starts both demos and names their ports here.
+function demoProxy() {
+  const { DEMO_PORT, VUE_DEMO_PORT } = process.env;
+  if (!DEMO_PORT || !VUE_DEMO_PORT) return undefined;
+  return {
+    "/demo": { target: `http://localhost:${DEMO_PORT}`, ws: true },
+    "/vue-demo": { target: `http://localhost:${VUE_DEMO_PORT}`, ws: true },
+  };
+}
+
 export default defineConfig({
   // +100 from vite's default so it doesn't collide with a user-run server on
   // 5173 (nor the standalone demo on 4273).
-  server: { port: 5373 },
+  server: { port: 5373, proxy: demoProxy() },
   optimizeDeps: {
     // Pre-bundle react-shiki together with React so it shares the single
     // optimized React chunk instead of inlining its own copy (which would null

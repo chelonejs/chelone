@@ -1,8 +1,8 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp, SourceValue } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp, SourceValue } from "@chelone/core";
 
 /** Props for {@link NumberField}. */
-export interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface NumberFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   source: SourceProp<RecordType>;
   record?: RecordType;
   defaultValue?: SourceValue<RecordType, SourceProp<RecordType>>;
@@ -19,7 +19,7 @@ export interface NumberFieldProps<RecordType extends LooseRecord = LooseRecord> 
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<NumberField>` — displays a numeric value with locale-specific formatting,
  * the Vue analog of `@chelone/react`'s `fields/number-field.tsx`. Reads the

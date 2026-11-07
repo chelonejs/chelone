@@ -2,6 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "showcase",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/dev-showcase.mjs"],
+      "port": 5373,
+      "autoPort": true
+    },
+    {
       "name": "demo",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--dir", "apps/demo", "dev", "--port", "4273"],
