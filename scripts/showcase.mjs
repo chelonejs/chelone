@@ -12,8 +12,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
-// The docs site cannot render a Vue demo yet, so `vue` owes no docs page until it can.
-const REQUIRED = { react: ["docs", "demo"], vue: ["demo"] };
+// Every adapter owes every component a docs page and a demo.
+const REQUIRED = { react: ["docs", "demo"], vue: ["docs", "demo"] };
 const VIEWS = ["docs", "demo"];
 const REGISTERED = ["registry:component", "registry:block"];
 const RENDERS = /\.(tsx|vue)$/;
@@ -60,10 +60,27 @@ export function loadPrevious(base) {
   }
 }
 
-export function docsPageHasDemo(page) {
-  const folder = path.join(root, "apps/website/src/docs/content", page.replace(/^\/docs\//, ""));
-  const demos = path.join(folder, "demos");
-  return existsSync(demos) && readdirSync(demos).length > 0;
+// Whether the docs page holds a demo written for `adapter`, which is what renders it.
+export function docsPageHasDemo(page, adapter) {
+  const slug = page.split("?")[0].replace(/^\/docs\//, "");
+  const demos = path.join(root, "apps/website/src/docs/content", slug, "demos");
+  if (!existsSync(demos)) return false;
+  const extension = adapter === "vue" ? ".vue" : ".tsx";
+  return readdirSync(demos).some((file) => file.endsWith(extension));
+}
+
+// A Vue docs page is the React docs page with the framework switch set to Vue, so an
+// entry names the page once. An entry may still name its own `vue.docs` shot.
+export function vueDocsShot(entry) {
+  const own = entry.vue?.docs;
+  if (own) return own;
+  const react = entry.react?.docs;
+  return react ? { ...react, path: `${react.path}?framework=vue` } : undefined;
+}
+
+// The shot an adapter's view holds.
+function shotOf(entry, adapter, view) {
+  return view === "docs" && adapter === "vue" ? vueDocsShot(entry) : entry[adapter]?.[view];
 }
 
 // The entry that shows `name`, following `shownBy` to the component that renders it.
@@ -82,8 +99,8 @@ function shotProblems(name, adapter, view, shot, hasDemo) {
   const where = `${name}: ${adapter}.${view}`;
   if (!shot.path?.startsWith("/")) return [`${where} needs a path starting with /`];
   if (!shot.see) return [`${where} needs \`see\`: a Playwright selector for the component`];
-  if (view === "docs" && adapter === "react" && !hasDemo(shot.path)) {
-    return [`${where}: ${shot.path} has no demo in its demos folder`];
+  if (view === "docs" && !hasDemo(shot.path, adapter)) {
+    return [`${where}: ${shot.path} has no ${adapter} demo in its demos folder`];
   }
   return [];
 }
@@ -92,7 +109,7 @@ function entryProblems(name, entry, components, hasDemo) {
   return Object.keys(REQUIRED).flatMap((adapter) => {
     if (!components[adapter].has(name)) return [];
     return VIEWS.flatMap((view) => {
-      const shot = entry[adapter]?.[view];
+      const shot = shotOf(entry, adapter, view);
       if (shot) return shotProblems(name, adapter, view, shot, hasDemo);
       return REQUIRED[adapter].includes(view) ? [`${name}: ${adapter}.${view} is missing`] : [];
     });
@@ -141,12 +158,10 @@ export function targets({ manifest, previous, components, changedFiles }) {
     shots: unique
       .filter((t) => manifest[t.name])
       .flatMap(({ name, adapter }) =>
-        VIEWS.filter((view) => manifest[name][adapter]?.[view]).map((view) => ({
-          name,
-          adapter,
-          view,
-          ...manifest[name][adapter][view],
-        })),
+        VIEWS.flatMap((view) => {
+          const shot = shotOf(manifest[name], adapter, view);
+          return shot ? [{ name, adapter, view, ...shot }] : [];
+        }),
       )
       .sort((a, b) => a.name.localeCompare(b.name)),
   };

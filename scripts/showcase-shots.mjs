@@ -21,10 +21,8 @@ export const fileName = ({ name, adapter, view }) => `${name}-${adapter}-${view}
 
 // `{{shots}}` is the image folder's URL, which the job that publishes the images fills in.
 export function section({ results, owed }) {
-  const cell = (shot) => {
-    if (!shot) return "not required yet";
-    return shot.error ? `failed: \`${shot.error}\`` : `![${shot.view}]({{shots}}/${fileName(shot)})`;
-  };
+  const cell = (shot) =>
+    shot ? (shot.error ? `failed: \`${shot.error}\`` : `![${shot.view}]({{shots}}/${fileName(shot)})`) : "";
   const rows = [...new Set(results.map((r) => `${r.name}/${r.adapter}`))].map((key) => {
     const [name, adapter] = key.split("/");
     const find = (view) => results.find((r) => r.name === name && r.adapter === adapter && r.view === view);
@@ -56,6 +54,29 @@ function serve() {
   });
 }
 
+// The component a shot photographs. A docs page shows its Vue demo inside an iframe of
+// the Vue demo app, so the selector sits in that frame; a docs page's own heading sits
+// on the page. Whichever answers first wins.
+const VUE_DEMO_FRAME = "iframe[title^='Vue demo']";
+
+async function component(page, shot) {
+  const roots = [page.locator(shot.see).first()];
+  if (shot.adapter === "vue" && shot.view === "docs") {
+    const frame = page.locator(VUE_DEMO_FRAME).first().contentFrame();
+    roots.push(frame.locator(shot.see).first());
+  }
+  const visible = roots.map(async (root) => {
+    await root.waitFor({ state: "visible", timeout: VISIBLE_WITHIN_MS });
+    return root;
+  });
+  try {
+    return await Promise.any(visible);
+  } catch (error) {
+    // Report the selector that never appeared, not the frame it was looked for in.
+    throw error instanceof AggregateError ? error.errors[0] : error;
+  }
+}
+
 async function shoot(browser, shot) {
   const page = await browser.newPage({ viewport: VIEWPORT });
   try {
@@ -63,8 +84,7 @@ async function shoot(browser, shot) {
     for (const selector of shot.click ?? []) {
       await page.locator(selector).first().click({ timeout: VISIBLE_WITHIN_MS });
     }
-    const target = page.locator(shot.see).first();
-    await target.waitFor({ state: "visible", timeout: VISIBLE_WITHIN_MS });
+    const target = await component(page, shot);
     await target.scrollIntoViewIfNeeded();
     await page.screenshot({ path: path.join(OUT, fileName(shot)) });
     return shot;
