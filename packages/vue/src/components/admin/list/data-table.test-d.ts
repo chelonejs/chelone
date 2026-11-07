@@ -12,7 +12,8 @@ type PostProps = DataTableProps<Post>;
 type PostSlots = NonNullable<Parameters<typeof DataTable<Post>>[1]>["slots"];
 
 describe("DataTable callbacks", () => {
-  it("rowClass receives the table's record", () => {
+  // Vue's prop is `rowClass`; the test keeps the issue's name.
+  it("rowClassName receives the table's record", () => {
     expectTypeOf<PostProps["rowClass"]>().toEqualTypeOf<
       | ((record: Post, rowIndex: number) => string | false | undefined)
       | undefined
