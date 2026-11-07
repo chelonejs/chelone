@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
-import type { LooseRecord } from "./record";
+import type { LooseRecord, ResourceRecord } from "./record";
 import { defineResources } from "./registry";
 import type {
   AnySourcePath,
@@ -192,7 +192,15 @@ describe("FilterSourceKey", () => {
 });
 
 describe("SourceKey", () => {
-  it("SourceKey is the top-level keys, and string for a loose record", () => {
+  it("SourceKey of ResourceRecord is string", () => {
+    // The bound every shared record type now carries. A generic component
+    // resolves `keyof TRecord` to its constraint, so a prop typed
+    // `SourceKey<TRecord>` would narrow to `"id"` without this arm.
+    expectTypeOf<SourceKey<ResourceRecord>>().toEqualTypeOf<string>();
+    expectTypeOf<SourceKey<LooseRecord>>().toEqualTypeOf<string>();
+  });
+
+  it("SourceKey of an interface is its keys", () => {
     expectTypeOf<SourceKey<Post>>().toEqualTypeOf<
       | "id"
       | "title"
@@ -203,7 +211,16 @@ describe("SourceKey", () => {
       | "tags"
       | "published_at"
     >();
-    expectTypeOf<SourceKey<LooseRecord>>().toEqualTypeOf<string>();
+  });
+
+  it("SourceKey of a type parameter bounded by ResourceRecord is string", () => {
+    // The call site a sibling prop has: `limitSource` under a generic field.
+    function acceptKey<TRecord extends ResourceRecord>(
+      key: SourceKey<TRecord>,
+    ) {
+      return key;
+    }
+    expectTypeOf(acceptKey).parameter(0).toEqualTypeOf<string>();
   });
 });
 

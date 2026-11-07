@@ -110,8 +110,14 @@ export type SourceTransformValue<TRecord, TPath extends string> = [
 /**
  * The top-level keys of `TRecord`, for props that read or write one flat key
  * (a filter's field, a reference's target). `string` for a loose record.
+ *
+ * The guard is {@link SourceProp}'s, not the `unknown extends` the other path
+ * types use: `keyof TRecord` of an unresolved type parameter resolves to the
+ * keys of its constraint, and every shared record type is now bounded by
+ * `ResourceRecord`, whose only key is `id`. A generic field's sibling prop
+ * (`limitSource`) would then take `"id"` and nothing else.
  */
-export type SourceKey<TRecord> = unknown extends TRecord
+export type SourceKey<TRecord> = LooseRecord extends TRecord
   ? string
   : keyof TRecord & string;
 
