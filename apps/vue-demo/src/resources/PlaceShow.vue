@@ -6,7 +6,12 @@
  */
 
 import { RecordField, Show } from "@chelone/vue";
-import { GeoJsonField, LatLngField } from "@chelone/vue/maps";
+import {
+  BBoxField,
+  GeoJsonField,
+  LatLngField,
+  PolygonField,
+} from "@chelone/vue/maps";
 import { ReverseGeocodeField } from "@chelone/vue/maps/osm";
 </script>
 
@@ -20,10 +25,18 @@ import { ReverseGeocodeField } from "@chelone/vue/maps/osm";
       <RecordField label="Address">
         <ReverseGeocodeField lat-source="lat" lng-source="lng" />
       </RecordField>
-      <RecordField label="Area">
+      <!-- The `data-field` attributes let a showcase shot tell the four
+           `geo-json-field` maps apart. -->
+      <RecordField label="Delivery zone" data-field="zone">
+        <PolygonField source="zone" />
+      </RecordField>
+      <RecordField label="Bounding box" data-field="bbox">
+        <BBoxField source="bbox" />
+      </RecordField>
+      <RecordField label="Area" data-field="area">
         <GeoJsonField source="area" />
       </RecordField>
-      <RecordField label="Route">
+      <RecordField label="Route" data-field="route">
         <GeoJsonField source="route" />
       </RecordField>
     </div>
