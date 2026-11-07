@@ -5,6 +5,7 @@ import {
   EmailField,
   List,
   RecordField,
+  ReferenceManyField,
   Show,
   TextField,
   TextInput,
@@ -49,6 +50,14 @@ export function AuthorShow() {
         <EmailField source="email" />
       </RecordField>
       <TextField source="email" />
+      <RecordField label="Posts">
+        <ReferenceManyField reference="posts" target="author_id" perPage={5}>
+          <DataTable rowClick={false}>
+            <DataTable.Col source="title" />
+            <DataTable.NumberCol source="views" />
+          </DataTable>
+        </ReferenceManyField>
+      </RecordField>
     </Show>
   );
 }

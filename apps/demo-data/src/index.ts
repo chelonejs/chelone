@@ -1,6 +1,7 @@
 export { demoAssistantTools, demoAssistantTransport } from "./assistant";
-export { demoAuthProvider } from "./auth";
-export { makeI18n } from "./i18n";
+export { makeDemoAuthProvider } from "./auth";
+export { createFakeDeploy, type FakeDeploy } from "./fake-deploy";
+export { type DemoI18n, makeDemoI18n, makeI18n } from "./i18n";
 export { landingPageDocument } from "./landing-page";
 export type {
   Activity,
@@ -36,4 +37,17 @@ export {
   tagChoices,
 } from "./seed";
 export { makeDemoStore } from "./store";
+export {
+  type StubSupabaseAuthProvider,
+  stubSupabaseAuthProvider,
+} from "./supabase-auth";
+export {
+  DEFAULT_ROLE,
+  defaultPermissions,
+  PERMISSIONS_KEY,
+  ROLE_KEY,
+  TEAM_RESOURCES,
+  TEAM_ROLES,
+} from "./team";
+export { withTextSearch } from "./text-search";
 export { type DemoTourStep, TOUR_ID, tourSteps } from "./tour";

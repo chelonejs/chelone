@@ -16,10 +16,19 @@
  */
 
 import { createNotificationStore } from "@chelone/core";
-import { Admin, EditGuesser, ListGuesser, Resource, ShowGuesser } from "@chelone/vue";
+import {
+  Admin,
+  EditGuesser,
+  ListGuesser,
+  NotFound,
+  Resource,
+  ShowGuesser,
+} from "@chelone/vue";
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
-import { demoAuthProvider, makeDemoStore, makeI18n } from "@chelone/demo-data";
+import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
+import { authRoutes } from "./auth-routes";
+import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { pageRoutes } from "./pages";
 import { dataProvider } from "./realtime";
@@ -27,6 +36,9 @@ import AuthorCreate from "./resources/AuthorCreate.vue";
 import AuthorEdit from "./resources/AuthorEdit.vue";
 import AuthorList from "./resources/AuthorList.vue";
 import AuthorShow from "./resources/AuthorShow.vue";
+import CategoryEdit from "./resources/CategoryEdit.vue";
+import CategoryList from "./resources/CategoryList.vue";
+import CategoryShow from "./resources/CategoryShow.vue";
 import CustomerCreate from "./resources/CustomerCreate.vue";
 import CustomerEdit from "./resources/CustomerEdit.vue";
 import CustomerList from "./resources/CustomerList.vue";
@@ -53,11 +65,15 @@ import ProductShow from "./resources/ProductShow.vue";
 import { resources } from "./resources/schema";
 import Shell from "./Shell.vue";
 
+// The Supabase auth pages render outside the layout (see auth-routes.ts); the
+// files in `src/pages/` render inside it.
+const customRoutes = [...authRoutes, ...pageRoutes];
+
 // No hand-written views yet: the guessers build them from the schemas in
 // resources/schema.ts.
-const guessedResources = ["categories", "tags"];
+const guessedResources = ["tags"];
 
-// A retry-off query client, the English i18n catalog and a notification store
+// A retry-off query client and a notification store
 // (the simulated user's failed lock reports through it) — the services a real
 // app configures. Module scope keeps them stable for the app lifetime. The
 // realtime data provider is built in `realtime.ts`.
@@ -68,9 +84,12 @@ const queryClient = new QueryClient({
     mutations: { retry: false },
   },
 });
-const i18n = makeI18n();
-// Kept in `localStorage`, so the tour that opens on a first visit stays closed.
+// Kept in `localStorage`, so the tour that opens on a first visit stays closed
+// and the Team page's role and role matrix survive a reload. The auth provider
+// answers every access check from them. `<MenuLive>` keeps its unread counts
+// here too. The i18n instance is in ./i18n.
 const store = makeDemoStore();
+const authProvider = makeDemoAuthProvider(store);
 </script>
 
 <template>
@@ -84,10 +103,12 @@ const store = makeDemoStore();
       :i18n="i18n"
       :notifications="notifications"
       :store="store"
-      :auth-provider="demoAuthProvider"
-      :custom-routes="pageRoutes"
+      :auth-provider="authProvider"
+      :custom-routes="customRoutes"
     >
       <template #layout><Shell /></template>
+      <!-- A URL no route owns, such as /nowhere. -->
+      <template #catchAll><NotFound /></template>
       <!-- QUICKSTART: `posts` carries a Zod schema (resources/schema.ts). The
            Edit/Create forms validate against it automatically (the D6
            registry-schema default validator). -->
@@ -138,6 +159,13 @@ const store = makeDemoStore();
         :list="PageList"
         :edit="PageEdit"
         :show="PageShow"
+      />
+      <Resource
+        name="categories"
+        record-representation="name.en"
+        :list="CategoryList"
+        :edit="CategoryEdit"
+        :show="CategoryShow"
       />
       <Resource
         v-for="name in guessedResources"

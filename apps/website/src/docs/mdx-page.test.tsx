@@ -63,7 +63,7 @@ it("shows the BooleanField preview and its demo source", async () => {
 
 it.each([
   ["editing/wizard-form", "WizardForm"],
-  ["ui-layout/can-access", "CanAccess"],
+  ["ui-layout/bar-chart", "BarChart"],
 ])("shows no preview on %s when no basic demo exists", (slug, title) => {
   render(
     <MemoryRouter initialEntries={[`/docs/${slug}`]}>
@@ -332,3 +332,44 @@ it.each([
     expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
   },
 );
+
+// The showcase photographs each of these pages and waits for the `see` in showcase.json, so
+// a page that lists no preview fails CI's screenshot step.
+it.each([
+  ["supabase/supabase-login-page", "heading", "Sign in"],
+  ["supabase/forgot-password-page", "heading", "Forgot your password?"],
+  ["supabase/set-password-page", "button", "Save"],
+  ["supabase/social-auth-button", "button", "Sign in with Github"],
+] as const)(
+  "shows the %s live preview on its reference page",
+  async (slug, role, name) => {
+    render(
+      <MemoryRouter initialEntries={[`/docs/${slug}`]}>
+        <Routes>
+          <Route path="/docs/*" element={<MdxPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole(role, { name })).toBeTruthy();
+    expect(screen.getAllByRole("button", { name: "preview" })).toHaveLength(1);
+  },
+);
+
+it.each([
+  ["edit-live", "Another user renames post 1"],
+  ["list-live", "Another user adds a post"],
+  ["lock-on-mount", "Grace opens post 1"],
+  ["lock-status", "Another user locks post 1"],
+  ["menu-live", "Another user adds a post"],
+])("shows the live demo on the realtime %s page", async (slug, button) => {
+  render(
+    <MemoryRouter initialEntries={[`/docs/realtime/${slug}`]}>
+      <Routes>
+        <Route path="/docs/*" element={<MdxPage />} />
+      </Routes>
+    </MemoryRouter>,
+  );
+
+  expect(await screen.findByRole("button", { name: button })).toBeTruthy();
+});

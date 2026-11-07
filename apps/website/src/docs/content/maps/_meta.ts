@@ -11,6 +11,7 @@ export default [
   {
     category: "Shape fields",
     slugs: [
+      "shape-fields",
       "point-field",
       "multi-point-field",
       "line-string-field",
@@ -49,6 +50,7 @@ export default [
       "geocoding-input",
       "map-with-search",
       "reverse-geocode-field",
+      "osm-feature-operator",
       "osm-feature-add",
       "osm-feature-subtract",
     ],

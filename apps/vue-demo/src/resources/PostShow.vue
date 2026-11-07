@@ -19,6 +19,7 @@ import {
   ReferenceField,
   ShowLive,
   TextField,
+  Title,
   useParams,
 } from "@chelone/vue";
 import SimulatedViewer from "../SimulatedViewer.vue";
@@ -32,6 +33,7 @@ const params = useParams();
   <!-- Keyed by id: vue-router reuses this page between posts, and the page-open
        diff and the simulated viewer belong to one post. -->
   <ShowLive :key="params.id" resource="posts">
+    <Title title="Post details" />
     <div class="flex flex-col gap-6 max-w-xl">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <PresenceBar />

@@ -238,11 +238,9 @@ const shapeInputs = [
 
 /**
  * The pieces of the `maps/osm` entry: the geocoding input and field, the search
- * over a map, and the two OpenStreetMap buttons. Each calls a network service
- * the app supplies through `MapsProvider` or a `provider` prop.
- *
- * `OsmFeatureOperator` has no page of its own: it is the button the two named
- * ones are, with `mode` left to the caller.
+ * over a map, and the OpenStreetMap button with the two named after its modes.
+ * Each calls a network service the app supplies through `MapsProvider` or a
+ * `provider` prop.
  */
 const geocodingAndOsm = [
   {
@@ -262,6 +260,12 @@ const geocodingAndOsm = [
     component: "ReverseGeocodeField",
     importFrom: "@chelone/react/maps/osm",
     names: ["format", "latSource", "lngSource", "street", "city"],
+  },
+  {
+    slug: "osm-feature-operator",
+    component: "OsmFeatureOperator",
+    importFrom: "@chelone/react/maps/osm",
+    names: ["OsmFeatureAdd", "OsmFeatureSubtract", "presets", "tags", "mode"],
   },
   {
     slug: "osm-feature-add",
@@ -316,9 +320,22 @@ it("Maps follows Realtime and lists every maps reference page", () => {
     "realtime",
     "maps",
   ]);
-  expect(mapsMeta.flatMap((entry) => entry.slugs)).toEqual(
-    referencePages.map(({ slug }) => slug),
-  );
+  // `shape-fields` is the one hand-written page: it covers the nine shape
+  // fields together and leads their category.
+  const slugs = referencePages.map(({ slug }) => slug);
+  slugs.splice(slugs.indexOf("point-field"), 0, "shape-fields");
+  expect(mapsMeta.flatMap((entry) => entry.slugs)).toEqual(slugs);
+});
+
+it("Shape fields names every shape field, imports them all and links to the maps guide", () => {
+  const mdx = page("shape-fields");
+  for (const { component } of shapeFields) {
+    expect(mdx, `shape-fields names ${component}`).toContain(component);
+  }
+  expect(mdx).toContain('from "@chelone/react/maps";');
+  expect(mdx).toContain('<PropsTable name="GeoJsonField" />');
+  expect(mdx).toContain("](/docs/app-config/maps)");
+  expect(unresolvedDocLinks(mdx)).toEqual([]);
 });
 
 it.each(referencePages)(
@@ -392,6 +409,7 @@ const SET_FOR_THE_CALLER = new Set(["kind", "mode"]);
 // Values of a prop, which its props table shows as a union rather than as rows.
 const PROP_VALUES = new Map([
   ["ReverseGeocodeField", ["full", "street", "city"]],
+  ["OsmFeatureOperator", ["subtract", "add"]],
   ["OsmFeatureAdd", ["add"]],
   ["OsmFeatureSubtract", ["subtract"]],
 ]);
