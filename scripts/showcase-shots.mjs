@@ -1,5 +1,5 @@
 // Photographs the docs page and demo of each component a change touched, and writes the pull
-// request comment beside the images. Run it after `pnpm build`.
+// request body's section beside the images. Run it after `pnpm build`.
 //
 //   node scripts/showcase-shots.mjs --base HEAD^1           shoot into .showcase-shots
 //   node scripts/showcase-shots.mjs --base HEAD^1 --count   print how many shots that takes
@@ -13,14 +13,14 @@ const OUT = path.join(root, ".showcase-shots");
 const PORT = 4374;
 const VIEWPORT = { width: 1280, height: 800 };
 const VISIBLE_WITHIN_MS = 20_000;
-const MAX_COMPONENTS = 8;
+const PAGES_AT_ONCE = 4;
 
 export const MARKER = "<!-- showcase-shots -->";
 
 export const fileName = ({ name, adapter, view }) => `${name}-${adapter}-${view}.png`;
 
 // `{{shots}}` is the image folder's URL, which the job that publishes the images fills in.
-export function comment({ results, owed, skipped }) {
+export function section({ results, owed }) {
   const cell = (shot) => {
     if (!shot) return "not required yet";
     return shot.error ? `failed: \`${shot.error}\`` : `![${shot.view}]({{shots}}/${fileName(shot)})`;
@@ -34,7 +34,6 @@ export function comment({ results, owed, skipped }) {
     MARKER,
     "## Showcase",
     ...(rows.length > 0 ? [["| Component | Adapter | Docs page | Demo |", "| --- | --- | --- | --- |", ...rows].join("\n")] : []),
-    ...(skipped > 0 ? [`${skipped} more components left out of this comment.`] : []),
     ...(owed.length > 0 ? [`Not in the showcase yet: ${owed.map((name) => `\`${name}\``).join(", ")}`] : []),
   ].join("\n\n");
 }
@@ -92,22 +91,21 @@ async function main() {
   if (shots.length === 0 && owed.length === 0) return;
   mkdirSync(OUT);
 
-  const names = [...new Set(shots.map((shot) => shot.name))];
-  const kept = shots.filter((shot) => names.indexOf(shot.name) < MAX_COMPONENTS);
   const results = [];
-  if (kept.length > 0) {
+  if (shots.length > 0) {
     const { chromium } = await import("playwright");
     const server = await serve();
     const browser = await chromium.launch();
-    for (const shot of kept) results.push(await shoot(browser, shot));
+    const next = shots.entries();
+    const photograph = async () => {
+      for (const [index, shot] of next) results[index] = await shoot(browser, shot);
+    };
+    await Promise.all(Array.from({ length: PAGES_AT_ONCE }, photograph));
     await browser.close();
     server.removeAllListeners("exit");
     server.kill();
   }
-  writeFileSync(
-    path.join(OUT, "comment.md"),
-    comment({ results, owed, skipped: Math.max(names.length - MAX_COMPONENTS, 0) }),
-  );
+  writeFileSync(path.join(OUT, "section.md"), section({ results, owed }));
 
   const failed = results.filter((result) => result.error);
   for (const { name, adapter, view, error } of failed) console.error(`${name} ${adapter}.${view}: ${error}`);

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { comment, fileName, MARKER } from "./showcase-shots.mjs";
+import { fileName, MARKER, section } from "./showcase-shots.mjs";
 import { componentsIn, owner, problems, targets } from "./showcase.mjs";
 
 const shot = (path) => ({ path, see: "role=textbox" });
@@ -139,33 +139,31 @@ describe("targets", () => {
   });
 });
 
-describe("comment", () => {
+describe("section", () => {
   const docs = { name: "text-input", adapter: "react", view: "docs" };
   const demo = { ...docs, view: "demo" };
 
-  it("carries the marker the sticky comment is found by", () => {
-    assert.ok(comment({ results: [], owed: [], skipped: 0 }).startsWith(MARKER));
+  it("starts at the marker the job replaces from", () => {
+    assert.ok(section({ results: [], owed: [] }).startsWith(MARKER));
   });
 
   it("puts both images on one row", () => {
-    const text = comment({ results: [docs, demo], owed: [], skipped: 0 });
+    const text = section({ results: [docs, demo], owed: [] });
     assert.ok(text.includes(`![docs]({{shots}}/${fileName(docs)})`));
     assert.ok(text.includes(`![demo]({{shots}}/${fileName(demo)})`));
   });
 
   it("says why a shot failed", () => {
-    const text = comment({ results: [{ ...demo, error: "/demo/posts: Timeout" }], owed: [], skipped: 0 });
+    const text = section({ results: [{ ...demo, error: "/demo/posts: Timeout" }], owed: [] });
     assert.ok(text.includes("failed: `/demo/posts: Timeout`"));
   });
 
   it("marks the Vue docs page as not required yet", () => {
     const vue = { ...demo, adapter: "vue" };
-    assert.ok(comment({ results: [vue], owed: [], skipped: 0 }).includes("not required yet"));
+    assert.ok(section({ results: [vue], owed: [] }).includes("not required yet"));
   });
 
-  it("names what it left out and what is owed", () => {
-    const text = comment({ results: [], owed: ["array-input"], skipped: 3 });
-    assert.ok(text.includes("3 more components"));
-    assert.ok(text.includes("`array-input`"));
+  it("names what is owed", () => {
+    assert.ok(section({ results: [], owed: ["array-input"] }).includes("`array-input`"));
   });
 });
