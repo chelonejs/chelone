@@ -61,7 +61,7 @@ function comparableProps(page) {
  * markup is a Vue slot under the same name, kebab-case in a template:
  * `#control-suffix` for `controlSuffix`. Where the React name carries a
  * `Renderer` suffix the slot drops it, `#event` for `eventRenderer`, which is
- * how docs/vue/differences.mdx maps `<CalendarList>` and `<KanbanBoard>`. A
+ * how the Vue differences page maps `<CalendarList>` and `<KanbanBoard>`. A
  * renamed pair, `rowExtra` against `#extra`, follows no such pattern and stays
  * a gap.
  *
