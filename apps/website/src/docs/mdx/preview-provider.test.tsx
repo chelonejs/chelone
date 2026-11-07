@@ -27,16 +27,16 @@ import { describe, expect, it, vi } from "vitest";
 import InputsOverviewDemo from "../content/editing/demos/inputs-overview";
 import FileInputDemo from "../content/editing/file-input/demos/basic";
 import ImageInputDemo from "../content/editing/image-input/demos/basic";
-import BooleanFieldDemo from "../content/getting-started/quick-start-guide/demos/boolean-field";
-import PostListDemo from "../content/getting-started/quick-start-guide/demos/post-list";
-import ReferenceFieldDemo from "../content/getting-started/quick-start-guide/demos/reference-field";
-import TextFieldDemo from "../content/getting-started/quick-start-guide/demos/text-field";
-import TextInputDemo from "../content/getting-started/quick-start-guide/demos/text-input";
 // P7g3 page-components + overview demos.
 import CreateBasicDemo from "../content/page-components/create/demos/basic";
 import EditBasicDemo from "../content/page-components/edit/demos/basic";
 import ListBasicDemo from "../content/page-components/list/demos/basic";
 import ShowBasicDemo from "../content/page-components/show/demos/basic";
+import BooleanFieldDemo from "../content/react/quick-start-guide/demos/boolean-field";
+import PostListDemo from "../content/react/quick-start-guide/demos/post-list";
+import ReferenceFieldDemo from "../content/react/quick-start-guide/demos/reference-field";
+import TextFieldDemo from "../content/react/quick-start-guide/demos/text-field";
+import TextInputDemo from "../content/react/quick-start-guide/demos/text-input";
 import FieldsOverviewDemo from "../content/viewing/demos/fields-overview";
 import { PreviewProvider } from "./preview-provider";
 
@@ -44,7 +44,7 @@ import { PreviewProvider } from "./preview-provider";
 // PreviewProvider always renders inside the SPA's host router.
 function renderInHostRouter(ui: ReactNode) {
   return render(
-    <MemoryRouter initialEntries={["/docs/getting-started/quick-start-guide"]}>
+    <MemoryRouter initialEntries={["/docs/react/quick-start-guide"]}>
       {ui}
     </MemoryRouter>,
   );
