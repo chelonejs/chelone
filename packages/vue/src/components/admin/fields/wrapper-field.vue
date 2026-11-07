@@ -1,20 +1,20 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link WrapperField}. */
-export interface WrapperFieldProps {
+export interface WrapperFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /**
    * A pseudo field path exposed to a parent layout (e.g. a sortable
    * `DataTable` header). Not read by the field itself — it only groups children.
    */
-  source?: SourceProp;
+  source?: SourceProp<RecordType>;
   label?: string | false;
-  record?: LooseRecord;
+  record?: RecordType;
   class?: string;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import type { VNode } from "vue";
 /**
  * `<WrapperField>` — wraps several fields so a parent layout (a
@@ -28,7 +28,7 @@ import type { VNode } from "vue";
  * off the vnode/definition to build its header.
  */
 
-defineProps<WrapperFieldProps>();
+defineProps<WrapperFieldProps<RecordType>>();
 
 defineSlots<{
   /** The wrapped fields, rendered as-is. */

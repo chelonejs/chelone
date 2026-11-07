@@ -6,7 +6,12 @@
  * moves on, and the last scope disposal releases the final one.
  */
 
-import { getAtPath, type Identifier, type MicroStore } from "@chelone/core";
+import {
+  getAtPath,
+  type Identifier,
+  type MicroStore,
+  type ResourceRecord,
+} from "@chelone/core";
 import { effectScope, onScopeDispose, type Ref, shallowRef, watch } from "vue";
 import type { RecordValue } from "../record/record-context";
 import { useMicroStore } from "../store/use-micro-store";
@@ -23,7 +28,10 @@ export interface BoundController<TController, TState> {
  * {@link getAtPath} so `source="author.id"` resolves the way the field
  * composables read it. Anything but a string or number reads as no key.
  */
-export function foreignKeyOf(record: RecordValue, source: string): SourceId {
+export function foreignKeyOf(
+  record: RecordValue<ResourceRecord>,
+  source: string,
+): SourceId {
   const value = getAtPath(record, source);
   return typeof value === "string" || typeof value === "number"
     ? value

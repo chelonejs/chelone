@@ -1,21 +1,22 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceManyField}. */
-export interface ReferenceManyFieldProps {
+export interface ReferenceManyFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The referenced resource holding the reverse FK (e.g. `"books"`). */
   reference: string;
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: SourceProp;
+  source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
-  record?: LooseRecord;
+  record?: RecordType;
   /** Initial sort of the related list. Default id ascending. */
   sort?: SortPayload;
   /** Permanent filter merged into the reference lookup. */
@@ -29,7 +30,7 @@ export interface ReferenceManyFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ReferenceManyField>` — displays multiple related records that reference the
  * current record via a foreign key (a one-to-many / reverse relationship). The
@@ -52,7 +53,7 @@ import { provideResourceContext } from "../../../resource-context";
 
 // `storeKey` may be `false`, which makes Vue cast an absent prop to `false`
 // (keep in memory). The explicit `undefined` default keeps absent as absent.
-const props = withDefaults(defineProps<ReferenceManyFieldProps>(), {
+const props = withDefaults(defineProps<ReferenceManyFieldProps<RecordType>>(), {
   storeKey: undefined,
 });
 

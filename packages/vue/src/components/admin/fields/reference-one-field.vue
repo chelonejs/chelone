@@ -1,21 +1,22 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import type {
   FilterPayload,
   LooseRecord,
+  ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceOneField}. */
-export interface ReferenceOneFieldProps {
+export interface ReferenceOneFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The referenced resource holding the one-to-one record (e.g. `"bios"`). */
   reference: string;
   /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
   target: string;
   /** The field on the current record the `target` matches. Default `"id"`. */
-  source?: SourceProp;
+  source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
-  record?: LooseRecord;
+  record?: RecordType;
   /** Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise. */
   sort?: SortPayload;
   /** Permanent filter merged into the reference lookup. Read when the record id changes; remount with a `key` to change it otherwise. */
@@ -29,7 +30,7 @@ export interface ReferenceOneFieldProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ReferenceOneField>` — displays a related record from a one-to-one
  * relationship. The Vue port of `@chelone/react`'s `fields/reference-one-field.tsx`.
@@ -56,7 +57,7 @@ import { provideRecordContext } from "../../../record/record-context";
 import { provideResourceContext } from "../../../resource-context";
 import { useTranslate } from "../../../i18n/use-translate";
 
-const props = defineProps<ReferenceOneFieldProps>();
+const props = defineProps<ReferenceOneFieldProps<RecordType>>();
 
 const translate = useTranslate();
 const getRepresentation = useGetRecordRepresentation(props.reference);
