@@ -72,7 +72,7 @@ function onFocusOut(event: FocusEvent) {
     <form
       ref="formElement"
       data-slot="in-place-editor-editing"
-      class="flex items-center gap-2"
+      class="flex items-center gap-2 [&>:first-child]:min-w-0 [&>:first-child]:flex-1"
       @click.stop
       @submit.prevent.stop="submit()"
       @keydown.esc.prevent.stop="emit('cancel')"
