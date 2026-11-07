@@ -77,6 +77,8 @@ export type Product = {
   tags: number[];
   /** `null` is "not decided yet", not "no". */
   featured: boolean | null;
+  /** Free-text search terms, unlike the `tags` ids. */
+  keywords: string[];
   url: string;
   variants: Variant[];
 };
@@ -327,6 +329,7 @@ const productCategoryIds = [8, 6, 9, 7, 8, 10, 9, 9, 8, 9, 8, 11];
 const colors = ["black", "white", "silver", "blue", "red", "green"];
 const allChannels = ["web", "store", "marketplace", "wholesale"];
 const shippingClasses = ["standard", "bulky", "fragile", "express"];
+const keywordPool = ["office", "gaming", "travel", "home"];
 const variantOptions = ["Small", "Medium", "Large"];
 
 const productNames = [
@@ -363,6 +366,9 @@ const products: Product[] = productNames.map((name, i) => {
     shipping_class: cycle(shippingClasses, i),
     tags: [cycle(tags, i).id, cycle(tags, i + 3).id],
     featured: cycle([true, false, null], i),
+    keywords: [name.split(" ")[0] ?? name, cycle(keywordPool, i)].map((k) =>
+      k.toLowerCase(),
+    ),
     url: `https://example.com/products/${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
     variants: variantOptions.slice(0, 2 + (i % 2)).map((option, v) => ({
       sku: `${sku}-${option.charAt(0)}`,
@@ -714,3 +720,12 @@ export const statusChoices = statuses.map((s) => ({
   id: s,
   name: s.charAt(0).toUpperCase() + s.slice(1),
 }));
+export const channelChoices = allChannels.map((c) => ({
+  id: c,
+  name: c.charAt(0).toUpperCase() + c.slice(1),
+}));
+export const shippingClassChoices = shippingClasses.map((c) => ({
+  id: c,
+  name: c.charAt(0).toUpperCase() + c.slice(1),
+}));
+export const tagChoices = tags.map((t) => ({ id: t.id, name: t.name }));

@@ -1,6 +1,11 @@
 import type { LooseRecord } from "@chelone/core";
 import { describe, expect, it } from "vitest";
-import { seedData } from "./seed";
+import {
+  channelChoices,
+  seedData,
+  shippingClassChoices,
+  tagChoices,
+} from "./seed";
 
 const NOW = new Date("2026-11-06T12:00:00.000Z");
 
@@ -215,6 +220,26 @@ describe("seedData", () => {
   it("leaves some products unfeatured, some featured and some undecided", () => {
     const values = new Set(seed.products.map((p) => p.featured));
     expect(values).toEqual(new Set([true, false, null]));
+  });
+
+  it("offers a choice for every channel, shipping class and tag a product holds", () => {
+    const channels = new Set(channelChoices.map((c) => c.id));
+    const shipping = new Set(shippingClassChoices.map((c) => c.id));
+    const tagIds = new Set(tagChoices.map((c) => c.id));
+    for (const product of seed.products) {
+      for (const channel of product.channels)
+        expect(channels).toContain(channel);
+      expect(shipping).toContain(product.shipping_class);
+      for (const tag of product.tags) expect(tagIds).toContain(tag);
+    }
+  });
+
+  it("gives every product keywords as text", () => {
+    for (const product of seed.products) {
+      expect(product.keywords.length, product.name).toBeGreaterThan(0);
+      for (const keyword of product.keywords)
+        expect(keyword.length).toBeGreaterThan(0);
+    }
   });
 
   it("gives places a GeoJSON zone", () => {

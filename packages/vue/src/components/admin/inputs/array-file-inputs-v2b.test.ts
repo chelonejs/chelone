@@ -507,4 +507,26 @@ describe("<ImageInput>", () => {
     expect(img.attributes("src")).toBe("https://example.org/pic.png");
     expect(img.attributes("title")).toBe("Pic");
   });
+
+  it("renders a stored URL string as a thumbnail titled by its file name", async () => {
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1, avatar: "https://example.org/photos/keyboard.png" },
+    });
+    await flushPromises();
+
+    const img = wrapper.find("img");
+    expect(img.attributes("src")).toBe(
+      "https://example.org/photos/keyboard.png",
+    );
+    expect(img.attributes("alt")).toBe("keyboard.png");
+  });
+
+  it("renders no img for a stored javascript: URL", async () => {
+    const { wrapper } = mountInForm(() => h(ImageInput, { source: "avatar" }), {
+      record: { id: 1, avatar: "javascript:alert(1)" },
+    });
+    await flushPromises();
+
+    expect(wrapper.find("img").exists()).toBe(false);
+  });
 });

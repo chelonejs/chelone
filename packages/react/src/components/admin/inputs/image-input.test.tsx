@@ -87,6 +87,24 @@ describe("<ImageInput>", () => {
     expect(firstImg.getAttribute("alt")).toBe("One");
   });
 
+  it("renders a stored URL string as a thumbnail titled by its file name", () => {
+    setup(<ImageInput source="image" />, {
+      defaultValues: { image: "https://example.org/photos/keyboard.png" },
+    });
+    const img = screen.getByRole("img");
+    expect(img.getAttribute("src")).toBe(
+      "https://example.org/photos/keyboard.png",
+    );
+    expect(img.getAttribute("alt")).toBe("keyboard.png");
+  });
+
+  it("renders no <img> for a stored javascript: URL", () => {
+    setup(<ImageInput source="image" />, {
+      defaultValues: { image: "javascript:alert(1)" },
+    });
+    expect(document.querySelector("img")).toBeNull();
+  });
+
   it("passes an explicit child through instead of the default thumbnail", () => {
     function CustomChild() {
       const r = useRecordContext<{ src?: string; title?: string }>();

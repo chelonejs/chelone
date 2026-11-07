@@ -1,6 +1,7 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 import type { ChoiceValueOf } from "./input-values";
 import {
+  fileEntryImage,
   fileEntryKey,
   fileEntryPreview,
   isTransformedFile,
@@ -282,6 +283,30 @@ describe("the file entry guards", () => {
     expect(fileEntryKey("https://example.org/c.png", 4)).toBe(
       "https://example.org/c.png",
     );
+  });
+
+  it("fileEntryImage shows a stored URL string, a stored file and a dropped file", () => {
+    expect(fileEntryImage("https://example.org/c.png")).toEqual({
+      src: "https://example.org/c.png",
+      title: "c.png",
+    });
+    expect(
+      fileEntryImage({ src: "https://example.org/b.png", title: "B" }),
+    ).toEqual({
+      src: "https://example.org/b.png",
+      title: "B",
+    });
+    expect(fileEntryImage(transformed)).toEqual({
+      src: transformed.src,
+      title: "a.png",
+    });
+  });
+
+  it("fileEntryImage shows nothing for a missing or unsafe URL", () => {
+    expect(fileEntryImage(undefined)).toBeNull();
+    expect(fileEntryImage({ title: "no src" })).toBeNull();
+    expect(fileEntryImage("javascript:alert(1)")).toBeNull();
+    expect(fileEntryImage({ src: "javascript:alert(1)" })).toBeNull();
   });
 
   it("fileEntryPreview finds the object URL a preview holds", () => {
