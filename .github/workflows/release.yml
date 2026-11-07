@@ -73,8 +73,18 @@ jobs:
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile
-      - name: Check
-        run: pnpm release:check
+      # The checks CI ran on this commit, run the way CI runs them: `typecheck`
+      # covers the *.test-d.ts files, so vitest skips its own type pass.
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Test
+        run: pnpm turbo run test -- --typecheck.enabled=false
+      - name: Build
+        run: pnpm build
+      - name: Packages pack cleanly
+        run: pnpm --filter "./packages/*" run check:pack
       # pnpm pack applies publishConfig and turns `workspace:*` into the
       # version; npm publishes the tarball, since npm is what does the OIDC
       # exchange.
