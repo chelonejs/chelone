@@ -23,9 +23,12 @@ import { makeI18n, seedData } from "@chelone/demo-data";
 import {
   Admin,
   Create,
+  Edit,
+  List,
   provideRecordContext,
   provideResourceContext,
   Resource,
+  Show,
 } from "@chelone/vue";
 import { QueryClient } from "@tanstack/vue-query";
 import { resources } from "./resources/schema";
@@ -58,8 +61,19 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
     :i18n="i18n"
     :notifications="notifications"
   >
-    <Resource name="posts" record-representation="title" />
-    <Resource name="authors" record-representation="name" />
+    <!-- `posts` is registered with all four views and `authors` with a list, so
+         the sidebar `<Menu>` lists both — the Vue form of the React preview's
+         `computeDefinition({ hasList: true, … })`. `#layout` below replaces the
+         shell, so these views never mount: the demo is the whole page. -->
+    <Resource
+      name="posts"
+      :list="List"
+      :create="Create"
+      :edit="Edit"
+      :show="Show"
+      record-representation="title"
+    />
+    <Resource name="authors" :list="List" record-representation="name" />
     <template #layout>
       <Create v-if="mode === 'input'" resource="posts" title="">
         <slot />
