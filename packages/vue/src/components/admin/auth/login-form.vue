@@ -74,11 +74,11 @@ async function save(values: LoginValues): Promise<undefined> {
 
 const { submit, submitting } = useForm<LoginValues>({
   record: { email: "", password: "" },
-  onSubmit: save,
-  // Standalone auth form: credentials, not the ambient resource's record, so
-  // no registry schema applies and nothing rebaselines on success.
+  // Credentials, not the ambient resource's record: no registry schema applies.
   recordForm: false,
+  // A signed-in form has nothing to rebaseline from the credentials it sent.
   resetOnSuccess: false,
+  onSubmit: save,
 });
 
 function handleSubmit(event: Event): void {
