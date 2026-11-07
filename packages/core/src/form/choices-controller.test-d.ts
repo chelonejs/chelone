@@ -4,8 +4,10 @@ import { z } from "zod";
 import { fakeDataProvider } from "../data/fake-provider";
 import { defineResources } from "../resource/registry";
 import {
+  type ChoiceRecord,
   type ChoicesController,
   type ChoicesControllerState,
+  choiceListsOf,
   createChoicesController,
 } from "./choices-controller";
 
@@ -55,5 +57,13 @@ describe("createChoicesController types", () => {
   it("setValue accepts scalar and array identifiers", () => {
     const c = createChoicesController(ctx, { reference: "posts" });
     expectTypeOf(c.setValue).parameter(0).toEqualTypeOf<unknown>();
+  });
+
+  it("choiceListsOf erases the three lists to ChoiceRecord", () => {
+    const c = createChoicesController(ctx, { reference: "posts" });
+    const lists = choiceListsOf(c.getSnapshot());
+    expectTypeOf(lists.allChoices).toEqualTypeOf<ChoiceRecord[]>();
+    expectTypeOf(lists.availableChoices).toEqualTypeOf<ChoiceRecord[]>();
+    expectTypeOf(lists.selectedChoices).toEqualTypeOf<ChoiceRecord[]>();
   });
 });

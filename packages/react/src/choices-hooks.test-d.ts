@@ -85,6 +85,18 @@ describe("choices hook result types", () => {
     useChoices<Author>({ disableValue: "disabld" });
   });
 
+  it("optionText takes a path of Author", () => {
+    const accessors = useChoices<Author>({ optionText: "address.city" });
+    expectTypeOf(accessors.getChoiceText).parameter(0).toEqualTypeOf<Author>();
+  });
+
+  it("a call with no options compiles, with and without a type argument", () => {
+    expectTypeOf(useChoices<Author>()).toEqualTypeOf<
+      UseChoicesResult<Author>
+    >();
+    expectTypeOf(useChoices()).toEqualTypeOf<UseChoicesResult<ChoiceRecord>>();
+  });
+
   it("useChoices<Author> accepts an optionText function that takes an Author", () => {
     useChoices<Author>({ optionText: (author) => author.name });
     useChoices<Author>({
