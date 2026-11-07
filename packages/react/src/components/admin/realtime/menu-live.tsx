@@ -9,6 +9,11 @@ import {
 } from "@chelone/core";
 import { type ReactNode, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+import {
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useOptionalSidebar,
+} from "@/components/ui/sidebar";
 import { useCheloneContext, useCheloneStore } from "../../../context";
 import { useMatch } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
@@ -99,7 +104,9 @@ function acquire(
 /**
  * A menu link with a badge counting the resource's new records since the user
  * last opened it. The count is kept in the store, so it survives a reload when
- * the store has an adapter. Needs a realtime data provider.
+ * the store has an adapter. Needs a realtime data provider. Inside a sidebar it
+ * is a sidebar menu button, with the label as a tooltip while the sidebar is
+ * collapsed; elsewhere it is a plain link.
  *
  * @example
  * import { MenuLiveItemLink } from "@chelone/react";
@@ -124,6 +131,7 @@ function MenuLiveItemLink({
     unreadKey(resource, fromEventsKey(eventsKey)),
   );
   const active = useMatch({ path: to, end: false }) !== null;
+  const sidebar = useOptionalSidebar();
 
   useEffect(() => {
     if (!isRealtimeDataProvider(dataProvider)) return;
@@ -135,6 +143,44 @@ function MenuLiveItemLink({
       clearUnread(store, resource, fromEventsKey(eventsKey));
   }, [active, count, store, resource, eventsKey]);
 
+  const badge = count > 0 && (
+    <Badge
+      data-testid="menu-live-badge"
+      className={
+        sidebar
+          ? // The collapsed rail clips the button to its icon, so the badge
+            // moves onto the icon's corner instead of the row's end.
+            "ml-auto group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:top-0 group-data-[collapsible=icon]:right-0 group-data-[collapsible=icon]:h-4 group-data-[collapsible=icon]:min-w-4 group-data-[collapsible=icon]:px-1 group-data-[collapsible=icon]:text-[10px]"
+          : "ml-auto"
+      }
+    >
+      {badgeLabel
+        ? badgeLabel(count)
+        : count > MAX_COUNT
+          ? `${MAX_COUNT}+`
+          : count}
+    </Badge>
+  );
+
+  if (sidebar) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          asChild
+          isActive={active}
+          tooltip={{ children: label }}
+          className="relative"
+        >
+          <Link to={to}>
+            {icon}
+            {label}
+            {badge}
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
   return (
     <Link
       to={to}
@@ -142,21 +188,15 @@ function MenuLiveItemLink({
     >
       {icon}
       {label}
-      {count > 0 && (
-        <Badge data-testid="menu-live-badge" className="ml-auto">
-          {badgeLabel
-            ? badgeLabel(count)
-            : count > MAX_COUNT
-              ? `${MAX_COUNT}+`
-              : count}
-        </Badge>
-      )}
+      {badge}
     </Link>
   );
 }
 
 /**
- * A `nav` of {@link MenuLiveItemLink}s.
+ * A `nav` of {@link MenuLiveItemLink}s. Inside a sidebar it renders the items
+ * as sidebar menu entries with no wrapper, so place it in a `<SidebarMenu>`,
+ * such as a `<ResourceMenuItemGroup>`'s children.
  *
  * @example
  * import { MenuLive } from "@chelone/react";
@@ -164,13 +204,11 @@ function MenuLiveItemLink({
  * <MenuLive items={[{ to: "/posts", resource: "posts", label: "Posts" }]} />
  */
 function MenuLive({ items }: MenuLiveProps) {
-  return (
-    <nav className="flex flex-col gap-1">
-      {items.map((item) => (
-        <MenuLiveItemLink key={item.to} {...item} />
-      ))}
-    </nav>
-  );
+  const sidebar = useOptionalSidebar();
+  const links = items.map((item) => (
+    <MenuLiveItemLink key={item.to} {...item} />
+  ));
+  return sidebar ? links : <nav className="flex flex-col gap-1">{links}</nav>;
 }
 
 export { MenuLive, MenuLiveItemLink };

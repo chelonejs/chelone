@@ -16,6 +16,7 @@ import {
 import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { SidebarMenu, SidebarProvider } from "@/components/ui/sidebar";
 import { CheloneProvider } from "../../../context";
 import { RouterAdapterProvider } from "../../../router/adapter";
 import { reactRouterAdapter } from "../../../router/react-router-adapter";
@@ -351,5 +352,62 @@ describe("<MenuLive>", () => {
     expect(screen.getAllByRole("link")).toHaveLength(2);
     await emit("resource/comments");
     expect(badge()?.textContent).toBe("1");
+  });
+});
+
+describe("<MenuLive> in a sidebar", () => {
+  const items = [{ to: "/posts", resource: "posts", label: "Posts" }];
+
+  function renderInSidebar(defaultOpen: boolean) {
+    const { Providers, emit } = setup();
+    render(
+      <Providers>
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <SidebarMenu>
+            <MenuLive items={items} />
+          </SidebarMenu>
+        </SidebarProvider>
+      </Providers>,
+    );
+    return { emit };
+  }
+
+  it("renders each item as a sidebar menu button", () => {
+    renderInSidebar(true);
+    const link = screen.getByRole("link", { name: /posts/i });
+    expect(link.getAttribute("data-slot")).toBe("sidebar-menu-button");
+    expect(link.closest("li")?.getAttribute("data-slot")).toBe(
+      "sidebar-menu-item",
+    );
+  });
+
+  it("shows no tooltip on an expanded sidebar", async () => {
+    renderInSidebar(true);
+    fireEvent.focus(screen.getByRole("link", { name: /posts/i }));
+    expect(screen.queryByRole("tooltip")).toBeNull();
+  });
+
+  it("shows the label as a tooltip on a collapsed sidebar, and keeps the badge", async () => {
+    const { emit } = renderInSidebar(false);
+    await emit("resource/posts");
+    const link = screen.getByRole("link", { name: /posts/i });
+    expect(badge()?.textContent).toBe("1");
+
+    fireEvent.focus(link);
+    expect((await screen.findByRole("tooltip")).textContent).toBe("Posts");
+  });
+});
+
+describe("<MenuLive> outside a sidebar", () => {
+  it("renders a plain link, not a sidebar menu button", () => {
+    const { Providers } = setup();
+    render(
+      <Providers>
+        <MenuLive items={[{ to: "/posts", resource: "posts", label: "Posts" }]} />
+      </Providers>,
+    );
+    const link = screen.getByRole("link", { name: /posts/i });
+    expect(link.getAttribute("data-slot")).toBeNull();
+    expect(screen.getByRole("navigation")).toBeTruthy();
   });
 });
