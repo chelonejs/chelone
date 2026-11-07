@@ -2,6 +2,7 @@ import {
   type FilterPayload,
   identifiersOf,
   type LooseRecord,
+  type ResourceRecord,
   type SortPayload,
   type SourceProp,
 } from "@chelone/core";
@@ -13,7 +14,7 @@ import { ResourceContextProvider } from "../../../resource";
 import { useList } from "../../../use-list";
 
 interface ReferenceArrayFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
   source: SourceProp<RecordType>;
@@ -61,7 +62,7 @@ interface ReferenceArrayFieldProps<
  *   </List>
  * );
  */
-function ReferenceArrayField<RecordType extends LooseRecord = LooseRecord>(
+function ReferenceArrayField<RecordType extends ResourceRecord = LooseRecord>(
   props: ReferenceArrayFieldProps<RecordType>,
 ) {
   const { source, reference, record, children, sort, filter, perPage } = props;

@@ -6,6 +6,7 @@ import {
   type Identifier,
   type ListControllerContext,
   type ListControllerState,
+  type LooseRecord,
   listControllerActions,
   type MicroStore,
   type RecordOf,
@@ -13,6 +14,7 @@ import {
   type ReferenceOneController,
   type ReferenceOneControllerState,
   type ResourceMap,
+  type ResourceRecord,
   type SortPayload,
 } from "@chelone/core";
 import { useMemo, useState, useSyncExternalStore } from "react";
@@ -24,7 +26,10 @@ import {
 } from "./record/record-context";
 
 /** Options both reference-field hooks share. */
-interface ReferenceFieldControllerOptions<TName extends string> {
+interface ReferenceFieldControllerOptions<
+  TName extends string,
+  RecordType extends ResourceRecord = LooseRecord,
+> {
   /** The resource whose rows point at the record. */
   reference: TName;
   /** The field on `reference` that holds the foreign key. */
@@ -32,14 +37,15 @@ interface ReferenceFieldControllerOptions<TName extends string> {
   /** The field on the record whose value `target` must equal. Default `"id"`. */
   source?: string;
   /** Defaults to the ambient record (`useRecordContext`). */
-  record?: RecordContextValue;
+  record?: RecordContextValue<RecordType>;
   /** Gates the data fetch only. Default true. */
   enabled?: boolean;
 }
 
 export interface UseReferenceManyFieldControllerOptions<
   TName extends string = string,
-> extends ReferenceFieldControllerOptions<TName> {
+  RecordType extends ResourceRecord = LooseRecord,
+> extends ReferenceFieldControllerOptions<TName, RecordType> {
   /** Permanent filter, merged over the user filter for every fetch. */
   filter?: FilterPayload;
   /** Initial sort when nothing is persisted. Default id ascending. */
@@ -54,7 +60,8 @@ export interface UseReferenceManyFieldControllerOptions<
 
 export interface UseReferenceOneFieldControllerOptions<
   TName extends string = string,
-> extends ReferenceFieldControllerOptions<TName> {
+  RecordType extends ResourceRecord = LooseRecord,
+> extends ReferenceFieldControllerOptions<TName, RecordType> {
   /** Decides which row is first when several match. */
   sort?: SortPayload | SortPayload[];
   /** Narrows the lookup. */
@@ -83,7 +90,7 @@ export type UseReferenceOneFieldControllerResult<TRecord> =
  * reads it. Anything but a string or number reads as no key.
  */
 function foreignKeyOf(
-  record: RecordContextValue,
+  record: RecordContextValue<ResourceRecord>,
   source: string,
 ): Identifier | undefined {
   const value = getAtPath(record, source);
@@ -108,15 +115,16 @@ function useReferenceFieldBridge<
   TResources extends ResourceMap,
   TState,
   TController extends MicroStore<TState>,
+  RecordType extends ResourceRecord,
 >(
-  options: ReferenceFieldControllerOptions<string>,
+  options: ReferenceFieldControllerOptions<string, RecordType>,
   create: (
     ctx: ListControllerContext<TResources>,
     id: Identifier | undefined,
   ) => TController,
 ): { controller: TController; snapshot: TState } {
   const ctx = useCheloneContext<TResources>();
-  const record = useRecordContext({ record: options.record });
+  const record = useRecordContext<RecordType>({ record: options.record });
   const id = foreignKeyOf(record, options.source ?? "id");
 
   const [held, setHeld] = useState(() => ({
@@ -150,14 +158,16 @@ function useReferenceFieldBridge<
 export function useReferenceManyFieldController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
+  RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceManyFieldControllerOptions<TName>,
+  options: UseReferenceManyFieldControllerOptions<TName, RecordType>,
 ): UseReferenceManyFieldControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const { controller, snapshot } = useReferenceFieldBridge<
     TResources,
     ListControllerState<TRecord>,
-    ReferenceManyController<TRecord>
+    ReferenceManyController<TRecord>,
+    RecordType
   >(options, (ctx, id) =>
     createReferenceManyController(ctx, options.reference, {
       target: options.target,
@@ -188,14 +198,16 @@ export function useReferenceManyFieldController<
 export function useReferenceOneFieldController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
+  RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceOneFieldControllerOptions<TName>,
+  options: UseReferenceOneFieldControllerOptions<TName, RecordType>,
 ): UseReferenceOneFieldControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const { controller, snapshot } = useReferenceFieldBridge<
     TResources,
     ReferenceOneControllerState<TRecord>,
-    ReferenceOneController<TRecord>
+    ReferenceOneController<TRecord>,
+    RecordType
   >(options, (ctx, id) =>
     createReferenceOneController(ctx, options.reference, {
       target: options.target,

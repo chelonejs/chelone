@@ -2,6 +2,7 @@ import {
   type FilterPayload,
   isIdentifier,
   type LooseRecord,
+  type ResourceRecord,
   type SourceProp,
 } from "@chelone/core";
 import type { ReactNode } from "react";
@@ -9,7 +10,7 @@ import { useGetManyReference } from "../../../hooks";
 import { useFieldValue } from "../../../record/use-field-value";
 
 interface ReferenceManyCountProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   /** The referenced resource holding the reverse FK (e.g. `"books"`). */
   reference: string;
@@ -55,7 +56,7 @@ interface ReferenceManyCountProps<
  *   </List>
  * );
  */
-function ReferenceManyCount<RecordType extends LooseRecord = LooseRecord>(
+function ReferenceManyCount<RecordType extends ResourceRecord = LooseRecord>(
   props: ReferenceManyCountProps<RecordType>,
 ) {
   const {
@@ -69,11 +70,11 @@ function ReferenceManyCount<RecordType extends LooseRecord = LooseRecord>(
     className,
   } = props;
 
-  // Read at a loose record: the `"id"` default is a legal path of every Chelone
+  // Read at `ResourceRecord`: the `"id"` default is a legal path of every Chelone
   // record, but `SourceProp<RecordType>` is deferred while `RecordType` is an
   // unresolved parameter, so the compiler cannot see that it is one. The guard
   // below is what makes the value an id.
-  const foreignKey = useFieldValue<LooseRecord>({
+  const foreignKey = useFieldValue<ResourceRecord>({
     source: source ?? "id",
     record,
   });
