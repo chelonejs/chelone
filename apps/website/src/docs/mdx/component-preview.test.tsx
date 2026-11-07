@@ -103,21 +103,6 @@ describe("ComponentPreview framework switch", () => {
     expect(source.textContent).toContain("<ResettableTextInput");
   });
 
-  it("leaves the Vue iframe's height to the fitting effect, not a fixed style", () => {
-    const { container } = renderPreview(
-      BOTH,
-      "/docs/editing/resettable-text-input?framework=vue",
-    );
-    const frame = container.querySelector("iframe");
-    if (!frame) throw new Error("the Vue demo renders no iframe");
-    // The frame is fitted to its content at runtime, with a floor so an empty
-    // frame is not a slit. jsdom never loads the frame, so there is nothing to
-    // fit here; what must not come back is a fixed inline height, which is what
-    // cut a list demo off.
-    expect(frame.style.height).toBe("");
-    expect(frame.className).toContain("min-h-56");
-  });
-
   it("a Vue choice on a React-only demo still previews React", () => {
     renderPreview(REACT_ONLY, "/docs/editing?framework=vue");
 
@@ -175,12 +160,21 @@ describe("the Vue demo frame", () => {
   });
 
   // jsdom never loads the frame, so it has no contentDocument and nothing to
-  // measure: the height fitting is checked in a browser, not here.
-  it("leaves the frame unmeasured where jsdom cannot load it", () => {
-    renderPreview(BOTH, VUE_URL);
+  // measure: the fitting effect has nothing to fit, which is what must show up
+  // here as no height at all. The fitting itself is checked in a browser.
+  it("leaves the frame's height to the fitting effect, with the floor on the panel", () => {
+    const { container } = renderPreview(BOTH, VUE_URL);
+    const el = frame();
 
-    expect(frame().contentDocument?.body).toBeNull();
-    expect(frame().style.height).toBe("");
+    expect(el.contentDocument?.body).toBeNull();
+    expect(el.style.height).toBe("");
+    // The floor that keeps an empty frame from collapsing to a slit is the
+    // panel's, not the frame's. `zoom` scales the frame's own lengths, so a
+    // height class on the frame is a height class on 800px of layout: `min-h-56`
+    // held a 108px demo's frame at 224px, and the band under it stayed after the
+    // frame was zoomed down to the panel.
+    expect(el.className).not.toContain("min-h");
+    expect(container.querySelector(".min-h-32")).not.toBeNull();
   });
 });
 
