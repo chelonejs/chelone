@@ -44,9 +44,9 @@ type TextInputProps<
  * to `true` for longer content like descriptions or comments. Wraps shadcn's
  * `<Input>` or `<Textarea>` component depending on the `multiline` prop.
  *
- * A single-line control sits in a row of its own with `controlSuffix`, so a wrapper
- * can overlay a button on the control and have that button centred on the control
- * whatever the field renders above or below the row.
+ * Every control, `multiline` included, sits in a row of its own with
+ * `controlSuffix`, so a wrapper can overlay a button on the control and have that
+ * button centred on the control whatever the field renders above or below the row.
  *
  * @example
  * import { Edit, TextInput } from '@/components/admin';
@@ -90,10 +90,12 @@ function TextInput(props: TextInputProps) {
 
   // The row is the positioned ancestor an overlay resolves against, so it holds
   // the control and the overlay alone: label, helper text and error stay out of
-  // it, and an overlay centres on the control wherever the field puts it. A
-  // single-line control always has the row, so a clear button coming and going
-  // never moves the input out from under the caret.
-  const controlRow = multiline ? (
+  // it, and an overlay centres on the control wherever the field puts it. Every
+  // control gets the row, multiline included, so `controlSuffix` is never
+  // silently dropped, and a single-line control keeps it even when a clear
+  // button coming and going would otherwise move the input out from under the
+  // caret.
+  const control = multiline ? (
     <Textarea
       {...sanitizeInputRestProps(rest)}
       {...domField}
@@ -102,16 +104,20 @@ function TextInput(props: TextInputProps) {
       className={inputClassName}
     />
   ) : (
+    <Input
+      {...sanitizeInputRestProps(rest)}
+      {...domField}
+      id={id}
+      type={type}
+      aria-invalid={invalid || undefined}
+      className={cn(inputClassName, resettable && hasValue && "pr-8")}
+    />
+  );
+
+  const controlRow = (
     <div className="relative flex items-center">
-      <Input
-        {...sanitizeInputRestProps(rest)}
-        {...domField}
-        id={id}
-        type={type}
-        aria-invalid={invalid || undefined}
-        className={cn(inputClassName, resettable && hasValue && "pr-8")}
-      />
-      {resettable && hasValue ? (
+      {control}
+      {!multiline && resettable && hasValue ? (
         <button
           type="button"
           aria-label={translate("ra.action.clear_input_value", {

@@ -111,6 +111,20 @@ describe("<ResettableTextInput>", () => {
     expect(clear.parentElement).toBe(input.parentElement);
   });
 
+  it("keeps the clear button for a multiline field, in the textarea's own row", () => {
+    setup(<ResettableTextInput source="body" multiline />, {
+      body: "A long description",
+    });
+    const textarea = elementOf(
+      screen.getByLabelText("Body"),
+      HTMLTextAreaElement,
+    );
+    const clear = screen.getByRole("button", { name: /clear value/i });
+    expect(clear.parentElement).toBe(textarea.parentElement);
+    fireEvent.click(clear);
+    expect(textarea.value).toBe("");
+  });
+
   it("respects the disabled prop", () => {
     setup(<ResettableTextInput source="title" disabled />, {
       title: "x",
