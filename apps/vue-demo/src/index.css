@@ -13,9 +13,10 @@
 /*
  * The docs demos compile here (the website has no Vue compiler), and they are
  * outside this app's folder, so Tailwind would not see the classes only they
- * use. Point `@source` at the Vue ones.
+ * use. Point `@source` at the Vue ones, and only those: the React twins beside
+ * them would otherwise add their classes to this app's bundle.
  */
-@source "../../website/src/docs/content";
+@source "../../website/src/docs/content/**/demos/*.vue";
 
 @custom-variant dark (&:is(.dark *));
 
