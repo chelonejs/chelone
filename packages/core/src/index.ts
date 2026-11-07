@@ -1079,3 +1079,11 @@ export { createMicroStore } from "./store/micro-store";
 export { shallowEqual } from "./store/shallow-equal";
 export type { CheloneStore, StoreAdapter } from "./store/store";
 export { createStore } from "./store/store";
+export {
+  DEFAULT_EXPORT_MAX_RESULTS,
+  DEVTOOLS_MAX_VALUE_LENGTH,
+  MOBILE_BREAKPOINT,
+  SEARCH_THRESHOLD,
+  TITLE_PORTAL_ID,
+  UNDO_AUTO_HIDE_MS,
+} from "./ui-defaults";

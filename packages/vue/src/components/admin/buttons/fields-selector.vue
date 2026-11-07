@@ -71,7 +71,11 @@ const DefaultRow = defineComponent({
  * <FieldsSelector store-key="posts.datatable" />
  */
 
-import { arrangeColumns, columnLabelMatches } from "@chelone/core";
+import {
+  arrangeColumns,
+  columnLabelMatches,
+  SEARCH_THRESHOLD,
+} from "@chelone/core";
 import { computed, ref } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useTranslateLabel } from "../../../label/use-translate-label";
@@ -86,9 +90,6 @@ import {
   SearchIcon,
   XIcon,
 } from "./icons";
-
-/** Past this many columns the panel gets a search box. */
-const SEARCH_THRESHOLD = 5;
 
 const props = defineProps<FieldsSelectorProps>();
 

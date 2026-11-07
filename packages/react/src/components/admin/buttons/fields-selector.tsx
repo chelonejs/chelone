@@ -6,7 +6,11 @@
  * entry importing a drag package.
  */
 
-import { arrangeColumns, columnLabelMatches } from "@chelone/core";
+import {
+  arrangeColumns,
+  columnLabelMatches,
+  SEARCH_THRESHOLD,
+} from "@chelone/core";
 import { ArrowDown, ArrowUp, RotateCcw, X } from "lucide-react";
 import { type ComponentType, type ReactNode, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,8 +20,6 @@ import { useDataTableColumns } from "../../../data-table-columns-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useTranslateLabel } from "../../../label";
 import { useResourceContext } from "../../../resource";
-
-const SEARCH_THRESHOLD = 5;
 
 interface FieldsSelectorListProps {
   /** The ids of the listed rows, in display order. */

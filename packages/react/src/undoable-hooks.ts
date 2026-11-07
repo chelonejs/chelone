@@ -1,6 +1,7 @@
 import {
   startUndoableMutation,
   type TranslateParamValues,
+  UNDO_AUTO_HIDE_MS,
   type UndoableHandle,
 } from "@chelone/core";
 import { type QueryKey, useQueryClient } from "@tanstack/react-query";
@@ -72,7 +73,7 @@ export function useUndoable(): (options: RunUndoableOptions) => UndoableHandle {
         type: options.type ?? "info",
         messageArgs: options.messageArgs,
         undoable: true,
-        autoHideDuration: options.autoHideDuration ?? 5000,
+        autoHideDuration: options.autoHideDuration ?? UNDO_AUTO_HIDE_MS,
         undo: () => handle.undo(),
         onClose: () => {
           void handle.commit().catch((error: unknown) => {
