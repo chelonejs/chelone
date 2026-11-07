@@ -262,7 +262,24 @@
       }
     }
   },
-  "bbox-input": null,
+  "bbox-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/bbox-input",
+        "see": "[data-slot=\"shape-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-field=\"bbox\"] [data-slot=\"shape-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-field=\"bbox\"] [data-slot=\"shape-input\"]"
+      }
+    }
+  },
   "block-doc-field": {
     "react": {
       "docs": {
@@ -1426,7 +1443,24 @@
   "geo-json-view": {
     "shownBy": "geo-json-field"
   },
-  "geocoding-input": null,
+  "geocoding-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/geocoding-input",
+        "see": "[data-slot=\"geocoding-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/create",
+        "see": "[data-slot=\"geocoding-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/create",
+        "see": "[data-slot=\"geocoding-input\"]"
+      }
+    }
+  },
   "guesser-empty": {
     "shownBy": "list-guesser"
   },
@@ -1669,7 +1703,24 @@
       }
     }
   },
-  "lat-lng-input": null,
+  "lat-lng-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/lat-lng-input",
+        "see": "[data-slot=\"lat-lng-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/create",
+        "see": "[data-slot=\"lat-lng-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/create",
+        "see": "[data-slot=\"lat-lng-input\"]"
+      }
+    }
+  },
   "layout": {
     "react": {
       "docs": {
@@ -1858,7 +1909,24 @@
   "map-canvas": {
     "shownBy": "geo-json-field"
   },
-  "map-with-search": null,
+  "map-with-search": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/map-with-search",
+        "see": "[data-slot=\"map-with-search\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-slot=\"map-with-search\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-slot=\"map-with-search\"]"
+      }
+    }
+  },
   "maps": {
     "shownBy": "geo-json-field"
   },
@@ -2128,7 +2196,24 @@
   "onboarding-tour-overlay": {
     "shownBy": "onboarding-tour"
   },
-  "osm-feature-operator": null,
+  "osm-feature-operator": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/osm-feature-operator",
+        "see": "[data-slot=\"osm-feature-operator\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-field=\"zone-water\"] [data-slot=\"osm-feature-operator\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-field=\"zone-water\"] [data-slot=\"osm-feature-operator\"]"
+      }
+    }
+  },
   "password-input": {
     "react": {
       "docs": {
@@ -2756,7 +2841,24 @@
       }
     }
   },
-  "shape-input": null,
+  "shape-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/shape-input",
+        "see": "[data-slot=\"shape-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-field=\"zone\"] [data-slot=\"shape-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-field=\"zone\"] [data-slot=\"shape-input\"]"
+      }
+    }
+  },
   "shape-inputs": {
     "shownBy": "shape-input"
   },
@@ -2884,7 +2986,24 @@
   "simple-list-loading": {
     "shownBy": "simple-list"
   },
-  "simplify-input": null,
+  "simplify-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/simplify-input",
+        "see": "[data-slot=\"simplify-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-slot=\"simplify-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-slot=\"simplify-input\"]"
+      }
+    }
+  },
   "single-field-list": {
     "react": {
       "docs": {
