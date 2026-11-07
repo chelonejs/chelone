@@ -11,7 +11,26 @@
   "api-key-input": null,
   "app-bar": null,
   "app-sidebar": null,
-  "application-updated-notification": null,
+  "application-updated-notification": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/application-updated-notification",
+        "see": "[role=\"alert\"]:has-text(\"A new version of the application is available\")"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "[role=\"alert\"]:has-text(\"A new version of the application is available\")",
+        "click": ["role=button[name=\"Show the update prompt\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "[role=\"alert\"]:has-text(\"A new version of the application is available\")",
+        "click": ["role=button[name=\"Show the update prompt\"]"]
+      }
+    }
+  },
   "approval-queue": null,
   "approval-queue-row": {
     "shownBy": "approval-queue"
@@ -271,7 +290,26 @@
   "charts": {
     "shownBy": "bar-chart"
   },
-  "check-for-application-update": null,
+  "check-for-application-update": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/check-for-application-update",
+        "see": "text=The application is up to date."
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "text=The application is up to date.",
+        "click": ["role=button[name=\"Check for a new version\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "text=The application is up to date.",
+        "click": ["role=button[name=\"Check for a new version\"]"]
+      }
+    }
+  },
   "checkbox-group-input": null,
   "chip-field": null,
   "clone-button": null,
@@ -518,7 +556,26 @@
   "embed-block": {
     "shownBy": "block-editor-input"
   },
-  "error": null,
+  "error": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/error",
+        "see": "role=alert >> text=Something went wrong"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "role=alert >> text=Something went wrong",
+        "click": ["role=button[name=\"Crash the page\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "role=alert >> text=Something went wrong",
+        "click": ["role=button[name=\"Crash the page\"]"]
+      }
+    }
+  },
   "export-button": {
     "react": {
       "docs": {
@@ -705,7 +762,26 @@
   "lat-lng-field": null,
   "lat-lng-input": null,
   "layout": null,
-  "linear-progress": null,
+  "linear-progress": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/linear-progress",
+        "see": "[data-slot=\"linear-progress\"]"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "[data-slot=\"linear-progress\"]",
+        "click": ["role=button[name=\"Show progress\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "[data-slot=\"linear-progress\"]",
+        "click": ["role=button[name=\"Show progress\"]"]
+      }
+    }
+  },
   "link": null,
   "list": null,
   "list-actions": null,
@@ -717,9 +793,47 @@
   },
   "list-pagination": null,
   "list-toolbar": null,
-  "loading": null,
+  "loading": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/loading",
+        "see": "role=status >> text=Loading posts"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "role=status >> text=Loading posts",
+        "click": ["role=button[name=\"Show loading\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "role=status >> text=Loading posts",
+        "click": ["role=button[name=\"Show loading\"]"]
+      }
+    }
+  },
   "loading-indicator": null,
-  "loading-input": null,
+  "loading-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/loading-input",
+        "see": "[data-slot=\"loading-input\"]"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "[data-slot=\"loading-input\"]",
+        "click": ["role=button[name=\"Show a loading input\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "[data-slot=\"loading-input\"]",
+        "click": ["role=button[name=\"Show a loading input\"]"]
+      }
+    }
+  },
   "locales-menu": {
     "shownBy": "locales-menu-button"
   },
@@ -797,12 +911,68 @@
   "monaco-skeleton": {
     "shownBy": "monaco-json-input"
   },
-  "not-found": null,
-  "notification": null,
+  "not-found": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/not-found",
+        "see": "h1:has(svg):has-text(\"Not Found\")"
+      },
+      "demo": {
+        "path": "/demo/nowhere",
+        "see": "h1:has(svg):has-text(\"Not Found\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/nowhere",
+        "see": "h1:has(svg):has-text(\"Not Found\")"
+      }
+    }
+  },
+  "notification": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/notification",
+        "see": "[data-sonner-toast]",
+        "click": ["role=button[name=\"Fire a notification\"]"]
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "[data-sonner-toast]",
+        "click": ["role=button[name=\"Fire a notification\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "[data-slot=\"notification-toast\"]",
+        "click": ["role=button[name=\"Fire a notification\"]"]
+      }
+    }
+  },
   "nullable-boolean-input": null,
   "number-field": null,
   "number-input": null,
-  "offline": null,
+  "offline": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/offline",
+        "see": "text=No connection. The list is showing cached posts."
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "text=No connection. The list is showing cached posts.",
+        "click": ["role=button[name=\"Go offline\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "text=No connection. The list is showing cached posts.",
+        "click": ["role=button[name=\"Go offline\"]"]
+      }
+    }
+  },
   "onboarding-tour": {
     "react": {
       "docs": {
@@ -842,13 +1012,51 @@
   "phone-field": null,
   "phone-input": null,
   "pivot-grid": null,
-  "placeholder": null,
+  "placeholder": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/placeholder",
+        "see": "[data-slot=\"placeholder\"]"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "[data-slot=\"placeholder\"]",
+        "click": ["role=button[name=\"Show a placeholder\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "[data-slot=\"placeholder\"]",
+        "click": ["role=button[name=\"Show a placeholder\"]"]
+      }
+    }
+  },
   "presence-bar": null,
   "prev-next-buttons": null,
   "radio-button-group-input": null,
   "rating-field": null,
   "rating-input": null,
-  "ready": null,
+  "ready": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/ready",
+        "see": "text=Welcome to Chelone"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "text=Welcome to Chelone",
+        "click": ["role=button[name=\"Show the splash\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "text=Welcome to Chelone",
+        "click": ["role=button[name=\"Show the splash\"]"]
+      }
+    }
+  },
   "record-field": null,
   "record-list-block": {
     "shownBy": "block-editor-input"

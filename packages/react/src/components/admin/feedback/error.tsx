@@ -110,7 +110,7 @@ function ErrorPage(props: InternalErrorProps) {
         <>
           <Accordion
             type="multiple"
-            className="mt-1 p-2 bg-secondary w-full lg:w-150"
+            className="mt-1 p-2 bg-secondary w-full max-w-150"
           >
             <AccordionItem value="error">
               <AccordionTrigger className="py-2">

@@ -50,10 +50,15 @@ const Crash = defineComponent({
 });
 
 // `<Offline>` reads the events a real connection loss fires, so a browser that
-// is online is shown offline by firing them.
-watch(offline, (on) => {
-  window.dispatchEvent(new Event(on ? "offline" : "online"));
-});
+// is online is shown offline by firing them. After the render, so `<Offline>`
+// is mounted and listening when the event goes out.
+watch(
+  offline,
+  (on) => {
+    window.dispatchEvent(new Event(on ? "offline" : "online"));
+  },
+  { flush: "post" },
+);
 
 // `<CheckForApplicationUpdate>` compares the deployed page between checks: this
 // answers its URL, and "Release a new version" changes the answer.
