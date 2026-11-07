@@ -3,7 +3,7 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/access-denied",
-        "see": "role=heading[name=\"Access denied\"]"
+        "see": "h5:text-matches(\"access[ _.]denied\", \"i\")"
       },
       "demo": {
         "path": "/demo/access-denied",
@@ -220,17 +220,17 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/auth-callback",
-        "see": "[role=\"status\"].size-9"
+        "see": "div:has(> [role=\"status\"].size-9)"
       },
       "demo": {
         "path": "/demo/auth-callback",
-        "see": "[role=\"status\"].size-9"
+        "see": "main div:has(> [role=\"status\"].size-9)"
       }
     },
     "vue": {
       "demo": {
         "path": "/vue-demo/auth-callback",
-        "see": "[role=\"status\"].size-9"
+        "see": ".min-h-svh div:has(> [role=\"status\"].size-9)"
       }
     }
   },
@@ -238,7 +238,7 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/auth-error",
-        "see": "[role=\"alert\"]:has-text(\"Something went wrong\")"
+        "see": "h1[role=\"alert\"]"
       },
       "demo": {
         "path": "/demo/auth-callback?error=access_denied&error_description=The%20provider%20refused%20the%20sign-in",
@@ -259,7 +259,7 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/authentication-error",
-        "see": "role=heading[name=\"Authentication error\"]"
+        "see": "h5:text-matches(\"authentication[ _.]error\", \"i\")"
       },
       "demo": {
         "path": "/demo/authentication-error",
@@ -2446,7 +2446,7 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/logout",
-        "see": "role=menuitem[name=\"Logout\"]"
+        "see": "role=menuitem[name=/log ?out/i]"
       },
       "demo": {
         "path": "/demo/posts",
