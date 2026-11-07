@@ -45,7 +45,21 @@ import {
   useTranslate,
 } from "@chelone/vue";
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
-import { computed } from "vue";
+import {
+  Activity,
+  CalendarDays,
+  ClipboardCheck,
+  HeartPulse,
+  KeyRound,
+  Layers,
+  LayoutTemplate,
+  LogIn,
+  Newspaper,
+  Plug,
+  SquareKanban,
+  UserCog,
+} from "lucide-vue-next";
+import { type Component, computed, h } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import AccessGuard from "./AccessGuard.vue";
 import Dashboard from "./pages/Dashboard.vue";
@@ -91,6 +105,27 @@ const areas = [
     resources: resourceAreas[area],
     pages: pageGroups.find((g) => g.group === area)?.pages ?? [],
   }));
+
+// MenuLive draws its icon with no props, so the size is set here: the menu's own
+// items size theirs in CSS.
+const PostsIcon = () => h(Newspaper, { size: 16, class: "shrink-0" });
+
+// One glyph per page, by file name. A page missing here shows none, which the
+// sidebar test catches. Dashboard and the resources have theirs elsewhere (the
+// menu's house, each `<Resource icon>`).
+const pageIcons: Record<string, Component> = {
+  Activity,
+  Approvals: ClipboardCheck,
+  Integrations: Plug,
+  LandingPage: LayoutTemplate,
+  Login: LogIn,
+  OrderBoard: SquareKanban,
+  OrderCalendar: CalendarDays,
+  ProductVariants: Layers,
+  Status: HeartPulse,
+  SupabaseAuth: KeyRound,
+  Team: UserCog,
+};
 
 // Mod+1 to mod+9 open the first nine pages, in menu order.
 const shortcuts = new Map(
@@ -139,6 +174,7 @@ const t = (key: string, english: string) => translate(key, { _: english });
                       to: '/posts',
                       resource: 'posts',
                       label: getResourceLabel('posts'),
+                      icon: PostsIcon,
                     },
                   ]"
                 />
@@ -158,28 +194,9 @@ const t = (key: string, english: string) => translate(key, { _: english });
                   :key="path"
                   :to="`/${path}`"
                   :label="t(demoMenuKey('page', path), title)"
+                  :icon="pageIcons[path]"
                   :keyboard-shortcut="shortcuts.get(path)"
-                >
-                  <template #icon>
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"
-                      />
-                      <path d="M14 2v5a1 1 0 0 0 1 1h5" />
-                      <path d="M10 9H8" />
-                      <path d="M16 13H8" />
-                      <path d="M16 17H8" />
-                    </svg>
-                  </template>
-                </MenuItemLink>
+                />
               </ResourceMenuItemGroup>
             </AppSidebar>
           </template>

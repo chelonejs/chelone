@@ -24,6 +24,17 @@ import {
 } from "@chelone/react";
 import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
+import {
+  FileText,
+  FolderTree,
+  MapPin,
+  Newspaper,
+  Package,
+  PenLine,
+  ShoppingCart,
+  Tags,
+  Users,
+} from "lucide-react";
 import { BrowserRouter, Route } from "react-router";
 import { authRoutes } from "./auth-routes";
 import { i18n } from "./i18n";
@@ -149,6 +160,7 @@ export function App() {
             automatically (the D6 registry-schema default validator). */}
           <Resource
             name="posts"
+            icon={Newspaper}
             list={PostList}
             edit={PostEdit}
             create={PostCreate}
@@ -156,6 +168,7 @@ export function App() {
           />
           <Resource
             name="authors"
+            icon={PenLine}
             list={AuthorList}
             edit={AuthorEdit}
             create={AuthorCreate}
@@ -163,6 +176,7 @@ export function App() {
           />
           <Resource
             name="products"
+            icon={Package}
             list={ProductList}
             edit={ProductEdit}
             create={ProductCreate}
@@ -170,6 +184,7 @@ export function App() {
           />
           <Resource
             name="customers"
+            icon={Users}
             list={CustomerList}
             edit={CustomerEdit}
             create={CustomerCreate}
@@ -177,6 +192,7 @@ export function App() {
           />
           <Resource
             name="orders"
+            icon={ShoppingCart}
             list={OrderList}
             edit={OrderEdit}
             create={OrderCreate}
@@ -184,6 +200,7 @@ export function App() {
           />
           <Resource
             name="places"
+            icon={MapPin}
             list={PlaceList}
             edit={PlaceEdit}
             create={PlaceCreate}
@@ -191,12 +208,14 @@ export function App() {
           />
           <Resource
             name="pages"
+            icon={FileText}
             list={PageList}
             edit={PageEdit}
             show={PageShow}
           />
           <Resource
             name="categories"
+            icon={FolderTree}
             recordRepresentation="name.en"
             list={CategoryList}
             edit={CategoryEdit}
@@ -206,6 +225,7 @@ export function App() {
               schema in resources/index.ts. */}
           <Resource
             name="tags"
+            icon={Tags}
             list={ListGuesser}
             edit={EditGuesser}
             show={ShowGuesser}
