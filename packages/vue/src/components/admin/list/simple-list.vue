@@ -1,5 +1,5 @@
-<script lang="ts">
-import type { Identifier, LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { Identifier, LooseRecord, ResourceRecord } from "@chelone/core";
 
 /** Props for {@link SimpleList}. */
 export interface SimpleListProps {
@@ -9,13 +9,15 @@ export interface SimpleListProps {
 }
 
 /** What each row slot of a `<SimpleList>` is given. */
-export interface SimpleListSlotProps {
-  record: LooseRecord;
+export interface SimpleListSlotProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  record: TRecord;
   id: Identifier;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type { VNode } from "vue";
 /**
  * `<SimpleList>` — the records of the ambient `<List>` as tappable rows, for
@@ -47,19 +49,19 @@ const props = withDefaults(defineProps<SimpleListProps>(), {
   linkType: undefined,
 });
 defineSlots<{
-  "primary-text"?(props: SimpleListSlotProps): VNode[];
-  "secondary-text"?(props: SimpleListSlotProps): VNode[];
-  "tertiary-text"?(props: SimpleListSlotProps): VNode[];
-  "left-avatar"?(props: SimpleListSlotProps): VNode[];
-  "left-icon"?(props: SimpleListSlotProps): VNode[];
-  "right-icon"?(props: SimpleListSlotProps): VNode[];
+  "primary-text"?(props: SimpleListSlotProps<TRecord>): VNode[];
+  "secondary-text"?(props: SimpleListSlotProps<TRecord>): VNode[];
+  "tertiary-text"?(props: SimpleListSlotProps<TRecord>): VNode[];
+  "left-avatar"?(props: SimpleListSlotProps<TRecord>): VNode[];
+  "left-icon"?(props: SimpleListSlotProps<TRecord>): VNode[];
+  "right-icon"?(props: SimpleListSlotProps<TRecord>): VNode[];
   /** Rendered while the list is pending, in place of `SimpleListLoading`. */
   loading?(): VNode[];
   /** Rendered with no records, in place of `ListNoResults`. */
   empty?(): VNode[];
 }>();
 
-const list = useListContext();
+const list = useListContext<TRecord>();
 const resource = useResourceContext();
 </script>
 

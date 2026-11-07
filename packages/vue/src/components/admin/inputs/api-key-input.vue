@@ -1,20 +1,27 @@
-<script lang="ts">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type {
+  LooseRecord,
+  RecordResources,
+  ResourceRecord,
+  SourceProp,
+} from "@chelone/core";
 
 /** Props for {@link ApiKeyInput}. */
-export interface ApiKeyInputProps {
+export interface ApiKeyInputProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
   /** Record field holding the API key. */
-  source: SourceProp;
+  source: SourceProp<TRecord>;
   /** Override resource. */
   resource?: string;
   /** Async side-effect on rotate. When provided, replaces the default update mutation. */
-  onRotate?: (record: LooseRecord) => Promise<void> | void;
+  onRotate?: (record: TRecord) => Promise<void> | void;
   /** Disable the button. */
   disabled?: boolean;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<ApiKeyInput>` — API-key rotation control, the Vue analog of
  * `@chelone/react`'s `inputs/api-key-input.tsx`. Renders a single Rotate button
@@ -29,20 +36,19 @@ export interface ApiKeyInputProps {
  * lightweight inline `role="alertdialog"` panel toggled by the trigger.
  */
 
-import { computed, inject, ref } from "vue";
+import { ref } from "vue";
 import { useUpdate } from "../../../data/mutations";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useResourceContext } from "../../../resource-context";
 import Button from "../../ui/button.vue";
 
-const props = defineProps<ApiKeyInputProps>();
+const props = defineProps<ApiKeyInputProps<TRecord>>();
 
-const recordRef = inject(RecordContextKey, undefined);
-const record = computed(() => recordRef?.value);
+const record = useRecordContextRef<TRecord>();
 const resource = useResourceContext({ resource: props.resource });
 // `useUpdate` binds the resource at call time; the dispatch below guards on a
 // real record + resource, so an empty-string placeholder is never fired.
-const update = useUpdate(resource ?? "");
+const update = useUpdate<RecordResources<TRecord>, string>(resource ?? "");
 
 const open = ref(false);
 const pending = ref(false);
@@ -56,7 +62,8 @@ async function handleRotate() {
     } else if (rec && resource) {
       await update.mutateAsync({
         id: rec.id,
-        data: { [props.source]: null },
+        // type-escape: `source` is a path of TRecord, so a null written there is a patch of it; the compiler cannot see through a computed key
+        data: { [props.source]: null } as Partial<TRecord>,
         previousData: rec,
       });
     }

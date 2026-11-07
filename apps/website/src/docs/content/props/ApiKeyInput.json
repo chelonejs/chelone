@@ -9,7 +9,7 @@
     },
     {
       "name": "onRotate",
-      "type": "(record: LooseRecord) => void | Promise<void>",
+      "type": "(record: TRecord) => void | Promise<void>",
       "optional": true,
       "comment": "Async side-effect on rotate. When provided, replaces the default update mutation."
     },
