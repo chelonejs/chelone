@@ -3,15 +3,16 @@ import { z } from "zod";
 import { postSchema } from "./posts";
 
 /**
- * The schemas behind the guessed views of `pages`, `categories` and `tags`: a
- * guesser builds its columns and inputs from the registered Zod schema, so a
- * resource without one shows an empty state.
+ * The schemas behind the views of `pages` and the guessed views of `categories`
+ * and `tags`: a guesser builds its columns and inputs from the registered Zod
+ * schema, so a resource without one shows an empty state.
  */
 export const pageSchema = z.object({
   id: z.number().optional(),
   title: z.string().min(1),
   slug: z.string().min(1),
   body: z.string(),
+  release_notes: z.string(),
   status: z.enum(["draft", "published"]),
   author_id: z.number(),
   parent_id: z.number().nullable(),

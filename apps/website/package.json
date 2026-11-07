@@ -39,6 +39,7 @@
     "@chelone/vue-demo": "workspace:*",
     "@mdx-js/react": "^3.1.1",
     "@mdx-js/rollup": "^3.1.1",
+    "@mdxeditor/editor": "^4.5.0",
     "@react-router/dev": "^8.5.1",
     "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.4",
