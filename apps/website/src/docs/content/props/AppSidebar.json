@@ -35,7 +35,7 @@
       "name": "closedSize",
       "type": "number",
       "optional": true,
-      "comment": "Width of the sidebar in its collapsed/icon-only state, in pixels.\nDefaults to 55."
+      "comment": "Width of the sidebar in its collapsed/icon-only state, in pixels.\nDefaults to 48: the 32px icon button plus the 8px padding on each side."
     },
     {
       "name": "size",

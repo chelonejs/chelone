@@ -152,6 +152,7 @@ function Sidebar({
   variant = "sidebar",
   collapsible = "offcanvas",
   className,
+  style,
   children,
   ...props
 }: React.ComponentProps<"div"> & {
@@ -169,6 +170,7 @@ function Sidebar({
           "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
           className,
         )}
+        style={style}
         {...props}
       >
         {children}
@@ -207,6 +209,10 @@ function Sidebar({
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
+      // Sizing vars (`--sidebar-width`, `--sidebar-width-icon`) go here, not on
+      // the fixed container, so the in-flow gap reserves the same width the
+      // container takes.
+      style={style}
     >
       {/* This is what handles the sidebar gap on desktop */}
       <div
@@ -215,8 +221,10 @@ function Sidebar({
           "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
           "group-data-[collapsible=offcanvas]:w-0",
           "group-data-[side=right]:rotate-180",
+          // The +2px is the floating panel's border: the gap must match the
+          // container's width below or the content sits 2px under the panel.
           variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
+            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
             : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)",
         )}
       />
