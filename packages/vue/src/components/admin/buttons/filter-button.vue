@@ -107,7 +107,7 @@ function onRemoveAll(): void {
           {{ addLabel }}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" class="w-56">
+      <DropdownMenuContent align="end" class="w-56">
         <DropdownMenuItem
           v-for="entry in togglable"
           :key="entry.source"
