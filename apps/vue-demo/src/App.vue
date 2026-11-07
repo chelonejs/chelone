@@ -27,6 +27,7 @@ import {
 import { MapsProvider } from "@chelone/vue/maps";
 import { QueryClient } from "@tanstack/vue-query";
 import { makeDemoAuthProvider, makeDemoStore } from "@chelone/demo-data";
+import { authRoutes } from "./auth-routes";
 import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { pageRoutes } from "./pages";
@@ -60,6 +61,10 @@ import ProductList from "./resources/ProductList.vue";
 import ProductShow from "./resources/ProductShow.vue";
 import { resources } from "./resources/schema";
 import Shell from "./Shell.vue";
+
+// The Supabase auth pages render outside the layout (see auth-routes.ts); the
+// files in `src/pages/` render inside it.
+const customRoutes = [...authRoutes, ...pageRoutes];
 
 // No hand-written views yet: the guessers build them from the schemas in
 // resources/schema.ts.
@@ -96,7 +101,7 @@ const authProvider = makeDemoAuthProvider(store);
       :notifications="notifications"
       :store="store"
       :auth-provider="authProvider"
-      :custom-routes="pageRoutes"
+      :custom-routes="customRoutes"
     >
       <template #layout><Shell /></template>
       <!-- A URL no route owns, such as /nowhere. -->
