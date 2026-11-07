@@ -14,6 +14,7 @@ import {
   CustomRoutes,
   EditGuesser,
   ListGuesser,
+  NotFound,
   Resource,
   ShowGuesser,
 } from "@chelone/react";
@@ -98,6 +99,11 @@ export function App() {
           <Admin.Layout>
             <Shell />
           </Admin.Layout>
+
+          {/* A URL no route owns, such as /nowhere. */}
+          <Admin.CatchAll>
+            <NotFound />
+          </Admin.CatchAll>
 
           {/* QUICKSTART: `posts` carries a Zod schema (see resources/index.ts →
             resources/posts.tsx). The Edit/Create forms validate against it

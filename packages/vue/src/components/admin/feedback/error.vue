@@ -112,7 +112,7 @@ function goBack(): void {
       }}
     </div>
     <template v-if="showDev">
-      <details class="mt-1 p-2 bg-secondary w-full lg:w-150">
+      <details class="mt-1 p-2 bg-secondary w-full max-w-150">
         <summary class="py-2 cursor-pointer">
           {{ translate(errorMessage, { _: errorMessage }) }}
         </summary>
