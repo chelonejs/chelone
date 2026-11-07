@@ -158,7 +158,9 @@ function ListPagination({
       className={cn("flex items-center justify-end gap-x-2 gap-4", className)}
     >
       <div className="hidden md:flex items-center gap-x-2">
-        <p className="text-sm font-medium">{rowsPerPageLabel}</p>
+        <p className="text-sm font-medium whitespace-nowrap">
+          {rowsPerPageLabel}
+        </p>
         <Select
           value={perPage.toString()}
           onValueChange={(value) => {

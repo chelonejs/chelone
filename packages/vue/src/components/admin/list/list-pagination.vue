@@ -169,7 +169,7 @@ function onPerPageChange(value: string) {
     data-slot="list-pagination"
   >
     <div class="hidden md:flex items-center gap-x-2">
-      <p class="text-sm font-medium">{{ rowsPerPageLabel }}</p>
+      <p class="text-sm font-medium whitespace-nowrap">{{ rowsPerPageLabel }}</p>
       <NativeSelect
         class="h-8 w-fit"
         :model-value="list.perPage"
