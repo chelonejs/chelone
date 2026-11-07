@@ -50,7 +50,7 @@ const linkClasses = computed(() => buttonVariants({ variant: "default" }));
     </h1>
     <p class="my-5">{{ translate(props.message, { _: props.message }) }}</p>
     <RouterLink :to="DEFAULT_LOGIN_PATH" :class="linkClasses" data-slot="auth-error-signin">
-      <LockIcon /> {{ translate("ra.auth.sign_in", { _: "Sign in" }) }}
+      <LockIcon class="size-4" /> {{ translate("ra.auth.sign_in", { _: "Sign in" }) }}
     </RouterLink>
   </div>
 </template>

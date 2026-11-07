@@ -63,8 +63,8 @@ export default function SignInPage() {
           <div>
             <h2 className="text-sm font-medium">Auth provider</h2>
             <p className="text-sm text-muted-foreground">
-              <code>LoginForm</code> calls the provider's <code>login</code>,
-              so the name above changes to the email.
+              <code>LoginForm</code> calls the provider's <code>login</code>, so
+              the name above changes to the email.
             </p>
           </div>
           <LoginForm />

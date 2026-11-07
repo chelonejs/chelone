@@ -121,8 +121,13 @@ const authProvider = makeDemoAuthProvider(store, queryClient);
            user menu to see it. Any email and password sign in. -->
       <template #login><LoginPage /></template>
       <!-- Where an OAuth provider sends the visitor back: /auth-callback with a
-           code signs in, with an error shows <AuthError>. -->
-      <template #authCallback><AuthCallback /></template>
+           code signs in, with an error shows <AuthError>. It renders outside
+           the layout, so the wrapper gives it a page to centre in. -->
+      <template #authCallback>
+        <div class="flex min-h-svh flex-col justify-center">
+          <AuthCallback />
+        </div>
+      </template>
       <!-- /access-denied is where a role that may not open a page lands, as the
            Team page's viewer does on /posts/create. -->
       <template #accessDenied><AccessDenied /></template>

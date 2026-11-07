@@ -89,7 +89,9 @@ describe("the demo auth provider's callback", () => {
 
   it("rejects with the provider's message when the callback carries an error", async () => {
     const { auth } = setup();
-    visit("?error=access_denied&error_description=You%20cancelled%20the%20sign-in");
+    visit(
+      "?error=access_denied&error_description=You%20cancelled%20the%20sign-in",
+    );
 
     await expect(auth.handleCallback?.()).rejects.toThrow(
       "You cancelled the sign-in",
