@@ -20,7 +20,7 @@ Write the exact type, even when it costs a generic, an overload or a type test. 
 | `x!` | Only where a `// type-escape: <why>` comment proves the value exists. Otherwise handle the missing case. |
 | `unknown` | Only at a real boundary: raw JSON from a server, a `catch` binding, a type guard's input, an app's opaque `meta` bag, a generic's default or constraint (`<TRecord = unknown>`), or a function's input when the signature declares a concrete return type (`function parse(value: unknown): string`, and a type parameter isn't one). Everywhere else the type is knowable, so write it. |
 | `Record<string, unknown>` and aliases of it | Not a record type. A record is the registered record or a generic the caller fixes. |
-| `LooseRecord` | The fallback for an app that registered nothing. Never a shortcut for "some record": a component that handles records takes `TRecord` instead. |
+| `LooseRecord` | The fallback for an app that registered nothing, so a record generic's default and never its bound: `TRecord extends ResourceRecord = LooseRecord`. An interface has no index signature, so a `LooseRecord` bound or prop refuses it. Never a shortcut for "some record": a component that handles records takes `TRecord` instead. |
 
 Renaming `unknown` to an alias does not fix it. Moving a cast into a helper does not fix it either, unless the helper narrows for real.
 
@@ -63,7 +63,7 @@ A value read through a `source` is `SourceValue<TRecord, TSource>`, not `unknown
 - Use `NoInfer<T>` on an argument that must not widen the inferred type (a default value, a fallback).
 - In conditional types, distribute on purpose (`T extends unknown ? ... : never`) and guard `any` (`0 extends 1 & T`), because `any` absorbs a union and turns every branch into `any`.
 - Recursive types get a depth cap, as `dot.paths` does (`{ depth: 8 }`) and `source-path.ts` does (`_WalkDepth`), so a recursive record terminates.
-- A Vue component that is generic over its record says so, as the fields do: `<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">`. A `Record<string, unknown>` constraint there is a gap to fix.
+- A Vue component that is generic over its record says so, as the fields do: `<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">`. A `Record<string, unknown>` constraint there is a gap to fix.
 
 ## Instead of a cast
 
