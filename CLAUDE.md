@@ -34,7 +34,8 @@ Every component has a full demo in the docs and a place in the demos, in both ad
 - `null` is a component older than this rule, still owed. A ticket fills it in; nothing new gets one.
 - The Vue `docs` shot is optional until docs pages render Vue demos.
 - Look at the component in a browser before finishing, at the width and in the states it ships in. The `showcase` entry in `.claude/launch.json` serves the docs, `/demo/` and `/vue-demo/` on one port, and that is the dev server a kelpie worker's `browser_*` tools reach.
-- CI photographs each changed component's docs page and demo and posts them as one comment on the pull request (`scripts/showcase-shots.mjs`). A `see` that never appears fails the `check` job. Pull request authors post nothing themselves.
+- CI photographs each changed component's docs page and demo and writes them into a section at the bottom of the pull request body (`scripts/showcase-shots.mjs`), replaced on every run. A `see` that never appears fails the `check` job. Pull request authors post nothing themselves.
+- A reviewer checks the diff for presence: a new component has its complete `showcase.json` entry, a docs demo file, and a use in `apps/demo` and `apps/vue-demo`, and a changed component's `see` still matches what it renders. Report each one missing.
 
 ## Checks
 
