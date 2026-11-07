@@ -329,6 +329,17 @@ describe("<MonacoJsonInput />", () => {
     expect(onData).toHaveBeenCalledWith({ meta: { a: 3 } });
   });
 
+  it("an invalid value is reported without a percent sign", async () => {
+    const { submitRef } = setup(<MonacoJsonInput source="meta" />, {
+      defaultValues: { meta: { a: 1 } },
+    });
+    type(await editor(), '{"a":2,');
+    await submit(submitRef);
+    const reported = screen.getByRole("alert").textContent ?? "";
+    expect(reported).toMatch(/Invalid JSON: \w/);
+    expect(reported).not.toContain("%");
+  });
+
   it("writes null for blank text in object shape", async () => {
     const onData = vi.fn();
     const { submitRef } = setup(<MonacoJsonInput source="meta" />, {

@@ -280,7 +280,7 @@ export function Assistant({
       <Confirm
         isOpen={pending !== null}
         title={translate("chelone.assistant.confirm", {
-          _: "Run %{name}?",
+          _: "Run {name}?",
           name: pending?.call.toolName ?? "",
         })}
         content={
