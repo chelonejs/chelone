@@ -4,6 +4,8 @@ import {
   type Identifier,
   type LooseRecord,
   type RecordTreeNode,
+  type ResourceRecord,
+  type SourcePath,
   type SourceProp,
 } from "@chelone/core";
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
@@ -25,7 +27,7 @@ import { useRouterAdapter } from "../../../router/adapter";
 import { ListNoResults } from "./list-no-results";
 import { SimpleListLoading } from "./simple-list-loading";
 
-export interface TreeListProps {
+export interface TreeListProps<TRecord extends ResourceRecord = LooseRecord> {
   /** The field holding the parent's id; a dotted path reads a nested value. */
   parentSource: SourceProp;
   /** The string field shown as the row title; the record representation otherwise. */
@@ -36,7 +38,7 @@ export interface TreeListProps {
   /** Whether branches start open. Default `false`. */
   defaultExpanded?: boolean;
   /** Called with the record when a row is selected, in place of navigating. */
-  onSelect?: (record: LooseRecord) => void;
+  onSelect?: (record: TRecord) => void;
   /**
    * Where a row links to when `onSelect` is not given. `edit` by default,
    * `show` when the resource has no edit view, and an inert row when it has
@@ -51,17 +53,15 @@ export interface TreeListProps {
 }
 
 /** What every `TreeListNode` needs from the `<TreeList>` above it. */
-interface TreeListState {
+interface TreeListState<TRecord extends ResourceRecord> {
   isExpanded(id: Identifier): boolean;
   toggle(id: Identifier): void;
-  select(record: LooseRecord): void;
+  select(record: TRecord): void;
   /** The row's link target; undefined when `onSelect` replaces the link. */
-  hrefFor(record: LooseRecord): string | undefined;
-  isSelectable(record: LooseRecord): boolean;
-  titleFor(record: LooseRecord): ReactNode;
-  iconFor(
-    record: LooseRecord,
-  ): ComponentType<{ className?: string }> | undefined;
+  hrefFor(record: TRecord): string | undefined;
+  isSelectable(record: TRecord): boolean;
+  titleFor(record: TRecord): ReactNode;
+  iconFor(record: TRecord): ComponentType<{ className?: string }> | undefined;
   isTabStop(id: Identifier): boolean;
   setFocused(id: Identifier): void;
 }
@@ -71,15 +71,15 @@ const treeItemOf = (target: EventTarget | null) =>
     ? target.closest<HTMLElement>('[role="treeitem"]')
     : null;
 
-function TreeListNode({
+function TreeListNode<TRecord extends ResourceRecord = LooseRecord>({
   node,
   level,
   tree,
 }: {
-  node: RecordTreeNode<LooseRecord>;
+  node: RecordTreeNode<TRecord>;
   /** Depth from 1 at the roots; becomes `aria-level`. */
   level: number;
-  tree: TreeListState;
+  tree: TreeListState<TRecord>;
 }) {
   const translate = useTranslate();
   const { Link } = useRouterAdapter();
@@ -246,7 +246,7 @@ function TreeListNode({
  *   <TreeList parentSource="parent_id" titleSource="name" />
  * </List>
  */
-function TreeList({
+function TreeList<TRecord extends ResourceRecord = LooseRecord>({
   parentSource,
   titleSource,
   iconSource,
@@ -257,16 +257,20 @@ function TreeList({
   loading,
   empty,
   className,
-}: TreeListProps) {
-  const { data, isPending } = useListContext<LooseRecord>();
+}: TreeListProps<TRecord>) {
+  const { data, isPending } = useListContext<TRecord>();
   const resource = useResourceContext();
   const getRepresentation = useGetRecordRepresentation(resource);
   const navigate = useNavigate();
   const createPath = useCreatePath();
   const { hasEdit, hasShow } = useResourceDefinition({ resource });
 
+  // buildRecordTree walks the parent source with getAtPath, which reads any
+  // string off any record.
   const roots = useMemo(
-    () => buildRecordTree(data ?? [], parentSource),
+    () =>
+      // type-escape: `parentSource` is the loose `SourceProp` a list source is.
+      buildRecordTree<TRecord>(data ?? [], parentSource as SourcePath<TRecord>),
     [data, parentSource],
   );
 
@@ -276,7 +280,7 @@ function TreeList({
     expanded[String(id)] ?? defaultExpanded;
 
   const [focusedId, setFocusedId] = useState<Identifier>();
-  const visibleIds = (nodes: RecordTreeNode<LooseRecord>[]): Identifier[] =>
+  const visibleIds = (nodes: RecordTreeNode<TRecord>[]): Identifier[] =>
     nodes.flatMap(({ record, children }) => [
       record.id,
       ...(isExpanded(record.id) ? visibleIds(children) : []),
@@ -302,12 +306,12 @@ function TreeList({
   const type =
     linkType ??
     (hasEdit !== false ? "edit" : hasShow !== false ? "show" : false);
-  const linkTo = (record: LooseRecord) =>
+  const linkTo = (record: TRecord) =>
     resource && type
       ? createPath({ resource, id: record.id, type })
       : undefined;
 
-  const tree: TreeListState = {
+  const tree: TreeListState<TRecord> = {
     isExpanded,
     toggle: (id) =>
       setExpanded((current) => ({

@@ -1,15 +1,21 @@
-<script lang="ts">
-import type { LooseRecord, RecordTreeNode } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type {
+  LooseRecord,
+  RecordTreeNode,
+  ResourceRecord,
+} from "@chelone/core";
 
 /** Props for {@link TreeListNode}. */
-export interface TreeListNodeProps {
-  node: RecordTreeNode<LooseRecord>;
+export interface TreeListNodeProps<
+  TRecord extends ResourceRecord = LooseRecord,
+> {
+  node: RecordTreeNode<TRecord>;
   /** Depth from 1 at the roots; becomes `aria-level`. */
   level: number;
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<TreeListNode>` — one treeitem of a `<TreeList>` and, once expanded, the
  * group of its children. Renders from `TreeListKey`, so it needs a `<TreeList>`.
@@ -23,7 +29,7 @@ import { ChevronDownIcon } from "../buttons/icons";
 import { ChevronRightIcon } from "./list-icons";
 import { TreeListKey } from "./tree-list-context";
 
-const props = defineProps<TreeListNodeProps>();
+const props = defineProps<TreeListNodeProps<TRecord>>();
 
 const tree = inject(TreeListKey);
 if (!tree) throw new Error("<TreeListNode> must be used inside a <TreeList>");
