@@ -43,7 +43,7 @@ import {
 } from "@chelone/vue";
 import { Inspector, InspectorButton } from "@chelone/vue/inspector";
 import { computed } from "vue";
-import { useRoute } from "vue-router";
+import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import Dashboard from "./pages/Dashboard.vue";
 import { pageGroups } from "./pages";
 import SimulateOtherUser from "./realtime-sim.vue";
@@ -57,10 +57,16 @@ const assistantTools = demoAssistantTools(dataProvider);
 
 // A `#layout` slot replaces the default shell, which is what renders the
 // `#dashboard` slot at the index, so this shell renders the dashboard itself.
+// Before the first navigation settles the router sits on `START_LOCATION`,
+// whose path is also `/`, so a deep link would flash the dashboard.
+// `useRoute()` wraps the location in a proxy, so compare the router's own object.
 const route = useRoute();
+const router = useRouter();
 const basename = useBasename();
 const isIndex = computed(
-  () => route.path.replace(/\/$/, "") === basename.replace(/\/$/, ""),
+  () =>
+    router.currentRoute.value !== START_LOCATION &&
+    route.path.replace(/\/$/, "") === basename.replace(/\/$/, ""),
 );
 
 // The area each resource sits under. A resource missing here is not in the menu.

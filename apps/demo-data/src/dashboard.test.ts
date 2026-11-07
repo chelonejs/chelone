@@ -43,6 +43,17 @@ describe("dashboard stats", () => {
     expect(metrics.averageOrderDelta).toBe(1);
   });
 
+  it("compares periods of equal length when the number of days is odd", () => {
+    const { metrics } = dashboardStats([
+      order(1, "delivered", 100, 1),
+      order(2, "delivered", 100, 2),
+      order(3, "delivered", 100, 3),
+    ]);
+
+    expect(metrics.revenueDelta).toBe(0);
+    expect(metrics.ordersDelta).toBe(0);
+  });
+
   it("has no change to show with a single day of sales", () => {
     const { metrics } = dashboardStats([order(1, "shipped", 80, 1)]);
 

@@ -42,15 +42,21 @@ function ratio(later: number, earlier: number): number | undefined {
   return earlier === 0 ? undefined : later / earlier - 1;
 }
 
-/** The first half of the delivery days, and the rest. */
+/**
+ * The first and last half of the delivery days. With an odd number of days the
+ * middle one sits in neither, so both halves span the same number of days.
+ */
 function splitByDay(orders: readonly Order[]) {
   const days = [
     ...new Set(orders.map((order) => order.delivery_at.slice(0, 10))),
   ].sort();
-  const cutoff = days[Math.floor(days.length / 2)] ?? "";
-  const earlier = orders.filter((o) => o.delivery_at.slice(0, 10) < cutoff);
-  const later = orders.filter((o) => o.delivery_at.slice(0, 10) >= cutoff);
-  return { earlier, later };
+  const half = Math.floor(days.length / 2);
+  const earlyDays = new Set(days.slice(0, half));
+  const lateDays = new Set(days.slice(days.length - half));
+  return {
+    earlier: orders.filter((o) => earlyDays.has(o.delivery_at.slice(0, 10))),
+    later: orders.filter((o) => lateDays.has(o.delivery_at.slice(0, 10))),
+  };
 }
 
 function deltas(orders: readonly Order[]) {
