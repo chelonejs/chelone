@@ -1,21 +1,24 @@
 <script setup lang="ts">
 /**
- * `<PreviewPlaceForm>` — a form seeded with `previewPlace`, for the map inputs:
- * each edits one of its fields and shows no page title or save button. The Vue
- * twin of the website's React `PreviewPlaceForm`.
+ * `<PreviewPlaceForm>` — the Vue twin of the website's React `PreviewPlaceForm`
+ * (`apps/website/src/docs/mdx/preview-maps.tsx`): a form seeded with
+ * `previewPlace`, for the map inputs. Each edits one of its fields, and the form
+ * shows no page title or save button. The map services come from
+ * `maps-services.ts`; they suit demos only.
  */
 
 import { Create } from "@chelone/vue";
-import PreviewMaps from "./PreviewMaps.vue";
-import { previewPlace } from "./preview-place";
+import { MapsProvider } from "@chelone/vue/maps";
+import { previewPlace } from "../../website/src/docs/mdx/preview-place";
+import { mapsConfig } from "./maps-services";
 </script>
 
 <template>
-  <PreviewMaps>
+  <MapsProvider v-bind="mapsConfig">
     <div class="flex w-full max-w-xl flex-col gap-4">
-      <Create resource="places" :record="previewPlace" title="">
+      <Create :record="previewPlace" title="">
         <slot />
       </Create>
     </div>
-  </PreviewMaps>
+  </MapsProvider>
 </template>
