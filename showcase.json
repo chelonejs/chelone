@@ -1924,16 +1924,22 @@
         "click": ["role=button[name=\"Configure mode\"]"]
       },
       "demo": {
-        "path": "/demo/posts/1",
-        "see": "role=dialog[name=\"Inspector\"]",
-        "click": ["role=button[name=\"Configure mode\"]"]
+        "path": "/demo/posts",
+        "see": "role=dialog[name=\"Columns\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "role=button[name=\"Customize\"]"
+        ]
       }
     },
     "vue": {
       "demo": {
-        "path": "/vue-demo/posts/1",
-        "see": "role=dialog[name=\"Inspector\"]",
-        "click": ["role=button[name=\"Configure mode\"]"]
+        "path": "/vue-demo/posts",
+        "see": "role=dialog[name=\"Columns\"]",
+        "click": [
+          "role=button[name=\"Configure mode\"]",
+          "role=button[name=\"Customize\"]"
+        ]
       }
     }
   },
