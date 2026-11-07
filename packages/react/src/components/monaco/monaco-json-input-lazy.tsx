@@ -4,6 +4,7 @@ import {
   ERROR_SEVERITY,
   fromJsonText,
   type JsonShape,
+  MODEL_PREFIX,
   stripJsonComments,
   toJsonText,
 } from "@chelone/core";
@@ -195,7 +196,7 @@ export default function MonacoJsonInputLazy({
     maxHeight,
   );
   useMonacoLayout(instance, container);
-  const modelPath = `inmemory://monaco-json-input/${id.replace(/[^\w-]/g, "-")}.json`;
+  const modelPath = `${MODEL_PREFIX}${id.replace(/[^\w-]/g, "-")}.json`;
   useJsonSchema(monacoApi, {
     path: modelPath,
     schema,
