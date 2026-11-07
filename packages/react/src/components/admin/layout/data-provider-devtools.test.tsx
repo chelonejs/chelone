@@ -181,6 +181,7 @@ describe("<DataProviderDevtools>", () => {
 
     expect(isOpen()).toBe(true);
     expect(entries().length).toBeGreaterThan(0);
+    expect(document.activeElement).toBe(panel());
     expect(
       within(panel())
         .getByRole("button", { name: "Hide" })
@@ -192,11 +193,15 @@ describe("<DataProviderDevtools>", () => {
     expect(isOpen()).toBe(false);
     expect(entries()).toHaveLength(0);
     expect(badge()).toBe("1");
+    expect(document.activeElement).toBe(trigger());
   });
 
-  it("the shortcut toggles the panel", async () => {
+  it("the shortcut toggles the panel and leaves focus where it was", async () => {
     mount();
     await screen.findByText("1 posts");
+    const [outside] = screen.getAllByRole("link");
+    if (!outside) throw new Error("no app link to focus");
+    outside.focus();
 
     const press = () =>
       fireEvent.keyDown(window, { key: "d", ctrlKey: true, shiftKey: true });
@@ -204,8 +209,10 @@ describe("<DataProviderDevtools>", () => {
     expect(press()).toBe(false);
     expect(isOpen()).toBe(false);
     expect(trigger().getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(outside);
     press();
     expect(isOpen()).toBe(true);
+    expect(document.activeElement).toBe(outside);
   });
 
   it("the shortcut prop replaces the default", async () => {

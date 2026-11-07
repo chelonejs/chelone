@@ -192,6 +192,7 @@ describe("DataProviderDevtools", () => {
 
     expect(panel().getAttribute("data-open")).toBe("true");
     expect(entries().length).toBeGreaterThan(0);
+    expect(document.activeElement).toBe(panel());
     expect(button("Hide").getAttribute("aria-expanded")).toBe("true");
 
     button("Hide").click();
@@ -200,10 +201,14 @@ describe("DataProviderDevtools", () => {
     expect(panel().getAttribute("data-open")).toBe("false");
     expect(entries()).toHaveLength(0);
     expect(badge()).toBe("1");
+    expect(document.activeElement).toBe(trigger());
   });
 
-  it("the shortcut toggles the panel, and stops after unmount", async () => {
+  it("the shortcut toggles the panel, leaves focus alone, and stops after unmount", async () => {
     const { wrapper } = await mountPanel();
+    const field = document.createElement("input");
+    document.body.append(field);
+    field.focus();
     const press = () => {
       const event = new KeyboardEvent("keydown", {
         key: "d",
@@ -219,9 +224,11 @@ describe("DataProviderDevtools", () => {
     expect(press().defaultPrevented).toBe(true);
     await flushPromises();
     expect(panel().getAttribute("data-open")).toBe("false");
+    expect(document.activeElement).toBe(field);
     press();
     await flushPromises();
     expect(panel().getAttribute("data-open")).toBe("true");
+    expect(document.activeElement).toBe(field);
 
     wrapper.unmount();
     mounted.length = 0;

@@ -28,6 +28,7 @@ export interface DataProviderDevtoolsProps {
 import { shouldHandleHotkey } from "@chelone/core";
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   onMounted,
   ref,
@@ -37,6 +38,7 @@ import {
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
 import Button from "../../ui/button.vue";
+import { buttonVariants } from "../../ui/button-variants";
 import DataProviderDevtoolsEntry from "./data-provider-devtools-entry.vue";
 import { ActivityIcon } from "./icons";
 
@@ -75,21 +77,39 @@ function onKeydown(event: KeyboardEvent) {
 }
 onMounted(() => window.addEventListener("keydown", onKeydown));
 onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
+
+const triggerRef = ref<HTMLButtonElement | null>(null);
+const panelRef = ref<HTMLElement | null>(null);
+// The trigger and the panel replace each other, so a swap unmounts whatever
+// held focus. Hand focus to the element that takes its place, and leave focus
+// alone when the swap removed nothing the user was in (a shortcut press).
+watch(open, (opened) => {
+  void nextTick(() => {
+    const focused = document.activeElement;
+    if (focused !== null && focused !== document.body && focused.isConnected) {
+      return;
+    }
+    (opened ? panelRef : triggerRef).value?.focus();
+  });
+});
 </script>
 
 <template>
   <!-- Closed: the trigger replaces the panel entirely, so nothing covers the UI. -->
-  <Button
+  <button
     v-if="!open"
+    ref="triggerRef"
     type="button"
-    variant="outline"
-    size="icon"
     :aria-expanded="false"
     :aria-label="`${title()} (${snapshot.entries.length})`"
     data-slot="data-provider-devtools"
     :data-open="false"
     :class="
-      cn('fixed right-4 bottom-4 z-50 rounded-full shadow-lg', props.class)
+      cn(
+        buttonVariants({ variant: 'outline', size: 'icon' }),
+        'fixed right-4 bottom-4 z-50 rounded-full shadow-lg',
+        props.class,
+      )
     "
     @click="open = true"
   >
@@ -100,9 +120,11 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
     >
       {{ snapshot.entries.length }}
     </span>
-  </Button>
+  </button>
   <section
     v-else
+    ref="panelRef"
+    tabindex="-1"
     :aria-label="title()"
     data-slot="data-provider-devtools"
     :data-open="true"

@@ -24,8 +24,8 @@ import {
   shouldHandleHotkey,
 } from "@chelone/core";
 import { ActivityIcon } from "lucide-react";
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { useEvent } from "../../../util/use-event";
@@ -129,20 +129,39 @@ export function DataProviderDevtools({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [onKeyDown]);
 
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
+  const lastOpen = useRef(open);
+  // The trigger and the panel replace each other, so a swap unmounts whatever
+  // held focus. Hand focus to the element that takes its place, and leave focus
+  // alone when the swap removed nothing the user was in (a shortcut press).
+  useEffect(() => {
+    if (lastOpen.current === open) return;
+    lastOpen.current = open;
+    const focused = document.activeElement;
+    if (focused !== null && focused !== document.body && focused.isConnected) {
+      return;
+    }
+    (open ? panelRef : triggerRef).current?.focus();
+  }, [open]);
+
   const title = translate("chelone.devtools.title", { _: "Data provider" });
 
   // Closed: the trigger replaces the panel entirely, so nothing covers the UI.
   if (!open) {
     return (
-      <Button
+      <button
+        ref={triggerRef}
         type="button"
-        variant="outline"
-        size="icon"
         aria-expanded={false}
         aria-label={`${title} (${entries.length})`}
         data-slot="data-provider-devtools"
         data-open={false}
-        className={cn(TRIGGER_CLASSES, className)}
+        className={cn(
+          buttonVariants({ variant: "outline", size: "icon" }),
+          TRIGGER_CLASSES,
+          className,
+        )}
         onClick={() => setOpen(true)}
       >
         <ActivityIcon />
@@ -152,12 +171,14 @@ export function DataProviderDevtools({
         >
           {entries.length}
         </span>
-      </Button>
+      </button>
     );
   }
 
   return (
     <section
+      ref={panelRef}
+      tabIndex={-1}
       aria-label={title}
       data-slot="data-provider-devtools"
       data-open={true}
