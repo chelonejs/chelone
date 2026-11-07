@@ -42,6 +42,19 @@ describe("<CronField />", () => {
     expect(getByText(/09:00/i)).toBeTruthy();
   });
 
+  it("marks every rendering with data-slot so a page can find the field", () => {
+    for (const schedule of ["0 9 * * 1-5", "not-a-cron", ""]) {
+      const { container, unmount } = render(
+        <CronField source="schedule" empty="No schedule" />,
+        { wrapper: wrap({ id: 1, schedule }) },
+      );
+      expect(
+        container.querySelector('[data-slot="cron-field"]'),
+      ).not.toBeNull();
+      unmount();
+    }
+  });
+
   it("shows the raw expression in monospace when showExpression", () => {
     const { getByText } = render(
       <CronField source="schedule" showExpression />,
