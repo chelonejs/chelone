@@ -1,4 +1,7 @@
 import {
+  DEFAULT_MAP_HEIGHT,
+  LATITUDE_LIMIT,
+  LONGITUDE_LIMIT,
   type LooseRecord,
   type MapStyleInput,
   type SourceProp,
@@ -48,11 +51,11 @@ export function LatLngField<TRecord = LooseRecord>({
   const translate = useTranslate();
   const lat = inRange(
     toCoordinate(useFieldValue({ source: latSource, record })),
-    90,
+    LATITUDE_LIMIT,
   );
   const lng = inRange(
     toCoordinate(useFieldValue({ source: lngSource, record })),
-    180,
+    LONGITUDE_LIMIT,
   );
 
   if (lat === null || lng === null) {
@@ -63,7 +66,7 @@ export function LatLngField<TRecord = LooseRecord>({
           "flex items-center justify-center rounded-md border border-dashed text-sm text-muted-foreground",
           className,
         )}
-        style={{ height: height ?? 300 }}
+        style={{ height: height ?? DEFAULT_MAP_HEIGHT }}
       >
         {translate("chelone.map.no_coordinates", {
           _: "No coordinates available",

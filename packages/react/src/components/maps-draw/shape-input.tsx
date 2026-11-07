@@ -1,4 +1,6 @@
 import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
   deepEqual,
   featuresToShape,
   geoBounds,
@@ -263,8 +265,8 @@ export function ShapeInput<TRecord = LooseRecord>({
   snapDistance = 20,
   disabled = false,
   defaultCenter = [0, 0],
-  zoom = 13,
-  height = 300,
+  zoom = DEFAULT_MAP_ZOOM,
+  height = DEFAULT_MAP_HEIGHT,
   mapStyle,
   shapeStyle,
   aspectRatio,
