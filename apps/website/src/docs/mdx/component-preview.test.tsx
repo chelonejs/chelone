@@ -111,6 +111,39 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
+// Every docs demo that ships a `.vue` twin must reach a frame of the Vue demo
+// app, the one place a Vue demo can compile. The list is the content folder's
+// own, so a Vue demo that is never wired fails here and one that is removed
+// stops being asserted.
+const vueDemoPaths = Object.keys(
+  import.meta.glob<string>("../content/**/demos/*.vue", {
+    query: "?raw",
+    import: "default",
+  }),
+);
+
+describe("every Vue demo a docs page ships", () => {
+  it.each(vueDemoPaths)(
+    "%s previews in a frame of the Vue demo app",
+    (path) => {
+      const name = path
+        .replace("../content/", "")
+        .replace("/demos/", "/")
+        .replace(/\.vue$/, "");
+      renderPreview(name, `/docs/${name}?framework=vue`);
+
+      expect(
+        screen
+          .getByRole("button", { name: "Vue" })
+          .getAttribute("aria-pressed"),
+      ).toBe("true");
+      expect(screen.getByTitle(/Vue demo/).getAttribute("src")).toBe(
+        `/vue-demo/docs-preview/${name}`,
+      );
+    },
+  );
+});
+
 describe("ComponentPreview with a name that matches no demo", () => {
   it("renders no switch, preview or iframe", () => {
     const { container } = renderPreview(

@@ -41,7 +41,12 @@ void load?.().then((loaded) => {
 </script>
 
 <template>
-  <PreviewProvider v-if="demo" :mode="demo.mode ?? 'view'">
-    <component :is="demo.default" />
-  </PreviewProvider>
+  <!-- The frame lays the demo out where the docs page puts its React twin:
+       centered for a view or a bare field, full width for a bare input (see
+       `ComponentPreview`'s preview panel). -->
+  <div v-if="demo" :class="demo.mode === 'input' ? 'block' : 'flex justify-center'">
+    <PreviewProvider :mode="demo.mode ?? 'view'">
+      <component :is="demo.default" />
+    </PreviewProvider>
+  </div>
 </template>

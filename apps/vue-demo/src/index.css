@@ -7,8 +7,14 @@
  * scans THIS app's files by default, so the utility classes those SFCs use
  * would be tree-shaken away. Point `@source` at the Vue package's component
  * tree so their classes are generated into the bundle.
+ *
+ * A docs demo is the same story: each `<DocsPreview>` iframe compiles a demo
+ * that lives in the WEBSITE's content folder, outside this app, so its own
+ * utility classes (`max-w-sm`, `flex-col`) need a `@source` of their own or the
+ * demo renders unstyled.
  */
 @source "../../../packages/vue/src/components";
+@source "../../../apps/website/src/docs/content/**/demos/*.vue";
 
 @custom-variant dark (&:is(.dark *));
 

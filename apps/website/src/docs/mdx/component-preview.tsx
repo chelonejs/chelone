@@ -15,7 +15,7 @@
  * website has no Vue compiler, so the Vue demo renders in an iframe of the Vue
  * demo app (`apps/vue-demo/src/DocsPreview.vue`), which compiles it.
  */
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ShikiHighlighter } from "react-shiki";
 import { SHIKI_THEME } from "@/lib/shiki-theme";
 import { cn } from "@/lib/utils";
@@ -69,6 +69,54 @@ interface ComponentPreviewProps {
   name: string;
   /** Optional extra className for the preview wrapper */
   className?: string;
+}
+
+/**
+ * A Vue demo frame is never shorter than this. The preview panel wraps the frame
+ * in `min-h-32 p-8`, so 64 + the panel's 64 of padding is the height the panel
+ * gives a React demo of its own: a short Vue demo then takes the same space as
+ * its React twin instead of sitting in a fixed 224px box.
+ */
+const FRAME_FLOOR = 64;
+
+/**
+ * The Vue demo renders in an iframe of the Vue demo app. The frame is
+ * same-origin, so the demo's own height is readable, and a whole-view demo
+ * (`<Edit>`, `<Show>`, a table) is taller than any fixed frame would be:
+ * measure the frame's document and grow the frame to it. `load` fires before
+ * the demo mounts (the frame loads the demo itself), so re-measure on each
+ * change to that document.
+ */
+function VueDemoFrame({ name }: { name: string }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [frameLoads, setFrameLoads] = useState(0);
+  const [height, setHeight] = useState(FRAME_FLOOR);
+
+  useEffect(() => {
+    const body = frameRef.current?.contentDocument?.body;
+    if (!body) return;
+    const measure = () => {
+      const next = Math.max(FRAME_FLOOR, body.scrollHeight);
+      setHeight((current) => (Math.abs(current - next) > 1 ? next : current));
+    };
+    const observer = new MutationObserver(measure);
+    observer.observe(body, { childList: true, subtree: true });
+    measure();
+    return () => {
+      observer.disconnect();
+    };
+  }, [name, frameLoads]);
+
+  return (
+    <iframe
+      ref={frameRef}
+      title={`Vue demo: ${name}`}
+      src={`/vue-demo/docs-preview/${name}`}
+      onLoad={() => setFrameLoads((count) => count + 1)}
+      className="w-full border-0"
+      style={{ height }}
+    />
+  );
 }
 
 type LoadedDemo =
@@ -171,11 +219,7 @@ export function ComponentPreview({ name, className }: ComponentPreviewProps) {
           )}
         >
           {framework === "vue" ? (
-            <iframe
-              title={`Vue demo: ${name}`}
-              src={`/vue-demo/docs-preview/${name}`}
-              className="h-56 w-full border-0"
-            />
+            <VueDemoFrame name={name} />
           ) : DemoComponent ? (
             <PreviewProvider mode={mode}>
               <DemoComponent />
