@@ -1,7 +1,9 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 import {
   formatRelativeTime,
+  getAtPath,
   type LooseRecord,
+  type ResourceRecord,
   type SourceKey,
   type SourceProp,
   type SourceValue,
@@ -9,7 +11,7 @@ import {
 
 /** Props for {@link ApiKeyField}. */
 export interface ApiKeyFieldProps<
-  RecordType extends LooseRecord = LooseRecord,
+  RecordType extends ResourceRecord = LooseRecord,
 > {
   source: SourceProp<RecordType>;
   /** The record to render. Defaults to the ambient `RecordContext` value. */
@@ -31,7 +33,7 @@ export interface ApiKeyFieldProps<
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<ApiKeyField>` — masked API-key display with reveal + copy controls, the Vue
  * analog of `@chelone/react`'s `fields/api-key-field.tsx`. Reads the key at
@@ -46,10 +48,10 @@ export interface ApiKeyFieldProps<
  * `<BooleanField>` / `<RatingField>`.
  */
 
-import { computed, inject, ref } from "vue";
+import { computed, ref } from "vue";
 import { cn } from "../../../lib/utils";
 import Button from "../../ui/button.vue";
-import { RecordContextKey } from "../../../record/record-context";
+import { useRecordContextRef } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 
 const props = defineProps<ApiKeyFieldProps<RecordType>>();
@@ -60,12 +62,7 @@ const value = useFieldValue<RecordType>({
   defaultValue: props.defaultValue,
 });
 
-// The scope and last-used reads are plain own-key reads of sibling fields, not
-// path walks, so the record is read as a loose one.
-const injectedRecord = inject(RecordContextKey, null);
-const ctxRecord = computed<LooseRecord | undefined>(
-  () => props.record ?? injectedRecord?.value,
-);
+const ctxRecord = useRecordContextRef<RecordType>(() => props.record);
 
 const revealed = ref(false);
 const copied = ref(false);
@@ -82,7 +79,7 @@ const masked = computed(() => {
 const scopes = computed<string[] | undefined>(() => {
   const rec = ctxRecord.value;
   if (!props.scopesSource || !rec) return undefined;
-  const s = rec[props.scopesSource];
+  const s = getAtPath(rec, props.scopesSource);
   return Array.isArray(s)
     ? s.filter((scope): scope is string => typeof scope === "string")
     : undefined;
@@ -91,7 +88,7 @@ const scopes = computed<string[] | undefined>(() => {
 const lastUsed = computed<string | undefined>(() => {
   const rec = ctxRecord.value;
   if (!props.lastUsedSource || !rec) return undefined;
-  const l = rec[props.lastUsedSource];
+  const l = getAtPath(rec, props.lastUsedSource);
   return typeof l === "string" ? l : undefined;
 });
 

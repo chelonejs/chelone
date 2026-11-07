@@ -1,6 +1,8 @@
 import {
   formatRelativeTime,
+  getAtPath,
   type LooseRecord,
+  type ResourceRecord,
   type SourceKey,
 } from "@chelone/core";
 import { Copy, Eye, EyeOff } from "lucide-react";
@@ -12,7 +14,7 @@ import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
 
-interface ApiKeyFieldProps<RecordType extends LooseRecord = LooseRecord>
+interface ApiKeyFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
   /**
    * Sibling record field with scope strings; renders chips when set. A
@@ -37,7 +39,7 @@ interface ApiKeyFieldProps<RecordType extends LooseRecord = LooseRecord>
  * @example
  * <ApiKeyField source="apiKey" scopesSource="scopes" lastUsedSource="lastUsedAt" />
  */
-function ApiKeyField<RecordType extends LooseRecord = LooseRecord>({
+function ApiKeyField<RecordType extends ResourceRecord = LooseRecord>({
   defaultValue,
   source,
   record,
@@ -64,11 +66,13 @@ function ApiKeyField<RecordType extends LooseRecord = LooseRecord>({
       ? `${"•".repeat(Math.max(0, key.length - 4))}${key.slice(-4)}`
       : "•".repeat(key.length);
 
-  const rawScopes = scopesSource && ctx ? ctx[scopesSource] : undefined;
+  const rawScopes =
+    scopesSource && ctx ? getAtPath(ctx, scopesSource) : undefined;
   const scopes = Array.isArray(rawScopes)
     ? rawScopes.filter((s): s is string => typeof s === "string")
     : undefined;
-  const rawLastUsed = lastUsedSource && ctx ? ctx[lastUsedSource] : undefined;
+  const rawLastUsed =
+    lastUsedSource && ctx ? getAtPath(ctx, lastUsedSource) : undefined;
   const lastUsed = typeof rawLastUsed === "string" ? rawLastUsed : undefined;
 
   const handleCopy = async () => {
