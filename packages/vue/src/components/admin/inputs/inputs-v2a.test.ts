@@ -183,6 +183,18 @@ describe("<PasswordInput>", () => {
     expect(wrapper.find("input").attributes("type")).toBe("password");
   });
 
+  it("puts the toggle in the input's own row, so a label never moves it off the input", async () => {
+    const { wrapper } = mountInForm(
+      () => h(PasswordInput, { source: "password", label: "Password" }),
+      { record: { id: 1, password: "s3cret", author_id: 10, views: 0 } },
+    );
+    await flushPromises();
+
+    const row = wrapper.find("input").element.parentElement;
+    expect(row?.querySelector("button")).not.toBeNull();
+    expect(row?.querySelector("label")).toBeNull();
+  });
+
   it("respects initiallyVisible", async () => {
     const { wrapper } = mountInForm(
       () => h(PasswordInput, { source: "password", initiallyVisible: true }),

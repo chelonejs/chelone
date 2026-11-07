@@ -259,6 +259,8 @@ export default function MonacoJsonInputLazy({
             options={{
               automaticLayout: false,
               minimap: { enabled: false },
+              // Monaco counts the room it leaves below the last line in its content height, so auto-height would never settle.
+              scrollBeyondLastLine: false,
               lineNumbers: "on",
               wordWrap: "on",
               tabSize: 2,
