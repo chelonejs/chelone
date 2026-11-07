@@ -1,14 +1,15 @@
-<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 import type {
   KanbanColumnDef,
   LooseRecord,
+  ResourceRecord,
   SourceKey,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link KanbanBoard}. */
 export interface KanbanBoardProps<
-  TRecord extends LooseRecord = LooseRecord,
+  TRecord extends ResourceRecord = LooseRecord,
 > {
   /**
    * The top-level field whose value names a column; a drop writes the target
@@ -30,7 +31,7 @@ export interface KanbanBoardProps<
 }
 </script>
 
-<script setup lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * `<KanbanBoard>` — the records of the ambient `<List>` as columns, one per
  * `columns` entry, with a card per record. The Vue analog of
@@ -68,6 +69,7 @@ export interface KanbanBoardProps<
 import {
   buildKanbanBuckets,
   getAtPath,
+  isLooseRecord,
   planKanbanMove,
 } from "@chelone/core";
 import { PointerSensor } from "@dnd-kit/dom";
@@ -148,18 +150,28 @@ const buckets = computed(() =>
 );
 
 function move(record: TRecord, targetColumnId: string): void {
-  const plan = planKanbanMove(
+  // `update` carries the record as the data provider takes it: every field,
+  // not only the ones the board's type names. The plan keeps `TRecord`, so
+  // `groupSource` still matches it.
+  if (!isLooseRecord(record)) return;
+  const plan = planKanbanMove<TRecord>(
     record,
     props.groupSource,
     props.columns,
     targetColumnId,
   );
   if (!plan) return;
-  update.mutateAsync(plan).catch(() => {
-    notifications?.notify("chelone.notification.http_error", {
-      type: "error",
+  update
+    .mutateAsync({
+      id: plan.id,
+      data: plan.data,
+      previousData: record,
+    })
+    .catch(() => {
+      notifications?.notify("chelone.notification.http_error", {
+        type: "error",
+      });
     });
-  });
 }
 
 // A resource that registers neither view has no route to link to.

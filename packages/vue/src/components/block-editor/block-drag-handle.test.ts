@@ -188,12 +188,10 @@ describe("block drag handle", () => {
     expect(handleCount()).toBe(0);
     readOnly.wrapper.unmount();
 
-    mountUnderAdmin(() =>
-      h(BlockDocField, {
-        source: "body",
-        record: { id: 1, body: doc(paragraph("A")) },
-      }),
-    );
+    // `h` checks a generic component at its bound, so the record is named here
+    // instead of written inline, where its extra keys would be excess.
+    const record = { id: 1, body: doc(paragraph("A")) };
+    mountUnderAdmin(() => h(BlockDocField, { source: "body", record }));
     await vi.waitFor(() =>
       expect(document.querySelector('[role="textbox"]')).not.toBeNull(),
     );

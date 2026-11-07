@@ -251,12 +251,11 @@ describe("BlockDocField", () => {
       type: "callout",
       attrs: { tone: "warn", text: "Careful" },
     });
+    // `h` checks a generic component at its bound, so the record is named here
+    // instead of written inline, where its extra keys would be excess.
+    const record = { id: 1, body: stored };
     const wrapper = mountUnderAdmin(() =>
-      h(BlockDocField, {
-        source: "body",
-        record: { id: 1, body: stored },
-        blocks,
-      }),
+      h(BlockDocField, { source: "body", record, blocks }),
     );
     await vi.waitFor(() =>
       expect(wrapper.find('[data-testid="callout-read"]').exists()).toBe(true),

@@ -1,9 +1,11 @@
-<script lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
-import type { LooseRecord, SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
 import type { BlockDefinition } from "./block-nodes";
 
 /** Props for {@link BlockDocField}. */
-export interface BlockDocFieldProps<RecordType extends LooseRecord = LooseRecord> {
+export interface BlockDocFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+> {
   source: SourceProp<RecordType>;
   record?: RecordType;
   /** Read once, when the editor mounts. Each block's `read` component draws it. */
@@ -14,7 +16,7 @@ export interface BlockDocFieldProps<RecordType extends LooseRecord = LooseRecord
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
 /**
  * `<BlockDocField>` — shows a stored block document read-only, drawing each
  * block with its `read` component. The Vue twin of `@chelone/react`'s
