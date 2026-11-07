@@ -31,6 +31,10 @@ function readStored(): Framework | null {
 // `storage` only fires in other tabs, so a switch in this one notifies here.
 const listeners = new Set<() => void>();
 
+function subscribeNever() {
+  return () => {};
+}
+
 function subscribe(listener: () => void) {
   listeners.add(listener);
   window.addEventListener("storage", listener);
@@ -42,10 +46,21 @@ function subscribe(listener: () => void) {
 
 export function useFramework(): [Framework, (next: Framework) => void] {
   const [params, setParams] = useSearchParams();
-  // The server snapshot is `null`, so hydration matches the prerendered React page.
+  // The prerendered HTML has no query string and no storage, so it shows React.
+  // Both the URL and storage wait for hydration, or the first client render
+  // would differ from that HTML and React would discard it.
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
   const stored = useSyncExternalStore(subscribe, readStored, () => null);
   const fromUrl = params.get("framework");
-  const framework = isFramework(fromUrl) ? fromUrl : (stored ?? "react");
+  const framework = !hydrated
+    ? "react"
+    : isFramework(fromUrl)
+      ? fromUrl
+      : (stored ?? "react");
   const hasUrlChoice = params.has("framework");
 
   const setFramework = useCallback(

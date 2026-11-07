@@ -5,9 +5,14 @@ import {
   screen,
   waitFor,
 } from "@testing-library/react";
+import { act } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { installFor, vueInstallFor } from "@/docs/registry";
 import { ComponentPreview } from "./component-preview";
+import { InstallCommand } from "./install-command";
 
 // Shiki highlights asynchronously and renders nothing in jsdom; the test reads the source it is given.
 vi.mock("react-shiki", () => ({
@@ -117,5 +122,33 @@ describe("ComponentPreview with a name that matches no demo", () => {
     expect(screen.queryByTitle(/Vue demo/)).toBeNull();
     expect(screen.queryByRole("button", { name: "preview" })).toBeNull();
     expect(container.querySelector("iframe")).toBeNull();
+  });
+});
+
+describe("hydrating a prerendered page opened with ?framework=vue", () => {
+  it("matches the prerendered React page, then switches to Vue", async () => {
+    const install = installFor("data-table");
+    if (!install) throw new Error("data-table must be a React registry item");
+    const page = (
+      <MemoryRouter initialEntries={["/docs/editing?framework=vue"]}>
+        <InstallCommand install={install} vue={vueInstallFor("data-table")} />
+        <ComponentPreview name={BOTH} />
+      </MemoryRouter>
+    );
+    // The prerender has no query string, so it shows React.
+    const container = document.createElement("div");
+    container.innerHTML = renderToString(page);
+    document.body.appendChild(container);
+    expect(container.querySelector("iframe")).toBeNull();
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await act(async () => {
+      hydrateRoot(container, page);
+    });
+
+    expect(errors).not.toHaveBeenCalled();
+    expect(container.querySelector("iframe")).not.toBeNull();
+    errors.mockRestore();
+    container.remove();
   });
 });
