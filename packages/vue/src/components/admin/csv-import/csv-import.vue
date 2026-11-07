@@ -50,6 +50,8 @@ import {
   csvErrorRows,
   downloadCSV,
   parseCsvWith,
+  PREVIEW_ROWS,
+  REPLACEMENT_CHAR,
   recordsToCSV,
 } from "@chelone/core";
 import type { CsvImportState, CsvRow } from "@chelone/core";
@@ -73,11 +75,6 @@ import {
 } from "../../ui/table";
 import { UploadIcon } from "./upload-icon";
 import { CsvImportKey, type CsvImportContextValue } from "./use-csv-import";
-
-const PREVIEW_ROWS = 50;
-
-// readAsText decodes UTF-8 and writes U+FFFD for each byte it cannot read.
-const REPLACEMENT_CHAR = "\uFFFD";
 
 const props = defineProps<CsvImportProps>();
 

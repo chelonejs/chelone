@@ -57,7 +57,9 @@ export {
   createBlockRegistry,
   describeBlockAttrs,
   emptyBlockDocument,
+  GAP_PREFIX,
   getBlockDefaultAttrs,
+  HANDLE_ID,
   isBlockDoc,
   isEmptyBlockDocument,
   matchBlocks,
@@ -346,7 +348,11 @@ export {
   type Exporter,
   recordsToCSV,
 } from "./csv/export";
-export { createCsvImportController } from "./csv/import-controller";
+export {
+  createCsvImportController,
+  PREVIEW_ROWS,
+  REPLACEMENT_CHAR,
+} from "./csv/import-controller";
 export { matchCsvHeaders } from "./csv/match-headers";
 export { parseCsvWith } from "./csv/parse-with";
 export { csvErrorRows, runCsvImport } from "./csv/run-import";
@@ -822,7 +828,11 @@ export type {
   MissingKeyEntry,
   MissingKeyStore,
 } from "./i18n/missing-keys";
-export { createMissingKeyStore } from "./i18n/missing-keys";
+export {
+  COPIED_MS,
+  createMissingKeyStore,
+  OWN_KEY_PREFIX,
+} from "./i18n/missing-keys";
 export type {
   RecordForLocale,
   TranslatableController,
@@ -1051,6 +1061,7 @@ export {
   clampRichTextImageWidth,
   defaultRichTextImageRules,
   endColorOnEnter,
+  MAX_IMAGE_BYTES,
   normalizeRichTextUpload,
   richTextCodeBlockOptions,
   richTextColors,

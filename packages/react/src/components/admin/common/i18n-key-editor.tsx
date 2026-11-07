@@ -7,6 +7,7 @@
  */
 
 import type { MissingKeyEntry, MissingKeyStore } from "@chelone/core";
+import { COPIED_MS, OWN_KEY_PREFIX } from "@chelone/core";
 import { Check, ChevronDown, ChevronUp, Copy } from "lucide-react";
 import {
   useCallback,
@@ -21,9 +22,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useLocale, useTranslate } from "../../../i18n-hooks";
 import { useNotify } from "../../../notification-hooks";
-
-const COPIED_MS = 1500;
-const OWN_KEY_PREFIX = "chelone.i18n_key_editor.";
 
 /**
  * Pinned at the bottom left of the viewport. Goes anywhere under `<Admin>`,
