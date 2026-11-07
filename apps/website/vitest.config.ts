@@ -1,5 +1,6 @@
 import path from "node:path";
 import mdx from "@mdx-js/rollup";
+import rehypeSlug from "rehype-slug";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkMdxFrontmatter from "remark-mdx-frontmatter";
@@ -17,6 +18,8 @@ const reactPkgSrc = path.resolve(__dirname, "../../packages/react/src");
 const mdxPlugin = mdx({
   providerImportSource: "@/docs/mdx/mdx-components",
   remarkPlugins: [remarkFrontmatter, remarkMdxFrontmatter, remarkGfm],
+  // The build gives headings their ids with rehype-slug; the linkable headings need them.
+  rehypePlugins: [rehypeSlug],
 });
 
 export default defineConfig({
@@ -39,6 +42,14 @@ export default defineConfig({
       {
         find: /^@\/lib\/shiki-theme$/,
         replacement: `${wwwSrc}/lib/shiki-theme`,
+      },
+      // The website's own components that share the `@/components/` prefix with
+      // the package's shadcn primitives. The build resolves `@/` per importer
+      // (chelone-source-resolver.mjs); these aliases restate that for the few
+      // names only the website has.
+      {
+        find: /^@\/components\/(brand|doc-search|site-nav|theme-toggle)$/,
+        replacement: `${wwwSrc}/components/$1`,
       },
       { find: /^@\/components\//, replacement: `${reactPkgSrc}/components/` },
       { find: /^@\/hooks\//, replacement: `${reactPkgSrc}/hooks/` },
