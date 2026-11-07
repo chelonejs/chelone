@@ -1,6 +1,6 @@
 <script lang="ts">
 /** How much admin context a docs demo needs; the Vue twin of the React `PreviewMode`. */
-export type PreviewMode = "view" | "record" | "input";
+export type PreviewMode = "view" | "record" | "input" | "realtime";
 </script>
 
 <script setup lang="ts">
@@ -16,21 +16,32 @@ export type PreviewMode = "view" | "record" | "input";
  * - `view`: the demo is the view and renders as is.
  * - `record`: the first post is the ambient record, for a bare field.
  * - `input`: the demo sits in a `<Create>` form, titleless, for a bare input.
+ * - `realtime`: a `view` whose data provider also has record locks, for the
+ *   components that take or show one. Every mode is realtime over an in-memory
+ *   transport, so a write the demo makes reaches its subscribers, and every
+ *   mode signs in as Ada, so the components that act as a user have a name.
  */
 
 import {
   type AuthProvider,
+  addEventsForMutations,
   createNotificationStore,
   createStore,
   fakeDataProvider,
+  inMemoryLockProvider,
+  memoryTransport,
+  realtimeDataProvider,
 } from "@chelone/core";
 import { makeI18n, seedData } from "@chelone/demo-data";
 import {
   Admin,
   Create,
+  Edit,
+  List,
   provideRecordContext,
   provideResourceContext,
   Resource,
+  Show,
 } from "@chelone/vue";
 import { QueryClient } from "@tanstack/vue-query";
 import { resources } from "./resources/schema";
@@ -41,7 +52,28 @@ const props = withDefaults(defineProps<{ mode?: PreviewMode }>(), {
 
 // Per mount: the data provider mutates its seed, so a demo must not share it.
 const seed = seedData();
-const dataProvider = fakeDataProvider(seed);
+// The shared seed gives posts no schedule, which `<CalendarList>` plots; spread
+// them over this month, as the React preview's fixtures do.
+const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+seed.posts = seed.posts.map((post, i) => ({
+  ...post,
+  publish_at: new Date(
+    monthStart.getFullYear(),
+    monthStart.getMonth(),
+    1 + ((i * 5) % 28),
+    9 + (i % 8),
+  ).toISOString(),
+}));
+const transport = memoryTransport();
+const dataProvider = addEventsForMutations(
+  realtimeDataProvider(fakeDataProvider(seed), transport, {
+    locks:
+      props.mode === "realtime"
+        ? inMemoryLockProvider({ publisher: transport })
+        : undefined,
+  }),
+  transport,
+);
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { retry: false, staleTime: Number.POSITIVE_INFINITY },
@@ -77,8 +109,21 @@ if (props.mode === "record") provideRecordContext(seed.posts[0]);
     :notifications="notifications"
     :store="store"
   >
-    <Resource name="posts" record-representation="title" />
-    <Resource name="authors" record-representation="name" />
+    <!-- `posts` is registered with all four views and `authors` with a list, so
+         the sidebar `<Menu>` lists both, and the registered create view is what
+         lets the registry derive `hasCreate` for `<ListActions>` and
+         `<CreateButton>` to offer — the Vue form of the React preview's
+         `computeDefinition({ hasList: true, … })`. `#layout` below replaces the
+         shell, so these views never mount: the demo is the whole page. -->
+    <Resource
+      name="posts"
+      :list="List"
+      :create="Create"
+      :edit="Edit"
+      :show="Show"
+      record-representation="title"
+    />
+    <Resource name="authors" :list="List" record-representation="name" />
     <template #layout>
       <Create v-if="mode === 'input'" resource="posts" title="">
         <slot />

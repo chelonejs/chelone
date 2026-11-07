@@ -471,7 +471,11 @@ export function createFieldBinding<
     store: field.store,
     getValue: formatValue,
     setValue: (input) => field.handleChange(parseInput(input)),
-    blur: () => field.handleBlur(),
+    // Before attach (or after detach) there is no meta to mark: the write would
+    // create one without `errorMap`.
+    blur: () => {
+      if (unmountField !== undefined) field.handleBlur();
+    },
     isRequired: () => isRequired(current.validate),
     update(next) {
       current = { source, ...next };

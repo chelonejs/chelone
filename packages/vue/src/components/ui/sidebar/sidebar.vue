@@ -75,7 +75,7 @@ onBeforeUnmount(() => {
         aria-label="Sidebar"
         :class="
           cn(
-            'absolute inset-y-0 flex h-svh w-[--sidebar-width] flex-col bg-sidebar shadow-lg',
+            'absolute inset-y-0 flex h-svh w-(--sidebar-width) flex-col bg-sidebar shadow-lg',
             side === 'right' ? 'right-0' : 'left-0',
             props.class,
           )
@@ -96,13 +96,17 @@ onBeforeUnmount(() => {
     :data-side="side"
     data-slot="sidebar"
   >
+    <!-- `w-(--sidebar-width)`, not `w-[--sidebar-width]`: Tailwind v4 dropped the
+         bracket shorthand for a custom property, and the bracket form generates a
+         rule with no declaration, leaving the sidebar to size itself to its
+         content instead of the var. -->
     <div
       :class="
         cn(
           'flex h-svh flex-col bg-sidebar transition-[width] duration-200 ease-linear',
           state === 'collapsed' && collapsible === 'icon'
-            ? 'w-[--sidebar-width-icon]'
-            : 'w-[--sidebar-width]',
+            ? 'w-(--sidebar-width-icon)'
+            : 'w-(--sidebar-width)',
           variant === 'floating' && 'p-2',
           props.class,
         )

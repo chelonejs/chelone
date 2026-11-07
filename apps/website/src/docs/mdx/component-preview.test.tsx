@@ -103,21 +103,6 @@ describe("ComponentPreview framework switch", () => {
     expect(source.textContent).toContain("<ResettableTextInput");
   });
 
-  it("leaves the Vue iframe's height to the fitting effect, not a fixed style", () => {
-    const { container } = renderPreview(
-      BOTH,
-      "/docs/editing/resettable-text-input?framework=vue",
-    );
-    const frame = container.querySelector("iframe");
-    if (!frame) throw new Error("the Vue demo renders no iframe");
-    // The frame is fitted to its content at runtime, with a floor so an empty
-    // frame is not a slit. jsdom never loads the frame, so there is nothing to
-    // fit here; what must not come back is a fixed inline height, which is what
-    // cut a list demo off.
-    expect(frame.style.height).toBe("");
-    expect(frame.className).toContain("min-h-56");
-  });
-
   it("a Vue choice on a React-only demo still previews React", () => {
     renderPreview(REACT_ONLY, "/docs/editing?framework=vue");
 
@@ -126,37 +111,122 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
-// Every docs demo that ships a `.vue` twin must reach a frame of the Vue demo
-// app, the one place a Vue demo can compile. The list is the content folder's
-// own, so a Vue demo that is never wired fails here and one that is removed
-// stops being asserted.
-const vueDemoPaths = Object.keys(
-  import.meta.glob<string>("../content/**/demos/*.vue", {
-    query: "?raw",
-    import: "default",
-  }),
-);
+// Every component given a Vue twin by these docs batches: the demo must exist
+// beside its React twin and preview in the Vue demo app when the page asks for
+// Vue.
+const VUE_DEMOS = [
+  "app-config/admin",
+  "editing/boolean-input",
+  "editing/edit-button",
+  "editing/number-input",
+  "editing/reference-input",
+  "editing/save-button",
+  "editing/select-input",
+  "page-components/create",
+  "page-components/edit",
+  "page-components/list",
+  "page-components/show",
+  "ui-layout/app-bar",
+  "ui-layout/layout",
+  "ui-layout/menu",
+  "ui-layout/title",
+  "ui-layout/toolbar",
+  "ui-layout/user-menu",
+  "viewing/boolean-field",
+  "viewing/data-table",
+  "viewing/number-field",
+  "viewing/record-field",
+  "viewing/reference-field",
+];
 
-describe("every Vue demo a docs page ships", () => {
-  it.each(vueDemoPaths)(
-    "%s previews in a frame of the Vue demo app",
-    (path) => {
-      const name = path
-        .replace("../content/", "")
-        .replace("/demos/", "/")
-        .replace(/\.vue$/, "");
-      renderPreview(name, `/docs/${name}?framework=vue`);
+describe.each(VUE_DEMOS)("the Vue demo of %s", (slug) => {
+  it("switches to the Vue demo app at ?framework=vue", () => {
+    renderPreview(`${slug}/basic`, `/docs/${slug}?framework=vue`);
 
-      expect(
-        screen
-          .getByRole("button", { name: "Vue" })
-          .getAttribute("aria-pressed"),
-      ).toBe("true");
-      expect(screen.getByTitle(/Vue demo/).getAttribute("src")).toBe(
-        `/vue-demo/docs-preview/${name}`,
-      );
-    },
-  );
+    expect(
+      screen.getByRole("button", { name: "Vue" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(screen.getByTitle(/Vue demo/).getAttribute("src")).toBe(
+      `/vue-demo/docs-preview/${slug}/basic`,
+    );
+  });
+});
+
+// The frame is a window into another app: it must be laid out wide enough for a
+// desktop shell and resized to whatever the demo inside it grows to.
+describe("the Vue demo frame", () => {
+  const VUE_URL = "/docs/editing/resettable-text-input?framework=vue";
+
+  function frame() {
+    const el = screen.getByTitle(/Vue demo/);
+    if (!(el instanceof HTMLIFrameElement)) {
+      throw new Error("the Vue demo renders an <iframe>");
+    }
+    return el;
+  }
+
+  it("lays the frame out at desktop width, not the panel width", () => {
+    renderPreview(BOTH, VUE_URL);
+
+    expect(frame().style.width).toBe("800px");
+  });
+
+  // The frame is fitted at runtime, so nothing may fix its height up front: a
+  // fixed height is what cut a list demo off. The floor that keeps an empty
+  // frame from collapsing to a slit is the panel's, not the frame's: `zoom`
+  // scales the frame's own lengths, so a height class on the frame is a height
+  // class on 800px of layout. `min-h-56` held a 108px demo's frame at 224px, and
+  // the band under it stayed after the frame was zoomed down to the panel.
+  it("gives the frame no height of its own, and the floor to the panel", () => {
+    const { container } = renderPreview(BOTH, VUE_URL);
+    const el = frame();
+
+    expect(el.style.height).toBe("");
+    expect(el.className).not.toContain("min-h");
+    expect(container.querySelector(".min-h-32")).not.toBeNull();
+  });
+
+  // jsdom never loads the frame's `src`, so the test gives its document the
+  // shape a loaded page has and fires the event a real load fires. jsdom lays
+  // out nothing either, so a fitted frame reads 0px: what is pinned is that the
+  // frame was fitted at all, which a frame the effect never saw is not.
+  function loadFrame(frame: HTMLIFrameElement): void {
+    const doc = frame.contentDocument;
+    if (!doc) throw new Error("the frame has no content document");
+    const html = doc.createElement("html");
+    const body = doc.createElement("body");
+    body.innerHTML = '<div id="demo">the demo</div>';
+    html.append(body);
+    doc.append(html);
+    fireEvent.load(frame);
+  }
+
+  it("fits a frame that mounts while the preview tab is hidden", () => {
+    renderPreview(BOTH);
+
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "Vue" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+    loadFrame(frame());
+    expect(frame().style.height).not.toBe("");
+  });
+
+  it("fits the frame again when the preview tab comes back", () => {
+    renderPreview(BOTH, VUE_URL);
+
+    const left = frame();
+    loadFrame(left);
+    expect(left.style.height).not.toBe("");
+
+    fireEvent.click(screen.getByRole("button", { name: "code" }));
+    fireEvent.click(screen.getByRole("button", { name: "preview" }));
+
+    const back = frame();
+    expect(back).not.toBe(left);
+    loadFrame(back);
+    expect(back.style.height).not.toBe("");
+  });
 });
 
 describe("ComponentPreview with a name that matches no demo", () => {

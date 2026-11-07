@@ -7,12 +7,12 @@
  *
  * The pages link to each other by their static paths: the login page to
  * `/forgot-password`, and the forgot-password and set-password pages (and the
- * redirect after a reset email) to `/login`. Those paths show the same pages
- * as `/auth/forgot-password` and `/auth/login`, so no step of the flow ends on
- * the demo's not-found page.
+ * redirect after a reset email) to `/login`. `/forgot-password` shows the same
+ * page as `/auth/forgot-password`. `/login` is the demo's own sign-in page
+ * (`pages/Login.vue`), not the Supabase one at `/auth/login`, so no step of the
+ * flow ends on the demo's not-found page.
  */
 
-import { DEFAULT_LOGIN_PATH } from "@chelone/core";
 import { forgotPasswordPath } from "@chelone/supabase";
 import type { CustomRoute } from "@chelone/vue";
 import {
@@ -35,7 +35,6 @@ const setPasswordPage = stubbed(() => h(SetPasswordPage));
 
 export const authRoutes: CustomRoute[] = [
   { path: "auth/login", component: loginPage, noLayout: true },
-  { path: DEFAULT_LOGIN_PATH, component: loginPage, noLayout: true },
   {
     path: "auth/forgot-password",
     component: forgotPasswordPage,

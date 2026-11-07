@@ -120,7 +120,7 @@ function PhoneInput(props: PhoneInputProps) {
             writeBack(display, cc);
           }}
           disabled={disabled}
-          className="rounded-md border border-input bg-background px-2 py-1 text-sm"
+          className="h-9 rounded-md border border-input bg-background px-2 py-1 text-sm"
         >
           {countries.map((c) => (
             <option key={c} value={c}>

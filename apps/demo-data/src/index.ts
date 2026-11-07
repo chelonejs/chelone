@@ -1,5 +1,5 @@
 export { demoAssistantTools, demoAssistantTransport } from "./assistant";
-export { makeDemoAuthProvider } from "./auth";
+export { type AuthCache, makeDemoAuthProvider, routeAccess } from "./auth";
 export {
   type DashboardMetrics,
   type DashboardStats,
