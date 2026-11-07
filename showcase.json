@@ -1981,7 +1981,7 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/loading-indicator",
-        "see": ".not-prose [aria-label=\"Refresh\"]"
+        "see": ".not-prose [aria-label=\"ra.action.refresh\"]"
       },
       "demo": {
         "path": "/demo/status",
@@ -3463,7 +3463,7 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/theme-mode-toggle",
-        "see": ".not-prose >> role=button[name=\"Toggle light/dark mode\"]"
+        "see": ".not-prose >> role=button[name=\"Toggle theme\"]"
       },
       "demo": {
         "path": "/demo/posts",
