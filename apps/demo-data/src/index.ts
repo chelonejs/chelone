@@ -38,6 +38,10 @@ export {
 } from "./seed";
 export { makeDemoStore } from "./store";
 export {
+  type StubSupabaseAuthProvider,
+  stubSupabaseAuthProvider,
+} from "./supabase-auth";
+export {
   DEFAULT_ROLE,
   defaultPermissions,
   PERMISSIONS_KEY,
@@ -45,4 +49,5 @@ export {
   TEAM_RESOURCES,
   TEAM_ROLES,
 } from "./team";
+export { withTextSearch } from "./text-search";
 export { type DemoTourStep, TOUR_ID, tourSteps } from "./tour";

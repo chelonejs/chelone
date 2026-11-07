@@ -151,6 +151,9 @@ it("Page Components lists CsvImport after the list pages", () => {
     "dir:edit",
     "slug:create",
     "slug:show",
+    "slug:list-guesser",
+    "slug:show-guesser",
+    "slug:edit-guesser",
   ]);
 });
 

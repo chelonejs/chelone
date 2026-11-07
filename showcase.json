@@ -78,7 +78,24 @@
       }
     }
   },
-  "app-sidebar": null,
+  "app-sidebar": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/app-sidebar",
+        "see": ".not-prose [data-slot=\"sidebar-inner\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-inner\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-inner\"]"
+      }
+    }
+  },
   "application-updated-notification": {
     "react": {
       "docs": {
@@ -262,7 +279,24 @@
       }
     }
   },
-  "bbox-input": null,
+  "bbox-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/bbox-input",
+        "see": "[data-slot=\"shape-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-field=\"bbox\"] [data-slot=\"shape-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-field=\"bbox\"] [data-slot=\"shape-input\"]"
+      }
+    }
+  },
   "block-doc-field": {
     "react": {
       "docs": {
@@ -531,8 +565,42 @@
       }
     }
   },
-  "cancel-button": null,
-  "card-content-inner": null,
+  "cancel-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/cancel-button",
+        "see": ".not-prose >> role=button[name=\"Cancel\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "role=button[name=\"Cancel\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "role=button[name=\"Cancel\"]"
+      }
+    }
+  },
+  "card-content-inner": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/card-content-inner",
+        "see": "[data-slot=\"card\"] > div:has-text(\"On Computable Numbers\")"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> [data-slot=\"tabs\"])"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "div:has(> [data-slot=\"tabbed-show-layout\"])"
+      }
+    }
+  },
   "chart-block": {
     "shownBy": "block-editor-input"
   },
@@ -583,9 +651,62 @@
       }
     }
   },
-  "chip-field": null,
-  "clone-button": null,
-  "color-field": null,
+  "chip-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/chip-field",
+        "see": "[data-slot=\"badge\"]:text-is(\"Science\")"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "[data-slot=\"badge\"]:text-matches(\"^SKU-\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"badge\"]:text-matches(\"^SKU-\")"
+      }
+    }
+  },
+  "clone-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/clone-button",
+        "see": "role=link[name=\"Clone\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "role=link[name=\"Clone\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"clone-button\"]"
+      }
+    }
+  },
+  "color-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/color-field",
+        "see": "span:has(> [data-color-chip])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "span:has(> [data-color-chip])",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"color-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
   "color-input": {
     "react": {
       "docs": {
@@ -736,7 +857,24 @@
       }
     }
   },
-  "count": null,
+  "count": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/count",
+        "see": ".not-prose >> p:text-matches(\"Published posts: \\\\d+\")"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "a[href^=\"/demo/customers?filter\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "a[href^=\"/vue-demo/customers?filter\"]"
+      }
+    }
+  },
   "count-spinner": {
     "shownBy": "count"
   },
@@ -758,7 +896,24 @@
       }
     }
   },
-  "create-button": null,
+  "create-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/create-button",
+        "see": ".not-prose >> role=link[name=\"Create\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "role=link[name=\"Create\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "role=link[name=\"Create\"]"
+      }
+    }
+  },
   "crepe-editor": {
     "shownBy": "mdx-input"
   },
@@ -818,7 +973,24 @@
       }
     }
   },
-  "currency-field": null,
+  "currency-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/currency-field",
+        "see": "text=\"$1,234.50\""
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Price\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"currency-field\"]"
+      }
+    }
+  },
   "currency-input": {
     "react": {
       "docs": {
@@ -921,8 +1093,42 @@
       }
     }
   },
-  "date-field": null,
-  "date-input": null,
+  "date-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/date-field",
+        "see": ".not-prose >> text=/2026/"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "div:has(> div > span:text-is(\"Customer since\")) > span > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-slot=\"date-field\"]"
+      }
+    }
+  },
+  "date-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/date-input",
+        "see": ".not-prose >> input[type=\"date\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "input[type=\"date\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "input[type=\"date\"]"
+      }
+    }
+  },
   "date-time-input": {
     "react": {
       "docs": {
@@ -947,7 +1153,24 @@
   "default-plugins": {
     "shownBy": "mdx-input"
   },
-  "delete-button": null,
+  "delete-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/delete-button",
+        "see": "role=button[name=\"Delete\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "role=button[name=\"Delete\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"delete-button\"]"
+      }
+    }
+  },
   "diff-viewer": {
     "react": {
       "docs": {
@@ -1060,8 +1283,42 @@
       }
     }
   },
-  "edit-guesser": null,
-  "edit-live": null,
+  "edit-guesser": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/edit-guesser",
+        "see": "role=spinbutton[name=\"Views\"]"
+      },
+      "demo": {
+        "path": "/demo/tags/1",
+        "see": "role=textbox[name=\"Color\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/tags/1",
+        "see": "role=textbox[name=\"Color\"]"
+      }
+    }
+  },
+  "edit-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/edit-live",
+        "see": "role=button[name=\"Save\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=button[name=\"Save\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=button[name=\"Save\"]"
+      }
+    }
+  },
   "email-field": {
     "react": {
       "docs": {
@@ -1144,7 +1401,26 @@
       }
     }
   },
-  "file-field": null,
+  "file-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/file-field",
+        "see": "div:has(> a[title=\"Chelone logo\"])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> a[title=\"Download PDF\"])",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"file-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
   "file-input": {
     "react": {
       "docs": {
@@ -1166,17 +1442,153 @@
   "file-input-preview": {
     "shownBy": "file-input"
   },
-  "filter-button": null,
-  "filter-form": null,
-  "filter-list": null,
-  "filter-list-item": null,
-  "filter-list-section": null,
-  "filter-live-search": null,
+  "filter-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-button",
+        "see": ".not-prose >> role=button[name=\"Add filter\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "role=button[name=\"Add filter\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "role=button[name=\"Add filter\"]"
+      }
+    }
+  },
+  "filter-form": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/filter-form",
+        "see": ".not-prose [data-slot=\"filter-form\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-form\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"list-toolbar\"] [data-slot=\"filter-form\"]"
+      }
+    }
+  },
+  "filter-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-list",
+        "see": ".not-prose [data-slot=\"filter-list-section\"]:has(> ul)"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has(> ul)"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has(> ul)"
+      }
+    }
+  },
+  "filter-list-item": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-list-item",
+        "see": ".not-prose [data-slot=\"filter-list-item\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-list-item\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"filter-list-item\"]"
+      }
+    }
+  },
+  "filter-list-section": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-list-section",
+        "see": ".not-prose [data-slot=\"filter-list-section\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has-text(\"Availability\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"filter-list-section\"]:has-text(\"Availability\")"
+      }
+    }
+  },
+  "filter-live-search": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/filter-live-search",
+        "see": ".not-prose input[placeholder=\"Search posts\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "input[placeholder=\"Search products\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "input[placeholder=\"Search products\"]"
+      }
+    }
+  },
   "forgot-password-form": {
     "shownBy": "forgot-password-page"
   },
-  "forgot-password-page": null,
-  "function-field": null,
+  "forgot-password-page": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/forgot-password-page",
+        "see": "role=heading[name=\"Forgot your password?\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/forgot-password",
+        "see": "role=heading[name=\"Forgot your password?\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/forgot-password",
+        "see": "role=heading[name=\"Forgot your password?\"]"
+      }
+    }
+  },
+  "function-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/function-field",
+        "see": "text=\"On Computable Numbers (50 views)\""
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "span:text-matches(\"^(In stock|Low stock: [0-9]+ left|Out of stock)$\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"function-field\"]"
+      }
+    }
+  },
   "geo-json-field": {
     "react": {
       "docs": {
@@ -1201,11 +1613,45 @@
   "geo-json-view": {
     "shownBy": "geo-json-field"
   },
-  "geocoding-input": null,
+  "geocoding-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/geocoding-input",
+        "see": "[data-slot=\"geocoding-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/create",
+        "see": "[data-slot=\"geocoding-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/create",
+        "see": "[data-slot=\"geocoding-input\"]"
+      }
+    }
+  },
   "guesser-empty": {
     "shownBy": "list-guesser"
   },
-  "hide-on-scroll": null,
+  "hide-on-scroll": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/hide-on-scroll",
+        "see": ".not-prose [data-state]:has-text(\"Posts toolbar\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "main > [data-state]:has(> header)"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"layout-main\"] > [data-state]:has(> [data-slot=\"app-bar\"])"
+      }
+    }
+  },
   "i18n-key-editor": {
     "react": {
       "docs": {
@@ -1224,14 +1670,50 @@
       }
     }
   },
-  "icon-button-with-tooltip": null,
+  "icon-button-with-tooltip": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/icon-button-with-tooltip",
+        "see": ".not-prose [aria-label=\"Posts are stored in memory\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[aria-label=\"Documentation\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[aria-label=\"Documentation\"]"
+      }
+    }
+  },
   "image-block": {
     "shownBy": "block-editor-input"
   },
   "image-block-config": {
     "shownBy": "block-editor-input"
   },
-  "image-field": null,
+  "image-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/image-field",
+        "see": "span:has(> img[alt=\"Chelone logo\"])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "span:has(> img[alt=\"Product photo\"])",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"image-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
   "image-input": {
     "react": {
       "docs": {
@@ -1341,7 +1823,26 @@
   "job-monitor-row": {
     "shownBy": "job-monitor"
   },
-  "json-field": null,
+  "json-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/json-field",
+        "see": "pre"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "pre",
+        "click": ["role=tab[name=\"Raw data\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"json-field\"]",
+        "click": ["role=tab[name=\"Raw data\"]"]
+      }
+    }
+  },
   "kanban": {
     "shownBy": "kanban-board"
   },
@@ -1369,8 +1870,42 @@
   "kanban-drop-area": {
     "shownBy": "kanban-board"
   },
-  "keyboard-shortcut": null,
-  "labeled": null,
+  "keyboard-shortcut": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/keyboard-shortcut",
+        "see": ".not-prose kbd:has-text(\"⌘\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"⌘\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\") kbd:has-text(\"⌘\")"
+      }
+    }
+  },
+  "labeled": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/labeled",
+        "see": "div:has(> label > span:text-is(\"Title\"))"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Rating\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"labeled\"]:has(> label:has-text(\"Rating\"))"
+      }
+    }
+  },
   "lat-lng-field": {
     "react": {
       "docs": {
@@ -1389,7 +1924,24 @@
       }
     }
   },
-  "lat-lng-input": null,
+  "lat-lng-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/lat-lng-input",
+        "see": "[data-slot=\"lat-lng-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/create",
+        "see": "[data-slot=\"lat-lng-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/create",
+        "see": "[data-slot=\"lat-lng-input\"]"
+      }
+    }
+  },
   "layout": {
     "react": {
       "docs": {
@@ -1428,7 +1980,24 @@
       }
     }
   },
-  "link": null,
+  "link": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/link",
+        "see": ".not-prose a:has-text(\"Explore the admin layout\")"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "a:has-text(\"Open a wrong URL\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "a:has-text(\"Open a wrong URL\")"
+      }
+    }
+  },
   "list": {
     "react": {
       "docs": {
@@ -1447,10 +2016,78 @@
       }
     }
   },
-  "list-actions": null,
-  "list-button": null,
-  "list-guesser": null,
-  "list-live": null,
+  "list-actions": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/list-actions",
+        "see": ".not-prose [data-slot=\"list-actions\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"list-actions\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"list-actions\"]"
+      }
+    }
+  },
+  "list-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/list-button",
+        "see": "role=link[name=\"List\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "role=link[name=\"List\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"list-button\"]"
+      }
+    }
+  },
+  "list-guesser": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/list-guesser",
+        "see": "role=columnheader[name=\"Views\"]"
+      },
+      "demo": {
+        "path": "/demo/tags",
+        "see": "role=columnheader[name=\"Color\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/tags",
+        "see": "role=columnheader[name=\"Color\"]"
+      }
+    }
+  },
+  "list-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/list-live",
+        "see": "role=button[name=\"Another user adds a post\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "main >> role=button[name=\"Another user adds a post\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "main >> role=button[name=\"Another user adds a post\"]"
+      }
+    }
+  },
   "list-no-results": {
     "shownBy": "simple-list"
   },
@@ -1472,7 +2109,24 @@
       }
     }
   },
-  "list-toolbar": null,
+  "list-toolbar": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/list-toolbar",
+        "see": ".not-prose [data-slot=\"list-toolbar\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"list-toolbar\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"list-toolbar\"]"
+      }
+    }
+  },
   "loading": {
     "react": {
       "docs": {
@@ -1493,7 +2147,24 @@
       }
     }
   },
-  "loading-indicator": null,
+  "loading-indicator": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/loading-indicator",
+        "see": ".not-prose [aria-label=\"ra.action.refresh\"]"
+      },
+      "demo": {
+        "path": "/demo/status",
+        "see": "[aria-label=\"Refresh\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Status",
+        "see": "[aria-label=\"Refresh\"]"
+      }
+    }
+  },
   "loading-input": {
     "react": {
       "docs": {
@@ -1535,8 +2206,42 @@
       }
     }
   },
-  "lock-on-mount": null,
-  "lock-status": null,
+  "lock-on-mount": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/lock-on-mount",
+        "see": "text=Ada holds the lock on post 1"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=textbox[name=\"Title\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=textbox[name=\"Title\"]"
+      }
+    }
+  },
+  "lock-status": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/lock-status",
+        "see": "text=Post 1 is free"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "text=Locked by you"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "text=Locked by you"
+      }
+    }
+  },
   "login-form": null,
   "login-page": null,
   "login-with-email": null,
@@ -1544,7 +2249,24 @@
   "map-canvas": {
     "shownBy": "geo-json-field"
   },
-  "map-with-search": null,
+  "map-with-search": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/map-with-search",
+        "see": "[data-slot=\"map-with-search\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-slot=\"map-with-search\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-slot=\"map-with-search\"]"
+      }
+    }
+  },
   "maps": {
     "shownBy": "geo-json-field"
   },
@@ -1614,8 +2336,44 @@
       }
     }
   },
-  "menu-item-link": null,
-  "menu-live": null,
+  "menu-item-link": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/menu-item-link",
+        "see": ".not-prose [data-slot=\"sidebar-menu-button\"]:has-text(\"MenuItemLink\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Product variants\")"
+      }
+    }
+  },
+  "menu-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/menu-live",
+        "see": "role=link[name=\"Unread posts\"]"
+      },
+      "demo": {
+        "path": "/demo/authors",
+        "see": "[data-testid=\"menu-live-badge\"]",
+        "click": ["role=button[name=\"Another user adds a post\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/authors",
+        "see": "[data-testid=\"menu-live-badge\"]",
+        "click": ["role=button[name=\"Another user adds a post\"]"]
+      }
+    }
+  },
   "metric-card": null,
   "monaco": {
     "shownBy": "monaco-json-input"
@@ -1814,7 +2572,24 @@
   "onboarding-tour-overlay": {
     "shownBy": "onboarding-tour"
   },
-  "osm-feature-operator": null,
+  "osm-feature-operator": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/osm-feature-operator",
+        "see": "[data-slot=\"osm-feature-operator\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-field=\"zone-water\"] [data-slot=\"osm-feature-operator\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-field=\"zone-water\"] [data-slot=\"osm-feature-operator\"]"
+      }
+    }
+  },
   "password-input": {
     "react": {
       "docs": {
@@ -1851,8 +2626,42 @@
       }
     }
   },
-  "phone-field": null,
-  "phone-input": null,
+  "phone-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/phone-field",
+        "see": ".not-prose >> a[href^=\"tel:\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "a[href^=\"tel:\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "a[href^=\"tel:\"]"
+      }
+    }
+  },
+  "phone-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/phone-input",
+        "see": ".not-prose >> input[type=\"tel\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "input[type=\"tel\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "input[type=\"tel\"]"
+      }
+    }
+  },
   "pivot-grid": null,
   "placeholder": {
     "react": {
@@ -1892,7 +2701,24 @@
       }
     }
   },
-  "prev-next-buttons": null,
+  "prev-next-buttons": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/prev-next-buttons",
+        "see": "nav:has(> [aria-label*=\"next\" i])"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "nav:has(> [aria-label*=\"next\" i])"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "nav:has(> [aria-label*=\"next\" i])"
+      }
+    }
+  },
   "radio-button-group-input": {
     "react": {
       "docs": {
@@ -1911,7 +2737,24 @@
       }
     }
   },
-  "rating-field": null,
+  "rating-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/rating-field",
+        "see": "role=img[name=\"4.5 out of 5\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "[role=\"img\"][aria-label$=\"out of 5\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"rating-field\"]"
+      }
+    }
+  },
   "rating-input": {
     "react": {
       "docs": {
@@ -2064,7 +2907,24 @@
       }
     }
   },
-  "reference-many-count": null,
+  "reference-many-count": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/reference-many-count",
+        "see": ".not-prose >> [data-slot=\"reference-many-count\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "[data-slot=\"reference-many-count\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-slot=\"reference-many-count\"]"
+      }
+    }
+  },
   "reference-many-field": {
     "react": {
       "docs": {
@@ -2161,8 +3021,42 @@
       }
     }
   },
-  "resource-menu-item": null,
-  "resource-menu-item-group": null,
+  "resource-menu-item": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/resource-menu-item",
+        "see": ".not-prose [data-slot=\"sidebar-menu-button\"]:has-text(\"Posts\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Products\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-menu-button\"]:has-text(\"Products\")"
+      }
+    }
+  },
+  "resource-menu-item-group": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/resource-menu-item-group",
+        "see": ".not-prose [data-slot=\"sidebar-group-label\"]:has-text(\"Content\")"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-slot=\"sidebar-group-label\"]:has-text(\"Content\")"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-group-label\"]:has-text(\"Content\")"
+      }
+    }
+  },
   "reverse-geocode-field": {
     "react": {
       "docs": {
@@ -2259,8 +3153,45 @@
       }
     }
   },
-  "saved-queries-list": null,
-  "search-input": null,
+  "saved-queries-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/saved-queries-list",
+        "see": ".not-prose [data-slot=\"saved-queries-list\"]",
+        "click": [".not-prose [data-slot=\"filter-list-item\"] button"]
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"saved-queries-list\"]",
+        "click": ["[data-slot=\"filter-list-item\"] button"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"saved-queries-list\"]",
+        "click": ["[data-slot=\"filter-list-item\"] button"]
+      }
+    }
+  },
+  "search-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/search-input",
+        "see": ".not-prose input[name=\"q\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "input[placeholder=\"Find by SKU\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "input[placeholder=\"Find by SKU\"]"
+      }
+    }
+  },
   "select-all-button": {
     "react": {
       "docs": {
@@ -2299,7 +3230,24 @@
       }
     }
   },
-  "select-field": null,
+  "select-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/select-field",
+        "see": "text=\"Published\""
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Category\")) > span"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"select-field\"]:has-text(\"Electronics\")"
+      }
+    }
+  },
   "select-input": {
     "react": {
       "docs": {
@@ -2321,7 +3269,24 @@
   "set-password-form": {
     "shownBy": "set-password-page"
   },
-  "set-password-page": null,
+  "set-password-page": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/set-password-page",
+        "see": "role=button[name=\"Save\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/set-password?access_token=demo-access&refresh_token=demo-refresh&type=recovery",
+        "see": "role=button[name=\"Save\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/set-password?access_token=demo-access&refresh_token=demo-refresh&type=recovery",
+        "see": "role=button[name=\"Save\"]"
+      }
+    }
+  },
   "shape-fields": {
     "react": {
       "docs": {
@@ -2340,7 +3305,24 @@
       }
     }
   },
-  "shape-input": null,
+  "shape-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/shape-input",
+        "see": "[data-slot=\"shape-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-field=\"zone\"] [data-slot=\"shape-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-field=\"zone\"] [data-slot=\"shape-input\"]"
+      }
+    }
+  },
   "shape-inputs": {
     "shownBy": "shape-input"
   },
@@ -2362,8 +3344,42 @@
       }
     }
   },
-  "show-button": null,
-  "show-guesser": null,
+  "show-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/show-button",
+        "see": "role=link[name=\"Show\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1",
+        "see": "role=link[name=\"Show\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1",
+        "see": "[data-slot=\"show-button\"]"
+      }
+    }
+  },
+  "show-guesser": {
+    "react": {
+      "docs": {
+        "path": "/docs/page-components/show-guesser",
+        "see": "text=\"Views\""
+      },
+      "demo": {
+        "path": "/demo/tags/1/show",
+        "see": "text=\"Color\""
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/tags/1/show",
+        "see": "text=\"Color\""
+      }
+    }
+  },
   "show-live": {
     "react": {
       "docs": {
@@ -2382,7 +3398,24 @@
       }
     }
   },
-  "sidebar-toggle-button": null,
+  "sidebar-toggle-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/sidebar-toggle-button",
+        "see": ".not-prose [data-sidebar=\"trigger\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "[data-sidebar=\"trigger\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "[data-slot=\"sidebar-toggle-button\"]"
+      }
+    }
+  },
   "simple-form-iterator": {
     "react": {
       "docs": {
@@ -2434,7 +3467,24 @@
   "simple-list-loading": {
     "shownBy": "simple-list"
   },
-  "simplify-input": null,
+  "simplify-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/maps/simplify-input",
+        "see": "[data-slot=\"simplify-input\"]"
+      },
+      "demo": {
+        "path": "/demo/places/1/edit",
+        "see": "[data-slot=\"simplify-input\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/places/1/edit",
+        "see": "[data-slot=\"simplify-input\"]"
+      }
+    }
+  },
   "single-field-list": {
     "react": {
       "docs": {
@@ -2456,12 +3506,63 @@
   "single-field-list-record": {
     "shownBy": "single-field-list"
   },
-  "skip-navigation-button": null,
-  "social-auth-button": null,
+  "skip-navigation-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/skip-navigation-button",
+        "see": ".not-prose >> role=button[name=\"Skip to content\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=button[name=\"Skip to content\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=button[name=\"Skip to content\"]"
+      }
+    }
+  },
+  "social-auth-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/social-auth-button",
+        "see": "role=button[name=\"Sign in with Github\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/login",
+        "see": "role=button[name=\"Sign in with Github\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/login",
+        "see": "role=button[name=\"Sign in with Github\"]"
+      }
+    }
+  },
   "social-icons": {
     "shownBy": "social-auth-button"
   },
-  "sort-button": null,
+  "sort-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/sort-button",
+        "see": ".not-prose button[aria-label^=\"Sort by\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "button[aria-label^=\"Sort by\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "button[aria-label^=\"Sort by\"]"
+      }
+    }
+  },
   "sortable-fields-selector": {
     "shownBy": "configurable-inputs"
   },
@@ -2486,14 +3587,99 @@
       }
     }
   },
-  "subscription-plan-field": null,
-  "subscription-plan-picker": null,
-  "supabase-login-page": null,
-  "tabbed-show-layout": null,
+  "subscription-plan-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/subscription-plan-field",
+        "see": ".not-prose >> [data-slot=\"badge\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "[data-slot=\"badge\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-slot=\"badge\"]"
+      }
+    }
+  },
+  "subscription-plan-picker": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/subscription-plan-picker",
+        "see": ".not-prose >> role=radiogroup"
+      },
+      "demo": {
+        "path": "/demo/customers/1",
+        "see": "role=radiogroup"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1",
+        "see": "role=radiogroup"
+      }
+    }
+  },
+  "supabase-login-page": {
+    "react": {
+      "docs": {
+        "path": "/docs/supabase/supabase-login-page",
+        "see": "role=heading[name=\"Sign in\"]"
+      },
+      "demo": {
+        "path": "/demo/auth/login",
+        "see": "role=heading[name=\"Sign in\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/auth/login",
+        "see": "role=heading[name=\"Sign in\"]"
+      }
+    }
+  },
+  "tabbed-show-layout": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/tabbed-show-layout",
+        "see": "[data-slot=\"tabs\"]:has-text(\"Summary\")"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "[data-slot=\"tabs\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"tabbed-show-layout\"]"
+      }
+    }
+  },
   "tabbed-show-layout-tab": {
     "shownBy": "tabbed-show-layout"
   },
-  "text-array-field": null,
+  "text-array-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/text-array-field",
+        "see": "div:has(> [data-slot=\"badge\"]:text-is(\"Science\"))"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Keywords\")) > div"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"text-array-field\"]:has-text(\"mechanical\")"
+      }
+    }
+  },
   "text-array-input": {
     "react": {
       "docs": {
@@ -2548,7 +3734,24 @@
       }
     }
   },
-  "theme-mode-toggle": null,
+  "theme-mode-toggle": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/theme-mode-toggle",
+        "see": ".not-prose >> role=button[name=\"Toggle theme\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "role=button[name=\"Toggle light/dark mode\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "role=button[name=\"Toggle light/dark mode\"]"
+      }
+    }
+  },
   "theme-provider": {
     "shownBy": "theme-mode-toggle"
   },
@@ -2594,7 +3797,24 @@
   "toggle-block": {
     "shownBy": "block-editor-input"
   },
-  "toggle-filter-button": null,
+  "toggle-filter-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/toggle-filter-button",
+        "see": ".not-prose [data-slot=\"toggle-filter-button\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"toggle-filter-button\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"toggle-filter-button\"]"
+      }
+    }
+  },
   "toolbar": {
     "react": {
       "docs": {
@@ -2613,8 +3833,42 @@
       }
     }
   },
-  "top-toolbar": null,
-  "translatable-fields": null,
+  "top-toolbar": {
+    "react": {
+      "docs": {
+        "path": "/docs/ui-layout/top-toolbar",
+        "see": ".not-prose [data-slot=\"top-toolbar\"]"
+      },
+      "demo": {
+        "path": "/demo/products",
+        "see": "[data-slot=\"top-toolbar\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products",
+        "see": "[data-slot=\"top-toolbar\"]"
+      }
+    }
+  },
+  "translatable-fields": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/translatable-fields",
+        "see": ".not-prose [role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      },
+      "demo": {
+        "path": "/demo/categories/1/show",
+        "see": "[role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/categories/1/show",
+        "see": "[data-slot=\"translatable-fields-tabs\"]"
+      }
+    }
+  },
   "translatable-fields-tab": {
     "shownBy": "translatable-fields"
   },
@@ -2624,7 +3878,24 @@
   "translatable-fields-tabs": {
     "shownBy": "translatable-fields"
   },
-  "translatable-inputs": null,
+  "translatable-inputs": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/translatable-inputs",
+        "see": ".not-prose [role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      },
+      "demo": {
+        "path": "/demo/categories/1",
+        "see": "[role=\"tablist\"]:has([role=\"tab\"]:text-is(\"Fr\"))"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/categories/1",
+        "see": "[data-slot=\"translatable-inputs-tabs\"]"
+      }
+    }
+  },
   "translatable-inputs-tab": {
     "shownBy": "translatable-inputs"
   },
@@ -2634,7 +3905,24 @@
   "translatable-inputs-tabs": {
     "shownBy": "translatable-inputs"
   },
-  "tree-list": null,
+  "tree-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/tree-list",
+        "see": ".not-prose [role=\"tree\"]"
+      },
+      "demo": {
+        "path": "/demo/categories",
+        "see": "[role=\"tree\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/categories",
+        "see": "[role=\"tree\"]"
+      }
+    }
+  },
   "tree-list-node": {
     "shownBy": "tree-list"
   },
@@ -2642,9 +3930,62 @@
   "ui": {
     "shownBy": "layout"
   },
-  "update-button": null,
-  "url-field": null,
-  "usage-meter-field": null,
+  "update-button": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/update-button",
+        "see": ".not-prose >> role=button[name=\"Publish\"]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "role=button[name=\"Mark champion\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "role=button[name=\"Mark champion\"]"
+      }
+    }
+  },
+  "url-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/url-field",
+        "see": "role=link[name=\"https://chelone.dev\"]"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "a[href^=\"https://example.com/products/\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "[data-slot=\"url-field\"]",
+        "click": ["role=tab[name=\"Media\"]"]
+      }
+    }
+  },
+  "usage-meter-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/usage-meter-field",
+        "see": ".not-prose >> [data-usage-meter]"
+      },
+      "demo": {
+        "path": "/demo/customers/1/show",
+        "see": "[data-usage-meter]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/customers/1/show",
+        "see": "[data-usage-meter]"
+      }
+    }
+  },
   "user-menu": {
     "react": {
       "docs": {
@@ -2705,5 +4046,22 @@
       }
     }
   },
-  "wrapper-field": null
+  "wrapper-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/wrapper-field",
+        "see": "div:has(> label > span:text-is(\"Publication\"))"
+      },
+      "demo": {
+        "path": "/demo/products/1/show",
+        "see": "div:has(> label > span:text-is(\"Fulfilment\")) > div"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/products/1/show",
+        "see": "div:has(> label:has-text(\"Fulfilment\")) > div"
+      }
+    }
+  }
 }

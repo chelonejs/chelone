@@ -21,6 +21,7 @@ import {
 import { MapsProvider } from "@chelone/react/maps";
 import { QueryClient } from "@tanstack/react-query";
 import { BrowserRouter, Route } from "react-router";
+import { authRoutes } from "./auth-routes";
 import { i18n } from "./i18n";
 import { mapsConfig } from "./maps-services";
 import { pages } from "./pages";
@@ -32,6 +33,11 @@ import {
   AuthorList,
   AuthorShow,
 } from "./resources/authors";
+import {
+  CategoryEdit,
+  CategoryList,
+  CategoryShow,
+} from "./resources/categories";
 import {
   CustomerCreate,
   CustomerEdit,
@@ -155,17 +161,24 @@ export function App() {
             edit={PageEdit}
             show={PageShow}
           />
-          {/* No hand-written views yet: the guessers build them from the
-              schemas in resources/index.ts. */}
-          {["categories", "tags"].map((name) => (
-            <Resource
-              key={name}
-              name={name}
-              list={ListGuesser}
-              edit={EditGuesser}
-              show={ShowGuesser}
-            />
-          ))}
+          <Resource
+            name="categories"
+            recordRepresentation="name.en"
+            list={CategoryList}
+            edit={CategoryEdit}
+            show={CategoryShow}
+          />
+          {/* No hand-written views yet: the guesser builds them from the
+              schema in resources/index.ts. */}
+          <Resource
+            name="tags"
+            list={ListGuesser}
+            edit={EditGuesser}
+            show={ShowGuesser}
+          />
+
+          {/* The Supabase auth pages, outside the layout (see auth-routes.tsx). */}
+          <CustomRoutes noLayout>{authRoutes}</CustomRoutes>
 
           {/* One route per file in src/pages (see pages.tsx). */}
           <CustomRoutes>

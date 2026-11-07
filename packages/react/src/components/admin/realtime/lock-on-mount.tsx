@@ -1,6 +1,6 @@
 import { type Identifier, type Lock, LockConflictError } from "@chelone/core";
 import type { ReactNode } from "react";
-import { Alert } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslate } from "../../../i18n-hooks";
 import { useLockOnMount } from "../../../lock-hooks";
@@ -51,10 +51,12 @@ function LockOnMount({
     return (
       lockedBy?.(existingLock) ?? (
         <Alert>
-          {translate("chelone.lock.locked_by", {
-            _: "Locked by {identity}",
-            identity: String(existingLock.identity),
-          })}
+          <AlertDescription>
+            {translate("chelone.lock.locked_by", {
+              _: "Locked by {identity}",
+              identity: String(existingLock.identity),
+            })}
+          </AlertDescription>
         </Alert>
       )
     );

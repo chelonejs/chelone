@@ -20,8 +20,10 @@
  * whether or not the user is authenticated yet.
  *   3. requireAuth & NOT authenticated    → NO-LAYOUT custom routes + a
  *                                           `<LogoutOnMount>` (bounce to login).
- *   4. else (authenticated / ungated)     → the full tree: `<HasDashboard>`
- *                                           context → `<ShellErrorBoundary>` →
+ *   4. else (authenticated / ungated)     → NO-LAYOUT custom routes, then under a
+ *                                           splat route the full tree:
+ *                                           `<HasDashboard>` context →
+ *                                           `<ShellErrorBoundary>` →
  *                                           `<Layout>` → `<Routes>` of
  *                                           {layout customs}{resources}{index}
  *                                           {auth-error}{access-denied}{catch-all}.
@@ -219,22 +221,32 @@ export function AdminRoutes(): ReactNode {
     );
   }
 
-  // BRANCH 4 — authenticated / ungated: the full tree.
+  // BRANCH 4 — authenticated / ungated: the no-layout customs first, then the
+  // full tree under a splat route. The customs sit ABOVE the `<Layout>`, so a
+  // path they own renders without the shell, as in ra-core's `CoreAdminRoutes`.
   return (
     <>
       <ScrollManager />
-      <HasDashboardContext.Provider value={slots.dashboard != null}>
-        <ShellErrorBoundary fallback={slots.error}>
-          <Layout layout={slots.layout}>
-            <FullRoutes
-              parts={parts}
-              slots={slots}
-              Routes={Routes}
-              Route={Route}
-            />
-          </Layout>
-        </ShellErrorBoundary>
-      </HasDashboardContext.Provider>
+      <Routes>
+        {noLayoutCustoms}
+        <Route
+          path="*"
+          element={
+            <HasDashboardContext.Provider value={slots.dashboard != null}>
+              <ShellErrorBoundary fallback={slots.error}>
+                <Layout layout={slots.layout}>
+                  <FullRoutes
+                    parts={parts}
+                    slots={slots}
+                    Routes={Routes}
+                    Route={Route}
+                  />
+                </Layout>
+              </ShellErrorBoundary>
+            </HasDashboardContext.Provider>
+          }
+        />
+      </Routes>
     </>
   );
 }
@@ -258,10 +270,6 @@ function FullRoutes({
     () => customRouteChildren(parts.customRoutesWithLayout),
     [parts.customRoutesWithLayout],
   );
-  const noLayoutCustoms = useMemo(
-    () => customRouteChildren(parts.customRoutesWithoutLayout),
-    [parts.customRoutesWithoutLayout],
-  );
   const resourceRouteEls = useMemo(
     () => resourceRoutes(parts.resources, Route),
     [parts.resources, Route],
@@ -269,8 +277,6 @@ function FullRoutes({
 
   return (
     <Routes>
-      {/* No-layout customs render in ALL branches (plan §0a-10). */}
-      {noLayoutCustoms}
       {/* The auth-callback route is public/auth-agnostic (parity §0a-1/D4):
           mounted here too so a settled/authenticated OAuth landing resolves. */}
       {slots.authCallback != null ? (

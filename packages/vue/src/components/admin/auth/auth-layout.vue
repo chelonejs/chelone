@@ -71,7 +71,7 @@ defineSlots<{
             </h1>
             <p
               v-if="subtitle"
-              class="text-sm leading-none text-muted-foreground"
+              class="text-sm leading-normal text-muted-foreground"
             >
               {{ subtitle }}
             </p>
