@@ -99,6 +99,7 @@ describe("<MonacoJsonField />", () => {
       domReadOnly: true,
       automaticLayout: false,
       minimap: { enabled: false },
+      scrollBeyondLastLine: false,
       lineNumbers: "on",
       wordWrap: "on",
       tabSize: 2,

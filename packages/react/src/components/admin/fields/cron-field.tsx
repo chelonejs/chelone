@@ -39,7 +39,11 @@ function CronField<RecordType extends ResourceRecord = LooseRecord>({
   if (value == null || value === "") {
     if (!empty) return null;
     return (
-      <span {...sanitizeFieldRestProps(rest)} className={className}>
+      <span
+        {...sanitizeFieldRestProps(rest)}
+        data-slot="cron-field"
+        className={className}
+      >
         {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
       </span>
     );
@@ -52,6 +56,7 @@ function CronField<RecordType extends ResourceRecord = LooseRecord>({
     return (
       <span
         {...sanitizeFieldRestProps(rest)}
+        data-slot="cron-field"
         className={cn("font-mono text-sm text-muted-foreground", className)}
       >
         {expr}
@@ -62,6 +67,7 @@ function CronField<RecordType extends ResourceRecord = LooseRecord>({
   return (
     <span
       {...sanitizeFieldRestProps(rest)}
+      data-slot="cron-field"
       className={cn("inline-flex flex-col", className)}
     >
       <span className="text-sm">{phrase}</span>

@@ -7,8 +7,42 @@
     "shownBy": "supabase-login-page"
   },
   "admin": null,
-  "api-key-field": null,
-  "api-key-input": null,
+  "api-key-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/api-key-field",
+        "see": "[data-api-key]"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "[data-api-key]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "[data-api-key]"
+      }
+    }
+  },
+  "api-key-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/api-key-input",
+        "see": "[data-rotate-button]"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "[data-rotate-button]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "[data-rotate-button]"
+      }
+    }
+  },
   "app-bar": null,
   "app-sidebar": null,
   "application-updated-notification": null,
@@ -571,8 +605,42 @@
   "crepe-editor": {
     "shownBy": "mdx-input"
   },
-  "cron-field": null,
-  "cron-input": null,
+  "cron-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/cron-field",
+        "see": "[data-slot=\"cron-field\"]"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "[data-slot=\"cron-field\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "[data-slot=\"cron-field\"]"
+      }
+    }
+  },
+  "cron-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/cron-input",
+        "see": "[data-cron-preview]"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "[data-cron-preview]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "[data-cron-preview]"
+      }
+    }
+  },
   "csv-import": {
     "react": {
       "docs": {
@@ -1149,11 +1217,45 @@
   "monaco": {
     "shownBy": "monaco-json-input"
   },
-  "monaco-json-field": null,
+  "monaco-json-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/monaco-json-field",
+        "see": "pre"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "[aria-label=\"Saved settings\"] .monaco-editor"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "[aria-label=\"Saved settings\"] .monaco-editor"
+      }
+    }
+  },
   "monaco-json-field-lazy": {
     "shownBy": "monaco-json-field"
   },
-  "monaco-json-input": null,
+  "monaco-json-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/monaco-json-input",
+        "see": "pre"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "role=button[name=\"Format\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "role=button[name=\"Format\"]"
+      }
+    }
+  },
   "monaco-json-input-lazy": {
     "shownBy": "monaco-json-input"
   },
@@ -1220,7 +1322,24 @@
     "shownBy": "onboarding-tour"
   },
   "osm-feature-operator": null,
-  "password-input": null,
+  "password-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/password-input",
+        "see": "role=button[name=\"Show password\"]"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "role=button[name=\"Show password\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "role=button[name=\"Show password\"]"
+      }
+    }
+  },
   "permission-matrix": {
     "react": {
       "docs": {
@@ -1798,7 +1917,41 @@
   "validation-error": {
     "shownBy": "text-input"
   },
-  "webhook-endpoint-field": null,
-  "webhook-endpoint-input": null,
+  "webhook-endpoint-field": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/webhook-endpoint-field",
+        "see": "[data-webhook-status]"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "[data-webhook-status]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "[data-webhook-status]"
+      }
+    }
+  },
+  "webhook-endpoint-input": {
+    "react": {
+      "docs": {
+        "path": "/docs/editing/webhook-endpoint-input",
+        "see": "[data-webhook-url]"
+      },
+      "demo": {
+        "path": "/demo/integrations",
+        "see": "[data-webhook-url]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/Integrations",
+        "see": "[data-webhook-url]"
+      }
+    }
+  },
   "wrapper-field": null
 }
