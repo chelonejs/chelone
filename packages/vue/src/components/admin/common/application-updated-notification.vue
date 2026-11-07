@@ -47,7 +47,7 @@ const messageText = computed(() => props.message ?? props.notificationText);
 const buttonText = computed(() => props.buttonLabel ?? props.updateText);
 const cardClass = computed(() =>
   cn(
-    "fixed bottom-4 left-1/2 z-50 -translate-x-1/2 flex-row items-center gap-3 px-4 py-3",
+    "fixed bottom-4 left-1/2 z-50 -translate-x-1/2 flex flex-row items-center gap-3 px-4 py-3",
     props.class,
   ),
 );

@@ -20,7 +20,11 @@ interface PlaceholderProps extends ComponentProps<"span"> {
  */
 function Placeholder({ className, children, ...props }: PlaceholderProps) {
   return (
-    <span className={cn("inline-flex bg-muted", className)} {...props}>
+    <span
+      data-slot="placeholder"
+      className={cn("inline-flex bg-muted", className)}
+      {...props}
+    >
       {children ?? " "}
     </span>
   );
