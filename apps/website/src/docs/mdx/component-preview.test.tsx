@@ -111,6 +111,91 @@ describe("ComponentPreview framework switch", () => {
   });
 });
 
+// Every component given a Vue twin in this batch: the demo must exist beside its
+// React twin and preview in the Vue demo app when the page asks for Vue.
+const VUE_DEMOS = [
+  "app-config/admin",
+  "editing/edit-button",
+  "editing/save-button",
+  "page-components/create",
+  "page-components/list",
+  "ui-layout/app-bar",
+  "ui-layout/layout",
+  "ui-layout/menu",
+  "ui-layout/title",
+  "ui-layout/toolbar",
+  "ui-layout/user-menu",
+];
+
+describe.each(VUE_DEMOS)("the Vue demo of %s", (slug) => {
+  it("switches to the Vue demo app at ?framework=vue", () => {
+    renderPreview(`${slug}/basic`, `/docs/${slug}?framework=vue`);
+
+    expect(
+      screen.getByRole("button", { name: "Vue" }).getAttribute("aria-pressed"),
+    ).toBe("true");
+    expect(screen.getByTitle(/Vue demo/).getAttribute("src")).toBe(
+      `/vue-demo/docs-preview/${slug}/basic`,
+    );
+  });
+});
+
+// The frame is a window into another app: it must be laid out wide enough for a
+// desktop shell and resized to whatever the demo inside it grows to.
+describe("the Vue demo frame", () => {
+  const VUE_URL = "/docs/editing/resettable-text-input?framework=vue";
+
+  function frame() {
+    const el = screen.getByTitle(/Vue demo/);
+    if (!(el instanceof HTMLIFrameElement)) {
+      throw new Error("the Vue demo renders an <iframe>");
+    }
+    return el;
+  }
+
+  it("lays the frame out at desktop width, not the panel width", () => {
+    renderPreview(BOTH, VUE_URL);
+
+    expect(frame().style.width).toBe("800px");
+  });
+
+  it("grows and shrinks the frame to the height the demo reports", async () => {
+    renderPreview(BOTH, VUE_URL);
+    expect(frame().style.height).toBe("224px");
+
+    for (const [reported, expected] of [
+      [431, "431px"],
+      [5000, "1000px"],
+      [10, "128px"],
+    ] as const) {
+      await act(async () => {
+        window.dispatchEvent(
+          new MessageEvent("message", {
+            data: { type: "chelone-docs-demo-height", height: reported },
+            source: frame().contentWindow,
+          }),
+        );
+      });
+      expect(frame().style.height).toBe(expected);
+    }
+  });
+
+  it("ignores a height from a frame that is not the demo", async () => {
+    renderPreview(BOTH, VUE_URL);
+    const before = frame().style.height;
+
+    await act(async () => {
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: { type: "chelone-docs-demo-height", height: 900 },
+        }),
+      );
+    });
+
+    expect(frame().style.height).toBe(before);
+  });
+});
+
 describe("ComponentPreview with a name that matches no demo", () => {
   it("renders no switch, preview or iframe", () => {
     const { container } = renderPreview(
