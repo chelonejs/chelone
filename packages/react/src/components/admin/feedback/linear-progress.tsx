@@ -46,6 +46,7 @@ function LinearProgress(props: LinearProgressProps) {
 
   return (
     <div
+      data-slot="linear-progress"
       className={cn(
         "my-2 w-40 h-1 overflow-hidden rounded bg-muted",
         className,

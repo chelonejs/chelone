@@ -43,7 +43,7 @@ const fillWidth = computed(() =>
 
 <template>
   <span v-if="!ready" class="block my-1 h-1" />
-  <div v-else :class="classes">
+  <div v-else data-slot="linear-progress" :class="classes">
     <div
       v-if="value !== undefined"
       class="h-full bg-primary transition-all"
