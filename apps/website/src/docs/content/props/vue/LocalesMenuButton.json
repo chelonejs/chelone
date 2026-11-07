@@ -1,0 +1,19 @@
+{
+  "name": "LocalesMenuButton",
+  "props": [
+    {
+      "name": "languages",
+      "type": "{ locale: string; name: string; }[]",
+      "optional": true,
+      "comment": "Replaces the languages listed by `useLocales()`. Codes the i18n instance has\nno catalog for are left out, since choosing one would throw."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "icon",
+      "type": "{}",
+      "comment": "Shown in the trigger instead of the upper-cased current locale code."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "ResourceMenuItem",
+  "props": [
+    {
+      "name": "name",
+      "type": "string",
+      "optional": false,
+      "comment": "The resource name (matches a `<Resource name>` registered in `<Admin>`)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Override the label. Defaults to the pluralized resource label."
+    },
+    {
+      "name": "icon",
+      "type": "Component",
+      "optional": true,
+      "comment": "Override the icon. Defaults to the resource's registry icon or a list glyph."
+    },
+    {
+      "name": "onClick",
+      "type": "(() => void)",
+      "optional": true,
+      "comment": "Click handler invoked alongside the default navigation (e.g. close the drawer)."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

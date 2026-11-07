@@ -1,0 +1,41 @@
+{
+  "name": "Button",
+  "props": [
+    {
+      "name": "variant",
+      "type": "ButtonVariant",
+      "optional": true,
+      "default": "\"default\"",
+      "comment": ""
+    },
+    {
+      "name": "size",
+      "type": "ButtonSize",
+      "optional": true,
+      "default": "\"default\"",
+      "comment": ""
+    },
+    {
+      "name": "type",
+      "type": "\"button\" | \"reset\" | \"submit\"",
+      "optional": true,
+      "default": "\"button\"",
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "MdxField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": "Used when the record has no value at `source`."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": "Shown as the markdown when the value is missing; translated if it is a message key."
+    },
+    {
+      "name": "crepeConfig",
+      "type": "CrepeEditorConfig",
+      "optional": true,
+      "comment": "Merged under the read-only defaults; `code-mirror` and `latex` stay off."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "empty",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

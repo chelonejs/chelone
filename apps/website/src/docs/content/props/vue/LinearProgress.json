@@ -1,0 +1,27 @@
+{
+  "name": "LinearProgress",
+  "props": [
+    {
+      "name": "timeout",
+      "type": "number",
+      "optional": true,
+      "default": "1000",
+      "comment": "Delay (ms) before the bar appears. Default `1000`."
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "optional": true,
+      "comment": "When set, switches to determinate mode: fills to `(value / max) * 100%`."
+    },
+    {
+      "name": "max",
+      "type": "number",
+      "optional": true,
+      "default": "100",
+      "comment": "Maximum used to compute the fill percentage. Default `100`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

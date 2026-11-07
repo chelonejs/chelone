@@ -1,0 +1,22 @@
+{
+  "name": "Layout",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "sidebar",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "app-bar",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

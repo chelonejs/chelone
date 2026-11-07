@@ -1,0 +1,51 @@
+{
+  "name": "KanbanBoard",
+  "props": [
+    {
+      "name": "groupSource",
+      "type": "SourceKey<TRecord>",
+      "optional": false,
+      "comment": "The top-level field whose value names a column; a drop writes the target\ncolumn's `id` to it."
+    },
+    {
+      "name": "columns",
+      "type": "readonly KanbanColumnDef[]",
+      "optional": false,
+      "comment": "The columns, in order. A record whose group value names none is not shown."
+    },
+    {
+      "name": "titleSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The field shown as the card title; the record representation when it is null or undefined."
+    },
+    {
+      "name": "descriptionSource",
+      "type": "SourceProp<TRecord>",
+      "optional": true,
+      "default": "undefined",
+      "comment": "The field shown as a second line when its value is not empty."
+    },
+    {
+      "name": "linkType",
+      "type": "false | \"edit\" | \"show\"",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Where a card goes when nothing listens to `select-card`. `edit` by default,\n`show` when the resource has no edit view. `false` leaves cards inert."
+    }
+  ],
+  "emits": [
+    {
+      "name": "select-card",
+      "type": "[record: TRecord]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "card",
+      "type": "{ record: TRecord; }",
+      "comment": "Replaces the title and description inside a card."
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "name": "MultiPointField",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": "The record property holding the GeoJSON value."
+    },
+    {
+      "name": "record",
+      "type": "TRecord",
+      "optional": true,
+      "comment": "Defaults to the ambient record."
+    },
+    {
+      "name": "defaultValue",
+      "type": "unknown",
+      "optional": true,
+      "comment": "Used when the property is `undefined`."
+    },
+    {
+      "name": "emptyText",
+      "type": "string",
+      "optional": true,
+      "comment": "Replaces the translation of `chelone.map.no_geometry`."
+    },
+    {
+      "name": "height",
+      "type": "string | number",
+      "optional": true,
+      "default": "DEFAULT_MAP_HEIGHT",
+      "comment": "In pixels, or any CSS length. Defaults to 300."
+    },
+    {
+      "name": "mapStyle",
+      "type": "MapStyleInput",
+      "optional": true,
+      "comment": "Defaults to the style from `MapsProvider`."
+    },
+    {
+      "name": "scrollZoom",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Zoom with the mouse wheel. Defaults to false so the page still scrolls."
+    },
+    {
+      "name": "shapeStyle",
+      "type": "ShapeStyle",
+      "optional": true,
+      "comment": "Partial over `DEFAULT_SHAPE_STYLE`."
+    },
+    {
+      "name": "fitBounds",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Frame the map around the data. Defaults to true."
+    },
+    {
+      "name": "fitPadding",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_FIT_PADDING",
+      "comment": "Pixels kept free around the fitted box. Defaults to 20."
+    },
+    {
+      "name": "maxFitZoom",
+      "type": "number",
+      "optional": true,
+      "default": "DEFAULT_MAX_FIT_ZOOM",
+      "comment": "The highest zoom a fit may reach, which also sets a single Point's zoom. Defaults to 18."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,61 @@
+{
+  "name": "DataTableNumberCol",
+  "props": [
+    {
+      "name": "source",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "locales",
+      "type": "string | string[]",
+      "optional": true,
+      "comment": "BCP 47 locale(s) for `Intl.NumberFormat`."
+    },
+    {
+      "name": "options",
+      "type": "Intl.NumberFormatOptions",
+      "optional": true,
+      "comment": "`Intl.NumberFormatOptions` (currency, percent, fraction digits…)."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disableSort",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Hide the sort button on the header. A column with no `source` never sorts."
+    },
+    {
+      "name": "sortByOrder",
+      "type": "\"ASC\" | \"DESC\"",
+      "optional": true,
+      "comment": "The order the first click sorts by (default `\"ASC\"`)."
+    },
+    {
+      "name": "headerClass",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra class for the header `<th>` only."
+    },
+    {
+      "name": "cellClass",
+      "type": "string",
+      "optional": true,
+      "comment": "Extra class for the body `<td>`s only."
+    },
+    {
+      "name": "conditionalClass",
+      "type": "((record: LooseRecord) => string | false | undefined)",
+      "optional": true,
+      "comment": "Extra class for a body `<td>`, computed from its row record."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

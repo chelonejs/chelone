@@ -1,0 +1,45 @@
+{
+  "name": "ListToolbar",
+  "props": [
+    {
+      "name": "filters",
+      "type": "FilterFormEntry[]",
+      "optional": true,
+      "comment": "Filter inputs for the form, and the entries for the filter button."
+    },
+    {
+      "name": "actions",
+      "type": "false",
+      "optional": true,
+      "default": "undefined",
+      "comment": "`false` renders no actions. The `actions` slot replaces the default."
+    },
+    {
+      "name": "exporter",
+      "type": "false | Exporter",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Handed to the default actions; `false` hides the export button."
+    },
+    {
+      "name": "hasCreate",
+      "type": "boolean",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Handed to the default actions."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "actions",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

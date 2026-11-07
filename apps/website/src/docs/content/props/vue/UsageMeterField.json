@@ -1,0 +1,43 @@
+{
+  "name": "UsageMeterField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": "The record to render. Defaults to the ambient `RecordContext` value."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "limitSource",
+      "type": "SourceKey<RecordType>",
+      "optional": true,
+      "comment": "Sibling record field holding the limit/quota; the bar is only shown when\nset. A top-level key, not a path: the read is `record[limitSource]`."
+    },
+    {
+      "name": "unit",
+      "type": "string",
+      "optional": true,
+      "comment": "Optional unit suffix (e.g. \"GB\", \"requests\")."
+    },
+    {
+      "name": "thresholds",
+      "type": "UsageMeterThresholds",
+      "optional": true,
+      "comment": "Ratio thresholds. Defaults `{ warning: 0.8, critical: 1.0 }`."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

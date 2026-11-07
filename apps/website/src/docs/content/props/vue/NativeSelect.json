@@ -1,0 +1,48 @@
+{
+  "name": "NativeSelect",
+  "props": [
+    {
+      "name": "modelValue",
+      "type": "string | number | null",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "options",
+      "type": "Choice[]",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "ariaInvalid",
+      "type": "boolean",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "placeholder",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [
+    {
+      "name": "update:modelValue",
+      "type": "[value: string]"
+    }
+  ],
+  "slots": []
+}

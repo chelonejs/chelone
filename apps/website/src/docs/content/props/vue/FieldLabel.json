@@ -1,0 +1,21 @@
+{
+  "name": "FieldLabel",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": ""
+    },
+    {
+      "name": "htmlFor",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

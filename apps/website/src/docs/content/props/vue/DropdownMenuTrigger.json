@@ -1,0 +1,12 @@
+{
+  "name": "DropdownMenuTrigger",
+  "props": [],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

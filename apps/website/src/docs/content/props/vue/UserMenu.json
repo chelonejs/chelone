@@ -1,0 +1,19 @@
+{
+  "name": "UserMenu",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "aria-label override for the avatar trigger (translated). Defaults to the\nidentity's `fullName`, falling back to the translated \"User menu\"."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

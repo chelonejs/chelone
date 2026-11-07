@@ -1,0 +1,75 @@
+{
+  "name": "DataTable",
+  "props": [
+    {
+      "name": "bulkActions",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Enable row selection + the bulk-actions toolbar (also on if a `#bulkActions` slot is passed)."
+    },
+    {
+      "name": "pagination",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Render `<ListPagination>` below the table (default true)."
+    },
+    {
+      "name": "rowClick",
+      "type": "DataTableRowClick<TRecord>",
+      "optional": true,
+      "default": "\"edit\"",
+      "comment": "What a row click does: `\"edit\"` (default), `\"show\"`, `\"expand\"`,\n`\"toggleSelection\"`, `false` (inert), or a function of `(record, id)`\nreturning one of those or any other link type (`false` = do nothing)."
+    },
+    {
+      "name": "expandSingle",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Allow only one expanded row at a time (also hides the expand-all button)."
+    },
+    {
+      "name": "isRowExpandable",
+      "type": "((record: TRecord) => boolean)",
+      "optional": true,
+      "comment": "Which records can expand; a rejected row gets no toggle. All can by default."
+    },
+    {
+      "name": "rowClass",
+      "type": "((record: TRecord, rowIndex: number) => string | false | undefined)",
+      "optional": true,
+      "comment": "A class for a body row, computed from its record and index."
+    },
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": true,
+      "comment": "The store key of the hidden column ids; the order and the published\ncolumns are kept under keys derived from it. Defaults to\n`\"<resource>.datatable\"`."
+    },
+    {
+      "name": "defaultHiddenColumns",
+      "type": "string[]",
+      "optional": true,
+      "comment": "Column ids hidden until a choice is stored."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "expand",
+      "type": "{ id: Identifier; record: TRecord; resource: string; }",
+      "comment": "Under an expanded row, given the row's record."
+    },
+    {
+      "name": "bulkActions",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

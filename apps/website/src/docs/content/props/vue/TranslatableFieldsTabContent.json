@@ -1,0 +1,27 @@
+{
+  "name": "TranslatableFieldsTabContent",
+  "props": [
+    {
+      "name": "class",
+      "type": "string",
+      "optional": true,
+      "default": "undefined",
+      "comment": ""
+    },
+    {
+      "name": "groupKey",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": ""
+    },
+    {
+      "name": "locale",
+      "type": "string",
+      "optional": false,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

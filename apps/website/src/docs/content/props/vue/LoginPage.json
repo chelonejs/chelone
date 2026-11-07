@@ -1,0 +1,19 @@
+{
+  "name": "LoginPage",
+  "props": [
+    {
+      "name": "redirectTo",
+      "type": "string",
+      "optional": true,
+      "comment": "Path a successful sign-in redirects to. Forwarded to `<LoginForm>`."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": "Custom content in place of the default `<LoginForm>`."
+    }
+  ]
+}

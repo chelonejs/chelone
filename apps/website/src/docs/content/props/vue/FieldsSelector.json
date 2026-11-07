@@ -1,0 +1,31 @@
+{
+  "name": "FieldsSelector",
+  "props": [
+    {
+      "name": "storeKey",
+      "type": "string",
+      "optional": false,
+      "comment": "The store key the table uses."
+    },
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": "The resource, used to label columns. Defaults to the ambient resource."
+    },
+    {
+      "name": "listAs",
+      "type": "Component<FieldsSelectorListProps>",
+      "optional": true,
+      "comment": "Replaces the wrapper around the rows, which renders nothing of its own."
+    },
+    {
+      "name": "rowAs",
+      "type": "Component<FieldsSelectorRowProps>",
+      "optional": true,
+      "comment": "Replaces the `div` around each row."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

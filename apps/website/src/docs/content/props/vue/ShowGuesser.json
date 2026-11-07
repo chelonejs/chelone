@@ -1,0 +1,32 @@
+{
+  "name": "ShowGuesser",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "enableLog",
+      "type": "boolean",
+      "optional": true,
+      "default": "(typeof process !== \"undefined\" ? process.env?.NODE_ENV : undefined) !==\n    \"production\"",
+      "comment": "Print the generated code to the console. On outside production."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

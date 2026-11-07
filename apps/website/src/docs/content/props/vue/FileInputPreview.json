@@ -1,0 +1,24 @@
+{
+  "name": "FileInputPreview",
+  "props": [
+    {
+      "name": "file",
+      "type": "FileEntry",
+      "optional": false,
+      "comment": "The file record published to the preview slot (a transformed file or an existing record)."
+    }
+  ],
+  "emits": [
+    {
+      "name": "remove",
+      "type": "[]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

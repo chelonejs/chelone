@@ -1,0 +1,13 @@
+{
+  "name": "PassProvider",
+  "props": [
+    {
+      "name": "pass",
+      "type": "DataTablePass",
+      "optional": false,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

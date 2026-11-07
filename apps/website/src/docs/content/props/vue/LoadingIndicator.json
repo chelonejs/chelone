@@ -1,0 +1,11 @@
+{
+  "name": "LoadingIndicator",
+  "props": [],
+  "emits": [
+    {
+      "name": "click",
+      "type": "[]"
+    }
+  ],
+  "slots": []
+}

@@ -1,0 +1,44 @@
+{
+  "name": "PhoneField",
+  "props": [
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "displayFormat",
+      "type": "\"national\" | \"international\"",
+      "optional": true,
+      "comment": "`national` → `(415) 555-2671`; `international` → `+1 415 555 2671`."
+    },
+    {
+      "name": "link",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "When false, renders a plain `<span>` instead of a `tel:` link. Default true."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

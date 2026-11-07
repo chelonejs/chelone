@@ -1,0 +1,37 @@
+{
+  "name": "Error",
+  "props": [
+    {
+      "name": "errorComponent",
+      "type": "Component",
+      "optional": true,
+      "comment": "A custom component to render instead of the built-in error page."
+    },
+    {
+      "name": "title",
+      "type": "string | false",
+      "optional": true,
+      "comment": "When provided, injects a `<Title>` portal to update the app-bar page title.\nPass `false` to explicitly suppress a title."
+    },
+    {
+      "name": "error",
+      "type": "unknown",
+      "optional": false,
+      "comment": "The thrown error."
+    },
+    {
+      "name": "errorInfo",
+      "type": "string | null",
+      "optional": true,
+      "comment": "Vue's captured lifecycle-hook info / component stack (dev-facing)."
+    },
+    {
+      "name": "resetErrorBoundary",
+      "type": "(() => void)",
+      "optional": true,
+      "comment": "Reset the boundary imperatively."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

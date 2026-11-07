@@ -1,0 +1,42 @@
+{
+  "name": "DrawToolbar",
+  "props": [
+    {
+      "name": "tools",
+      "type": "readonly (\"delete\" | DrawTool)[]",
+      "optional": false,
+      "comment": "The buttons, in order. `delete` is an action on the selected feature, not a tool."
+    },
+    {
+      "name": "active",
+      "type": "DrawTool | null",
+      "optional": false,
+      "comment": "The pressed tool, or `null`."
+    },
+    {
+      "name": "canDelete",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Enables the `delete` button. Defaults to false."
+    },
+    {
+      "name": "disabled",
+      "type": "boolean",
+      "optional": true,
+      "default": "false",
+      "comment": "Disables every button."
+    }
+  ],
+  "emits": [
+    {
+      "name": "delete",
+      "type": "[]"
+    },
+    {
+      "name": "update:active",
+      "type": "[tool: DrawTool | null]"
+    }
+  ],
+  "slots": []
+}

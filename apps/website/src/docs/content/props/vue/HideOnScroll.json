@@ -1,0 +1,20 @@
+{
+  "name": "HideOnScroll",
+  "props": [
+    {
+      "name": "threshold",
+      "type": "number",
+      "optional": true,
+      "default": "100",
+      "comment": "Scroll offset in pixels a downward scroll must pass before hiding."
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

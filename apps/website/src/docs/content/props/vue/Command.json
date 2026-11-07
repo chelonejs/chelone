@@ -1,0 +1,39 @@
+{
+  "name": "Command",
+  "props": [
+    {
+      "name": "shouldFilter",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Filter items by the search text. Default `true`."
+    },
+    {
+      "name": "filter",
+      "type": "CommandFilter",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Score `(value, search, keywords)`; `0` hides the item."
+    },
+    {
+      "name": "modelValue",
+      "type": "string",
+      "optional": true,
+      "default": "\"\"",
+      "comment": "The search text."
+    }
+  ],
+  "emits": [
+    {
+      "name": "update:modelValue",
+      "type": "[value: string]"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

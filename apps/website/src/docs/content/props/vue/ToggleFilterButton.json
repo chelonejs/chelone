@@ -1,0 +1,32 @@
+{
+  "name": "ToggleFilterButton",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": "Translated with itself as the fallback. The default slot replaces it with\nmarkup that renders as it is."
+    },
+    {
+      "name": "value",
+      "type": "FilterPayload",
+      "optional": false,
+      "comment": "The filter this button sets, and removes again once the list holds it."
+    },
+    {
+      "name": "size",
+      "type": "ButtonSize",
+      "optional": true,
+      "default": "\"sm\"",
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

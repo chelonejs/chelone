@@ -1,0 +1,40 @@
+{
+  "name": "ReverseGeocodeField",
+  "props": [
+    {
+      "name": "latSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The record property holding the latitude."
+    },
+    {
+      "name": "lngSource",
+      "type": "string",
+      "optional": false,
+      "comment": "The record property holding the longitude."
+    },
+    {
+      "name": "record",
+      "type": "TRecord",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Defaults to the ambient record."
+    },
+    {
+      "name": "format",
+      "type": "\"full\" | \"street\" | \"city\"",
+      "optional": true,
+      "default": "\"full\"",
+      "comment": "`full` is the whole name, `street` its first part and `city` its first two. Defaults to `full`."
+    },
+    {
+      "name": "provider",
+      "type": "GeocodingProvider",
+      "optional": true,
+      "default": "undefined",
+      "comment": "Defaults to the `geocoder` of `MapsProvider`. One of the two is required."
+    }
+  ],
+  "emits": [],
+  "slots": []
+}

@@ -1,0 +1,19 @@
+{
+  "name": "BulkActionsToolbar",
+  "props": [
+    {
+      "name": "label",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}

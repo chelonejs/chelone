@@ -1,0 +1,36 @@
+{
+  "name": "InfiniteList",
+  "props": [
+    {
+      "name": "resource",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "perPage",
+      "type": "number",
+      "optional": true,
+      "comment": ""
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": ""
+    }
+  ],
+  "emits": [],
+  "slots": [
+    {
+      "name": "actions",
+      "type": "{}",
+      "comment": ""
+    },
+    {
+      "name": "default",
+      "type": "{}",
+      "comment": ""
+    }
+  ]
+}
