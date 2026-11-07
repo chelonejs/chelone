@@ -108,8 +108,10 @@ export type Order = {
   total: number;
   /** ISO datetime, in the past and the future. */
   delivery_at: string;
+  /** The time of day the delivery window opens, `HH:MM`. */
   slot: string;
-  handling_minutes: number;
+  /** How long the warehouse needs to prepare it, an ISO 8601 duration such as `PT1H15M`. */
+  handling: string;
   /** Ids of `products`; `product_id` is the first. */
   product_ids: number[];
 };
@@ -407,7 +409,7 @@ const cities = ["Portland", "Austin", "Denver", "Seattle", "Chicago", "Boston"];
 
 const plans = ["free", "pro", "team", "enterprise"];
 const segments = ["new", "active", "at-risk", "champion"];
-const slots = ["morning", "afternoon", "evening"];
+const slots = ["09:00", "13:00", "17:30"];
 
 const statuses = ["pending", "shipped", "delivered", "cancelled"];
 
@@ -425,6 +427,12 @@ function buildCustomers(now: Date): Customer[] {
   }));
 }
 
+/** `PT1H15M` for 75, `PT45M` for 45. */
+function isoDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  return `PT${hours > 0 ? `${hours}H` : ""}${minutes % 60}M`;
+}
+
 function buildOrders(now: Date): Order[] {
   return Array.from({ length: 16 }, (_, i) => {
     const product = cycle(products, i);
@@ -439,7 +447,7 @@ function buildOrders(now: Date): Order[] {
       total: Math.round(product.price * quantity * 100) / 100,
       delivery_at: from(now, (i - 6) * DAY + cycle([-3, 2, 7], i) * HOUR),
       slot: cycle(slots, i),
-      handling_minutes: 15 + ((i * 10) % 90),
+      handling: isoDuration(15 + ((i * 10) % 90)),
       product_ids: [product.id, cycle(products, i + 1).id],
     };
   });

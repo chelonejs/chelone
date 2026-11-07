@@ -35,9 +35,10 @@ import { textOf, toDateInputValue, toTextValue } from "@chelone/core";
 import { computed, ref, watch } from "vue";
 import { useInput } from "../../../form/use-input";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
+import { cn } from "../../../lib/utils";
 import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
-import { formatDate, isValidDate } from "./date-input-format";
+import { formatDate, isValidDate, PICKER_INPUT_CLASS } from "./date-input-format";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
@@ -94,7 +95,7 @@ function onBlur() {
       :disabled="disabled"
       :readonly="readonly"
       :aria-invalid="invalid"
-      :class="inputClass"
+      :class="cn(PICKER_INPUT_CLASS, inputClass)"
       @focus="focused = true"
       @update:model-value="onInput"
       @blur="onBlur"
