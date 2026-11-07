@@ -41,7 +41,6 @@ const props = withDefaults(defineProps<PasswordInputProps>(), {
 
 const visible = ref(props.initiallyVisible === true);
 const translate = useTranslate();
-const hasLabel = computed(() => props.label !== false);
 
 const toggleLabel = computed(() =>
   visible.value
@@ -51,62 +50,64 @@ const toggleLabel = computed(() =>
 </script>
 
 <template>
-  <div :class="cn('relative', props.class)">
-    <TextInput
-      :source="source"
-      :label="label"
-      :type="visible ? 'text' : 'password'"
-      :default-value="defaultValue"
-      :validate="validate"
-      :helper-text="helperText"
-      :placeholder="placeholder"
-      :disabled="disabled"
-      :readonly="readonly"
-      :autocomplete="autocomplete"
-      :autofocus="autofocus"
-      :input-class="cn('pr-10', inputClass)"
-    />
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      :class="cn('absolute right-1 size-7 text-muted-foreground', hasLabel ? 'top-5.5' : 'top-0')"
-      :aria-label="toggleLabel"
-      :tabindex="-1"
-      @click="visible = !visible"
-    >
-      <svg
-        v-if="visible"
-        xmlns="http://www.w3.org/2000/svg"
-        class="size-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
+  <TextInput
+    :source="source"
+    :label="label"
+    :type="visible ? 'text' : 'password'"
+    :default-value="defaultValue"
+    :validate="validate"
+    :helper-text="helperText"
+    :placeholder="placeholder"
+    :disabled="disabled"
+    :readonly="readonly"
+    :autocomplete="autocomplete"
+    :autofocus="autofocus"
+    :class="props.class"
+    :input-class="cn('pr-10', inputClass)"
+  >
+    <template #controlSuffix>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        class="absolute top-1/2 right-1 size-7 -translate-y-1/2 text-muted-foreground"
+        :aria-label="toggleLabel"
+        :tabindex="-1"
+        @click="visible = !visible"
       >
-        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-        <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-        <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-        <line x1="2" x2="22" y1="2" y2="22" />
-      </svg>
-      <svg
-        v-else
-        xmlns="http://www.w3.org/2000/svg"
-        class="size-4"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-        <circle cx="12" cy="12" r="3" />
-      </svg>
-    </Button>
-  </div>
+        <svg
+          v-if="visible"
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+          <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+          <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+          <line x1="2" x2="22" y1="2" y2="22" />
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </Button>
+    </template>
+  </TextInput>
 </template>

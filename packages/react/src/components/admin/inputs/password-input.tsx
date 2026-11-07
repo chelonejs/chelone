@@ -13,8 +13,9 @@ interface PasswordInputProps
 /**
  * Text input for passwords, with a button to toggle visibility.
  *
- * Wraps `<TextInput>` and forces `type="password"`. Set `initiallyVisible` to
- * render the password in plain text on first render.
+ * Wraps `<TextInput>` and forces `type="password"`; the toggle goes in its
+ * `controlSuffix`, so it is centred on the input with or without a label. Set
+ * `initiallyVisible` to render the password in plain text on first render.
  *
  * @example
  * import { Edit, PasswordInput } from '@/components/admin';
@@ -34,39 +35,36 @@ function PasswordInput(props: PasswordInputProps) {
   } = props;
   const [visible, setVisible] = useState(initiallyVisible);
   const translate = useTranslate();
-  const hasLabel = rest.label !== false;
 
   return (
-    <div className={cn("relative", className)}>
-      <TextInput
-        {...rest}
-        type={visible ? "text" : "password"}
-        inputClassName={cn("pr-10", inputClassName)}
-      />
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className={cn(
-          "absolute right-1 size-7 text-muted-foreground",
-          hasLabel ? "top-9" : "top-1",
-        )}
-        onClick={() => setVisible((v) => !v)}
-        aria-label={translate(
-          visible
-            ? "ra.input.password.toggle_visible"
-            : "ra.input.password.toggle_hidden",
-          { _: visible ? "Hide password" : "Show password" },
-        )}
-        tabIndex={-1}
-      >
-        {visible ? (
-          <EyeOff className="size-4" aria-hidden="true" />
-        ) : (
-          <Eye className="size-4" aria-hidden="true" />
-        )}
-      </Button>
-    </div>
+    <TextInput
+      {...rest}
+      type={visible ? "text" : "password"}
+      className={className}
+      inputClassName={cn("pr-10", inputClassName)}
+      controlSuffix={
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute top-1/2 right-1 size-7 -translate-y-1/2 text-muted-foreground"
+          onClick={() => setVisible((v) => !v)}
+          aria-label={translate(
+            visible
+              ? "ra.input.password.toggle_visible"
+              : "ra.input.password.toggle_hidden",
+            { _: visible ? "Hide password" : "Show password" },
+          )}
+          tabIndex={-1}
+        >
+          {visible ? (
+            <EyeOff className="size-4" aria-hidden="true" />
+          ) : (
+            <Eye className="size-4" aria-hidden="true" />
+          )}
+        </Button>
+      }
+    />
   );
 }
 
