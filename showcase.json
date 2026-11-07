@@ -1267,7 +1267,24 @@
       }
     }
   },
-  "edit-live": null,
+  "edit-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/edit-live",
+        "see": "role=button[name=\"Save\"]"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=button[name=\"Save\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=button[name=\"Save\"]"
+      }
+    }
+  },
   "email-field": {
     "react": {
       "docs": {
@@ -1815,7 +1832,24 @@
       }
     }
   },
-  "list-live": null,
+  "list-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/list-live",
+        "see": "role=button[name=\"Another user adds a post\"]"
+      },
+      "demo": {
+        "path": "/demo/posts",
+        "see": "main >> role=button[name=\"Another user adds a post\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts",
+        "see": "main >> role=button[name=\"Another user adds a post\"]"
+      }
+    }
+  },
   "list-no-results": {
     "shownBy": "simple-list"
   },
@@ -1900,8 +1934,42 @@
       }
     }
   },
-  "lock-on-mount": null,
-  "lock-status": null,
+  "lock-on-mount": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/lock-on-mount",
+        "see": "text=Ada holds the lock on post 1"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "role=textbox[name=\"Title\"]"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "role=textbox[name=\"Title\"]"
+      }
+    }
+  },
+  "lock-status": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/lock-status",
+        "see": "text=Post 1 is free"
+      },
+      "demo": {
+        "path": "/demo/posts/1",
+        "see": "text=Locked by you"
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/posts/1",
+        "see": "text=Locked by you"
+      }
+    }
+  },
   "login-form": null,
   "login-page": null,
   "login-with-email": null,
@@ -1997,7 +2065,26 @@
     }
   },
   "menu-item-link": null,
-  "menu-live": null,
+  "menu-live": {
+    "react": {
+      "docs": {
+        "path": "/docs/realtime/menu-live",
+        "see": "role=link[name=\"Unread posts\"]"
+      },
+      "demo": {
+        "path": "/demo/authors",
+        "see": "[data-testid=\"menu-live-badge\"]",
+        "click": ["role=button[name=\"Another user adds a post\"]"]
+      }
+    },
+    "vue": {
+      "demo": {
+        "path": "/vue-demo/authors",
+        "see": "[data-testid=\"menu-live-badge\"]",
+        "click": ["role=button[name=\"Another user adds a post\"]"]
+      }
+    }
+  },
   "metric-card": null,
   "monaco": {
     "shownBy": "monaco-json-input"
