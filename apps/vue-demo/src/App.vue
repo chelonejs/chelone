@@ -39,6 +39,9 @@ import PlaceCreate from "./resources/PlaceCreate.vue";
 import PlaceEdit from "./resources/PlaceEdit.vue";
 import PlaceList from "./resources/PlaceList.vue";
 import PlaceShow from "./resources/PlaceShow.vue";
+import PageEdit from "./resources/PageEdit.vue";
+import PageList from "./resources/PageList.vue";
+import PageShow from "./resources/PageShow.vue";
 import PostCreate from "./resources/PostCreate.vue";
 import PostEdit from "./resources/PostEdit.vue";
 import PostList from "./resources/PostList.vue";
@@ -52,7 +55,7 @@ import Shell from "./Shell.vue";
 
 // No hand-written views yet: the guessers build them from the schemas in
 // resources/schema.ts.
-const guessedResources = ["pages", "categories", "tags"];
+const guessedResources = ["categories", "tags"];
 
 // A retry-off query client, the English i18n catalog and a notification store
 // (the simulated user's failed lock reports through it) — the services a real
@@ -129,6 +132,12 @@ const store = makeDemoStore();
         :edit="PlaceEdit"
         :create="PlaceCreate"
         :show="PlaceShow"
+      />
+      <Resource
+        name="pages"
+        :list="PageList"
+        :edit="PageEdit"
+        :show="PageShow"
       />
       <Resource
         v-for="name in guessedResources"
