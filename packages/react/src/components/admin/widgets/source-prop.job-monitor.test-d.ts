@@ -2,14 +2,12 @@ import type { SourceKey, SourceProp } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { JobMonitorProps } from "./job-monitor";
 
-// A type alias: an interface has no index signature, so it does not satisfy
-// the monitor's `LooseRecord` constraint.
-type Job = {
+interface Job {
   id: number;
   status: string;
   kind: string;
   lastError: string | null;
-};
+}
 
 describe("JobMonitor source props", () => {
   it("statusSource is a SourceKey and the other sources are SourceProp", () => {

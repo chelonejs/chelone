@@ -4,6 +4,8 @@ import {
   DEFAULT_JOB_TABS,
   getJobActions,
   type JobActionOptions,
+  type JobPlan,
+  jobStatusSource,
   planJobCancel,
   planJobRetry,
 } from "./job-monitor";
@@ -48,5 +50,21 @@ describe("job monitor types", () => {
     expectTypeOf<JobActionOptions<LooseRecord>["statusSource"]>().toEqualTypeOf<
       string | undefined
     >();
+  });
+
+  it("a plan carries the job's own type", () => {
+    expectTypeOf(planJobRetry(job)).toEqualTypeOf<JobPlan<Job> | null>();
+    expectTypeOf(planJobCancel(job)).toEqualTypeOf<JobPlan<Job> | null>();
+    expectTypeOf<JobPlan<Job>["previousData"]>().toEqualTypeOf<Job>();
+    expectTypeOf<JobPlan<Job>["data"]>().toEqualTypeOf<Partial<Job>>();
+  });
+
+  it("the status key is a key of the record", () => {
+    expectTypeOf(jobStatusSource<Job>("state")).toEqualTypeOf<
+      "id" | "state" | "payload"
+    >();
+    // @ts-expect-error `status` is not a key of Job
+    jobStatusSource<Job>("status");
+    expectTypeOf(jobStatusSource<LooseRecord>("anything")).toBeString();
   });
 });

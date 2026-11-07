@@ -5,9 +5,12 @@ import {
   getJobActions,
   type JobActionOptions,
   type JobPlan,
+  jobStatusSource,
   type LooseRecord,
   planJobCancel,
   planJobRetry,
+  type RecordResources,
+  type ResourceRecord,
   type SortPayload,
   type SourceKey,
   type SourceProp,
@@ -27,7 +30,7 @@ import { DateField } from "../fields/date-field";
 import { JsonField } from "../fields/json-field";
 import { useMenuAccess } from "../layout/use-menu-access";
 
-export interface JobMonitorProps<TRecord extends LooseRecord = LooseRecord> {
+export interface JobMonitorProps<TRecord extends ResourceRecord = LooseRecord> {
   /** The jobs resource. Defaults to the resource context; with neither, nothing renders. */
   resource?: string;
   /** Milliseconds between reads. Default 5000, `0` turns polling off. */
@@ -65,8 +68,8 @@ export interface JobMonitorProps<TRecord extends LooseRecord = LooseRecord> {
   className?: string;
 }
 
-type Fields = {
-  statusSource: string;
+type Fields<TRecord extends ResourceRecord> = {
+  statusSource: keyof TRecord & string;
   typeSource: string;
   payloadSource: string;
   errorSource: string;
@@ -74,8 +77,8 @@ type Fields = {
   createdAtSource: string;
 };
 
-type Rules = Pick<
-  JobMonitorProps,
+type Rules<TRecord extends ResourceRecord> = Pick<
+  JobMonitorProps<TRecord>,
   "retryFrom" | "cancelFrom" | "retryValue" | "cancelValue"
 >;
 
@@ -83,7 +86,7 @@ type Rules = Pick<
 const text = (value: unknown) =>
   value == null || value === "" ? undefined : String(value);
 
-function JobRow({
+function JobRow<TRecord extends ResourceRecord>({
   job,
   resource,
   fields,
@@ -92,13 +95,13 @@ function JobRow({
   busy,
   onPlan,
 }: {
-  job: LooseRecord;
+  job: TRecord;
   resource: string;
-  fields: Fields;
-  rules: Rules;
+  fields: Fields<TRecord>;
+  rules: Rules<TRecord>;
   actions: boolean;
   busy: boolean;
-  onPlan: (plan: JobPlan<LooseRecord> | null) => void;
+  onPlan: (plan: JobPlan<TRecord> | null) => void;
 }) {
   const translate = useTranslate();
   const [showPayload, setShowPayload] = useState(false);
@@ -108,7 +111,7 @@ function JobRow({
     record: job,
   });
 
-  const options: JobActionOptions<LooseRecord> = {
+  const options: JobActionOptions<TRecord> = {
     statusSource: fields.statusSource,
     ...rules,
   };
@@ -174,7 +177,7 @@ function JobRow({
                 size="sm"
                 data-slot="job-monitor-retry"
                 disabled={busy}
-                onClick={() => onPlan(planJobRetry<LooseRecord>(job, options))}
+                onClick={() => onPlan(planJobRetry<TRecord>(job, options))}
               >
                 {translate("chelone.job_monitor.retry", { _: "Retry" })}
               </Button>
@@ -186,7 +189,7 @@ function JobRow({
                 size="sm"
                 data-slot="job-monitor-cancel"
                 disabled={busy}
-                onClick={() => onPlan(planJobCancel<LooseRecord>(job, options))}
+                onClick={() => onPlan(planJobCancel<TRecord>(job, options))}
               >
                 {translate("ra.action.cancel", { _: "Cancel" })}
               </Button>
@@ -212,16 +215,16 @@ function JobRow({
   );
 }
 
-function JobMonitorBody({
+function JobMonitorBody<TRecord extends ResourceRecord>({
   resource,
   pollInterval = 5000,
   tabs = DEFAULT_JOB_TABS,
-  statusSource = "status",
-  typeSource = "type",
-  payloadSource = "payload",
-  errorSource = "lastError",
-  attemptsSource = "attempts",
-  createdAtSource = "createdAt",
+  statusSource,
+  typeSource,
+  payloadSource,
+  errorSource,
+  attemptsSource,
+  createdAtSource,
   perPage = 200,
   sort,
   actions = true,
@@ -231,24 +234,29 @@ function JobMonitorBody({
   cancelValue,
   title,
   className,
-}: JobMonitorProps & { resource: string }) {
+}: JobMonitorProps<TRecord> & { resource: string }) {
   const translate = useTranslate();
   const notify = useNotify();
+  const status = jobStatusSource<TRecord>(statusSource);
+  const createdSource = createdAtSource ?? "createdAt";
   // Owned here, not by a row: a row unmounts when its tab is left or a poll
   // moves the job, and an unmounted observer drops the notifications below.
   // One write at a time, so a second job's write cannot displace the first's.
-  const { mutate, isPending: isWriting } = useUpdate(resource, {
+  const { mutate, isPending: isWriting } = useUpdate<
+    RecordResources<TRecord>,
+    string
+  >(resource, {
     mutationMode: "pessimistic",
   });
-  const { data, isError } = useGetList(
+  const { data, isError } = useGetList<RecordResources<TRecord>, string>(
     resource,
     {
       pagination: { page: 1, perPage },
-      sort: sort ?? { field: createdAtSource, order: "DESC" },
+      sort: sort ?? { field: createdSource, order: "DESC" },
     },
     { refetchInterval: pollInterval },
   );
-  const write = (plan: JobPlan<LooseRecord> | null) => {
+  const write = (plan: JobPlan<TRecord> | null) => {
     if (!plan) return;
     mutate(plan, {
       onSuccess: () =>
@@ -262,20 +270,20 @@ function JobMonitorBody({
       },
     });
   };
-  const fields: Fields = {
-    statusSource,
-    typeSource,
-    payloadSource,
-    errorSource,
-    attemptsSource,
-    createdAtSource,
+  const fields: Fields<TRecord> = {
+    statusSource: status,
+    typeSource: typeSource ?? "type",
+    payloadSource: payloadSource ?? "payload",
+    errorSource: errorSource ?? "lastError",
+    attemptsSource: attemptsSource ?? "attempts",
+    createdAtSource: createdSource,
   };
 
   if (!data && !isError) return null;
 
   const buckets = buildKanbanBuckets(
     data?.data ?? [],
-    statusSource,
+    status,
     tabs.map((id) => ({
       id,
       label: translate(`chelone.job_monitor.status.${id}`, { _: id }),
@@ -368,7 +376,7 @@ function JobMonitorBody({
  *
  * export const Dashboard = () => <JobMonitor resource="jobs" pollInterval={3000} />;
  */
-function JobMonitor<TRecord extends LooseRecord = LooseRecord>({
+function JobMonitor<TRecord extends ResourceRecord = LooseRecord>({
   resource: resourceProp,
   ...props
 }: JobMonitorProps<TRecord>) {

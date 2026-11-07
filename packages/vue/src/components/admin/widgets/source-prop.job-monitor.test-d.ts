@@ -2,14 +2,12 @@ import type { SourceKey, SourceProp } from "@chelone/core";
 import { assertType, describe, expectTypeOf, it } from "vitest";
 import type { JobMonitorProps } from "./job-monitor.vue";
 
-// A type alias: an interface has no index signature, so it does not satisfy
-// the monitor's `LooseRecord` constraint.
-type Ticket = {
+interface Ticket {
   id: number;
   status: string;
   kind: string;
   lastError: string | null;
-};
+}
 
 type SourcesOf<P> = Required<
   Pick<

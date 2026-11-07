@@ -9,6 +9,7 @@
 
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
+import type { SourceKey } from "../resource/source-path";
 import { getAllowedTransitions } from "./record-workflow";
 
 /** The monitor's tabs, in order. One `buildKanbanBuckets` column per status. */
@@ -42,7 +43,7 @@ export interface JobActions {
 /** The arguments of one `update` call, ready to hand to a data provider. */
 export interface JobPlan<TRecord> {
   id: Identifier;
-  data: Record<string, string>;
+  data: Partial<TRecord>;
   previousData: TRecord;
 }
 
@@ -58,6 +59,18 @@ function canMove<TRecord extends object>(
     transitions,
   });
   return { status: current, allowed: allowed.includes(to) };
+}
+
+/**
+ * The status key a monitor reads: `source`, or `"status"`. `SourceKey` is
+ * `keyof TRecord & string` for a typed record and `string` for a loose one,
+ * whose keys are every string, so it is always a key of `TRecord`.
+ */
+export function jobStatusSource<TRecord extends object>(
+  source?: SourceKey<TRecord>,
+): keyof TRecord & string {
+  // type-escape: SourceKey<TRecord> is a key of TRecord, or string where TRecord's keys are every string
+  return (source ?? "status") as keyof TRecord & string;
 }
 
 export function getJobActions<TRecord extends object>(
@@ -87,7 +100,9 @@ function plan<TRecord extends ResourceRecord>(
   allowed: boolean,
 ): JobPlan<TRecord> | null {
   if (!allowed) return null;
-  return { id: record.id, data: { [source]: value }, previousData: record };
+  // type-escape: the patch holds one key of the record, the status the job's rules just allowed
+  const data = { [source]: value } as Partial<TRecord>;
+  return { id: record.id, data, previousData: record };
 }
 
 /** The `update` that retries the job, or `null` when it cannot be retried. */

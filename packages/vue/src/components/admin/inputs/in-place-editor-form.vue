@@ -1,9 +1,9 @@
-<script lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
-import type { LooseRecord } from "@chelone/core";
+<script lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
+import type { LooseRecord, ResourceRecord } from "@chelone/core";
 
 /** Props for {@link InPlaceEditorForm}. */
 export interface InPlaceEditorFormProps<
-  TRecord extends LooseRecord = LooseRecord,
+  TRecord extends ResourceRecord = LooseRecord,
 > {
   /** The record as it is when editing starts: the form's starting values and the save's `previousData`. */
   record: TRecord;
@@ -14,7 +14,7 @@ export interface InPlaceEditorFormProps<
 }
 </script>
 
-<script setup lang="ts" generic="TRecord extends LooseRecord = LooseRecord">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = LooseRecord">
 /**
  * The editing state of `<InPlaceEditor>`. It mounts when editing starts and
  * holds the form, so the form starts from the record as it is then and never

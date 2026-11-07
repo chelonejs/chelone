@@ -15,6 +15,8 @@ import {
   type MutationMode,
   nextInPlaceEditorState,
   planInPlaceSave,
+  type RecordResources,
+  type ResourceRecord,
   type SourceProp,
 } from "@chelone/core";
 import {
@@ -47,7 +49,7 @@ import { TextField } from "../fields/text-field";
 import { useMenuAccess } from "../layout/use-menu-access";
 import { TextInput } from "./text-input";
 
-interface InPlaceEditorProps<TRecord extends LooseRecord = LooseRecord> {
+interface InPlaceEditorProps<TRecord extends ResourceRecord = LooseRecord> {
   /**
    * The field to show and edit. Required unless both `children` and `editor`
    * are given.
@@ -95,7 +97,7 @@ interface InPlaceEditorProps<TRecord extends LooseRecord = LooseRecord> {
  *   </Show>
  * );
  */
-function InPlaceEditor<TRecord extends LooseRecord = LooseRecord>(
+function InPlaceEditor<TRecord extends ResourceRecord = LooseRecord>(
   props: InPlaceEditorProps<TRecord>,
 ) {
   const {
@@ -126,20 +128,25 @@ function InPlaceEditor<TRecord extends LooseRecord = LooseRecord>(
   const translate = useTranslate();
   const notify = useNotify();
   const root = useRef<HTMLDivElement>(null);
-  const [state, dispatch] = useReducer(nextInPlaceEditorState, {
+  const [state, dispatch] = useReducer(nextInPlaceEditorState<TRecord>, {
     status: "reading",
-  } satisfies InPlaceEditorState);
+  } satisfies InPlaceEditorState<TRecord>);
   const { canAccess, isPending: isAccessPending } = useMenuAccess({
     action: "edit",
     resource: resource ?? "",
     record,
   });
-  const { mutate } = useUpdate(resource ?? "", { mutationMode });
+  const { mutate } = useUpdate<RecordResources<TRecord>, string>(
+    resource ?? "",
+    {
+      mutationMode,
+    },
+  );
 
   // `source` is set here whenever a default is used: the check above threw otherwise.
   const children =
     childrenProp ??
-    (source === undefined ? null : <TextField<TRecord> source={source} />);
+    (source === undefined ? null : <TextField source={source} />);
   const editor =
     editorProp ??
     (source === undefined ? null : (
@@ -169,8 +176,7 @@ function InPlaceEditor<TRecord extends LooseRecord = LooseRecord>(
               messageArgs: { smart_count: 1 },
             });
           }
-          // type-escape: the update returns the record of the resource this editor shows, which is `TRecord`
-          onSuccess?.(saved as TRecord);
+          onSuccess?.(saved);
         },
         onError: (error) => {
           dispatch({ type: "settled" });
@@ -236,7 +242,7 @@ function InPlaceEditor<TRecord extends LooseRecord = LooseRecord>(
   );
 }
 
-interface InPlaceEditorFormProps<TRecord extends LooseRecord> {
+interface InPlaceEditorFormProps<TRecord extends ResourceRecord> {
   record: TRecord;
   resource: string | undefined;
   root: RefObject<HTMLDivElement | null>;
@@ -251,7 +257,7 @@ interface InPlaceEditorFormProps<TRecord extends LooseRecord> {
  * The editing state. It mounts when editing starts and holds the form, so the
  * form starts from the record as it is then and never carries an edit over.
  */
-function InPlaceEditorForm<TRecord extends LooseRecord>(
+function InPlaceEditorForm<TRecord extends ResourceRecord>(
   props: InPlaceEditorFormProps<TRecord>,
 ) {
   const {
