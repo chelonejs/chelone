@@ -6,6 +6,7 @@ import {
   calendarLabels,
   calendarRange,
   calendarRangeFilter,
+  DEFAULT_PER_PAGE,
   type LooseRecord,
   type ResourceRecord,
   type SourcePath,
@@ -206,7 +207,7 @@ function CalendarList<RecordType extends ResourceRecord = LooseRecord>({
         filter,
         perPage:
           before.previousPerPage === own
-            ? (current.defaultPerPage ?? 10)
+            ? (current.defaultPerPage ?? DEFAULT_PER_PAGE)
             : before.previousPerPage,
       });
     },
