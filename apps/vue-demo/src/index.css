@@ -10,6 +10,13 @@
  */
 @source "../../../packages/vue/src/components";
 
+/*
+ * The docs demos compile here (the website has no Vue compiler), and they are
+ * outside this app's folder, so Tailwind would not see the classes only they
+ * use. Point `@source` at the Vue ones.
+ */
+@source "../../website/src/docs/content";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
