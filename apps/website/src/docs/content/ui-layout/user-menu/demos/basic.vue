@@ -22,8 +22,6 @@ if (context) provideCheloneContext({ ...context, authProvider: signedIn });
 </script>
 
 <template>
-  <!-- `<UserMenu>` is the avatar button of a signed-in "Ada Lovelace", opening a menu with Log out. The frame is a desktop viewport, so the button is centred in it as the React panel centres it. -->
-  <div class="flex w-full justify-center">
-    <UserMenu />
-  </div>
+  <!-- `<UserMenu>` is the avatar button of a signed-in "Ada Lovelace", opening a menu with Log out. -->
+  <UserMenu />
 </template>
