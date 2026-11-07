@@ -6,7 +6,11 @@ import MdxPage from "./mdx-page";
 
 // Shiki decompresses its bundled WASM through Blob.stream(), absent in jsdom.
 beforeEach(() => vi.stubGlobal("Blob", Blob));
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  // A test that picks Vue must not carry the choice to the next page.
+  localStorage.clear();
+});
 
 it("shows one live preview above the reference page body when a basic demo exists", async () => {
   render(

@@ -18,7 +18,7 @@ const guides = import.meta.glob<GuideModule>("./content/**/*.mdx", {
 
 // Inspect paths without importing demos into the docs entry chunk.
 const basicDemos = import.meta.glob(
-  "./content/{viewing,editing,ui-layout}/*/demos/basic.tsx",
+  "./content/{viewing,editing,ui-layout}/*/demos/basic.{tsx,vue}",
 );
 
 const bySlug = new Map(
@@ -78,7 +78,8 @@ export default function MdxPage() {
           <InstallCommand install={install} vue={vue} />
         </div>
       )}
-      {basicDemos[`./content/${slug}/demos/basic.tsx`] && (
+      {(basicDemos[`./content/${slug}/demos/basic.tsx`] ||
+        basicDemos[`./content/${slug}/demos/basic.vue`]) && (
         <ComponentPreview key={slug} name={`${slug}/basic`} />
       )}
       <Content />

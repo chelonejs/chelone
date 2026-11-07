@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { installFor, vueInstallFor } from "@/docs/registry";
 import { InstallCommand } from "./install-command";
 
@@ -21,11 +21,15 @@ describe("vueInstallFor", () => {
   });
 });
 
-function renderInstall(withVue: boolean) {
+afterEach(() => {
+  localStorage.clear();
+});
+
+function renderInstall(withVue: boolean, url = "/") {
   const install = installFor("data-table");
   if (!install) throw new Error("data-table must be a React registry item");
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[url]}>
       <InstallCommand
         install={install}
         vue={withVue ? vueInstallFor("data-table") : undefined}
@@ -61,6 +65,17 @@ describe("InstallCommand", () => {
     ).toBe(
       "Add the Chelone registry to your Vue components.json first, as described in the Vue registry setup.",
     );
+  });
+
+  it("?framework=vue starts on the Vue command", () => {
+    renderInstall(true, "/docs/data-table?framework=vue");
+
+    expect(
+      screen.getByText("pnpm dlx shadcn-vue@latest add @chelone/data-table"),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("button", { name: "Vue" }).getAttribute("aria-pressed"),
+    ).toBe("true");
   });
 
   it("without a Vue command, no framework switch renders", () => {
