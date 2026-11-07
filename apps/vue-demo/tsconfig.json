@@ -5,7 +5,8 @@
     "types": ["vite/client", "node"],
     "jsx": "preserve",
     "noEmit": true,
-    "declaration": false
+    "declaration": false,
+    "paths": { "@/*": ["./src/*"] }
   },
   "include": [
     "src",
