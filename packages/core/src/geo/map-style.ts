@@ -57,6 +57,18 @@ export function rasterTileStyle({
   };
 }
 
+/** The zoom a map view builds when the app passes none. */
+export const DEFAULT_MAP_ZOOM = 13;
+
+/** The height in pixels a map view builds when the app passes none. */
+export const DEFAULT_MAP_HEIGHT = 300;
+
+/** The pin fill a map marker uses when the app passes no color. */
+export const DEFAULT_PIN_COLOR = "#dc2626";
+
+/** The SVG namespace, for building a pin element without a map library. */
+export const PIN_NS = "http://www.w3.org/2000/svg";
+
 /** `[lat, lng]` (what components take) to MapLibre's `[lng, lat]`. */
 export function latLngToLngLat(
   latLng: readonly [lat: number, lng: number],

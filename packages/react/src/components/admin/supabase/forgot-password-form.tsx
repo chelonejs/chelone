@@ -7,7 +7,7 @@
  * message, because the form `save` contract must resolve for provider errors.
  */
 
-import { errorMessageOf, required } from "@chelone/core";
+import { DEFAULT_LOGIN_PATH, errorMessageOf, required } from "@chelone/core";
 import { useCallback } from "react";
 import { TextInput } from "@/components/admin/inputs/text-input";
 import { Button } from "@/components/ui/button";
@@ -91,7 +91,7 @@ function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
           })}
         </Button>
         <Link
-          to="/login"
+          to={DEFAULT_LOGIN_PATH}
           className="text-center text-sm text-muted-foreground underline underline-offset-4 hover:text-primary"
         >
           {translate("ra-supabase.auth.back_to_login", {

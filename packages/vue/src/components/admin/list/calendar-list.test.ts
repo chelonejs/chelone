@@ -7,6 +7,7 @@
  */
 
 import {
+  calendarDaySlot,
   type DataProvider,
   fakeDataProvider,
   type GetListParams,
@@ -453,20 +454,18 @@ describe("<CalendarList> month view", () => {
     expect(listened.router.currentRoute.value.path).toBe("/meetings");
   });
 
-  it("an empty cell emits select-slot with the whole day, an event click does not", async () => {
+  it("selecting a month day reports the slot from core", async () => {
     const onSelectSlot = vi.fn();
     const onSelectEvent = vi.fn();
     const { wrapper } = await mountList({
       list: calendar({ titleSource: "name", onSelectSlot, onSelectEvent }),
     });
 
+    // The slot is core's `calendarDaySlot`, not a date the view builds itself.
+    const slot = calendarDaySlot(new Date(2026, 4, 20));
     await cell(wrapper, "2026-05-20").trigger("click");
     expect(onSelectSlot).toHaveBeenCalledTimes(1);
-    expect(onSelectSlot).toHaveBeenCalledWith({
-      startISO: new Date(2026, 4, 20).toISOString(),
-      endISO: new Date(2026, 4, 20, 23, 59, 59, 999).toISOString(),
-      allDay: true,
-    });
+    expect(onSelectSlot).toHaveBeenCalledWith(slot);
 
     await cell(wrapper, "2026-05-04")
       .get("[data-slot=calendar-event]")

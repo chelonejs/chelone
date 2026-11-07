@@ -34,6 +34,15 @@ describe("@chelone/core barrel", () => {
     expect(barrel.noop()).toBeUndefined();
   });
 
+  it("exports the shared UI defaults", () => {
+    expect(barrel.SEARCH_THRESHOLD).toBe(5);
+    expect(barrel.DEVTOOLS_MAX_VALUE_LENGTH).toBe(2000);
+    expect(barrel.TITLE_PORTAL_ID).toBe("chelone-title-portal");
+    expect(barrel.UNDO_AUTO_HIDE_MS).toBe(5000);
+    expect(barrel.DEFAULT_EXPORT_MAX_RESULTS).toBe(1000);
+    expect(barrel.MOBILE_BREAKPOINT).toBe(768);
+  });
+
   it("exports the date format helpers", () => {
     expect(barrel.formatDate).toBeTypeOf("function");
     expect(barrel.formatDateTime).toBeTypeOf("function");
@@ -238,6 +247,9 @@ describe("@chelone/core barrel", () => {
     expect(barrel.toCoordinate).toBeTypeOf("function");
     expect(barrel.latitude).toBeTypeOf("function");
     expect(barrel.longitude).toBeTypeOf("function");
+    expect(barrel.LATITUDE_LIMIT).toBe(90);
+    expect(barrel.LONGITUDE_LIMIT).toBe(180);
+    expect(barrel.wrapLongitude).toBeTypeOf("function");
     expect(barrel.mapMessages).toBeTypeOf("object");
     expect(barrel.mapMessages["chelone.map.no_coordinates"]).toBeTypeOf(
       "string",
@@ -259,8 +271,16 @@ describe("@chelone/core barrel", () => {
     expect(barrel.shapeLayerSpecs).toBeTypeOf("function");
     expect(barrel.asFeatureCollection).toBeTypeOf("function");
     expect(barrel.DEFAULT_SHAPE_STYLE.color).toBe("#3388ff");
+    expect(barrel.DEFAULT_MAP_ZOOM).toBe(13);
+    expect(barrel.DEFAULT_MAP_HEIGHT).toBe(300);
+    expect(barrel.DEFAULT_PIN_COLOR).toBe("#dc2626");
+    expect(barrel.PIN_NS).toBe("http://www.w3.org/2000/svg");
+    // `PIN_NS` is an XML namespace and reads like a URL: core still names no tile server.
     const urls = Object.values(barrel).filter(
-      (value) => typeof value === "string" && /^https?:/.test(value),
+      (value) =>
+        typeof value === "string" &&
+        /^https?:/.test(value) &&
+        value !== barrel.PIN_NS,
     );
     expect(urls).toEqual([]);
   });

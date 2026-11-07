@@ -2,6 +2,7 @@ import { defined } from "@chelone/test-utils";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   calendarDayKey,
+  calendarDaySlot,
   calendarDays,
   calendarLabels,
   calendarRange,
@@ -112,6 +113,36 @@ describe("calendarDays", () => {
     expect(days).toHaveLength(35);
     expect(calendarDayKey(defined(days[0]))).toBe("2026-04-27");
     expect(calendarDayKey(defined(days[34]))).toBe("2026-05-31");
+  });
+});
+
+describe("calendarDaySlot", () => {
+  const previousTz = process.env.TZ;
+  beforeAll(() => {
+    process.env.TZ = "America/New_York";
+  });
+  afterAll(() => {
+    if (previousTz === undefined) delete process.env.TZ;
+    else process.env.TZ = previousTz;
+  });
+
+  it("spans the local day and ends at its last millisecond", () => {
+    // The time on the day is dropped: a selected cell is a whole day.
+    expect(calendarDaySlot(new Date(2026, 4, 20, 15, 30))).toEqual({
+      startISO: new Date(2026, 4, 20).toISOString(),
+      endISO: new Date(2026, 4, 20, 23, 59, 59, 999).toISOString(),
+      allDay: true,
+    });
+  });
+
+  it("ends a spring-forward day at its last millisecond, not the next midnight", () => {
+    // 8 March 2026 in New York: 23 hours long, so the next midnight is a
+    // millisecond past the day's end.
+    const slot = calendarDaySlot(new Date(2026, 2, 8));
+    const span =
+      new Date(slot.endISO).getTime() - new Date(slot.startISO).getTime();
+    expect(span).toBe(23 * 3_600_000 - 1);
+    expect(calendarDayKey(new Date(slot.endISO))).toBe("2026-03-08");
   });
 });
 

@@ -105,7 +105,7 @@ function DeleteButton<TRecord extends ResourceRecord = LooseRecord>(
     className = defaultDestructiveClassName,
     confirmTitle: confirmTitleProp,
     confirmContent: confirmContentProp,
-    confirmColor = "primary",
+    confirmColor = "warning",
     mutationMode = "pessimistic",
   } = props;
   const record = useRecordContext<TRecord>(props);

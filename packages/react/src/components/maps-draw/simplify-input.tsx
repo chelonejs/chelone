@@ -1,5 +1,6 @@
 import {
   asFeatureCollection,
+  DEFAULT_MAP_ZOOM,
   deepEqual,
   geoBounds,
   isGeoJsonValue,
@@ -110,7 +111,7 @@ export function SimplifyInput<TRecord = LooseRecord>({
   source,
   label,
   helperText,
-  zoom = 13,
+  zoom = DEFAULT_MAP_ZOOM,
   defaultCenter = [0, 0],
   height = 400,
   mapStyle,

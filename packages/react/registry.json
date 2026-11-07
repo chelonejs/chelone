@@ -2175,7 +2175,7 @@
         }
       ],
       "registryDependencies": ["@chelone/button", "@chelone/lib-utils"],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "authentication"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -5017,6 +5017,7 @@
           "type": "registry:component"
         }
       ],
+      "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -8221,7 +8222,7 @@
         "@chelone/login-page",
         "@chelone/social-auth-button"
       ],
-      "dependencies": ["@chelone/react", "@chelone/supabase"],
+      "dependencies": ["@chelone/core", "@chelone/react", "@chelone/supabase"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

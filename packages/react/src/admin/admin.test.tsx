@@ -349,7 +349,7 @@ describe("<Admin> — optional services", () => {
     fireEvent.click(await screen.findByRole("menuitem", { name: /light/i }));
 
     expect(store.getItem("my-theme")).toBe("light");
-    expect(store.getItem("theme")).toBeUndefined();
+    expect(store.getItem("chelone-theme")).toBeUndefined();
   });
 
   it("without i18n, a default label keeps its {_} text and fills its placeholders", () => {

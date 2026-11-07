@@ -81,7 +81,7 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
     ref,
     confirmTitle = "ra.message.bulk_delete_title",
     confirmContent = "ra.message.bulk_delete_content",
-    confirmColor = "primary",
+    confirmColor = "warning",
     mutationMode = "pessimistic",
   } = props;
   const [isOpen, setOpen] = useState(false);

@@ -116,7 +116,16 @@ export interface LatLngInputProps {
  * <LatLngInput lat-source="latitude" lng-source="longitude" label="Location" />
  */
 
-import { latitude, longitude, toCoordinate } from "@chelone/core";
+import {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
+  LATITUDE_LIMIT,
+  latitude,
+  LONGITUDE_LIMIT,
+  longitude,
+  toCoordinate,
+  wrapLongitude,
+} from "@chelone/core";
 import { computed, ref } from "vue";
 import { useInput } from "../../form/use-input";
 import { useTranslate } from "../../i18n/use-translate";
@@ -131,8 +140,8 @@ import MapCanvas from "./map-canvas.vue";
 const props = withDefaults(defineProps<LatLngInputProps>(), {
   label: undefined,
   defaultPosition: () => [0, 0],
-  zoom: 13,
-  height: 300,
+  zoom: DEFAULT_MAP_ZOOM,
+  height: DEFAULT_MAP_HEIGHT,
   disabled: false,
 });
 
@@ -154,10 +163,6 @@ function toArray(
 
 /** About 10 cm, so the text fields stay readable. */
 const round6 = (value: number) => Math.round(value * 1e6) / 1e6;
-
-/** A click on a repeated copy of the world reports a longitude past 180. */
-const wrapLng = (lng: number) =>
-  Math.abs(lng) <= 180 ? lng : ((((lng + 180) % 360) + 360) % 360) - 180;
 
 /** Digits with an optional sign and point: what a coordinate looks like while it is typed. */
 const TYPING = /^[+-]?\d*\.?\d*$/;
@@ -226,7 +231,9 @@ const fields = computed(() => [
 const position = computed<readonly [number, number] | null>(() => {
   const a = lat.stored.value;
   const b = lng.stored.value;
-  return inRange(a, 90) && inRange(b, 180) ? [a, b] : null;
+  return inRange(a, LATITUDE_LIMIT) && inRange(b, LONGITUDE_LIMIT)
+    ? [a, b]
+    : null;
 });
 const center = computed(() => position.value ?? props.defaultPosition);
 const invalid = computed(() => lat.invalid.value || lng.invalid.value);
@@ -238,7 +245,7 @@ const gesture: Gesture = { current: null };
 
 function place(rawLat: number, rawLng: number) {
   const nextLat = round6(rawLat);
-  const nextLng = round6(wrapLng(rawLng));
+  const nextLng = round6(wrapLongitude(rawLng));
   gesture.current = [nextLat, nextLng];
   lat.setValue(nextLat);
   lat.blur();

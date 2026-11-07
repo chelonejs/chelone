@@ -32,6 +32,7 @@ export {
   authStateQueryOptions,
   canAccessQueryOptions,
   checkError,
+  DEFAULT_LOGIN_PATH,
   identityQueryOptions,
   permissionsQueryOptions,
 } from "./auth/auth-options";
@@ -112,6 +113,7 @@ export {
   groupCommands,
 } from "./command-menu/registry";
 export type {
+  CalendarDaySlot,
   CalendarLabels,
   CalendarRange,
   CalendarView,
@@ -119,6 +121,7 @@ export type {
 } from "./controller/calendar-dates";
 export {
   calendarDayKey,
+  calendarDaySlot,
   calendarDays,
   calendarLabels,
   calendarRange,
@@ -667,7 +670,14 @@ export {
   minVertices,
   noSelfIntersection,
 } from "./geo/constraints";
-export { latitude, longitude, toCoordinate } from "./geo/coordinates";
+export {
+  LATITUDE_LIMIT,
+  LONGITUDE_LIMIT,
+  latitude,
+  longitude,
+  toCoordinate,
+  wrapLongitude,
+} from "./geo/coordinates";
 export type {
   EditorFeature,
   EditorSnapshotFeature,
@@ -728,9 +738,13 @@ export type {
   RasterTileStyleOptions,
 } from "./geo/map-style";
 export {
+  DEFAULT_MAP_HEIGHT,
+  DEFAULT_MAP_ZOOM,
+  DEFAULT_PIN_COLOR,
   expandTileUrl,
   latLngToLngLat,
   lngLatToLatLng,
+  PIN_NS,
   rasterTileStyle,
 } from "./geo/map-style";
 export { mapMessages } from "./geo/messages";
@@ -1078,3 +1092,11 @@ export { createMicroStore } from "./store/micro-store";
 export { shallowEqual } from "./store/shallow-equal";
 export type { CheloneStore, StoreAdapter } from "./store/store";
 export { createStore } from "./store/store";
+export {
+  DEFAULT_EXPORT_MAX_RESULTS,
+  DEVTOOLS_MAX_VALUE_LENGTH,
+  MOBILE_BREAKPOINT,
+  SEARCH_THRESHOLD,
+  TITLE_PORTAL_ID,
+  UNDO_AUTO_HIDE_MS,
+} from "./ui-defaults";

@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { minLength, type ValidatorResult } from "../form/validators";
-import { latitude, longitude, toCoordinate } from "./coordinates";
+import {
+  LATITUDE_LIMIT,
+  LONGITUDE_LIMIT,
+  latitude,
+  longitude,
+  toCoordinate,
+  wrapLongitude,
+} from "./coordinates";
 
 /** The keys of a validator's failure payload, checked at this line. */
 async function errorKeys(
@@ -35,6 +42,48 @@ describe("toCoordinate", () => {
     expect(toCoordinate("0x10")).toBeNull();
     expect(toCoordinate(true)).toBeNull();
     expect(toCoordinate([1])).toBeNull();
+  });
+});
+
+describe("coordinate limits", () => {
+  it("pins the limits the validators and the map components share", () => {
+    expect(LATITUDE_LIMIT).toBe(90);
+    expect(LONGITUDE_LIMIT).toBe(180);
+  });
+
+  it("is the range each validator reports in its args", () => {
+    expect(latitude()(91, {}, {})).toMatchObject({
+      args: { min: -LATITUDE_LIMIT, max: LATITUDE_LIMIT },
+    });
+    expect(longitude()(181, {}, {})).toMatchObject({
+      args: { min: -LONGITUDE_LIMIT, max: LONGITUDE_LIMIT },
+    });
+  });
+});
+
+describe("wrapLongitude", () => {
+  it("leaves a longitude inside the limits alone", () => {
+    expect(wrapLongitude(2.35)).toBe(2.35);
+    expect(wrapLongitude(-2.35)).toBe(-2.35);
+    expect(wrapLongitude(0)).toBe(0);
+    expect(wrapLongitude(LONGITUDE_LIMIT)).toBe(LONGITUDE_LIMIT);
+    expect(wrapLongitude(-LONGITUDE_LIMIT)).toBe(-LONGITUDE_LIMIT);
+  });
+
+  it("brings a longitude from a repeated copy of the world back into range", () => {
+    expect(wrapLongitude(181)).toBe(-179);
+    expect(wrapLongitude(-181)).toBe(179);
+    expect(wrapLongitude(360 + 48)).toBe(48);
+    expect(wrapLongitude(-(360 + 48))).toBe(-48);
+    expect(wrapLongitude(720 + 48)).toBe(48);
+  });
+
+  it("always answers inside the limits", () => {
+    for (const value of [-1000, -366.5, 366.5, 1000]) {
+      expect(Math.abs(wrapLongitude(value))).toBeLessThanOrEqual(
+        LONGITUDE_LIMIT,
+      );
+    }
   });
 });
 

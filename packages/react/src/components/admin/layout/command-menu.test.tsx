@@ -299,6 +299,28 @@ describe("CommandMenu", () => {
     );
   });
 
+  it("records are searched 250ms after the last keystroke by default", async () => {
+    const { getList, dataProvider } = searchProvider({
+      posts: [{ id: 1, title: "Alpha" }],
+    });
+    mount({ dataProvider });
+    await openMenu();
+    vi.useFakeTimers();
+    try {
+      typeQuery("alp");
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(249);
+      });
+      expect(getList).not.toHaveBeenCalled();
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1);
+      });
+      expect(getList).toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("uses the searchFields entry as the filter key", async () => {
     const { getList, dataProvider } = searchProvider({});
     mount({
