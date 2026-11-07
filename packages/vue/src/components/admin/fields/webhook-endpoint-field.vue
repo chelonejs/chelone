@@ -60,8 +60,8 @@ const status = computed<DeliveryStatus>(
 const statusClass = computed(() =>
   cn(
     "rounded px-2 py-0.5 text-xs font-medium",
-    status.value === "ok" && "bg-green-500/10 text-green-700",
-    status.value === "failed" && "bg-red-500/10 text-red-700",
+    status.value === "ok" && "bg-green-500/10 text-green-700 dark:text-green-400",
+    status.value === "failed" && "bg-red-500/10 text-red-700 dark:text-red-400",
     status.value === "pending" && "bg-muted text-muted-foreground",
   ),
 );
