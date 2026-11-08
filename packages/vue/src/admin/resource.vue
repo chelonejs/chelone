@@ -1,8 +1,13 @@
 <script lang="ts">
+import type { RegisteredResourceName } from "@chelone/core";
+
 /** Props for {@link Resource}. */
 export interface ResourceProps {
-  /** The resource name — the registry key and the route base (`/{name}`). */
-  name: string;
+  /**
+   * The resource name — the registry key and the route base (`/{name}`). A
+   * registered resource once `Register` is augmented, else any string.
+   */
+  name: RegisteredResourceName;
   /** The list view (adds the `/{name}` route). */
   list?: ResourceDefinition["list"];
   /** The create view (adds the `/{name}/create` route). */

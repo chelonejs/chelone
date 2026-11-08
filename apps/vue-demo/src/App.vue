@@ -86,7 +86,7 @@ const customRoutes = [...authRoutes, ...pageRoutes];
 
 // No hand-written views yet: the guessers build them from the schemas in
 // resources/schema.ts.
-const guessedResources = [{ name: "tags", icon: Tags }];
+const guessedResources = [{ name: "tags", icon: Tags }] as const;
 
 // A retry-off query client and a notification store
 // (the simulated user's failed lock reports through it) — the services a real

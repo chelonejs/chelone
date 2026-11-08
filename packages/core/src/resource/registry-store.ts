@@ -11,6 +11,8 @@
  * MicroStore notification pattern.
  */
 
+import type { RegisteredResourceName } from "./register";
+
 /**
  * The augmentation point for the types a resource definition carries that
  * depend on the UI framework. An adapter names them once, as `Register` does
@@ -59,7 +61,8 @@ export type ResourceComponent = ResourceSlots extends {
  * extension bag (D9: the shadcn menu reads `options.group`).
  */
 export interface ResourceDefinition {
-  name: string;
+  /** A registered resource name once `Register` is augmented, else any string. */
+  name: RegisteredResourceName;
   hasList: boolean;
   hasCreate: boolean;
   hasEdit: boolean;
@@ -100,7 +103,8 @@ export interface ResourceRegistry {
 
 /** Framework-neutral props `computeDefinition` derives a definition from. */
 export interface ComputeDefinitionProps {
-  name: string;
+  /** A registered resource name once `Register` is augmented, else any string. */
+  name: RegisteredResourceName;
   /** A list component; presence sets `hasList`. */
   list?: ResourceComponent;
   create?: ResourceComponent;
