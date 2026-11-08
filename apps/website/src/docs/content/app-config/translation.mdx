@@ -53,6 +53,79 @@ export function makeI18n() {
 
 `defineMessages` is an identity helper that gives you key/value type-checking.
 
+## Registering the catalog
+
+An `<Admin i18n={…}>` holds a catalog-erased i18n, so on its own `useTranslate()`
+takes any string. Tell core which catalog the app translates against and the
+hook types its keys and params instead, the way registering resources types
+`source` props:
+
+```ts title="src/resources.ts"
+import { defineResources, englishMessages } from "@chelone/core";
+
+export const resources = defineResources({ posts: { schema: postSchema } });
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources
+    messages: typeof englishMessages
+  }
+}
+```
+
+The augmentation is global to your TypeScript program, so `useTranslate()` reads
+it in every file. What it gives you:
+
+- a key the catalog holds autocompletes, and its `{placeholders}` are required:
+  `translate("chelone.page.create")` fails until you pass `name`
+- a misspelt param name fails
+- a plural takes its count under `count` or under `smart_count`
+- `_` is accepted beside either
+- a key the catalog does not hold still compiles, with any
+  `TranslateParamValues`. The components label themselves with keys such as
+  `resources.posts.name` and a `_` default, and the registry copies them into
+  apps whose catalog holds only some of the `chelone.*` keys
+
+`RegisteredMessages` is the registered catalog and `RegisteredTranslate` its
+`translate` type; `TranslateFor<typeof catalog>` is the same type over any
+catalog. An app that registers nothing keeps the loose signature
+`(key: string, params?: TranslateParamValues) => string`.
+
+Register the catalog you actually mount. The typing is a compile-time claim
+about the instance `<Admin>` holds: a key that instance lacks still comes back
+as the key or its `_` default at runtime.
+
+## Checking a locale catalog
+
+`defineLocale` checks a locale catalog against a base catalog, usually
+`englishMessages`, and keeps the catalog's own literal type:
+
+```ts title="src/i18n.ts"
+import { createI18n, defineLocale, englishMessages } from "@chelone/core";
+
+const fr = defineLocale<typeof englishMessages>()({
+  "chelone.action.save": "Enregistrer",
+  "chelone.page.create": "Créer {name}",
+  "chelone.action.bulk_actions": {
+    one: "1 élément sélectionné",
+    other: "{smart_count} éléments sélectionnés",
+  },
+  // every other key englishMessages holds
+});
+
+export const i18n = createI18n({ locale: "fr", messages: { en: englishMessages, fr } });
+```
+
+It fails typecheck on a key English has and the locale missed, a key the locale
+invented, a string where English has a plural (or the reverse), and a string or
+plural `other` that drops a placeholder English has. Placeholders may arrive in
+any order, and a plural may leave out a category English fills.
+`LocaleMessages<typeof englishMessages>` is the checked shape, if you want to
+name it.
+
+It checks types only: `<I18nKeyEditor>` still lists what a mounted locale missed
+at runtime (see [Listing the missing keys](#listing-the-missing-keys)).
+
 ## What ships in `englishMessages`
 
 `englishMessages` is the English catalog: the component labels,
@@ -126,9 +199,9 @@ i18n.translate("chelone.action.bulk_actions", { count: 1 }); // "1 item selected
 i18n.translate("chelone.action.bulk_actions", { count: 4 }); // "4 items selected"
 ```
 
-On an instance typed from a `defineMessages` catalog, a plural message requires
-`count`. `smart_count` is accepted only through `useTranslate()` and the
-catalog-erased instance `<Admin>` holds, which is how the components call it.
+On a typed catalog, a plural message requires a number under `count` or under
+`smart_count`: the type accepts either name, and the components pass
+`smart_count`.
 
 Without a numeric count, the `other` form is used. A category the locale needs
 but the message lacks (for example `few` in Polish) falls back to `other`.
@@ -246,3 +319,6 @@ locales to show; the app locale only picks the tab selected first.
   `messages` before switching to it.
 - Keep the interpolation single-brace (`{name}`) — porting react-admin catalogs
   means rewriting `%{name}` → `{name}` and `a |||| b` → `{ one, other }`.
+- Register the catalog under `Register.messages` and `useTranslate()` types its
+  keys and params across the app (see [Registering the
+  catalog](#registering-the-catalog)).
