@@ -273,13 +273,17 @@ export const i18n: I18nProvider = {
       return typeof params?._ === "string" ? fill(params._, params) : key;
     }
     if (typeof message === "string") return fill(message, params);
-    const count = params?.count ?? params?.smart_count;
+    const raw = params?.count ?? params?.smart_count;
+    const count = Number(raw);
+    if (Number.isNaN(count)) return fill(message.other, params);
     const form =
-      count === undefined
-        ? message.other
-        : message[new Intl.PluralRules(locale).select(Number(count))] ??
-          message.other;
-    return fill(form, params);
+      message[new Intl.PluralRules(locale).select(count)] ?? message.other;
+    // Whichever name carried the count fills both {count} and {smart_count}.
+    return fill(form, {
+      ...params,
+      count: params?.count ?? raw,
+      smart_count: params?.smart_count ?? raw,
+    });
   },
   getLocale: () => locale,
   setLocale(next) {
