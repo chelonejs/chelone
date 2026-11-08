@@ -1,15 +1,20 @@
+import type { MessageCatalog } from "../i18n/messages";
 import type { LooseRecord } from "./record";
 import type { RecordOf, ResourceMap } from "./registry";
 
 /**
  * The app's augmentation point: the one place a Chelone program tells core
  * which resources it has, so `source` props can be typed against a registered
- * resource's record instead of a plain `string`.
+ * resource's record instead of a plain `string`, and which message catalog it
+ * translates against, so `useTranslate` types its keys and params.
  *
  * ```ts
  * const resources = defineResources({ posts: { schema: postSchema } });
  * declare module "@chelone/core" {
- *   interface Register { resources: typeof resources }
+ *   interface Register {
+ *     resources: typeof resources
+ *     messages: typeof englishMessages
+ *   }
  * }
  * ```
  *
@@ -18,6 +23,13 @@ import type { RecordOf, ResourceMap } from "./registry";
  */
 // biome-ignore lint/suspicious/noEmptyInterface: an empty interface is the augmentation point; a type alias cannot be augmented
 export interface Register {}
+
+/** The registered message catalog, or {@link MessageCatalog} when nothing is registered. */
+export type RegisteredMessages = Register extends {
+  messages: infer TMessages extends MessageCatalog;
+}
+  ? TMessages
+  : MessageCatalog;
 
 /** The registered resource map, or {@link ResourceMap} when nothing is registered. */
 export type RegisteredResources = Register extends {
