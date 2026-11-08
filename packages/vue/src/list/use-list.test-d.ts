@@ -2,6 +2,7 @@ import {
   type DisplayedFilters,
   defineResources,
   type LooseRecord,
+  type RecordOf,
   type SortPayload,
 } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
@@ -114,4 +115,24 @@ it("the reference-many controller's setSort takes the referenced record's fields
   many.setSort({ field: "name", order: "ASC" });
   // @ts-expect-error "nmae" is no path of an author
   many.setSort({ field: "nmae", order: "ASC" });
+});
+
+it("the reference-many controller keys its filters by the referenced record", () => {
+  const many = useReferenceManyFieldController<typeof resources, "authors">({
+    reference: "authors",
+    target: "article_id",
+  });
+  expectTypeOf(many.displayedFilters).toEqualTypeOf<
+    DisplayedFilters<RecordOf<typeof resources, "authors">>
+  >();
+  many.showFilter("name");
+  many.showFilter("name_gte", "red");
+  many.hideFilter("name");
+  // @ts-expect-error "nmae" is no filter key of an author
+  many.showFilter("nmae");
+  // @ts-expect-error "nmae" is no filter key of an author
+  many.hideFilter("nmae");
+  many.setFilters({ name: "red" }, { name: true });
+  // @ts-expect-error "nmae" is no filter key of an author
+  many.setFilters({ name: "red" }, { nmae: true });
 });

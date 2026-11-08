@@ -13,12 +13,14 @@
 
 import {
   createReferenceManyController,
+  type DisplayedFilters,
   type FilterPayload,
   type Identifier,
   type ListControllerState,
   type ListParamsPatch,
   type LooseRecord,
   type MicroStore,
+  type RecordFilterKey,
   type RecordOf,
   type ReferenceManyController,
   type ResourceMap,
@@ -139,14 +141,15 @@ export function useReferenceManyFieldController<
       controller().setSort(sort),
     setFilters: (
       filter: FilterPayload<TRecord>,
-      displayedFilters?: Record<string, boolean>,
+      displayedFilters?: DisplayedFilters<TRecord>,
       debounced?: boolean,
     ) => controller().setFilters(filter, displayedFilters, debounced),
     setParams: (patch: ListParamsPatch<TRecord>) =>
       controller().setParams(patch),
-    showFilter: (name: string, defaultValue?: unknown) =>
+    showFilter: (name: RecordFilterKey<TRecord>, defaultValue?: unknown) =>
       controller().showFilter(name, defaultValue),
-    hideFilter: (name: string) => controller().hideFilter(name),
+    hideFilter: (name: RecordFilterKey<TRecord>) =>
+      controller().hideFilter(name),
     select: (ids: Identifier[]) => controller().select(ids),
     toggleItem: (itemId: Identifier) => controller().toggleItem(itemId),
     unselectAll: () => controller().unselectAll(),

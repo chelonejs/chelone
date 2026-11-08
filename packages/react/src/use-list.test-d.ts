@@ -5,6 +5,7 @@ import {
   type Identifier,
   type ListParamsPatch,
   type LooseRecord,
+  type RecordOf,
   type SortPayload,
 } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
@@ -114,6 +115,26 @@ it("a list controller keys its displayed filters by the record and still mounts 
 
 const resources = defineResources({
   comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+it("the reference-many hook keys its filters by the referenced record", () => {
+  const many = useReferenceManyFieldController<typeof resources, "comments">({
+    reference: "comments",
+    target: "post_id",
+  });
+  expectTypeOf(many.displayedFilters).toEqualTypeOf<
+    DisplayedFilters<RecordOf<typeof resources, "comments">>
+  >();
+  many.showFilter("body");
+  many.showFilter("body_gte", "c");
+  many.hideFilter("body");
+  // @ts-expect-error "bdoy" is no filter key of a comment
+  many.showFilter("bdoy");
+  // @ts-expect-error "bdoy" is no filter key of a comment
+  many.hideFilter("bdoy");
+  many.setFilters({ body: "c" }, { body: true });
+  // @ts-expect-error "bdoy" is no filter key of a comment
+  many.setFilters({ body: "c" }, { bdoy: true });
 });
 
 it("the reference hooks sort by the referenced record", () => {
