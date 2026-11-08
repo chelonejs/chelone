@@ -20,7 +20,8 @@ const parsed = (
   headers = Object.keys(rows[0] ?? {}),
 ): ParsedCsv => ({ headers, rows, errors: [] });
 
-function setup(options: Partial<CsvImportOptions> = {}) {
+// type-escape: the tests pass schemas with no `id`, and a bare StandardSchemaV1 has an unknown output
+function setup(options: Partial<CsvImportOptions<unknown>> = {}) {
   const dataProvider = fakeDataProvider({});
   const create = vi
     .spyOn(dataProvider, "create")
