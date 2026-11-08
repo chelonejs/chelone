@@ -226,6 +226,7 @@ describe("@chelone/core barrel", () => {
   it("exports the P5 choices controller", () => {
     expect(barrel.createChoicesController).toBeTypeOf("function");
     expect(barrel.choiceListsOf).toBeTypeOf("function");
+    expect(barrel.eraseChoicesController).toBeTypeOf("function");
   });
 
   it("exports defaultMessages — the English catalog apps spread (P5 drop guard)", () => {

@@ -43,10 +43,13 @@ export type ChoiceRecord = Record<string, unknown>;
  *   (deduped by `lookupKey`), so a currently-selected value that is not on the
  *   page still renders as a labelled choice.
  */
-export interface ChoicesControllerState<TRecord> {
+export interface ChoicesControllerState<
+  TRecord,
+  TName extends string = string,
+> {
   page: number;
   perPage: number;
-  sort: SortPayload;
+  sort: SortPayload<TRecord>;
   /** The dynamic (user) filter — permanent filter is merged in on fetch. */
   filter: FilterPayload<TRecord>;
   /** All choices: page + missing selected prepended (deduped by lookupKey). */
@@ -64,19 +67,19 @@ export interface ChoicesControllerState<TRecord> {
   isFetching: boolean;
   error: Error | null;
   /** The referenced resource name. */
-  resource: string;
+  resource: TName;
   /** The FK field on the referencing side (metadata for consumers). */
   source: string | undefined;
   /** Always `true` — distinguishes a reference-backed context from an inline-choices one. */
   isFromReference: true;
 }
 
-export interface ChoicesController<TRecord>
-  extends MicroStore<ChoicesControllerState<TRecord>> {
+export interface ChoicesController<TRecord, TName extends string = string>
+  extends MicroStore<ChoicesControllerState<TRecord, TName>> {
   setPage(page: number): void;
   setPerPage(perPage: number): void;
   /** Replaces the sort and resets the page to 1. */
-  setSort(sort: SortPayload): void;
+  setSort(sort: SortPayload<TRecord>): void;
   /** Sets the dynamic filter (`removeEmpty` applied). `debounce` delays by `debounceMs`. */
   setFilters(filter: FilterPayload<TRecord>, debounce?: boolean): void;
   /** Feeds the selected-record resolution. Scalar or array; `null`/`[]` clears. */
@@ -107,7 +110,7 @@ export interface ChoicesControllerOptions<
   filter?: FilterPayload<RecordOf<TResources, TName>>;
   page?: number;
   perPage?: number;
-  sort?: SortPayload;
+  sort?: SortPayload<RecordOf<TResources, TName>>;
   /** Gate the CHOICES query on the current filter values. Selected always resolves. */
   enableGetChoices?: (
     filterValues: FilterPayload<RecordOf<TResources, TName>>,
@@ -120,7 +123,11 @@ export interface ChoicesControllerOptions<
 }
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
+/** The sort of a controller given none: `id`, which every record has. */
+function defaultSort<TRecord>(): SortPayload<TRecord> {
+  // type-escape: every record has an `id`, but `SourcePath<TRecord>` stays deferred while `TRecord` is open.
+  return { field: "id", order: "DESC" } as SortPayload<TRecord>;
+}
 /** perPage for the non-id selected getList — generous, real values sets are small. */
 const SELECTED_LIST_PER_PAGE = 1000;
 
@@ -155,7 +162,7 @@ export function createChoicesController<
 >(
   ctx: ChoicesControllerContext<TResources>,
   options: ChoicesControllerOptions<TResources, TName>,
-): ChoicesController<RecordOf<TResources, TName>> {
+): ChoicesController<RecordOf<TResources, TName>, TName> {
   type TRecord = RecordOf<TResources, TName>;
   type ListResult = GetListResult<TRecord>;
 
@@ -166,11 +173,11 @@ export function createChoicesController<
     options.filter === undefined ? {} : options.filter;
   const debounceMs = options.debounceMs ?? DEFAULT_DEBOUNCE_MS;
 
-  const store = createMicroStore<ChoicesControllerState<TRecord>>(
+  const store = createMicroStore<ChoicesControllerState<TRecord, TName>>(
     {
       page: options.page ?? DEFAULT_PAGE,
       perPage: options.perPage ?? DEFAULT_REFERENCE_PER_PAGE,
-      sort: { ...(options.sort ?? DEFAULT_SORT) },
+      sort: { ...(options.sort ?? defaultSort<TRecord>()) },
       filter: {},
       allChoices: [],
       availableChoices: [],
@@ -385,7 +392,7 @@ export function createChoicesController<
     choicesObserver?.setOptions(buildChoicesOptions());
   };
 
-  const setSort = (sort: SortPayload): void => {
+  const setSort = (sort: SortPayload<TRecord>): void => {
     if (destroyed) return;
     store.setState({ sort: { ...sort }, page: 1 });
     choicesObserver?.setOptions(buildChoicesOptions());
@@ -510,10 +517,23 @@ export interface ChoiceLists {
  * `ChoiceRecord`, so neither adapter writes the cast. The arrays are the
  * state's own, not copies.
  */
-export function choiceListsOf<TRecord>(
-  state: ChoicesControllerState<TRecord>,
+export function choiceListsOf<TRecord, TName extends string>(
+  state: ChoicesControllerState<TRecord, TName>,
 ): ChoiceLists {
   const { allChoices, availableChoices, selectedChoices } = state;
   // type-escape: `RecordOf` cannot be proved a `ChoiceRecord` while it is generic.
   return { allChoices, availableChoices, selectedChoices } as ChoiceLists;
+}
+
+/**
+ * The controller's sort, filter and actions as an adapter's erased
+ * `ChoicesContextValue` carries them: over `ChoiceRecord`, not the referenced
+ * record. The lists go through {@link choiceListsOf}. It is the same object, so
+ * every action still reaches the controller.
+ */
+export function eraseChoicesController<TRecord, TName extends string>(
+  controller: ChoicesController<TRecord, TName>,
+): ChoicesController<ChoiceRecord> {
+  // type-escape: `RecordOf` cannot be proved a `ChoiceRecord` while it is generic, and the erased context is read by choice inputs that know no record.
+  return controller as ChoicesController<ChoiceRecord>;
 }
