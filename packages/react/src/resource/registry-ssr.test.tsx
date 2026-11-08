@@ -5,7 +5,7 @@
  * hydration. Runs under `node`: no `window`, no effects.
  */
 
-import { fakeDataProvider, type ResourceDefinitionMap } from "@chelone/core";
+import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import { type ReactNode, StrictMode } from "react";
 import { renderToString } from "react-dom/server";
@@ -13,7 +13,6 @@ import { describe, expect, it } from "vitest";
 import { Admin } from "../admin/admin";
 import { Layout } from "../components/admin/layout/layout";
 import { createCheloneRouter } from "../ssr/router-factory";
-import { ResourceRegistryProvider } from "./registry-hooks";
 import { Resource } from "./resource";
 
 const dataProvider = fakeDataProvider({});
