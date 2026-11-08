@@ -1,11 +1,13 @@
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type {
+  AnyCheloneI18n,
   AnySourcePath,
   AnySourcePathOf,
   CheloneLocation,
   Exporter,
   FilterSourceKey,
+  I18nProvider,
   LocationState,
   LooseRecord,
   NavigateOpts,
@@ -21,9 +23,16 @@ import type {
   SourcePath,
   SourceProp,
   SourceValue,
+  TranslateParamValues,
   Unsubscribe,
 } from "./index";
-import { type DataProvider, defineResources, type RecordOf } from "./index";
+import {
+  createI18n,
+  type DataProvider,
+  defineMessages,
+  defineResources,
+  type RecordOf,
+} from "./index";
 
 it("re-exports defineResources and inference types from the root", () => {
   const resources = defineResources({
@@ -69,6 +78,42 @@ it("re-exports the Register and source-path types from the root", () => {
   >();
   expectTypeOf<SourceKey<LooseRecord>>().toEqualTypeOf<string>();
   expectTypeOf<SourceValue<LooseRecord, "anything">>().toEqualTypeOf<unknown>();
+});
+
+it("re-exports the i18n provider contract, with AnyCheloneI18n as its alias", () => {
+  expectTypeOf<I18nProvider>().toEqualTypeOf<AnyCheloneI18n>();
+  expectTypeOf<I18nProvider["translate"]>().parameters.toEqualTypeOf<
+    [key: string, params?: TranslateParamValues]
+  >();
+  expectTypeOf<I18nProvider["translate"]>().returns.toEqualTypeOf<string>();
+  expectTypeOf<I18nProvider["getLocale"]>().returns.toEqualTypeOf<string>();
+  expectTypeOf<I18nProvider["setLocale"]>().parameters.toEqualTypeOf<
+    [locale: string]
+  >();
+  expectTypeOf<I18nProvider["setLocale"]>().returns.toEqualTypeOf<void>();
+  expectTypeOf<I18nProvider["getLocales"]>().returns.toEqualTypeOf<string[]>();
+  expectTypeOf<I18nProvider["subscribe"]>().parameters.toEqualTypeOf<
+    [callback: () => void]
+  >();
+  expectTypeOf<I18nProvider["subscribe"]>().returns.toEqualTypeOf<() => void>();
+});
+
+it("createI18n returns a value assignable to I18nProvider", () => {
+  const i18n = createI18n({
+    locale: "en",
+    messages: {
+      en: defineMessages({
+        "chelone.action.save": "Save",
+        "chelone.greeting": "Hello {name}",
+      }),
+      fr: defineMessages({ "chelone.action.save": "Enregistrer" }),
+    },
+  });
+  expectTypeOf(i18n).toMatchTypeOf<I18nProvider>();
+  const provider: I18nProvider = i18n;
+  expectTypeOf(
+    provider.translate("any.key", { name: "Rin" }),
+  ).toEqualTypeOf<string>();
 });
 
 it("re-exports the Exporter type from the root", () => {

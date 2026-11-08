@@ -5,7 +5,8 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./drag-dom": "./src/drag-dom.ts"
+    "./drag-dom": "./src/drag-dom.ts",
+    "./i18n-provider-contract": "./src/i18n-provider-contract.ts"
   },
   "scripts": {
     "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run --typecheck",
