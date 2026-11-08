@@ -59,7 +59,7 @@
       "name": "name",
       "type": "string",
       "optional": false,
-      "comment": "The resource name — the registry key and the route base (`<name>/*`)."
+      "comment": "The resource name — the registry key and the route base (`<name>/*`). A\nregistered resource once `Register` is augmented, else any string."
     },
     {
       "name": "options",
