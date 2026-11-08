@@ -1,7 +1,8 @@
 /**
  * A column's `source` is the field it shows and the key it sorts by, and
  * `SortButton` lists sort keys: all of them are paths into the record, so they
- * take `SourceProp`. `SortPayload.field` stays a plain `string`.
+ * take `SourceProp`. `SortPayload.field` is a `SourceProp` too; the plain
+ * `string` is only the wire sort a data provider takes (`LooseSortPayload`).
  */
 
 import type { SourceProp } from "@chelone/core";

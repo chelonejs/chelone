@@ -1,6 +1,6 @@
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
-import type { FilterPayload } from "../data/types";
+import type { FilterPayload, SortPayload } from "../data/types";
 import type { LooseRecord } from "./record";
 import type {
   RegisteredRecord,
@@ -12,6 +12,7 @@ import type {
   AnyFilterSourceKey,
   AnyFilterSourceKeyOf,
   AnySourcePath,
+  AnySourcePathOf,
 } from "./source-path";
 
 // No file in this package augments `Register`: augmentation is global to a
@@ -87,5 +88,35 @@ it("AnyFilterSourceKeyOf unions every registered resource's filter keys", () => 
 it("AnyFilterSourceKeyOf is string when a resource has no schema", () => {
   expectTypeOf<
     AnyFilterSourceKeyOf<typeof withSchemaless>
+  >().toEqualTypeOf<string>();
+});
+
+it("with no augmentation a loose SortPayload takes any field", () => {
+  expectTypeOf<SortPayload>().toEqualTypeOf<SortPayload<LooseRecord>>();
+  expectTypeOf<SortPayload["field"]>().toEqualTypeOf<string>();
+});
+
+/**
+ * The sort field `SortPayload`'s loose arm builds, over an explicit map:
+ * `SortPayload` itself reads `Register`, which no core file augments.
+ */
+type SortOf<TResources extends ResourceMap> = {
+  field: AnySourcePathOf<TResources>;
+  order: "ASC" | "DESC";
+};
+
+declare function acceptTypedSort(sort: SortOf<typeof typed>): void;
+
+it("AnySourcePathOf unions every registered resource's source paths", () => {
+  acceptTypedSort({ field: "title", order: "ASC" });
+  acceptTypedSort({ field: "name", order: "DESC" });
+  acceptTypedSort({ field: "items[0].sku", order: "ASC" });
+  // @ts-expect-error no registered resource has a "titel" field
+  acceptTypedSort({ field: "titel", order: "ASC" });
+});
+
+it("AnySourcePathOf is string when a resource has no schema", () => {
+  expectTypeOf<
+    AnySourcePathOf<typeof withSchemaless>
   >().toEqualTypeOf<string>();
 });

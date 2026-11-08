@@ -28,7 +28,7 @@
     },
     {
       "name": "sort",
-      "type": "SortPayload | SortPayload[]",
+      "type": "SortPayload<LooseRecord> | SortPayload<LooseRecord>[]",
       "optional": true,
       "comment": "Sort used when no params are stored. Default `id ASC`."
     },

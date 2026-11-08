@@ -27,7 +27,7 @@
     },
     {
       "name": "sort",
-      "type": "SortPayload",
+      "type": "SortPayload<LooseRecord>",
       "optional": true,
       "comment": "Sort applied to the reference lookup (the first match is used). Read when the record id changes; remount with a `key` to change it otherwise."
     },

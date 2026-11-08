@@ -39,7 +39,7 @@
     },
     {
       "name": "sort",
-      "type": "SortPayload",
+      "type": "SortPayload<LooseRecord>",
       "optional": true,
       "comment": "Initial sort of the related list. Default id ascending."
     },

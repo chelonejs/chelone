@@ -39,7 +39,7 @@
     },
     {
       "name": "sort",
-      "type": "SortPayload",
+      "type": "SortPayload<LooseRecord>",
       "optional": true,
       "comment": "Client-side sort for the embedded list."
     },
