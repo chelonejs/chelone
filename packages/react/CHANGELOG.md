@@ -1,5 +1,33 @@
 # @chelone/react
 
+## [0.10.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.9.0...@chelone/react@0.10.0) (2026-11-07)
+
+
+### Features
+
+* **demo:** a Realtime group under the dashboard item in both demos ([cafe560](https://github.com/chelonejs/chelone/commit/cafe560ef054c642e153b9ed523e739284d8a089))
+* **devtools:** close the panel to a badged trigger button ([a45947f](https://github.com/chelonejs/chelone/commit/a45947fe3002ae4965427d8bb38564cbe6c6ca8d))
+* **react:** MenuLive renders as a sidebar menu button inside a sidebar ([bb2a91e](https://github.com/chelonejs/chelone/commit/bb2a91ec8dcaed5f9358141b7584f82a59d0dfe4))
+* **vue:** MenuLive renders as a sidebar menu button inside a sidebar ([934fd2f](https://github.com/chelonejs/chelone/commit/934fd2fca8192603735138307c28c30c219dcb36))
+
+
+### Bug Fixes
+
+* **devtools:** carry focus across the trigger swap ([f87196a](https://github.com/chelonejs/chelone/commit/f87196afd2c8ea71e0a3cfca410e3608b2409e69))
+* MenuLive closes the mobile drawer and drops the title in it ([f7e7e23](https://github.com/chelonejs/chelone/commit/f7e7e2343e55da7e96cb680bc65c94903d342922))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.10.0
+    * @chelone/utils bumped to 0.10.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.10.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.10.0
+
 ## [0.9.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.8.0...@chelone/react@0.9.0) (2026-11-07)
 
 
