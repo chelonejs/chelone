@@ -1,5 +1,6 @@
 import {
   createSavedQueriesController,
+  type LooseRecord,
   type SavedQueriesControllerOptions,
   type SavedQuery,
   type SavedQueryValue,
@@ -8,10 +9,10 @@ import { computed, type Ref } from "vue";
 import { useCheloneContext } from "../context";
 import { useMicroStore } from "./use-micro-store";
 
-export interface UseSavedQueriesReturn {
-  queries: Readonly<Ref<readonly SavedQuery[]>>;
+export interface UseSavedQueriesReturn<TRecord = LooseRecord> {
+  queries: Readonly<Ref<readonly SavedQuery<TRecord>[]>>;
   /** Trims the label and ignores a blank one; a same-label query is replaced. */
-  save(label: string, value: SavedQueryValue): void;
+  save(label: string, value: SavedQueryValue<TRecord>): void;
   /** Trims the label; a label no query has is ignored. */
   remove(label: string): void;
 }
@@ -26,11 +27,11 @@ export interface UseSavedQueriesReturn {
  * `[queries, setQueries]` tuple: this returns `{ queries, save, remove }`, with
  * `queries` a ref.
  */
-export function useSavedQueries(
+export function useSavedQueries<TRecord = LooseRecord>(
   resource: string,
   options: SavedQueriesControllerOptions = {},
-): UseSavedQueriesReturn {
-  const controller = createSavedQueriesController(
+): UseSavedQueriesReturn<TRecord> {
+  const controller = createSavedQueriesController<TRecord>(
     { store: useCheloneContext().store },
     resource,
     options,
