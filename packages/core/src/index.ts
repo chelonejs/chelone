@@ -516,6 +516,7 @@ export type {
 export {
   choiceListsOf,
   createChoicesController,
+  eraseChoicesController,
 } from "./form/choices-controller";
 export {
   formatDate,

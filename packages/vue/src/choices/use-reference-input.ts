@@ -19,13 +19,17 @@
  */
 
 import type {
+  ChoiceRecord,
   ChoicesController,
   ChoicesControllerContext,
   ChoicesControllerOptions,
-  RecordOf,
   ResourceMap,
 } from "@chelone/core";
-import { choiceListsOf, createChoicesController } from "@chelone/core";
+import {
+  choiceListsOf,
+  createChoicesController,
+  eraseChoicesController,
+} from "@chelone/core";
 import { type CheloneContextValue, useCheloneContext } from "../context";
 import { useMicroStore } from "../store/use-micro-store";
 import type { ChoicesContextValue } from "./choices-context";
@@ -67,13 +71,11 @@ export function useReferenceInput<
 >(
   options: UseReferenceInputOptions<TResources, TName>,
 ): UseReferenceInputResult {
-  type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
 
-  const controller: ChoicesController<TRecord> = createChoicesController<
-    TResources,
-    TName
-  >(toChoicesContext(ctx), options);
+  const controller: ChoicesController<ChoiceRecord> = eraseChoicesController(
+    createChoicesController<TResources, TName>(toChoicesContext(ctx), options),
+  );
 
   // Bridge + 4R: subscribe on setup (acquire both observers), release on
   // scope disposal. `state.value` is the reactive controller snapshot.
