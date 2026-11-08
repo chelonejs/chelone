@@ -252,6 +252,52 @@ export function AdminRoutes(): ReactNode {
 }
 
 /**
+ * The engine for `<Admin routes={false}>`: the same `ready`, pending and
+ * logged-out branches as `AdminRoutes`, with no route table. The host app owns
+ * every URL, so the authenticated branch renders the layout around the adapter's
+ * `<Outlet>`, which shows the host's matched child route. `<CustomRoutes>` and
+ * the `authCallback` slot do nothing here: the app routes those paths itself.
+ */
+export function AdminOutlet(): ReactNode {
+  const { parts, slots, requireAuth, childrenStatus } = useAdminUI();
+  const { Outlet } = useRouterAdapter();
+  const gate = useAuthGate(requireAuth);
+
+  if (parts.resources.length === 0 && slots.ready != null) return slots.ready;
+
+  if (childrenStatus === "loading" || gate.isPending) {
+    return (
+      <>
+        <ScrollManager />
+        {slots.loading}
+      </>
+    );
+  }
+
+  if (requireAuth && !gate.authenticated) {
+    return (
+      <>
+        <LogoutOnMount />
+        {slots.loginPage}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ScrollManager />
+      <HasDashboardContext.Provider value={slots.dashboard != null}>
+        <ShellErrorBoundary fallback={slots.error}>
+          <Layout layout={slots.layout}>
+            <Outlet />
+          </Layout>
+        </ShellErrorBoundary>
+      </HasDashboardContext.Provider>
+    </>
+  );
+}
+
+/**
  * The authenticated route table (plan §0a-7/§0a-10). Order: layout customs →
  * resources → index → auth-error → access-denied → catch-all (LAST).
  */
