@@ -17,7 +17,7 @@ export interface ReferenceOneControllerOptions<TRecord = LooseRecord> {
   /** The value `target` must equal. Null or undefined fetches nothing. */
   id: Identifier | null | undefined;
   /** Decides which row is first when several match. Omitted: the provider's order. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<TRecord> | SortPayload<TRecord>[];
   /** Narrows the lookup, e.g. to one kind of row. Default: no filter. */
   filter?: FilterPayload<TRecord>;
   /** Gates the fetch. A disabled lookup with no cached data reads `isPending: true`. Default true. */

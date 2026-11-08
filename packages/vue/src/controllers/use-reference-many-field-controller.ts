@@ -53,7 +53,7 @@ export interface UseReferenceManyFieldControllerOptions<
   /** Permanent filter, merged over the user filter for every fetch. */
   filter?: FilterPayload<ReferenceRecord>;
   /** Initial sort when nothing is persisted. Default id ascending. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<ReferenceRecord> | SortPayload<ReferenceRecord>[];
   /** Default 25. */
   perPage?: number;
   /** KV namespace for params and selection. Default `${reference}.${target}.${id}`; `false` keeps them in memory. */
@@ -135,7 +135,8 @@ export function useReferenceManyFieldController<
     hasPreviousPage: computed(() => state.value.hasPreviousPage),
     setPage: (page: number) => controller().setPage(page),
     setPerPage: (perPage: number) => controller().setPerPage(perPage),
-    setSort: (sort: SortPayload | SortPayload[]) => controller().setSort(sort),
+    setSort: (sort: SortPayload<TRecord> | SortPayload<TRecord>[]) =>
+      controller().setSort(sort),
     setFilters: (
       filter: FilterPayload<TRecord>,
       displayedFilters?: Record<string, boolean>,

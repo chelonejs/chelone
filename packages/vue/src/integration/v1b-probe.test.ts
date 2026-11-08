@@ -41,9 +41,8 @@ import DataTable from "../components/admin/list/data-table.vue";
 import DataTableCol from "../components/admin/list/data-table-col.vue";
 import Edit from "../components/admin/view/edit.vue";
 import List from "../components/admin/view/list.vue";
-import type { UseListControllerReturn } from "../controllers/use-list-controller";
 import { useForm } from "../form/use-form";
-import { useListContext } from "../list/list-context";
+import { type ListContextValue, useListContext } from "../list/list-context";
 
 // --- Seed data -------------------------------------------------------------
 
@@ -141,7 +140,7 @@ function mountAdmin(render: () => unknown, opts: MountOpts = {}) {
 
 describe("probe (1) — <List> + <DataTable>: seeded cell + pagination + sort", () => {
   it("renders a seeded cell, then paginates and sorts through the controller", async () => {
-    const captured: { list?: UseListControllerReturn<Post> } = {};
+    const captured: { list?: ListContextValue<Post> } = {};
     // A child of <List> captures the SAME controller <DataTable> reads (a
     // component's own provide is not visible to its own inject, so this rides
     // inside the List default slot as a descendant).
