@@ -243,7 +243,11 @@ const events = computed<CalendarEvent<TRecord>[]>(() =>
 const rangeValue = computed(() =>
   props.rangeFilter
     ? props.rangeFilter(range.value)
-    : calendarRangeFilter(props.startSource, range.value, props.endSource),
+        : calendarRangeFilter<TRecord>(
+        pathOf(props.startSource),
+        range.value,
+        pathOfOptional(props.endSource),
+      ),
 );
 const rangeStartISO = computed(() => range.value.start.toISOString());
 const rangeEndISO = computed(() => range.value.end.toISOString());
@@ -262,7 +266,10 @@ const without = (filter: Record<string, unknown>, keys: string[]) =>
 const staleKeys = computed(() =>
   props.rangeFilter
     ? []
-    : staleCalendarRangeKeys(props.startSource, props.endSource),
+    : staleCalendarRangeKeys<TRecord>(
+        pathOf(props.startSource),
+        pathOfOptional(props.endSource),
+      ),
 );
 // A filter form that replaces the whole filter drops the range: ask again.
 const inSync = computed(
