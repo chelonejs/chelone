@@ -1,4 +1,8 @@
-import type { FilterPayload, SortPayload } from "../data/types";
+import type {
+  DisplayedFilters,
+  FilterPayload,
+  SortPayload,
+} from "../data/types";
 import { isPlainObject, isRecord } from "../guards";
 import type { LooseRecord } from "../resource/record";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
@@ -6,7 +10,7 @@ import type { ListControllerContext } from "./list-controller";
 
 export interface SavedQueryValue<TRecord = LooseRecord> {
   filter: FilterPayload<TRecord>;
-  displayedFilters: Record<string, boolean>;
+  displayedFilters: DisplayedFilters<TRecord>;
   sort: SortPayload<TRecord>[];
   perPage: number;
 }

@@ -1,9 +1,11 @@
 import {
+  type DisplayedFilters,
   defineResources,
   type FilterPayload,
   type Identifier,
   type ListParamsPatch,
   type LooseRecord,
+  type RecordOf,
   type SortPayload,
 } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
@@ -68,7 +70,7 @@ it("useList exposes setParams taking a ListParamsPatch", () => {
   expectTypeOf(result.setParams).returns.toBeVoid();
   expectTypeOf<ListParamsPatch>().toEqualTypeOf<{
     filter?: FilterPayload;
-    displayedFilters?: Record<string, boolean>;
+    displayedFilters?: DisplayedFilters;
     sort?: SortPayload | SortPayload[];
     perPage?: number;
     page?: number;
@@ -95,8 +97,44 @@ it("a list controller keys its sort by the record and still mounts in a list con
   result.setSort({ field: "nmae", order: "ASC" });
 });
 
+it("a list controller keys its displayed filters by the record and still mounts in a list context", () => {
+  expectTypeOf<UseListResult<Row>["displayedFilters"]>().toEqualTypeOf<
+    DisplayedFilters<Row>
+  >();
+  result.showFilter("name");
+  result.showFilter("name_gte", "red");
+  result.hideFilter("name");
+  // @ts-expect-error "nmae" is no filter key of Row
+  result.showFilter("nmae");
+  // @ts-expect-error "nmae" is no filter key of Row
+  result.hideFilter("nmae");
+  // The context erases the filter members, so the typed map still mounts.
+  expectTypeOf<UseListResult<Row>>().toExtend<ListContextValue>();
+  expectTypeOf<UseListResult<LooseRecord>>().toExtend<ListContextValue>();
+});
+
 const resources = defineResources({
   comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+it("the reference-many hook keys its filters by the referenced record", () => {
+  const many = useReferenceManyFieldController<typeof resources, "comments">({
+    reference: "comments",
+    target: "post_id",
+  });
+  expectTypeOf(many.displayedFilters).toEqualTypeOf<
+    DisplayedFilters<RecordOf<typeof resources, "comments">>
+  >();
+  many.showFilter("body");
+  many.showFilter("body_gte", "c");
+  many.hideFilter("body");
+  // @ts-expect-error "bdoy" is no filter key of a comment
+  many.showFilter("bdoy");
+  // @ts-expect-error "bdoy" is no filter key of a comment
+  many.hideFilter("bdoy");
+  many.setFilters({ body: "c" }, { body: true });
+  // @ts-expect-error "bdoy" is no filter key of a comment
+  many.setFilters({ body: "c" }, { bdoy: true });
 });
 
 it("the reference hooks sort by the referenced record", () => {
