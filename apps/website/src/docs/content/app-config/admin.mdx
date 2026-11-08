@@ -222,7 +222,8 @@ export default function Posts() {
 - Chelone builds links as `/posts`, `/posts/create`, `/posts/:id` and
   `/posts/:id/show` under `basename`, so route your files to those paths.
 - `<Admin>` owns no path: it adds no catch-all, index redirect or dashboard
-  route. The `catchAll` and `dashboard` slots do nothing.
+  route. The `catchAll` and `dashboard` slots do nothing, and the menu has no
+  Dashboard entry.
 - `<CustomRoutes>` and the `authCallback` slot do nothing either, since your app
   routes those paths.
 - A server render shows an empty menu until hydration, because resources register

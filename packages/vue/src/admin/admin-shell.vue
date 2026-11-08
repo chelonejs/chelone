@@ -148,7 +148,7 @@ watchEffect((onCleanup) => {
       <slot name="layout">
         <ThemeProvider>
           <Layout>
-            <slot v-if="isIndex" name="dashboard" />
+            <slot v-if="routes && isIndex" name="dashboard" />
             <router-view />
           </Layout>
         </ThemeProvider>

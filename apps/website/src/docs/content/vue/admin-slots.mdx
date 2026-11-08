@@ -236,5 +236,6 @@ import { DataTable, DataTableCol, List } from "@chelone/vue";
   `/posts/:id/show` under `basename`.
 - `customRoutes`, `#authCallback`, `#catchAll`, `#accessDenied` and
   `#authenticationError` do nothing, since your app routes those paths. The
-  index no longer redirects to the first resource.
+  index no longer redirects to the first resource, and `#dashboard` does not
+  render, so the menu has no Dashboard entry.
 - `routes` is read once, at setup.

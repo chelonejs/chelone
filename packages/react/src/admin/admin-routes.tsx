@@ -286,7 +286,8 @@ export function AdminOutlet(): ReactNode {
   return (
     <>
       <ScrollManager />
-      <HasDashboardContext.Provider value={slots.dashboard != null}>
+      {/* No route renders the dashboard here, so the menu gets no entry for it. */}
+      <HasDashboardContext.Provider value={false}>
         <ShellErrorBoundary fallback={slots.error}>
           <Layout layout={slots.layout}>
             <Outlet />

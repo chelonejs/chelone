@@ -20,6 +20,7 @@ import DataTableCol from "../components/admin/list/data-table-col.vue";
 import Edit from "../components/admin/view/edit.vue";
 import List from "../components/admin/view/list.vue";
 import Admin, { type AdminProps } from "./admin.vue";
+import { useHasDashboard } from "./has-dashboard";
 import Resource from "./resource.vue";
 import { useResourceDefinitions } from "./resource-registry";
 
@@ -51,6 +52,7 @@ async function mountHost(
   children: RouteRecordRaw[],
   props: Partial<AdminProps> = {},
   dataProvider = makeDataProvider(),
+  extraSlots: Record<string, () => VNode[]> = {},
 ) {
   const Host = markRaw(
     defineComponent({
@@ -85,6 +87,7 @@ async function mountHost(
             login: (): VNode[] => [
               h("div", { "data-testid": "login" }, "login"),
             ],
+            ...extraSlots,
           },
         ),
     }),
@@ -229,5 +232,36 @@ describe("<Admin :routes=false>", () => {
     ).toEqual([]);
     expect(router.hasRoute("/terms")).toBe(false);
     expect(router.resolve("/terms").matched).toEqual([]);
+  });
+
+  it("a #dashboard slot adds no menu entry and does not render at the index", async () => {
+    const Probe = markRaw(
+      defineComponent({
+        setup: () => () =>
+          h(
+            "div",
+            { "data-testid": "probe" },
+            useHasDashboard() ? "dashboard" : "no dashboard",
+          ),
+      }),
+    );
+    const dashboard = (): VNode[] => [
+      h("section", { "data-testid": "dashboard" }, "dashboard"),
+    ];
+    const children = [{ path: "posts", component: Probe }];
+
+    const atPage = await mountHost("/admin/posts", children, {}, undefined, {
+      dashboard,
+    });
+    expect(atPage.wrapper.get("[data-testid=probe]").text()).toBe(
+      "no dashboard",
+    );
+
+    const atIndex = await mountHost("/admin", children, {}, undefined, {
+      dashboard,
+    });
+    expect(atIndex.wrapper.find("[data-testid=dashboard]").exists()).toBe(
+      false,
+    );
   });
 });

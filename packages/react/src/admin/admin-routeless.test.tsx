@@ -18,6 +18,7 @@ import { List } from "../components/admin/views/list";
 import { useResourceDefinitions } from "../resource/registry-hooks";
 import { Resource } from "../resource/resource";
 import { Admin } from "./admin";
+import { useHasDashboard } from "./has-dashboard";
 
 afterEach(() => {
   cleanup();
@@ -217,5 +218,32 @@ describe("<Admin routes={false}>", () => {
       ),
     );
     expect(await screen.findByRole("heading", { name: "Alpha" })).toBeTruthy();
+  });
+
+  it("a dashboard slot adds no menu entry, since no route renders it", async () => {
+    function Probe() {
+      return (
+        <div data-testid="probe">
+          {useHasDashboard() ? "dashboard" : "no dashboard"}
+        </div>
+      );
+    }
+    render(
+      <Host
+        entry="/admin/posts"
+        adminChildren={
+          <Admin.Dashboard>
+            <div data-testid="dashboard">dashboard</div>
+          </Admin.Dashboard>
+        }
+      >
+        <Route path="posts" element={<Probe />} />
+      </Host>,
+    );
+
+    expect((await screen.findByTestId("probe")).textContent).toBe(
+      "no dashboard",
+    );
+    expect(screen.queryByTestId("dashboard")).toBeNull();
   });
 });

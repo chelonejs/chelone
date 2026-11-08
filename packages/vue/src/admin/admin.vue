@@ -178,7 +178,7 @@ if (props.resources) {
 // Provide whether a `#dashboard` slot was given so the sidebar `<Menu>` renders
 // a "Dashboard" entry ONLY when a dashboard exists (parity with React's
 // `HasDashboardContext`). Slot presence is stable per mount.
-provideHasDashboard(slots.dashboard != null);
+provideHasDashboard(routed && slots.dashboard != null);
 
 // --- Seam 3: the vue-query client -----------------------------------------
 const queryClient = props.queryClient ?? new QueryClient();
