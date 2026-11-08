@@ -4,12 +4,12 @@
     "Types": 216000
   },
   "utils": {
-    "Instantiations": 79000,
-    "Types": 41000
+    "Instantiations": 87000,
+    "Types": 46000
   },
   "rest": {
-    "Instantiations": 77000,
-    "Types": 41000
+    "Instantiations": 86000,
+    "Types": 45000
   },
   "supabase": {
     "Instantiations": 172000,

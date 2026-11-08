@@ -69,9 +69,8 @@ type OtherPlaceholders<TOther extends string> = {
 export type TranslateParams<TValue extends MessageValue> = TValue extends string
   ? ParamsObject<TValue>
   : TValue extends PluralMessage
-    ?
-        | (OtherPlaceholders<TValue["other"]> & { count: number })
-        | (OtherPlaceholders<TValue["other"]> & { smart_count: number })
+    ? OtherPlaceholders<TValue["other"]> &
+        ({ count: number } | { smart_count: number })
     : never;
 
 /** A locale's value for a base entry: the same kind, whatever the text. */
