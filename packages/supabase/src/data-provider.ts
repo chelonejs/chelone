@@ -3,6 +3,10 @@ import type {
   GetListParams,
   GetManyReferenceParams,
   Pagination,
+  RecordOf,
+  RegisteredResources,
+  ResourceMap,
+  SourceKey,
 } from "@chelone/core";
 import { HttpError, isHeadersInit, isRecord } from "@chelone/core";
 import type { SupabaseSessionSource } from "./http";
@@ -25,7 +29,9 @@ import type {
 import { buildOrder, buildSelect } from "./postgrest/order-select";
 import { toQueryString } from "./postgrest/query-string";
 
-export interface SupabaseDataProviderOptions {
+export interface SupabaseDataProviderOptions<
+  TResources extends ResourceMap = RegisteredResources,
+> {
   instanceUrl: string;
   /** A legacy anon key or a `sb_publishable_` key. */
   apiKey: string;
@@ -34,7 +40,11 @@ export interface SupabaseDataProviderOptions {
   /** The operator for a filter key with no `@op` suffix. */
   defaultListOp?: PostgrestOperator;
   /** Key columns per resource; a resource not listed is keyed by `id`. */
-  primaryKeys?: Record<string, string[]>;
+  primaryKeys?: {
+    [TName in keyof TResources & string]?: readonly SourceKey<
+      RecordOf<TResources, TName>
+    >[];
+  };
   schema?: string | (() => string);
   sortOrder?: PostgrestSortOrder;
 }
@@ -112,7 +122,9 @@ const OBJECT_ACCEPT = "application/vnd.pgrst.object+json";
 
 const RETURN_REPRESENTATION = { Prefer: "return=representation" };
 
-export function supabaseDataProvider({
+export function supabaseDataProvider<
+  TResources extends ResourceMap = RegisteredResources,
+>({
   instanceUrl,
   apiKey,
   client,
@@ -120,7 +132,7 @@ export function supabaseDataProvider({
   primaryKeys,
   schema,
   sortOrder,
-}: SupabaseDataProviderOptions): DataProvider {
+}: SupabaseDataProviderOptions<TResources>): DataProvider {
   const baseUrl = `${instanceUrl.replace(/\/+$/, "")}/rest/v1`;
 
   const request = (
