@@ -4,7 +4,8 @@ import {
   type QueryKey,
 } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
-import type { LooseRecord, ResourceRecord } from "../resource/record";
+import type { ResourceRecord } from "../resource/record";
+import type { RecordOf, ResourceMap } from "../resource/registry";
 import { removeRecordsFromCache, updateRecordsInCache } from "./cache-ops";
 import type { DeleteParams, UpdateManyParams, UpdateParams } from "./types";
 
@@ -335,17 +336,18 @@ export interface UndoableCacheOptions {
 
 /** Patch `ids` in the `resource` caches now; the notification reads "updated". */
 export function undoableUpdateOptions<
-  TRecord extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
 >(
   queryClient: QueryClient,
-  resource: string,
+  resource: TName,
   ids: Identifier[],
-  data: Partial<NoInfer<TRecord>>,
+  data: Partial<RecordOf<TResources, TName>>,
 ): UndoableCacheOptions {
   return {
     queryKeys: [[resource]],
     applyOptimistic: () =>
-      updateRecordsInCache<TRecord>(queryClient, resource, ids, data),
+      updateRecordsInCache<TResources, TName>(queryClient, resource, ids, data),
     message: "chelone.notification.updated",
     messageArgs: { smart_count: ids.length },
   };
