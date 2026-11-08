@@ -1,5 +1,7 @@
+import type { FilterPayload, LooseFilterPayload } from "../data/types";
 import { getAtPath } from "../resource/get-at-path";
-import type { SourcePath } from "../resource/source-path";
+import type { LooseRecord } from "../resource/record";
+import type { FilterSourceKey, SourcePath } from "../resource/source-path";
 import {
   type CalendarRange,
   calendarDayKey,
@@ -172,21 +174,22 @@ export function moveCalendarEvent<R>(
  * began earlier and runs into the range is fetched; a record with an empty end
  * is then left out. Without one, only the start is bounded, on both sides.
  */
-export function calendarRangeFilter(
-  startSource: string,
+export function calendarRangeFilter<R = LooseRecord>(
+  startSource: SourcePath<R>,
   range: CalendarRange,
-  endSource?: string,
-): Record<string, string> {
-  if (endSource) {
-    return {
-      [`${startSource}_lte`]: range.end.toISOString(),
-      [`${endSource}_gte`]: range.start.toISOString(),
-    };
-  }
-  return {
-    [`${startSource}_gte`]: range.start.toISOString(),
-    [`${startSource}_lte`]: range.end.toISOString(),
-  };
+  endSource?: SourcePath<R>,
+): FilterPayload<R> {
+  const filter = endSource
+    ? {
+        [`${startSource}_lte`]: range.end.toISOString(),
+        [`${endSource}_gte`]: range.start.toISOString(),
+      }
+    : {
+        [`${startSource}_gte`]: range.start.toISOString(),
+        [`${startSource}_lte`]: range.end.toISOString(),
+      };
+  // type-escape: a computed template key is typed `string`; each is `${path}_gte` or `${path}_lte`, the filter-key grammar
+  return filter as FilterPayload<R>;
 }
 
 /**
@@ -194,21 +197,22 @@ export function calendarRangeFilter(
  * list URL or store can still hold the start's lower bound, which would hide
  * the event that starts before the range.
  */
-export function staleCalendarRangeKeys(
-  startSource: string,
-  endSource?: string,
-): string[] {
+export function staleCalendarRangeKeys<R = LooseRecord>(
+  startSource: SourcePath<R>,
+  endSource?: SourcePath<R>,
+): FilterSourceKey<R>[] {
   return endSource ? [`${startSource}_gte`] : [];
 }
 
-export function omitCalendarRangeFilter(
-  filter: Record<string, unknown>,
-  startSource: string,
-  endSource?: string,
-): Record<string, unknown> {
-  const rest = { ...filter };
+export function omitCalendarRangeFilter<R = LooseRecord>(
+  filter: FilterPayload<R>,
+  startSource: SourcePath<R>,
+  endSource?: SourcePath<R>,
+): FilterPayload<R> {
+  const rest: LooseFilterPayload = { ...filter };
   delete rest[`${startSource}_gte`];
   delete rest[`${startSource}_lte`];
   if (endSource) delete rest[`${endSource}_gte`];
-  return rest;
+  // type-escape: only keys of `filter` were copied, so `rest` holds a subset of its keys
+  return rest as FilterPayload<R>;
 }
