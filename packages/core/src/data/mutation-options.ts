@@ -136,14 +136,14 @@ export function updateMutationOptions<
       const manySnapshot = await snapshotManyEntries<
         RecordOf<TResources, TName>
       >(ctx, resource);
-      patchManyEntries(
+      patchManyEntries<TResources, TName>(
         ctx.queryClient,
         resource,
         new Set([String(params.id)]),
         structuredClone(params.data),
       );
       await cancelListQueries(ctx, resource);
-      const rollbackLists = patchListEntries(
+      const rollbackLists = patchListEntries<TResources, TName>(
         ctx.queryClient,
         resource,
         new Set([String(params.id)]),

@@ -99,7 +99,7 @@ export function useUpdate<
   ) => {
     const settle = undoableCallbacks(params, callbacks);
     runUndoable({
-      ...undoableUpdateOptions(
+      ...undoableUpdateOptions<TResources, TName>(
         ctx.queryClient,
         resource,
         [params.id],
@@ -249,7 +249,7 @@ export function useUpdateMany<
   ) => {
     const settle = undoableCallbacks(params, callbacks);
     runUndoable({
-      ...undoableUpdateOptions(
+      ...undoableUpdateOptions<TResources, TName>(
         ctx.queryClient,
         resource,
         params.ids,
