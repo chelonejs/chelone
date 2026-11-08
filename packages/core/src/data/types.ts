@@ -3,7 +3,9 @@ import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import type {
   AnyFilterSourceKey,
+  AnySourcePath,
   RecordFilterKey,
+  SourcePath,
 } from "../resource/source-path";
 
 export interface PagePagination {
@@ -24,7 +26,46 @@ export interface PageInfo {
   hasPreviousPage?: boolean;
 }
 
-export interface SortPayload {
+/**
+ * The sort a list applies: one field of the record and a direction.
+ *
+ * `field` is a {@link SourcePath} of the record, so sorting on a column the
+ * record does not have stops compiling. A loose record (the default, and every
+ * app that registers nothing) takes {@link AnySourcePath} instead, the same
+ * loose arm a `source` prop has, so a `DataTable` column can write its own
+ * `SourceProp` into `setSort`.
+ *
+ * A data provider verb takes {@link LooseSortPayload}: a controller generic over
+ * `TResources` cannot prove its `SortPayload<RecordOf<TResources, TName>>`
+ * assigns to the registered union.
+ */
+export interface SortPayload<TRecord = LooseRecord> {
+  field: _SortFieldOf<TRecord>;
+  order: "ASC" | "DESC";
+}
+
+/**
+ * The field a sort takes: the registered union of source paths for a loose
+ * record, the record's own paths for a typed one.
+ *
+ * The conditional sits on the field, never between two payload shapes: a union
+ * of a resolved arm and a deferred one is what stops two identical
+ * `SortPayload<TRecord>`s assigning to each other inside a generic function.
+ * `LooseRecord extends TRecord` is {@link SourceKey}'s guard, not the
+ * `unknown extends` the path types use: an open type parameter resolves against
+ * its constraint, and `SourcePath<ResourceRecord>` is `"id"`.
+ */
+type _SortFieldOf<TRecord> = LooseRecord extends TRecord
+  ? AnySourcePath
+  : SourcePath<TRecord>;
+
+/**
+ * A sort with no record behind it: an open field name. {@link SortPayload}'s
+ * loose field is the registered union once an app registers resources, so the
+ * verbs of {@link DataProvider}, and the code that reads what a verb receives
+ * (`applySort`, `buildOrder`), name this instead.
+ */
+export interface LooseSortPayload {
   field: string;
   order: "ASC" | "DESC";
 }
@@ -71,8 +112,12 @@ export type LooseFilterPayload = { [key: string]: unknown };
 
 export interface GetListParams {
   pagination?: Pagination;
-  /** Single sort key, or multi-sort: keys applied in order (first is primary). */
-  sort?: SortPayload | SortPayload[];
+  /**
+   * Single sort key, or multi-sort: keys applied in order (first is primary).
+   * Loose, like {@link GetListParams.filter}: a verb is not generic over the
+   * record, and a controller's typed sort assigns to it with no cast.
+   */
+  sort?: LooseSortPayload | LooseSortPayload[];
   filter?: FilterPayload;
   meta?: unknown;
 }
@@ -139,8 +184,8 @@ export interface GetManyReferenceParams {
   target: string;
   id: Identifier;
   pagination?: Pagination;
-  /** Single sort key, or multi-sort: keys applied in order (first is primary). */
-  sort?: SortPayload | SortPayload[];
+  /** Single sort key, or multi-sort: keys applied in order (first is primary). Loose, as in {@link GetListParams}. */
+  sort?: LooseSortPayload | LooseSortPayload[];
   filter?: FilterPayload;
   meta?: unknown;
 }

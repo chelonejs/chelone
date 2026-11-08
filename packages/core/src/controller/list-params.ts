@@ -199,7 +199,11 @@ export function listPatchFromSearch<TRecord = LooseRecord>(
     patch.displayedFilters = query.displayedFilters;
   }
   if (query.sort !== undefined) {
-    patch.sort = { field: query.sort, order: query.order ?? "ASC" };
+    patch.sort = {
+      // type-escape: a URL names no record, so its sort field is the wire name a provider resolves, exactly as a parsed `filter` key is (see `parseJsonObjectParam`). `serializeListState` writes this value from a controller's own sort.
+      field: query.sort as SortPayload["field"],
+      order: query.order ?? "ASC",
+    };
   }
   if (query.perPage !== undefined) patch.perPage = query.perPage;
   if (query.page !== undefined) patch.page = query.page;

@@ -1,11 +1,14 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import type { LooseRecord } from "../resource/record";
 import { defineResources } from "../resource/registry";
 import type {
   DataProvider,
   FilterPayload,
   GetListParams,
   GetManyReferenceParams,
+  LooseSortPayload,
+  SortPayload,
 } from "./types";
 
 const postSchema = z.object({ id: z.number(), title: z.string() });
@@ -110,5 +113,48 @@ describe("FilterPayload", () => {
     expectTypeOf<
       Parameters<typeof dp.getManyReference<"posts">>[1]
     >().toEqualTypeOf<GetManyReferenceParams>();
+  });
+});
+
+declare function acceptPostSort(sort: SortPayload<Post>): void;
+declare function acceptLooseSort(sort: SortPayload): void;
+
+describe("SortPayload", () => {
+  it("SortPayload<Post> takes the record's own paths", () => {
+    expectTypeOf<SortPayload<Post>["field"]>().toEqualTypeOf<"id" | "title">();
+    acceptPostSort({ field: "title", order: "ASC" });
+    // @ts-expect-error "titel" is not a field of Post
+    acceptPostSort({ field: "titel", order: "ASC" });
+    // @ts-expect-error a sort field is a record path, not a filter key
+    acceptPostSort({ field: "title_gte", order: "ASC" });
+  });
+
+  it("bare SortPayload stays a plain field for an app that registers nothing", () => {
+    expectTypeOf<SortPayload>().toEqualTypeOf<SortPayload<LooseRecord>>();
+    expectTypeOf<SortPayload>().toEqualTypeOf<LooseSortPayload>();
+    acceptLooseSort({ field: "titel", order: "ASC" });
+  });
+
+  it("a typed sort assigns to the loose sort a verb takes", () => {
+    expectTypeOf<SortPayload<Post>>().toMatchTypeOf<LooseSortPayload>();
+  });
+
+  it("a typed sort reaches a verb with no cast", () => {
+    const postSort: SortPayload<Post> = { field: "title", order: "ASC" };
+    void dp.getList("posts", { sort: postSort });
+    void dp.getManyReference("posts", {
+      target: "author_id",
+      id: 1,
+      sort: [postSort],
+    });
+  });
+
+  it("the wire params keep the loose sort: a provider is not generic over the record", () => {
+    expectTypeOf<GetListParams["sort"]>().toEqualTypeOf<
+      LooseSortPayload | LooseSortPayload[] | undefined
+    >();
+    expectTypeOf<GetManyReferenceParams["sort"]>().toEqualTypeOf<
+      LooseSortPayload | LooseSortPayload[] | undefined
+    >();
   });
 });

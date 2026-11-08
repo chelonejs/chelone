@@ -1,4 +1,4 @@
-import type { SortPayload } from "@chelone/core";
+import type { LooseSortPayload } from "@chelone/core";
 
 /** Where nulls go for `ASC` and `DESC`, as `<ASC placement><DESC placement>`. */
 export type PostgrestSortOrder =
@@ -33,7 +33,7 @@ function applies(flag: boolean | string[] | undefined, field: string) {
 }
 
 export function buildOrder(
-  sort: SortPayload | SortPayload[] | undefined,
+  sort: LooseSortPayload | LooseSortPayload[] | undefined,
   primaryKey: readonly string[],
   {
     sortOrder = "AscendingNullsLastDescendingNullsFirst",
