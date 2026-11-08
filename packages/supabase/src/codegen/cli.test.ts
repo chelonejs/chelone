@@ -183,10 +183,24 @@ describe("runGen", () => {
       dir,
     );
 
+    // The guessers hand a descriptor's `source` to a `source` prop. Only a program
+    // with `Register` augmented and every resource on a schema narrows `SourceProp`.
+    const sourceProbe = join(dir, "generated", "source-probe.ts");
+    await writeFile(
+      sourceProbe,
+      `import { describeResource, type SourceProp } from "@chelone/core";
+import "./resources";
+
+const descriptor = describeResource("posts", undefined);
+export const source: SourceProp | undefined = descriptor?.fields[0]?.source;
+`,
+    );
+
     const program = ts.createProgram(
       [
         join(dir, "generated", "schemas.ts"),
         join(dir, "generated", "resources.ts"),
+        sourceProbe,
       ],
       {
         target: ts.ScriptTarget.ES2022,

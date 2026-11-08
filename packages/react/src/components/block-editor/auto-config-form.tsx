@@ -37,7 +37,7 @@ function AutoField({
   value,
   onChange,
 }: {
-  descriptor: FieldDescriptor;
+  descriptor: FieldDescriptor<string>;
   value: BlockAttrs[string];
   onChange: BlockConfigProps["onChange"];
 }) {
