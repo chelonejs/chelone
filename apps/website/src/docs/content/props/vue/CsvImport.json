@@ -3,25 +3,25 @@
   "props": [
     {
       "name": "schema",
-      "type": "StandardSchemaV1",
+      "type": "StandardSchemaV1<unknown, TRecord>",
       "optional": true,
       "comment": "A Standard Schema (zod, valibot, ...). Its keys are the fields; its non-optional keys are required."
     },
     {
       "name": "fields",
-      "type": "string[]",
+      "type": "SourceKey<TRecord>[]",
       "optional": true,
       "comment": "Overrides the schema's keys. Without either, the CSV headers are the fields."
     },
     {
       "name": "requiredFields",
-      "type": "string[]",
+      "type": "SourceKey<TRecord>[]",
       "optional": true,
       "comment": "Overrides the schema's non-optional keys."
     },
     {
       "name": "mapping",
-      "type": "Record<string, string>",
+      "type": "Partial<Record<SourceKey<TRecord>, string>>",
       "optional": true,
       "comment": "A starting field to header mapping. When non-empty it replaces the auto-match."
     },
