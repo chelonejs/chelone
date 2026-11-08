@@ -24,7 +24,7 @@ const FilterLiveSearch = memo(function FilterLiveSearch({
       <SearchInput
         source={source}
         placeholder={
-          placeholder ?? translate("ra.action.search", { _: "Search" })
+          placeholder ?? translate("chelone.action.search", { _: "Search" })
         }
         {...rest}
       />

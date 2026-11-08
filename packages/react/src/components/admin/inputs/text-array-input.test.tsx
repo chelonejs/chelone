@@ -31,7 +31,7 @@ import { TextArrayInput } from "./text-array-input";
 const messages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    "ra.action.remove": "Remove",
+    "chelone.action.remove": "Remove",
   }),
 };
 

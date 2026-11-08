@@ -34,8 +34,8 @@ import { ReferenceInput } from "./reference-input";
 const messages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    "ra.action.search": "Search...",
-    "ra.navigation.no_results": "No matching item found.",
+    "chelone.action.search": "Search...",
+    "chelone.navigation.no_results": "No matching item found.",
   }),
 };
 

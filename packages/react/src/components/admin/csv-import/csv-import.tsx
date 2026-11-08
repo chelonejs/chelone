@@ -184,7 +184,7 @@ export function CsvImport<TRecord = LooseRecord>({
         <DialogTrigger asChild>
           <Button type="button" variant="outline">
             {icon}
-            {label ?? translate("ra.csv_import.import", { _: "Import" })}
+            {label ?? translate("chelone.csv_import.import", { _: "Import" })}
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-2xl">
@@ -205,10 +205,10 @@ function CsvImportSteps({ onClose }: { onClose: () => void }) {
   const busy = status === "running";
 
   const titles = {
-    upload: translate("ra.csv_import.step.upload", { _: "Upload" }),
-    map: translate("ra.csv_import.step.map", { _: "Map columns" }),
-    preview: translate("ra.csv_import.step.preview", { _: "Preview" }),
-    commit: translate("ra.csv_import.step.commit", { _: "Importing" }),
+    upload: translate("chelone.csv_import.step.upload", { _: "Upload" }),
+    map: translate("chelone.csv_import.step.map", { _: "Map columns" }),
+    preview: translate("chelone.csv_import.step.preview", { _: "Preview" }),
+    commit: translate("chelone.csv_import.step.commit", { _: "Importing" }),
   };
 
   const nextDisabled =
@@ -241,7 +241,7 @@ function CsvImportSteps({ onClose }: { onClose: () => void }) {
               onClose();
             }}
           >
-            {translate("ra.csv_import.close", { _: "Close" })}
+            {translate("chelone.csv_import.close", { _: "Close" })}
           </Button>
         ) : (
           <>
@@ -251,14 +251,14 @@ function CsvImportSteps({ onClose }: { onClose: () => void }) {
               disabled={busy || step === "upload"}
               onClick={back}
             >
-              {translate("ra.csv_import.back", { _: "Back" })}
+              {translate("chelone.csv_import.back", { _: "Back" })}
             </Button>
             <Button
               type="button"
               disabled={nextDisabled}
               onClick={() => void next()}
             >
-              {translate("ra.csv_import.next", { _: "Next" })}
+              {translate("chelone.csv_import.next", { _: "Next" })}
             </Button>
           </>
         )}
@@ -337,7 +337,7 @@ function UploadStep({
         <input {...getInputProps()} data-testid="csv-file-input" />
         <Upload className="size-5" aria-hidden="true" />
         <p>
-          {translate("ra.csv_import.drop", {
+          {translate("chelone.csv_import.drop", {
             _: "Drop a CSV file here, or click to choose one",
           })}
         </p>
@@ -345,14 +345,14 @@ function UploadStep({
       </div>
       {notice === "wrong_file" && (
         <p role="alert" className="text-sm text-destructive">
-          {translate("ra.csv_import.wrong_file", {
+          {translate("chelone.csv_import.wrong_file", {
             _: "Choose a .csv file",
           })}
         </p>
       )}
       {notice === "not_utf8" && (
         <p role="status" className="text-sm text-destructive">
-          {translate("ra.csv_import.not_utf8", {
+          {translate("chelone.csv_import.not_utf8", {
             _: "This file is not UTF-8, so some letters may be wrong. Save it as CSV UTF-8 and try again.",
           })}
         </p>
@@ -364,7 +364,7 @@ function UploadStep({
       ) : (
         state.rows.length > 0 && (
           <p className="text-sm">
-            {translate("ra.csv_import.rows_parsed", {
+            {translate("chelone.csv_import.rows_parsed", {
               _: "{count} rows parsed",
               count: state.rows.length,
             })}
@@ -406,7 +406,7 @@ function MapStep() {
               onChange={(e) => setMapping(field, e.target.value)}
             >
               <option value="">
-                {translate("ra.csv_import.unmapped", { _: "Not mapped" })}
+                {translate("chelone.csv_import.unmapped", { _: "Not mapped" })}
               </option>
               {state.headers.map((header) => (
                 <option key={header} value={header}>
@@ -419,7 +419,7 @@ function MapStep() {
       })}
       {unmapped && (
         <p role="status" className="text-sm text-destructive">
-          {translate("ra.csv_import.required_unmapped", {
+          {translate("chelone.csv_import.required_unmapped", {
             _: "Required fields are not mapped",
           })}
         </p>
@@ -444,7 +444,7 @@ function PreviewStep() {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm">
-        {translate("ra.csv_import.preview_summary", {
+        {translate("chelone.csv_import.preview_summary", {
           _: "{valid} valid · {errors} errors · {total} total",
           valid,
           errors: validations.length - valid,
@@ -459,7 +459,7 @@ function PreviewStep() {
                 <TableHead key={field}>{field}</TableHead>
               ))}
               <TableHead>
-                {translate("ra.csv_import.issues", { _: "Issues" })}
+                {translate("chelone.csv_import.issues", { _: "Issues" })}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -507,10 +507,10 @@ function CommitStep() {
   return (
     <div className="flex flex-col gap-3 text-sm">
       <p className="font-medium">
-        {translate("ra.csv_import.complete", { _: "Import complete" })}
+        {translate("chelone.csv_import.complete", { _: "Import complete" })}
       </p>
       <p>
-        {translate("ra.csv_import.counts", {
+        {translate("chelone.csv_import.counts", {
           _: "{created} created · {failed} failed · {total} total",
           created: report.created,
           failed: report.failed,
@@ -526,7 +526,7 @@ function CommitStep() {
             downloadCSV(recordsToCSV(csvErrorRows(report)), "import-errors")
           }
         >
-          {translate("ra.csv_import.download_errors", {
+          {translate("chelone.csv_import.download_errors", {
             _: "Download error report",
           })}
         </Button>

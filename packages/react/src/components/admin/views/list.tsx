@@ -102,7 +102,7 @@ function ListView(props: ListViewProps) {
   const finalTitle =
     title !== undefined
       ? title
-      : translate("ra.page.list", { name: resourceLabel });
+      : translate("chelone.page.list", { name: resourceLabel });
   // Subscribe so the view re-renders as the controller resolves (parity with
   // shadmin's `useListContext` read; the value is also what children consume).
   useListContext();

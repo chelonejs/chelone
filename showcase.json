@@ -2295,7 +2295,7 @@
     "react": {
       "docs": {
         "path": "/docs/ui-layout/loading-indicator",
-        "see": ".not-prose [aria-label=\"ra.action.refresh\"]"
+        "see": ".not-prose [aria-label=\"chelone.action.refresh\"]"
       },
       "demo": {
         "path": "/demo/status",

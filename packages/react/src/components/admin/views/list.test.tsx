@@ -43,8 +43,8 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.list": "{name}",
-        "ra.navigation.no_results": "No results found",
+        "chelone.page.list": "{name}",
+        "chelone.navigation.no_results": "No results found",
       }),
     },
   });
@@ -112,7 +112,7 @@ describe("<List>", () => {
       </Providers>,
     );
     await screen.findByText("Alpha");
-    // ra.page.list = "%{name}" and getResourceLabel("posts", 2) = "Posts".
+    // chelone.page.list = "%{name}" and getResourceLabel("posts", 2) = "Posts".
     expect(screen.getByRole("heading", { name: /posts/i })).toBeTruthy();
   });
 

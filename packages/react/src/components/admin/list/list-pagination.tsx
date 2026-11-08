@@ -128,20 +128,24 @@ function ListPagination({
     return out === key ? fallback : out;
   };
 
-  const previousLabel = t("ra.navigation.previous", "Previous");
-  const nextLabel = t("ra.navigation.next", "Next");
+  const previousLabel = t("chelone.navigation.previous", "Previous");
+  const nextLabel = t("chelone.navigation.next", "Next");
   const rowsPerPageLabel = t(
-    "ra.navigation.page_rows_per_page",
+    "chelone.navigation.page_rows_per_page",
     "Rows per page",
   );
   const totalDisplay = total == null || total === -1 ? pageEnd : total;
   const rangeLabel = isPartial
-    ? t("ra.navigation.partial_page_range_info", `${pageStart}-${pageEnd}`, {
-        offsetBegin: pageStart,
-        offsetEnd: pageEnd,
-      })
+    ? t(
+        "chelone.navigation.partial_page_range_info",
+        `${pageStart}-${pageEnd}`,
+        {
+          offsetBegin: pageStart,
+          offsetEnd: pageEnd,
+        },
+      )
     : t(
-        "ra.navigation.page_range_info",
+        "chelone.navigation.page_range_info",
         `${pageStart}-${pageEnd} of ${totalDisplay}`,
         {
           offsetBegin: pageStart,

@@ -23,10 +23,10 @@ function Providers({ children }: { children: ReactNode }) {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.error": "Something Went Wrong",
-        "ra.message.error":
+        "chelone.page.error": "Something Went Wrong",
+        "chelone.message.error":
           "A client error occurred and your request couldn't be completed.",
-        "ra.action.back": "Back",
+        "chelone.action.back": "Back",
       }),
     },
   });

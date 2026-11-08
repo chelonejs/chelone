@@ -121,7 +121,7 @@ function moveDown() {
             size="icon"
             class="size-7"
             :disabled="row.index === 0"
-            :aria-label="translate('ra.action.move_up', { _: 'Move up' })"
+            :aria-label="translate('chelone.action.move_up', { _: 'Move up' })"
             @click="moveUp"
           >
             <span aria-hidden="true">↑</span>
@@ -132,7 +132,7 @@ function moveDown() {
             size="icon"
             class="size-7"
             :disabled="array != null && row.index >= array.total.value - 1"
-            :aria-label="translate('ra.action.move_down', { _: 'Move down' })"
+            :aria-label="translate('chelone.action.move_down', { _: 'Move down' })"
             @click="moveDown"
           >
             <span aria-hidden="true">↓</span>
@@ -151,7 +151,7 @@ function moveDown() {
             variant="ghost"
             size="icon"
             class="size-7"
-            :aria-label="translate('ra.action.remove', { _: 'Remove' })"
+            :aria-label="translate('chelone.action.remove', { _: 'Remove' })"
             data-slot="array-input-remove"
             @click="remove"
           >

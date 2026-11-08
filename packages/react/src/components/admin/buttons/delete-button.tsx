@@ -151,7 +151,7 @@ function DeleteButton<TRecord extends ResourceRecord = LooseRecord>(
 
   const label = useResourceTranslation({
     resourceI18nKey: `resources.${resource}.action.delete`,
-    baseI18nKey: "ra.action.delete",
+    baseI18nKey: "chelone.action.delete",
     options: definedParams({
       _: "Delete",
       name: resourceName,
@@ -161,7 +161,7 @@ function DeleteButton<TRecord extends ResourceRecord = LooseRecord>(
   });
   const confirmTitle = useResourceTranslation({
     resourceI18nKey: `resources.${resource}.message.delete_title`,
-    baseI18nKey: "ra.message.delete_title",
+    baseI18nKey: "chelone.message.delete_title",
     options: definedParams({
       _: "Delete {name} {recordRepresentation}",
       recordRepresentation,
@@ -172,7 +172,7 @@ function DeleteButton<TRecord extends ResourceRecord = LooseRecord>(
   });
   const confirmContent = useResourceTranslation({
     resourceI18nKey: `resources.${resource}.message.delete_content`,
-    baseI18nKey: "ra.message.delete_content",
+    baseI18nKey: "chelone.message.delete_content",
     options: definedParams({
       _: "Are you sure you want to delete this item?",
       recordRepresentation,

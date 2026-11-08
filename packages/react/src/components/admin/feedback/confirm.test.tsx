@@ -20,7 +20,7 @@ afterEach(cleanup);
 function Providers({ children }: { children: ReactNode }) {
   const i18n = createI18n({
     locale: "en",
-    messages: { en: defineMessages({ "ra.action.confirm": "Confirm" }) },
+    messages: { en: defineMessages({ "chelone.action.confirm": "Confirm" }) },
   });
   return (
     <CheloneProvider
@@ -56,7 +56,7 @@ describe("<Confirm>", () => {
         <Confirm isOpen title="t" onConfirm={vi.fn()} onClose={vi.fn()} />
       </Providers>,
     );
-    // `ra.action.confirm` is in the messages; `ra.action.cancel` falls back.
+    // `chelone.action.confirm` is in the messages; `chelone.action.cancel` falls back.
     expect(screen.getByRole("button", { name: /confirm/i })).toBeTruthy();
     expect(screen.getByRole("button", { name: /cancel/i })).toBeTruthy();
   });

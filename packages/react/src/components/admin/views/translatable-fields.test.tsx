@@ -261,12 +261,12 @@ describe("TranslatableFields", () => {
     error.mockRestore();
   });
 
-  it("TranslatableFields labels a tab from ra.locales when translated and capitalizes the code otherwise", () => {
+  it("TranslatableFields labels a tab from chelone.locales when translated and capitalizes the code otherwise", () => {
     mount(
       <TranslatableFields locales={["en", "fr"]}>
         <TextField source="title" />
       </TranslatableFields>,
-      { messages: { "ra.locales.en": "English" } },
+      { messages: { "chelone.locales.en": "English" } },
     );
     expect(screen.getByRole("tab", { name: "English" })).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Fr" })).toBeTruthy();

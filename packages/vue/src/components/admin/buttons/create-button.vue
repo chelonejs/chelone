@@ -54,7 +54,7 @@ const show = computed(() => !isAccessPending.value && canAccess.value);
 const to = computed(() => createPath({ resource, type: "create" }));
 const label = computed(() =>
   translate(
-    "ra.action.create",
+    "chelone.action.create",
     definedParams({
       _: "Create",
       name: resource ? getResourceLabel(resource, 1) : undefined,

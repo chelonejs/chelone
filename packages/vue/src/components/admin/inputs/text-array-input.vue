@@ -120,7 +120,7 @@ function onBlur() {
           @click.prevent="removeValue(index)"
         >
           <span class="sr-only">{{
-            translate("ra.action.remove", { _: "Remove" })
+            translate("chelone.action.remove", { _: "Remove" })
           }}</span>
           <span aria-hidden="true">×</span>
         </button>

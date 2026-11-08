@@ -51,8 +51,8 @@ function PasswordInput(props: PasswordInputProps) {
           onClick={() => setVisible((v) => !v)}
           aria-label={translate(
             visible
-              ? "ra.input.password.toggle_visible"
-              : "ra.input.password.toggle_hidden",
+              ? "chelone.input.password.toggle_visible"
+              : "chelone.input.password.toggle_hidden",
             { _: visible ? "Hide password" : "Show password" },
           )}
           tabIndex={-1}

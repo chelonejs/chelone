@@ -178,7 +178,7 @@ watch(
           v-if="!entry.alwaysOn"
           type="button"
           class="hide-filter inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-md mt-auto hover:bg-accent hover:text-accent-foreground"
-          :title="translate('ra.action.remove_filter', { _: 'Remove filter' })"
+          :title="translate('chelone.action.remove_filter', { _: 'Remove filter' })"
           @click="list.hideFilter(entry.source)"
         >
           <MinusCircleIcon />

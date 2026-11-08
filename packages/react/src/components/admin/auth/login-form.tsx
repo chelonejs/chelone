@@ -60,7 +60,7 @@ function LoginForm(props: LoginFormProps) {
         );
       } catch (error) {
         const message = errorMessageOf(error);
-        notify(message ?? "ra.auth.sign_in_error", {
+        notify(message ?? "chelone.auth.sign_in_error", {
           type: "error",
           messageArgs: message === undefined ? undefined : { _: message },
         });
@@ -113,7 +113,7 @@ function LoginForm(props: LoginFormProps) {
           disabled={isSubmitting}
         >
           {isSubmitting ? <Spinner /> : null}
-          {translate("ra.auth.sign_in", { _: "Sign in" })}
+          {translate("chelone.auth.sign_in", { _: "Sign in" })}
         </Button>
       </form>
     </CheloneFormProvider>

@@ -44,7 +44,7 @@ function makeI18n() {
       en: defineMessages({
         "chelone.notification.created": "Element created",
         "chelone.notification.deleted": "Element deleted",
-        "ra.action.undo": "Undo",
+        "chelone.action.undo": "Undo",
       }),
     },
   });

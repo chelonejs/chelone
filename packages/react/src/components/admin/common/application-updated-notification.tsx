@@ -47,14 +47,14 @@ function ApplicationUpdatedNotification({
       <span className="text-sm">
         {messageText
           ? translate(messageText, { _: messageText })
-          : translate("ra.notification.application_update_available", {
+          : translate("chelone.notification.application_update_available", {
               _: "A new version of the application is available",
             })}
       </span>
       <Button size="sm" onClick={onReload ?? (() => window.location.reload())}>
         {buttonText
           ? translate(buttonText, { _: buttonText })
-          : translate("ra.action.reload", { _: "Reload" })}
+          : translate("chelone.action.reload", { _: "Reload" })}
       </Button>
     </Card>
   );

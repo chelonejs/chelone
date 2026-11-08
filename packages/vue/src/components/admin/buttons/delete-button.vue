@@ -27,9 +27,9 @@ export interface DeleteButtonProps<
   mutationMode?: MutationMode;
   /** Where to navigate after deleting. Default `"list"`; `false` = stay. */
   redirect?: DeleteRedirect;
-  /** Confirmation-dialog title. Default `"ra.message.delete_title"`. */
+  /** Confirmation-dialog title. Default `"chelone.message.delete_title"`. */
   confirmTitle?: string;
-  /** Confirmation-dialog body copy. Default `"ra.message.delete_content"`. */
+  /** Confirmation-dialog body copy. Default `"chelone.message.delete_content"`. */
   confirmContent?: string;
   /** `"warning"` tints the confirm button destructive. Default `"warning"`. */
   confirmColor?: "primary" | "warning";
@@ -92,8 +92,8 @@ import { TrashIcon } from "./icons";
 const props = withDefaults(defineProps<DeleteButtonProps<TRecord>>(), {
   redirect: "list",
   variant: "outline",
-  confirmTitle: "ra.message.delete_title",
-  confirmContent: "ra.message.delete_content",
+  confirmTitle: "chelone.message.delete_title",
+  confirmContent: "chelone.message.delete_content",
   confirmColor: "warning",
 });
 
@@ -152,7 +152,7 @@ const confirmOptions = computed(() => {
 });
 
 const label = computed(() =>
-  translate("ra.action.delete", { _: props.label ?? "Delete" }),
+  translate("chelone.action.delete", { _: props.label ?? "Delete" }),
 );
 const destructiveClass =
   "cursor-pointer text-destructive border-destructive hover:bg-destructive/10";

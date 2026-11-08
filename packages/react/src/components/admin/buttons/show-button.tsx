@@ -74,7 +74,7 @@ function ShowButton<TRecord extends ResourceRecord = LooseRecord>(
       : recordRepresentationValue?.toString();
   const label = useResourceTranslation({
     resourceI18nKey: resource ? `resources.${resource}.action.show` : undefined,
-    baseI18nKey: "ra.action.show",
+    baseI18nKey: "chelone.action.show",
     options: definedParams({
       _: "Show",
       name: resource ? getResourceLabel(resource, 1) : undefined,

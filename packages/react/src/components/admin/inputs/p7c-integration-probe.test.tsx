@@ -66,9 +66,9 @@ const messages = {
     "chelone.validation.required": "This field is required",
     // chelone's `translate` echoes the key on a miss (no polyglot `_` default),
     // so the autocomplete's search-box placeholder needs a real catalog entry to
-    // render "Search..." rather than the raw `ra.action.search` key.
-    "ra.action.search": "Search...",
-    "ra.navigation.no_results": "No matching item found.",
+    // render "Search..." rather than the raw `chelone.action.search` key.
+    "chelone.action.search": "Search...",
+    "chelone.navigation.no_results": "No matching item found.",
   }),
 };
 
@@ -277,7 +277,7 @@ describe("P7c choice/reference/array integration probe", () => {
 
     // Open the autocomplete → all reference records list as choices. The cmdk
     // search box mounts inside the Radix popover; wait for it to appear (its
-    // placeholder is the `ra.action.search` catalog entry defined above).
+    // placeholder is the `chelone.action.search` catalog entry defined above).
     fireEvent.click(screen.getByRole("combobox"));
     const searchBox = await screen.findByPlaceholderText("Search...");
     await waitFor(() => {

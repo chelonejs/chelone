@@ -23,17 +23,17 @@ import { useRouterAdapter } from "../../../router/adapter";
 
 export interface AuthErrorProps {
   className?: string;
-  /** i18n key for the heading. Defaults to `ra.page.error`. */
+  /** i18n key for the heading. Defaults to `chelone.page.error`. */
   title?: string;
-  /** i18n key (or raw message) for the body. Defaults to `ra.message.auth_error`. */
+  /** i18n key (or raw message) for the body. Defaults to `chelone.message.auth_error`. */
   message?: string;
 }
 
 function AuthError(props: AuthErrorProps) {
   const {
     className,
-    title = "ra.page.error",
-    message = "ra.message.auth_error",
+    title = "chelone.page.error",
+    message = "chelone.message.auth_error",
     ...rest
   } = props;
 
@@ -54,7 +54,7 @@ function AuthError(props: AuthErrorProps) {
       <p className="my-5">{translate(message, { _: message })}</p>
       <Button asChild>
         <Link to={DEFAULT_LOGIN_PATH}>
-          <Lock /> {translate("ra.auth.sign_in", { _: "Sign in" })}
+          <Lock /> {translate("chelone.auth.sign_in", { _: "Sign in" })}
         </Link>
       </Button>
     </div>

@@ -108,9 +108,9 @@ describe("<NotFound>", () => {
     render(
       <Wrap
         messages={{
-          "ra.page.not_found": "Introuvable",
-          "ra.message.not_found": "Cette page n'existe pas",
-          "ra.action.back": "Retour",
+          "chelone.page.not_found": "Introuvable",
+          "chelone.message.not_found": "Cette page n'existe pas",
+          "chelone.action.back": "Retour",
         }}
       >
         <NotFound />

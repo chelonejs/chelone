@@ -67,7 +67,7 @@ async function save(values: SetPasswordValues): Promise<undefined> {
     });
   } catch (error) {
     const message = errorMessageOf(error);
-    notifications?.notify(message ?? "ra.notification.http_error", {
+    notifications?.notify(message ?? "chelone.notification.http_error_label", {
       type: "warning",
       messageArgs: message === undefined ? undefined : { _: message },
     });
@@ -113,7 +113,7 @@ const linkClass =
     @submit="handleSubmit"
   >
     <PasswordInput
-      :label="translate('ra.auth.password', { _: 'Password' })"
+      :label="translate('chelone.auth.password', { _: 'Password' })"
       source="password"
       autocomplete="new-password"
       autofocus
@@ -131,7 +131,7 @@ const linkClass =
     />
     <Button type="submit" class="cursor-pointer" :disabled="submitting">
       <Spinner v-if="submitting" />
-      {{ translate("ra.action.save", { _: "Save" }) }}
+      {{ translate("chelone.action.save", { _: "Save" }) }}
     </Button>
   </form>
 </template>

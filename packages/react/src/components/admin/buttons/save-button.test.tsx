@@ -41,7 +41,7 @@ afterEach(cleanup);
 function makeI18n() {
   return createI18n({
     locale: "en",
-    messages: { en: defineMessages({ "ra.action.save": "Save" }) },
+    messages: { en: defineMessages({ "chelone.action.save": "Save" }) },
   });
 }
 

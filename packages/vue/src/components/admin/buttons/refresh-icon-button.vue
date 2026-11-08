@@ -7,7 +7,7 @@ export interface RefreshIconButtonProps {
   class?: string;
 }
 
-const defaultLabel = "ra.action.refresh";
+const defaultLabel = "chelone.action.refresh";
 </script>
 
 <script setup lang="ts">

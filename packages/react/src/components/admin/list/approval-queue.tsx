@@ -239,7 +239,7 @@ function ApprovalQueueRow<TRecord extends ResourceRecord>({
             />
             <div className="flex justify-end gap-2">
               <Button type="button" variant="ghost" onClick={close}>
-                {translate("ra.action.cancel", { _: "Cancel" })}
+                {translate("chelone.action.cancel", { _: "Cancel" })}
               </Button>
               <Button
                 type="submit"

@@ -84,20 +84,20 @@ function onFocusOut(event: FocusEvent) {
         <Button
           type="submit"
           size="sm"
-          :aria-label="translate('ra.action.save', { _: 'Save' })"
+          :aria-label="translate('chelone.action.save', { _: 'Save' })"
           @mousedown.prevent
         >
-          {{ translate("ra.action.save", { _: "Save" }) }}
+          {{ translate("chelone.action.save", { _: "Save" }) }}
         </Button>
         <Button
           type="button"
           size="sm"
           variant="outline"
-          :aria-label="translate('ra.action.cancel', { _: 'Cancel' })"
+          :aria-label="translate('chelone.action.cancel', { _: 'Cancel' })"
           @mousedown.prevent
           @click="emit('cancel')"
         >
-          {{ translate("ra.action.cancel", { _: "Cancel" }) }}
+          {{ translate("chelone.action.cancel", { _: "Cancel" }) }}
         </Button>
       </template>
     </form>

@@ -189,8 +189,8 @@ function TreeListNode<TRecord extends ResourceRecord = LooseRecord>({
             className="flex size-6 shrink-0 items-center justify-center rounded-md hover:bg-accent"
             aria-label={
               open
-                ? translate("ra.action.collapse", { _: "Collapse" })
-                : translate("ra.action.expand", { _: "Expand" })
+                ? translate("chelone.action.collapse", { _: "Collapse" })
+                : translate("chelone.action.expand", { _: "Expand" })
             }
             onClick={() => tree.toggle(record.id)}
           >

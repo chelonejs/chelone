@@ -29,7 +29,7 @@
       "name": "submitLabel",
       "type": "string",
       "optional": true,
-      "comment": "Button text. Defaults to the translated `ra.auth.sign_in`."
+      "comment": "Button text. Defaults to the translated `chelone.auth.sign_in`."
     }
   ]
 }

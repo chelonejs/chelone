@@ -37,8 +37,8 @@ function SidebarToggleButton(props: SidebarToggleButtonProps) {
   const { open } = useSidebar();
   const translate = useTranslate();
   const tooltipText = open
-    ? translate("ra.action.close_menu", { _: "Close menu" })
-    : translate("ra.action.open_menu", { _: "Open menu" });
+    ? translate("chelone.action.close_menu", { _: "Close menu" })
+    : translate("chelone.action.open_menu", { _: "Open menu" });
 
   return (
     <Tooltip>

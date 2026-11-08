@@ -6,7 +6,7 @@
  * notification stack yet, so pessimistic-with-confirm is the default delete UX).
  *
  * Labels flow through `translate(key, { _: fallback })` — the core translate now
- * honours the `_` fallback, so an untranslated key (e.g. `ra.action.confirm`)
+ * honours the `_` fallback, so an untranslated key (e.g. `chelone.action.confirm`)
  * still renders readable English.
  */
 
@@ -59,8 +59,8 @@ function Confirm(props: ConfirmProps) {
     loading,
     title,
     content,
-    cancel = "ra.action.cancel",
-    confirm = "ra.action.confirm",
+    cancel = "chelone.action.cancel",
+    confirm = "chelone.action.confirm",
     confirmColor = "primary",
     ConfirmIcon = CheckCircle,
     CancelIcon = AlertCircle,

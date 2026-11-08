@@ -154,7 +154,7 @@ const shown = computed(() =>
     />
     <Input
       v-model="query"
-      :aria-label="translate('ra.action.search', { _: 'Search' })"
+      :aria-label="translate('chelone.action.search', { _: 'Search' })"
       class="px-8"
     />
     <Button
@@ -162,7 +162,7 @@ const shown = computed(() =>
       variant="ghost"
       size="icon"
       class="absolute right-0 top-1/2 size-7 -translate-y-1/2"
-      :aria-label="translate('ra.action.clear_input_value', { _: 'Clear value' })"
+      :aria-label="translate('chelone.action.clear_input_value', { _: 'Clear value' })"
       @click="query = ''"
     >
       <XIcon />
@@ -194,7 +194,7 @@ const shown = computed(() =>
         size="icon"
         class="size-7"
         :disabled="searching || row.index === 0"
-        :aria-label="translate('ra.action.move_up', { _: 'Move up' })"
+        :aria-label="translate('chelone.action.move_up', { _: 'Move up' })"
         @click="state.move(row.id, -1)"
       >
         <ChevronUpIcon />
@@ -204,7 +204,7 @@ const shown = computed(() =>
         size="icon"
         class="size-7"
         :disabled="searching || row.index === rows.length - 1"
-        :aria-label="translate('ra.action.move_down', { _: 'Move down' })"
+        :aria-label="translate('chelone.action.move_down', { _: 'Move down' })"
         @click="state.move(row.id, 1)"
       >
         <ChevronDownIcon />
@@ -213,7 +213,7 @@ const shown = computed(() =>
   </component>
   <div class="mt-2 flex justify-end">
     <Button variant="ghost" size="sm" @click="state.reset()">
-      {{ translate("ra.action.reset", { _: "Reset" }) }}
+      {{ translate("chelone.action.reset", { _: "Reset" }) }}
     </Button>
   </div>
 </template>

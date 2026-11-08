@@ -70,7 +70,7 @@ const to = computed(
   <span
     v-else-if="error"
     role="img"
-    :aria-label="translate('ra.notification.http_error', { _: 'Error' })"
+    :aria-label="translate('chelone.notification.http_error_label', { _: 'Error' })"
     :class="cn('inline-flex text-destructive', props.class)"
   >
     <CircleXIcon />

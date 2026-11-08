@@ -18,13 +18,13 @@ import {
  * too.
  */
 const frenchMessages: MessageCatalog = {
-  "ra.action.cancel": "Annuler",
-  "ra.action.create": "Créer",
-  "ra.action.delete": "Supprimer",
-  "ra.action.edit": "Modifier",
-  "ra.action.save": "Enregistrer",
-  "ra.action.show": "Afficher",
-  "ra.action.change_locale": "Changer de langue",
+  "chelone.action.cancel": "Annuler",
+  "chelone.action.create": "Créer",
+  "chelone.action.delete": "Supprimer",
+  "chelone.action.edit": "Modifier",
+  "chelone.action.save": "Enregistrer",
+  "chelone.action.show": "Afficher",
+  "chelone.action.change_locale": "Changer de langue",
   "demo.dashboard.title": "Tableau de bord",
   "demo.dashboard.revenue": "Chiffre d'affaires",
   "demo.dashboard.orders": "Commandes",
@@ -100,10 +100,10 @@ export interface DemoI18n {
 }
 
 /**
- * The English i18n catalog. `englishMessages` is core's English for the `ra.*`
- * keys the components translate, the `chelone.*` controller messages and the
+ * The English i18n catalog. `englishMessages` is core's English for every key
+ * the components translate plus the `chelone.*` controller messages and the
  * map labels; an `<Admin>` with no `i18n` prop reads the same. To add or
- * override entries, spread it: `{ ...englishMessages, "ra.page.list": "All {name}" }`.
+ * override entries, spread it: `{ ...englishMessages, "chelone.page.list": "All {name}" }`.
  */
 export function makeI18n() {
   return createI18n({

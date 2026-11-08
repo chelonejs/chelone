@@ -109,7 +109,7 @@ const providers = computed(() => props.providers ?? []);
           class="flex items-center gap-4 text-sm text-muted-foreground"
         >
           <div class="flex-1 border-t" />
-          {{ translate("ra.auth.or", { _: "or" }) }}
+          {{ translate("chelone.auth.or", { _: "or" }) }}
           <div class="flex-1 border-t" />
         </div>
         <component

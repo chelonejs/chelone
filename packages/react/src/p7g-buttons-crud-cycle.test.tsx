@@ -18,7 +18,7 @@
  *  (c) CREATE — click the ported `<CreateButton>` (a nav Link) → lands on Create
  *      → fill + `<SaveButton>` → a brand-new record exists in the provider.
  *  (d) LABEL — a ported button renders its translated / `_`-fallback text, never
- *      a raw i18n key (`ra.action.*`).
+ *      a raw i18n key (`chelone.action.*`).
  *
  * Non-vacuity (mutation-verified, see p7g-buttons-probe.md): the save-persist
  * assertion (a) and the bulk-delete assertion (b) each FAIL when their bound
@@ -83,17 +83,17 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.list": "{name}",
-        "ra.page.create": "Create {name}",
-        "ra.action.edit": "Edit",
-        "ra.action.save": "Save",
-        "ra.action.create": "Create",
-        "ra.action.delete": "Delete",
-        "ra.action.confirm": "Confirm",
-        "ra.action.cancel": "Cancel",
-        "ra.navigation.no_results": "No results found",
-        "ra.message.bulk_delete_title": "Delete {name}?",
-        "ra.message.bulk_delete_content": "Are you sure?",
+        "chelone.page.list": "{name}",
+        "chelone.page.create": "Create {name}",
+        "chelone.action.edit": "Edit",
+        "chelone.action.save": "Save",
+        "chelone.action.create": "Create",
+        "chelone.action.delete": "Delete",
+        "chelone.action.confirm": "Confirm",
+        "chelone.action.cancel": "Cancel",
+        "chelone.navigation.no_results": "No results found",
+        "chelone.message.bulk_delete_title": "Delete {name}?",
+        "chelone.message.bulk_delete_content": "Are you sure?",
       }),
     },
   });
@@ -282,7 +282,7 @@ describe("P7g CRUD cycle — (c) create via ported CreateButton + SaveButton", (
 /* -------------------------------------------------------------------------- */
 
 describe("P7g CRUD cycle — (d) ported button labels are translated, not raw keys", () => {
-  it("renders 'Save' (translated), never the raw 'ra.action.save' key", async () => {
+  it("renders 'Save' (translated), never the raw 'chelone.action.save' key", async () => {
     render(
       makeApp({
         dataProvider: fakeDataProvider(seed()),
@@ -294,7 +294,7 @@ describe("P7g CRUD cycle — (d) ported button labels are translated, not raw ke
     // Translated text present…
     expect(save.textContent).toContain("Save");
     // …and the raw i18n key is NOT leaking into the DOM anywhere.
-    expect(save.textContent).not.toContain("ra.action");
-    expect(screen.queryByText("ra.action.save")).toBeNull();
+    expect(save.textContent).not.toContain("chelone.action");
+    expect(screen.queryByText("chelone.action.save")).toBeNull();
   });
 });

@@ -51,8 +51,8 @@ function setup() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.list": "{name}",
-        "ra.navigation.no_results": "No results found",
+        "chelone.page.list": "{name}",
+        "chelone.navigation.no_results": "No results found",
       }),
     },
   });

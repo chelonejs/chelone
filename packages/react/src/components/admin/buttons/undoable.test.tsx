@@ -65,9 +65,9 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.delete": "Delete",
-        "ra.action.update": "Update",
-        "ra.action.undo": "Undo",
+        "chelone.action.delete": "Delete",
+        "chelone.action.update": "Update",
+        "chelone.action.undo": "Undo",
         "chelone.notification.deleted": "Element deleted",
         "chelone.notification.updated": "Element updated",
         "chelone.notification.http_error": "Server error",

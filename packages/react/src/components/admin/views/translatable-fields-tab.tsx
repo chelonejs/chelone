@@ -25,7 +25,7 @@ export function TranslatableFieldsTab({
       id={`translatable-header-${groupKey}${locale}`}
       aria-controls={`translatable-content-${groupKey}${locale}`}
     >
-      {children ?? translate(`ra.locales.${locale}`, { _: fallback })}
+      {children ?? translate(`chelone.locales.${locale}`, { _: fallback })}
     </TabsTrigger>
   );
 }

@@ -63,7 +63,7 @@ function NotFoundPage(props: NotFoundProps) {
   const { title, className, ...rest } = props;
   const translate = useTranslate();
   const navigate = useNavigate();
-  const heading = translate("ra.page.not_found", { _: "Not Found" });
+  const heading = translate("chelone.page.not_found", { _: "Not Found" });
 
   return (
     <div
@@ -76,13 +76,13 @@ function NotFoundPage(props: NotFoundProps) {
         {heading}
       </h1>
       <p>
-        {translate("ra.message.not_found", {
+        {translate("chelone.message.not_found", {
           _: "The page you requested cannot be found.",
         })}
       </p>
       <div className="mt-8">
         <Button type="button" onClick={() => navigate(-1)}>
-          {translate("ra.action.back", { _: "Back" })}
+          {translate("chelone.action.back", { _: "Back" })}
         </Button>
       </div>
     </div>

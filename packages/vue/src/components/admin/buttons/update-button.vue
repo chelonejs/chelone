@@ -33,9 +33,9 @@ export interface UpdateButtonProps<
   record?: TRecord;
   /** Override the ambient `<Resource>`. */
   resource?: string;
-  /** Confirmation-dialog title. Default `"ra.message.bulk_update_title"`. */
+  /** Confirmation-dialog title. Default `"chelone.message.bulk_update_title"`. */
   confirmTitle?: string;
-  /** Confirmation-dialog body copy. Default `"ra.message.bulk_update_content"`. */
+  /** Confirmation-dialog body copy. Default `"chelone.message.bulk_update_content"`. */
   confirmContent?: string;
   /** `"warning"` tints the confirm button destructive. Default `"primary"`. */
   confirmColor?: "primary" | "warning";
@@ -78,8 +78,8 @@ import { RefreshCwIcon } from "./icons";
 const props = withDefaults(defineProps<UpdateButtonProps<TRecord>>(), {
   mutationMode: "undoable",
   variant: "outline",
-  confirmTitle: "ra.message.bulk_update_title",
-  confirmContent: "ra.message.bulk_update_content",
+  confirmTitle: "chelone.message.bulk_update_title",
+  confirmContent: "chelone.message.bulk_update_content",
   confirmColor: "primary",
 });
 
@@ -115,10 +115,10 @@ const show = computed(
     canAccess.value,
 );
 // An explicit `label` wins; otherwise `resources.<name>.action.update` falls back
-// to `ra.action.update`, then to "Update".
+// to `chelone.action.update`, then to "Update".
 const label = computed(() => {
   if (props.label) return props.label;
-  const base = translate("ra.action.update", { _: "Update" });
+  const base = translate("chelone.action.update", { _: "Update" });
   return resource
     ? translate(`resources.${resource}.action.update`, { _: base })
     : base;

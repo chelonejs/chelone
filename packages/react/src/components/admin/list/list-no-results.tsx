@@ -29,14 +29,18 @@ function ListNoResults({ className }: ListNoResultsProps) {
     >
       <p className="text-muted-foreground">
         {filtered
-          ? translate("ra.navigation.no_filtered_results", {
+          ? translate("chelone.navigation.no_filtered_results", {
               _: "No results found with the current filters.",
             })
-          : translate("ra.navigation.no_results", { _: "No results found" })}
+          : translate("chelone.navigation.no_results", {
+              _: "No results found",
+            })}
       </p>
       {filtered ? (
         <Button variant="outline" size="sm" onClick={() => setFilters({}, {})}>
-          {translate("ra.navigation.clear_filters", { _: "Clear filters" })}
+          {translate("chelone.navigation.clear_filters", {
+            _: "Clear filters",
+          })}
         </Button>
       ) : null}
     </div>

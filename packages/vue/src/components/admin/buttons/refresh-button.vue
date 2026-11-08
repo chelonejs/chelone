@@ -30,7 +30,7 @@ const loading = useLoading();
 const translate = useTranslate();
 
 const label = computed(() =>
-  translate("ra.action.refresh", { _: props.label ?? "Refresh" }),
+  translate("chelone.action.refresh", { _: props.label ?? "Refresh" }),
 );
 
 function onClick(): void {

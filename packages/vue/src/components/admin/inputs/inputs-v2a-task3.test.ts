@@ -36,7 +36,7 @@ import WebhookEndpointInput, {
 const i18nMessages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    "ra.action.remove": "Remove",
+    "chelone.action.remove": "Remove",
   }),
 };
 

@@ -122,10 +122,12 @@ describe("createI18n", () => {
 
   it("honors the polyglot `_` fallback for keys missing from the catalog", () => {
     // The catalog-erased view: what components hold, and the surface that
-    // accepts an arbitrary `ra.*` key plus a `{ _: default }` param.
+    // accepts an arbitrary key plus a `{ _: default }` param.
     const i18n: AnyCheloneI18n = make();
     // Missing key + string `_` → the fallback, not the echoed key.
-    expect(i18n.translate("ra.auth.sign_in", { _: "Sign in" })).toBe("Sign in");
+    expect(i18n.translate("chelone.auth.sign_in", { _: "Sign in" })).toBe(
+      "Sign in",
+    );
     // Fallback is interpolated with the same params.
     expect(i18n.translate("greeting", { _: "Hi {name}", name: "Ada" })).toBe(
       "Hi Ada",
@@ -179,9 +181,9 @@ describe("createI18n", () => {
       messages: { en, fr: defineMessages({}) },
       onMissingKey,
     });
-    i18n.translate("ra.auth.sign_in", { _: "Sign in" });
+    i18n.translate("chelone.auth.sign_in", { _: "Sign in" });
     expect(onMissingKey).toHaveBeenCalledWith(
-      "ra.auth.sign_in",
+      "chelone.auth.sign_in",
       "fr",
       "Sign in",
     );

@@ -87,7 +87,7 @@ function RenderLabel({
 
   let label = value ? valueLabelTrue : valueLabelFalse;
   if (!label) {
-    label = value ? "ra.boolean.true" : "ra.boolean.false";
+    label = value ? "chelone.boolean.true" : "chelone.boolean.false";
   }
   if (typeof label === "string") {
     label = translate(label, { _: label });

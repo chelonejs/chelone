@@ -34,11 +34,11 @@ import { AutocompleteInput } from "./autocomplete-input";
 const messages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    // The ported input carries ra-core's `ra.*` UI-string keys; a real app
+    // The ported input reads its own `chelone.*` label keys; a real app
     // registers them in its catalog (chelone's translate echoes the raw key on
     // a miss and does not honor a `{ _: default }` fallback).
-    "ra.action.search": "Search...",
-    "ra.navigation.no_results": "No matching item found.",
+    "chelone.action.search": "Search...",
+    "chelone.navigation.no_results": "No matching item found.",
   }),
 };
 

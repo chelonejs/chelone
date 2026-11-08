@@ -38,10 +38,10 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.create": "Create",
-        "ra.action.edit": "Edit",
-        "ra.action.show": "Show",
-        "ra.action.cancel": "Cancel",
+        "chelone.action.create": "Create",
+        "chelone.action.edit": "Edit",
+        "chelone.action.show": "Show",
+        "chelone.action.cancel": "Cancel",
       }),
     },
   });

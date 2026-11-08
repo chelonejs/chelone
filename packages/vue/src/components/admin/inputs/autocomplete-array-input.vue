@@ -106,12 +106,12 @@ const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(source)),
 );
 const placeholderText = computed(
-  () => props.placeholder ?? translate("ra.action.search", { _: "Search..." }),
+  () => props.placeholder ?? translate("chelone.action.search", { _: "Search..." }),
 );
 const noMatchText = computed(
   () =>
     props.noOptionsText ??
-    translate("ra.navigation.no_results", { _: "No matching item found." }),
+    translate("chelone.navigation.no_results", { _: "No matching item found." }),
 );
 const helper = computed(
   () => props.helperText ?? fetchError.value?.message,
@@ -181,7 +181,7 @@ function onBlur() {
             type="button"
             class="cursor-pointer rounded-full outline-none focus:ring-2 focus:ring-ring"
             :disabled="disabled || readonly"
-            :aria-label="translate('ra.action.remove', { _: 'Remove' })"
+            :aria-label="translate('chelone.action.remove', { _: 'Remove' })"
             @mousedown.prevent.stop
             @click.prevent="onUnselect(choice)"
           >×</button>

@@ -1,4 +1,4 @@
-// Two checks over every production file under `packages/*/src`.
+// Three checks over every production file under `packages/*/src`.
 //
 // Percent placeholders. Core interpolates `{name}` only, so react-admin's
 // `%{name}` keeps its percent sign on screen: `Run %delete_post?`,
@@ -8,8 +8,11 @@
 //
 // Catalog coverage. A key written as a plain string literal must be in a
 // catalog, or a translator cannot list it and the two adapters can word it
-// differently. Keys built from a template string (`ra.action.${action}`) are
+// differently. Keys built from a template string (`chelone.action.${action}`) are
 // not checked: only part of them is a key.
+//
+// The `ra.*` namespace. Every key lives under `chelone.*` (#1773), so a file
+// that still names an `ra.*` key fails the last check.
 
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
@@ -129,25 +132,29 @@ export function percentPlaceholders(text, { htmlComments = false } = {}) {
   return found;
 }
 
-/** A `ra.*` or `chelone.*` key written as a whole `'…'` or `"…"` literal. */
+/**
+ * A translation key written as a whole `'…'` or `"…"` literal. The `ra`
+ * alternative is kept on purpose: no catalog defines an `ra.*` key any more, so
+ * one left behind by the rename is caught as a key no catalog holds.
+ */
 const literalKey = /(["'])((?:ra|chelone)(?:\.[A-Za-z0-9_]+)+)\1/g;
 
 /** The same shape where it is a catalog entry: the key is followed by a `:`. */
 const catalogEntry = /(["'])((?:ra|chelone)(?:\.[A-Za-z0-9_]+)+)\1(?=\s*:)/g;
 
 /**
- * `chelone.*`/`ra.*` literals that name no translation key: `ra.sort.sort_by`
- * is the key a caller's own label is looked up under (`<SortButton label>`), so
- * a catalog entry would shadow it, and `chelone.inspector.position` is a store
- * key that only borrows the prefix.
+ * `chelone.*` literals that name no translation key: `chelone.sort.sort_by` is
+ * the key a caller's own label is looked up under (`<SortButton label>`), so a
+ * catalog entry would shadow it, and `chelone.inspector.position` is a store key
+ * that only borrows the prefix.
  */
 const notTranslationKeys = new Set([
   "chelone.inspector.position",
-  "ra.sort.sort_by",
+  "chelone.sort.sort_by",
 ]);
 
 /**
- * Every `ra.*`/`chelone.*` key `text` passes as a quoted literal, outside a
+ * Every `chelone.*` key `text` passes as a quoted literal, outside a
  * comment. A backtick is left out on purpose: a template string is either a
  * built key or a sentence, and neither is a literal key.
  */
@@ -188,6 +195,38 @@ async function productionFiles(dir) {
     files.push(path);
   }
   return files;
+}
+
+/** Every `.ts`, `.tsx` and `.vue` file under `dir`, test files included. */
+async function allSourceFiles(dir) {
+  const files = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (entry.name === "node_modules") continue;
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await allSourceFiles(path)));
+      continue;
+    }
+    if (sourceExtensions.has(extname(entry.name))) files.push(path);
+  }
+  return files;
+}
+
+// Every `apps/<name>/src` folder that exists.
+async function appSources() {
+  const sources = [];
+  const apps = join(repoRoot, "apps");
+  for (const entry of await readdir(apps, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const src = join(apps, entry.name, "src");
+    try {
+      await readdir(src);
+    } catch {
+      continue;
+    }
+    sources.push(src);
+  }
+  return sources;
 }
 
 // Every `packages/<name>/src` folder that exists.
@@ -297,10 +336,10 @@ describe("literalTranslationKeys", () => {
     assert.deepEqual(
       [
         ...literalTranslationKeys(
-          'translate("chelone.comments.empty", { _: "No comments yet" })\ntranslate(\'ra.action.delete\', { _: "Delete" })',
+          'translate("chelone.comments.empty", { _: "No comments yet" })\ntranslate(\'chelone.action.delete\', { _: "Delete" })',
         ),
       ],
-      ["chelone.comments.empty", "ra.action.delete"],
+      ["chelone.comments.empty", "chelone.action.delete"],
     );
   });
 
@@ -320,7 +359,7 @@ describe("literalTranslationKeys", () => {
     assert.deepEqual(
       [
         ...literalTranslationKeys(
-          'translate(`ra.action.${action}`, { _: action })\nconst path = "packages/core/src/i18n.ts"',
+          'translate(`chelone.action.${action}`, { _: action })\nconst path = "packages/core/src/i18n.ts"',
         ),
       ],
       [],
@@ -367,5 +406,22 @@ describe("production code", () => {
       }
     }
     assert.deepEqual(missing.sort(), []);
+  });
+
+  it("no package or demo file names an ra.* key", async () => {
+    const left = [];
+    const scans = [
+      ...(await packageSources()).map((src) => ({ src, all: false })),
+      ...(await appSources()).map((src) => ({ src, all: true })),
+    ];
+    for (const { src, all } of scans) {
+      for (const file of all ? await allSourceFiles(src) : await productionFiles(src)) {
+        const text = await readFile(file, "utf8");
+        for (const [, key] of text.matchAll(/\bra\.[A-Za-z_][A-Za-z0-9_.]*/g)) {
+          left.push(`${relative(repoRoot, file)}: ${key}`);
+        }
+      }
+    }
+    assert.deepEqual(left.sort(), []);
   });
 });

@@ -33,7 +33,7 @@ const translate = useTranslate();
   <FilterForm>
     <SearchInput
       v-bind="props"
-      :placeholder="props.placeholder ?? translate('ra.action.search', { _: 'Search' })"
+      :placeholder="props.placeholder ?? translate('chelone.action.search', { _: 'Search' })"
     />
   </FilterForm>
 </template>

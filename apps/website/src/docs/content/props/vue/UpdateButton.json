@@ -43,15 +43,15 @@
       "name": "confirmTitle",
       "type": "string",
       "optional": true,
-      "default": "\"ra.message.bulk_update_title\"",
-      "comment": "Confirmation-dialog title. Default `\"ra.message.bulk_update_title\"`."
+      "default": "\"chelone.message.bulk_update_title\"",
+      "comment": "Confirmation-dialog title. Default `\"chelone.message.bulk_update_title\"`."
     },
     {
       "name": "confirmContent",
       "type": "string",
       "optional": true,
-      "default": "\"ra.message.bulk_update_content\"",
-      "comment": "Confirmation-dialog body copy. Default `\"ra.message.bulk_update_content\"`."
+      "default": "\"chelone.message.bulk_update_content\"",
+      "comment": "Confirmation-dialog body copy. Default `\"chelone.message.bulk_update_content\"`."
     },
     {
       "name": "confirmColor",

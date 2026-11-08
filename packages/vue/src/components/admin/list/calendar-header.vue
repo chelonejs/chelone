@@ -35,10 +35,10 @@ const emit = defineEmits<{
 const translate = useTranslate();
 const viewLabel = (view: CalendarView) =>
   view === "month"
-    ? translate("ra.calendar.month", { _: "Month" })
+    ? translate("chelone.calendar.month", { _: "Month" })
     : view === "week"
-      ? translate("ra.calendar.week", { _: "Week" })
-      : translate("ra.calendar.agenda", { _: "Agenda" });
+      ? translate("chelone.calendar.week", { _: "Week" })
+      : translate("chelone.calendar.agenda", { _: "Agenda" });
 </script>
 
 <template>
@@ -54,7 +54,7 @@ const viewLabel = (view: CalendarView) =>
         v-if="views && views.length > 1"
         data-slot="calendar-view-switcher"
         role="group"
-        :aria-label="translate('ra.calendar.view', { _: 'View' })"
+        :aria-label="translate('chelone.calendar.view', { _: 'View' })"
         class="flex items-center gap-1"
       >
         <Button
@@ -73,18 +73,18 @@ const viewLabel = (view: CalendarView) =>
         <Button
           variant="ghost"
           size="icon"
-          :aria-label="translate('ra.calendar.previous', { _: 'Previous' })"
+          :aria-label="translate('chelone.calendar.previous', { _: 'Previous' })"
           @click="emit('navigate', 'previous')"
         >
           <ChevronLeftIcon />
         </Button>
         <Button variant="outline" size="sm" @click="emit('navigate', 'today')">
-          {{ translate("ra.calendar.today", { _: "Today" }) }}
+          {{ translate("chelone.calendar.today", { _: "Today" }) }}
         </Button>
         <Button
           variant="ghost"
           size="icon"
-          :aria-label="translate('ra.calendar.next', { _: 'Next' })"
+          :aria-label="translate('chelone.calendar.next', { _: 'Next' })"
           @click="emit('navigate', 'next')"
         >
           <ChevronRightIcon />

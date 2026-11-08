@@ -22,10 +22,10 @@ import { AppBar } from "./app-bar";
 afterEach(cleanup);
 
 const enMessages = defineMessages({
-  "ra.action.open_menu": "Open menu",
-  "ra.action.close_menu": "Close menu",
-  "ra.action.toggle_theme": "Toggle theme",
-  "ra.action.change_locale": "Change locale",
+  "chelone.action.open_menu": "Open menu",
+  "chelone.action.close_menu": "Close menu",
+  "chelone.action.toggle_theme": "Toggle theme",
+  "chelone.action.change_locale": "Change locale",
 });
 
 function makeI18n(locales: string[] = ["en"]) {

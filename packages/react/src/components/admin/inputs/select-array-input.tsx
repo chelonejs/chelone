@@ -225,7 +225,7 @@ function SelectArrayInput<
                     }
                   }}
                   onPointerDown={(e) => e.stopPropagation()}
-                  aria-label={translate("ra.action.clear_input_value", {
+                  aria-label={translate("chelone.action.clear_input_value", {
                     _: "Clear value",
                   })}
                 >
@@ -248,7 +248,9 @@ function SelectArrayInput<
           >
             {choicesArr.length === 0 ? (
               <p className="px-3 py-2 text-sm text-muted-foreground">
-                {translate("ra.navigation.no_results", { _: "No results" })}
+                {translate("chelone.navigation.no_results", {
+                  _: "No results",
+                })}
               </p>
             ) : (
               choicesArr.map((choice) => {

@@ -16,8 +16,8 @@ import { PasswordInput } from "./password-input";
 
 const messages = {
   en: defineMessages({
-    "ra.input.password.toggle_visible": "Hide password",
-    "ra.input.password.toggle_hidden": "Show password",
+    "chelone.input.password.toggle_visible": "Hide password",
+    "chelone.input.password.toggle_hidden": "Show password",
   }),
 };
 

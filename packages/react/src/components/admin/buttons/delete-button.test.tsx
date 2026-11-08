@@ -40,9 +40,9 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.delete": "Delete",
-        "ra.action.confirm": "Confirm",
-        "ra.action.cancel": "Cancel",
+        "chelone.action.delete": "Delete",
+        "chelone.action.confirm": "Confirm",
+        "chelone.action.cancel": "Cancel",
       }),
     },
   });

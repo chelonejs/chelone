@@ -66,7 +66,7 @@ function makeSetup() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.undo": "Undo",
+        "chelone.action.undo": "Undo",
         "chelone.notification.deleted": "Element deleted",
         "chelone.notification.updated": "Element updated",
         "chelone.notification.http_error": "Server error",

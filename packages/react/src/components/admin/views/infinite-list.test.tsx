@@ -61,7 +61,7 @@ function mount(node: ReactNode) {
   });
   const i18n = createI18n({
     locale: "en",
-    messages: { en: defineMessages({ "ra.page.list": "{name}" }) },
+    messages: { en: defineMessages({ "chelone.page.list": "{name}" }) },
   });
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },

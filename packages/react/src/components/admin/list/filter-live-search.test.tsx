@@ -36,7 +36,7 @@ function tree(ui: ReactNode, filter: FilterPayload, setFilters = vi.fn()) {
       i18n={createI18n({
         locale: "en",
         messages: {
-          en: defineMessages({ "ra.action.search": "Search posts" }),
+          en: defineMessages({ "chelone.action.search": "Search posts" }),
         },
       })}
     >

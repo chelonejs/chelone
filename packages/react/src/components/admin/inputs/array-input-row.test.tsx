@@ -33,11 +33,11 @@ import { TextInput } from "./text-input";
 
 const messages = {
   en: defineMessages({
-    "ra.action.add": "Add",
+    "chelone.action.add": "Add",
     "orders.add_item": "Add an item",
-    "ra.action.remove": "Remove",
-    "ra.action.move_up": "Move up",
-    "ra.action.move_down": "Move down",
+    "chelone.action.remove": "Remove",
+    "chelone.action.move_up": "Move up",
+    "chelone.action.move_down": "Move down",
   }),
 };
 

@@ -35,7 +35,7 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.auth.sign_in": "Sign in",
+        "chelone.auth.sign_in": "Sign in",
       }),
     },
   });

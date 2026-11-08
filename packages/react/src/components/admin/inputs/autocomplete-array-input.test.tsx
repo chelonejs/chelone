@@ -35,9 +35,9 @@ import { AutocompleteArrayInput } from "./autocomplete-array-input";
 const messages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    "ra.action.search": "Search...",
-    "ra.action.remove": "Remove",
-    "ra.navigation.no_results": "No matching item found.",
+    "chelone.action.search": "Search...",
+    "chelone.action.remove": "Remove",
+    "chelone.navigation.no_results": "No matching item found.",
   }),
 };
 

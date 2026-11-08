@@ -17,7 +17,7 @@ import { useForm } from "../../../form-hooks";
 import { ResettableTextInput } from "./resettable-text-input";
 
 const messages = {
-  en: defineMessages({ "ra.action.clear_input_value": "Clear value" }),
+  en: defineMessages({ "chelone.action.clear_input_value": "Clear value" }),
 };
 
 function makeWrapper() {

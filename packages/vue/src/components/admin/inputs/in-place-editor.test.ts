@@ -44,9 +44,9 @@ afterEach(() => {
 });
 
 const messages = {
-  "ra.action.edit": "Edit",
-  "ra.action.save": "Save",
-  "ra.action.cancel": "Cancel",
+  "chelone.action.edit": "Edit",
+  "chelone.action.save": "Save",
+  "chelone.action.cancel": "Cancel",
 };
 
 const seed = () => ({ posts: [{ id: 1, title: "Alpha", views: 10 }] });

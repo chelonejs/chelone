@@ -238,7 +238,7 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
               <span
                 role="button"
                 tabIndex={0}
-                aria-label={translate("ra.action.clear_input_value", {
+                aria-label={translate("chelone.action.clear_input_value", {
                   _: "Clear",
                 })}
                 className="pointer-events-auto ml-auto p-0 text-muted-foreground opacity-50 hover:bg-transparent hover:opacity-100"

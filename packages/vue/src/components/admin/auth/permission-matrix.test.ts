@@ -99,7 +99,7 @@ describe("<PermissionMatrix>", () => {
         resources: ["posts", { id: "comments", label: "Remarks" }],
         actions: ["list", "publish"],
       },
-      { "ra.action.list": "Browse" },
+      { "chelone.action.list": "Browse" },
     );
     expect(wrapper.findAll("th").map((header) => header.text())).toEqual([
       "Resource",

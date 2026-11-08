@@ -90,7 +90,7 @@ function capitalize(text: string): string {
 }
 
 function actionLabel(action: string): string {
-  return translate(`ra.action.${action}`, { _: capitalize(action) });
+  return translate(`chelone.action.${action}`, { _: capitalize(action) });
 }
 
 const allLabel = computed(() =>

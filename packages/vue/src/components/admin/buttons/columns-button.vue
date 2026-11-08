@@ -75,7 +75,7 @@ const state = useDataTableColumns({ storeKey: resolvedStoreKey });
         data-slot="columns-button"
       >
         <ColumnsIcon />
-        {{ translate("ra.action.select_columns", { _: "Columns" }) }}
+        {{ translate("chelone.action.select_columns", { _: "Columns" }) }}
       </Button>
     </DropdownMenuTrigger>
     <DropdownMenuContent align="end" class="w-64 p-2">

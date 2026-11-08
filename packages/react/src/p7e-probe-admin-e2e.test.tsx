@@ -101,11 +101,11 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.list": "{name}",
-        "ra.page.create": "Create {name}",
-        "ra.action.edit": "Edit",
-        "ra.action.save": "Save",
-        "ra.navigation.no_results": "No results found",
+        "chelone.page.list": "{name}",
+        "chelone.page.create": "Create {name}",
+        "chelone.action.edit": "Edit",
+        "chelone.action.save": "Save",
+        "chelone.navigation.no_results": "No results found",
       }),
     },
   });

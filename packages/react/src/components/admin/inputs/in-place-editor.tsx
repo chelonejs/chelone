@@ -225,7 +225,7 @@ function InPlaceEditor<TRecord extends ResourceRecord = LooseRecord>(
           role="button"
           tabIndex={0}
           data-slot="in-place-editor-reading"
-          aria-label={translate("ra.action.edit", { _: "Edit" })}
+          aria-label={translate("chelone.action.edit", { _: "Edit" })}
           className={cn("cursor-pointer")}
           onClick={edit}
           onKeyDown={(event) => {
@@ -327,20 +327,22 @@ function InPlaceEditorForm<TRecord extends ResourceRecord>(
                 <Button
                   type="submit"
                   size="sm"
-                  aria-label={translate("ra.action.save", { _: "Save" })}
+                  aria-label={translate("chelone.action.save", { _: "Save" })}
                   onMouseDown={keepFocus}
                 >
-                  {translate("ra.action.save", { _: "Save" })}
+                  {translate("chelone.action.save", { _: "Save" })}
                 </Button>
                 <Button
                   type="button"
                   size="sm"
                   variant="outline"
-                  aria-label={translate("ra.action.cancel", { _: "Cancel" })}
+                  aria-label={translate("chelone.action.cancel", {
+                    _: "Cancel",
+                  })}
                   onMouseDown={keepFocus}
                   onClick={onCancel}
                 >
-                  {translate("ra.action.cancel", { _: "Cancel" })}
+                  {translate("chelone.action.cancel", { _: "Cancel" })}
                 </Button>
               </>
             ) : null}
