@@ -18,13 +18,14 @@
  * `<Admin>` behavior where an override owned its own theming.
  */
 
-import { joinBasename } from "@chelone/core";
-import { computed, useSlots, type VNode } from "vue";
+import { getLocaleDirection, joinBasename } from "@chelone/core";
+import { computed, useSlots, type VNode, watchEffect } from "vue";
 import { START_LOCATION, useRoute, useRouter } from "vue-router";
 import Layout from "../components/admin/layout/layout.vue";
 import ThemeProvider from "../components/admin/layout/theme-provider.vue";
 import LoginPage from "../components/admin/auth/login-page.vue";
 import Spinner from "../components/ui/spinner.vue";
+import { useLocale } from "../i18n/use-locale";
 import { useBasename } from "../router/adapter";
 import { useWatchDataErrors } from "../auth/permissions-hooks";
 import { useAuthGate } from "./auth-gate";
@@ -87,6 +88,24 @@ const isIndex = computed(() => {
 // injects resolve; runs regardless of `requireAuth` since a data 401/403 can
 // surface on any page. No-op without an authProvider.
 useWatchDataErrors();
+
+// The app root's writing direction follows the active locale, the Vue twin of
+// React's `LocaleDirectionProvider`: `dir` on `<html>`, so a right-to-left
+// locale such as Arabic renders right to left. The `dir` the host had comes back
+// when the shell unmounts.
+const locale = useLocale();
+const direction = computed(() => getLocaleDirection(locale.value));
+
+watchEffect((onCleanup) => {
+  if (typeof document === "undefined") return;
+  const root = document.documentElement;
+  const previous = root.getAttribute("dir");
+  root.setAttribute("dir", direction.value);
+  onCleanup(() => {
+    if (previous === null) root.removeAttribute("dir");
+    else root.setAttribute("dir", previous);
+  });
+});
 </script>
 
 <template>
