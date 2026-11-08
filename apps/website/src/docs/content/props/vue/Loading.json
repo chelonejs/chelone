@@ -12,8 +12,8 @@
       "name": "loadingSecondary",
       "type": "string",
       "optional": true,
-      "default": "\"chelone.message.loading\"",
-      "comment": "Secondary line i18n key. Default `\"chelone.message.loading\"`."
+      "default": "\"chelone.message.loading_detail\"",
+      "comment": "Secondary line i18n key. Default `\"chelone.message.loading_detail\"`."
     },
     {
       "name": "delay",

@@ -18,8 +18,8 @@
       "name": "textSecondary",
       "type": "string",
       "optional": true,
-      "default": "\"chelone.message.authentication_error\"",
-      "comment": "i18n key for the sub-text. Defaults to `chelone.message.authentication_error`."
+      "default": "\"chelone.message.authentication_error_detail\"",
+      "comment": "i18n key for the sub-text. Defaults to `chelone.message.authentication_error_detail`."
     }
   ],
   "emits": [],

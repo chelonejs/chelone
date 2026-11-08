@@ -23,7 +23,7 @@
       "name": "textSecondary",
       "type": "string",
       "optional": true,
-      "comment": "i18n key for the sub-text. Defaults to `chelone.message.access_denied`."
+      "comment": "i18n key for the sub-text. Defaults to `chelone.message.access_denied_detail`."
     }
   ]
 }
