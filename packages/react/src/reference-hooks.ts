@@ -37,13 +37,8 @@ interface ReferenceFieldControllerOptions<
   reference: TName;
   /** The field on `reference` that holds the foreign key. A key of the referenced record. */
   target: SourceKey<ReferenceRecord>;
-  /**
-   * The field on the record whose value `target` must equal. Default `"id"`,
-   * spelled out because `SourceProp<RecordType>` stays deferred while
-   * `RecordType` is an unresolved parameter, so the compiler cannot see that
-   * `"id"` is one of its paths.
-   */
-  source?: SourceProp<RecordType> | "id";
+  /** The field on the record whose value `target` must equal. The bridge defaults it to `"id"`. */
+  source?: SourceProp<RecordType>;
   /** Defaults to the ambient record (`useRecordContext`). */
   record?: RecordContextValue<RecordType>;
   /** Gates the data fetch only. Default true. */
