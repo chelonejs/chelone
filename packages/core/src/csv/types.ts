@@ -1,5 +1,7 @@
 import type { StandardSchemaV1 } from "@tanstack/form-core";
 import type { DataProvider } from "../data/types";
+import type { LooseRecord } from "../resource/record";
+import type { SourceKey } from "../resource/source-path";
 
 /** One problem the parser found. `row` is the 1-based data row (the header row is not counted). */
 export interface CsvParseError {
@@ -84,16 +86,22 @@ export interface CsvImportState {
   error: Error | null;
 }
 
-export interface CsvImportOptions {
+/**
+ * `TRecord` is the schema's output, the record the import creates, so it may
+ * lack `id` and is not bounded by `ResourceRecord`. Without a schema it is
+ * `LooseRecord` and every field name is a plain string.
+ */
+export interface CsvImportOptions<TRecord = LooseRecord> {
   dataProvider: DataProvider;
   resource: string;
-  schema?: StandardSchemaV1;
+  // type-escape: a CSV cell is a string, so the schema takes any input and its output is the record
+  schema?: StandardSchemaV1<unknown, TRecord>;
   /** Overrides the schema's keys. Without either, the CSV headers are the fields. */
-  fields?: string[];
+  fields?: SourceKey<TRecord>[];
   /** Overrides the schema's non-optional keys. */
-  requiredFields?: string[];
+  requiredFields?: SourceKey<TRecord>[];
   /** A starting field to header mapping. When non-empty it replaces the auto-match. */
-  mapping?: Record<string, string>;
+  mapping?: Partial<Record<SourceKey<TRecord>, string>>;
   transform?: CsvTransform;
   batchSize?: number;
   onComplete?: (report: CsvImportReport) => void;
