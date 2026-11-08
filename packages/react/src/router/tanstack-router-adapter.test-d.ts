@@ -8,7 +8,10 @@
 import type { CheloneLocation, PathMatch } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import type { AdapterNavigate, RouterAdapter, RouterBlocker } from "./adapter";
-import { tanstackRouterAdapter } from "./tanstack-router-adapter";
+import {
+  tanstackHostRouterAdapter,
+  tanstackRouterAdapter,
+} from "./tanstack-router-adapter";
 
 describe("tanstackRouterAdapter type contract", () => {
   it("satisfies the RouterAdapter interface exactly", () => {
@@ -56,5 +59,11 @@ describe("tanstackRouterAdapter type contract", () => {
     expectTypeOf<
       ReturnType<(typeof tanstackRouterAdapter)["matchPath"]>
     >().toEqualTypeOf<PathMatch | null>();
+  });
+});
+
+describe("tanstackHostRouterAdapter type contract", () => {
+  it("satisfies the RouterAdapter interface exactly", () => {
+    expectTypeOf(tanstackHostRouterAdapter).toMatchTypeOf<RouterAdapter>();
   });
 });
