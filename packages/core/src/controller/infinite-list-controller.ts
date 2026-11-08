@@ -7,7 +7,6 @@ import {
 import type { infiniteListKey } from "../data/keys";
 import { getInfiniteListOptions, getListOptions } from "../data/query-options";
 import type { GetListResult } from "../data/types";
-import type { ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import {
@@ -38,8 +37,8 @@ export interface InfiniteListController<TRecord>
   fetchPreviousPage(): Promise<void>;
 }
 
-type ParamsSlice = Pick<
-  ListControllerState<ResourceRecord>,
+type ParamsSlice<TRecord> = Pick<
+  ListControllerState<TRecord>,
   "page" | "perPage" | "sort" | "filter" | "displayedFilters" | "selectedIds"
 >;
 
@@ -66,7 +65,7 @@ export function createInfiniteListController<
 >(
   ctx: ListControllerContext<TResources>,
   resource: TName,
-  options: ListControllerOptions = {},
+  options: ListControllerOptions<RecordOf<TResources, TName>> = {},
 ): InfiniteListController<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   type Page = GetListResult<TRecord>;
@@ -85,7 +84,7 @@ export function createInfiniteListController<
     { ...options, enabled: false },
   );
 
-  const paramsOf = (): ParamsSlice => {
+  const paramsOf = (): ParamsSlice<TRecord> => {
     const { page, perPage, sort, filter, displayedFilters, selectedIds } =
       inner.getSnapshot();
     return { page, perPage, sort, filter, displayedFilters, selectedIds };
@@ -125,7 +124,7 @@ export function createInfiniteListController<
   /** Non-null exactly while attached. */
   let observer: Observer | null = null;
   /** The params the observer's options were last built from. */
-  let applied: ParamsSlice | null = null;
+  let applied: ParamsSlice<TRecord> | null = null;
   /**
    * The page load or refetch this controller has running. A second load
    * started on the same query would cancel the first (query-core's default),

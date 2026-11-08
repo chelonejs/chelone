@@ -1036,9 +1036,12 @@ export {
   createResourceRegistry,
 } from "./resource/registry-store";
 export type {
+  AnyFilterSourceKey,
+  AnyFilterSourceKeyOf,
   AnySourcePath,
   AnySourcePathOf,
   FilterSourceKey,
+  RecordFilterKey,
   RowSourcePath,
   SourceKey,
   SourcePath,

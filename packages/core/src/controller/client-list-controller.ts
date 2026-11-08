@@ -23,7 +23,7 @@ export interface ClientListControllerOptions<TRecord> {
   /** The in-memory records. `undefined` = not-yet-loaded (data/total stay undefined). */
   data?: TRecord[];
   /** Initial user filter. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<TRecord>;
   /** Initial sort. Single payload or an array (multi-sort is normalized to an array). */
   sort?: SortPayload | SortPayload[];
   /** Initial page (1-based). Default 1. */
@@ -59,7 +59,7 @@ export interface ClientListController<TRecord> extends ListController<TRecord> {
   /** Replace the source records (external `data` prop change) and recompute. */
   setData(data: TRecord[] | undefined): void;
   /** Replace the user filter from the `filter` prop (external change) and recompute. */
-  setSourceFilter(filter: FilterPayload): void;
+  setSourceFilter(filter: FilterPayload<TRecord>): void;
   /**
    * Push external loading-flag changes (async source feeding a client list).
    * An `isPending` transition re-runs the derived-slice recompute so data
@@ -272,7 +272,7 @@ export function createClientListController<
   };
 
   const setFilters = (
-    filter: FilterPayload,
+    filter: FilterPayload<TRecord>,
     displayedFilters?: Record<string, boolean>,
   ): void => {
     if (destroyed) return;
@@ -287,7 +287,7 @@ export function createClientListController<
     recompute();
   };
 
-  const setParams = (patch: ListParamsPatch): void => {
+  const setParams = (patch: ListParamsPatch<TRecord>): void => {
     if (destroyed) return;
     const next = listParamsFromPatch<TRecord>(patch);
     if (Object.keys(next).length === 0) return;
@@ -365,7 +365,7 @@ export function createClientListController<
     recompute();
   };
 
-  const setSourceFilter = (filter: FilterPayload): void => {
+  const setSourceFilter = (filter: FilterPayload<TRecord>): void => {
     if (destroyed) return;
     store.setState({ filter: removeEmpty(filter), page: 1 });
     recompute();

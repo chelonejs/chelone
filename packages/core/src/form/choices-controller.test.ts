@@ -6,9 +6,12 @@ import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
 import { choiceListsOf, createChoicesController } from "./choices-controller";
 
+// `looseObject` on purpose: these tests filter on plain field names, and a
+// strict record keys its filter by `FilterSourceKey` — `q` plus operator
+// suffixes only. Filter-key typing is pinned in source-path.test-d.ts.
 const resources = defineResources({
   posts: {
-    schema: z.object({
+    schema: z.looseObject({
       id: z.number(),
       title: z.string(),
       isbn: z.string(),

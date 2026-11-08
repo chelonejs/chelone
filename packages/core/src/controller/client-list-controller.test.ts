@@ -2,12 +2,16 @@ import { defined } from "@chelone/test-utils";
 import { describe, expect, it } from "vitest";
 import { createClientListController } from "./client-list-controller";
 
+// The index signature is on purpose: this file filters on plain field names,
+// and a record without one keys its filter by `FilterSourceKey` — `q` plus
+// operator suffixes only. Filter-key typing is pinned in source-path.test-d.ts.
 interface Row {
   id: number;
   name: string;
   category: string;
   tags: string[];
   nested?: { level: number };
+  [key: string]: unknown;
 }
 
 const data: Row[] = [
@@ -107,7 +111,14 @@ describe("createClientListController", () => {
     });
 
     it("sorts and filters by a bracket path", () => {
-      const rows = [
+      // Open keys, as above: the filter here names a bracket path, not an
+      // operator-suffixed one.
+      interface BracketRow {
+        id: number;
+        nested: { levels: number[] };
+        [key: string]: unknown;
+      }
+      const rows: BracketRow[] = [
         { id: 1, nested: { levels: [3] } },
         { id: 2, nested: { levels: [1] } },
         { id: 3, nested: { levels: [2] } },

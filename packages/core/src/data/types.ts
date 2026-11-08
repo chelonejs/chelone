@@ -1,6 +1,10 @@
 import type { Identifier } from "../resource/identifier";
 import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import type {
+  AnyFilterSourceKey,
+  RecordFilterKey,
+} from "../resource/source-path";
 
 export interface PagePagination {
   page: number;
@@ -24,7 +28,31 @@ export interface SortPayload {
   field: string;
   order: "ASC" | "DESC";
 }
-export type FilterPayload = { [key: string]: unknown };
+/**
+ * A filter object: {@link FilterSourceKey}s mapped to values. Keys come from the
+ * resource registry the way a `source` prop does from {@link SourceProp}, so an
+ * app that registers its resources gets `titel_gte` rejected at the call site.
+ *
+ * Values stay `unknown`: an operator suffix makes a key's value type ambiguous
+ * (`title_gte` wants a string, `views_gte` a number), and the provider decides
+ * what a value means.
+ *
+ * A loose record (the default, and every app that registers nothing) is keyed by
+ * {@link AnyFilterSourceKey}, which is plain `string` until `Register` is
+ * augmented.
+ */
+export type FilterPayload<TRecord = LooseRecord> = _FilterKeys<
+  LooseRecord extends TRecord ? AnyFilterSourceKey : RecordFilterKey<TRecord>
+>;
+
+/**
+ * The object shape {@link FilterPayload} takes. `string` keys stay an index
+ * signature, so an unregistered app keeps today's plain object; a known key set
+ * makes every other key an excess property.
+ */
+type _FilterKeys<TKeys extends string> = string extends TKeys
+  ? { [key: string]: unknown }
+  : { [TKey in TKeys]?: unknown };
 
 export interface GetListParams {
   pagination?: Pagination;

@@ -8,9 +8,12 @@ import { defineResources } from "../resource/registry";
 import { createStore } from "../store/store";
 import { createReferenceManyController } from "./reference-many-controller";
 
+// `looseObject` on purpose: these tests filter on plain field names, and a
+// strict record keys its filter by `FilterSourceKey` — `q` plus operator
+// suffixes only. Filter-key typing is pinned in source-path.test-d.ts.
 const resources = defineResources({
   comments: {
-    schema: z.object({
+    schema: z.looseObject({
       id: z.number(),
       postId: z.number(),
       body: z.string(),

@@ -156,6 +156,17 @@ export type RowSourcePath<TRecord> = unknown extends TRecord
  */
 export type FilterSourceKey<TRecord> = "q" | `${SourcePath<TRecord>}_${string}`;
 
+/**
+ * The filter keys one record accepts, or `string` when it names no paths of
+ * its own: a loose record, a resource with no schema and a record with an open
+ * key set filter on anything, as {@link RowSourcePath} reads them.
+ * {@link FilterSourceKey} alone would give `q` plus an operator pattern, which
+ * rejects every plain key.
+ */
+export type RecordFilterKey<TRecord> = string extends keyof TRecord
+  ? string
+  : FilterSourceKey<TRecord>;
+
 /** The source props one record accepts: its paths, its row paths, its filter keys. */
 type _RecordSourcePath<TRecord> =
   | SourcePath<TRecord>
@@ -180,6 +191,25 @@ export type AnySourcePathOf<TResources extends ResourceMap> =
 
 /** {@link AnySourcePathOf} over the app's registered resources. */
 export type AnySourcePath = AnySourcePathOf<RegisteredResources>;
+
+/**
+ * The union of every registered resource's filter keys.
+ *
+ * `string` when the name set is `string` (nothing registered) and `string` when
+ * any resource has no schema, as {@link AnySourcePathOf} does: an app that
+ * registers some resources but filters one without a schema stays string-keyed.
+ */
+export type AnyFilterSourceKeyOf<TResources extends ResourceMap> =
+  string extends keyof TResources
+    ? string
+    : {
+        [TName in keyof TResources & string]: RecordFilterKey<
+          RecordOf<TResources, TName>
+        >;
+      }[keyof TResources & string];
+
+/** {@link AnyFilterSourceKeyOf} over the app's registered resources. */
+export type AnyFilterSourceKey = AnyFilterSourceKeyOf<RegisteredResources>;
 
 /**
  * The type a `source` prop takes.

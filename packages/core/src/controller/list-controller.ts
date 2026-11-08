@@ -10,7 +10,7 @@ import type {
 import { isRecord } from "../guards";
 import type { NotificationStore } from "../notification/notification-store";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { CheloneStore } from "../store/store";
@@ -20,7 +20,7 @@ export interface ListControllerState<TRecord> {
   perPage: number;
   /** Always an array in controller state — multi-sort is first-class. */
   sort: SortPayload[];
-  filter: FilterPayload;
+  filter: FilterPayload<TRecord>;
   displayedFilters: Record<string, boolean>;
   selectedIds: Identifier[];
   data: TRecord[] | undefined;
@@ -38,9 +38,9 @@ export interface ListControllerState<TRecord> {
  * write and one query reconfiguration. Every key is optional; an omitted key
  * stays as it is.
  */
-export interface ListParamsPatch {
+export interface ListParamsPatch<TRecord = LooseRecord> {
   /** Replaces the user filter; empty values are stripped. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<TRecord>;
   displayedFilters?: Record<string, boolean>;
   /** Replaces wholesale; a single payload never toggles the order. */
   sort?: SortPayload | SortPayload[];
@@ -58,12 +58,12 @@ export interface ListController<TRecord>
   /** Single payload on the SAME single-sorted field toggles order; anything else replaces. */
   setSort(sort: SortPayload | SortPayload[]): void;
   setFilters(
-    filter: FilterPayload,
+    filter: FilterPayload<TRecord>,
     displayedFilters?: Record<string, boolean>,
     debounced?: boolean,
   ): void;
   /** Applies a {@link ListParamsPatch} as one change (one persisted write, one query update; a fetch only if the query changes). An empty patch does nothing. Never debounced. */
-  setParams(patch: ListParamsPatch): void;
+  setParams(patch: ListParamsPatch<TRecord>): void;
   showFilter(name: string, defaultValue?: unknown): void;
   hideFilter(name: string): void;
   select(ids: Identifier[]): void;
@@ -81,13 +81,13 @@ export interface ListControllerContext<
   translate?: (key: string) => string;
 }
 
-export interface ListControllerOptions {
+export interface ListControllerOptions<TRecord = LooseRecord> {
   perPage?: number;
   sort?: SortPayload | SortPayload[];
   /** Permanent filter — merged OVER the user filter for every fetch. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<TRecord>;
   /** Seed for the user filter when nothing is persisted. */
-  filterDefaultValues?: FilterPayload;
+  filterDefaultValues?: FilterPayload<TRecord>;
   /** Debounce delay for `setFilters(..., debounced=true)`. Default 500ms. */
   debounceMs?: number;
   /** KV namespace for params/selection persistence. Default: the resource name. `false` disables persistence. */
@@ -95,11 +95,11 @@ export interface ListControllerOptions {
   enabled?: boolean;
 }
 
-interface PersistedListParams {
+interface PersistedListParams<TRecord> {
   page: number;
   perPage: number;
   sort: SortPayload[];
-  filter: FilterPayload;
+  filter: FilterPayload<TRecord>;
   displayedFilters: Record<string, boolean>;
 }
 
@@ -120,38 +120,57 @@ function normalizeSort(
 }
 
 /**
+ * `branch` with the dotted `keys` removed from `depth` on: every branch it
+ * rebuilds is a copy, and it returns `branch` itself when nothing under it
+ * changed, so the caller can tell "untouched" from "pruned".
+ */
+function pruneFilterBranch(
+  branch: Record<string, unknown>,
+  keys: string[],
+  depth: number,
+): Record<string, unknown> {
+  const key = keys[depth];
+  if (key === undefined) return branch;
+  const child = branch[key];
+  if (depth === keys.length - 1) {
+    const { [key]: _removed, ...others } = branch;
+    return others;
+  }
+  if (!isRecord(child)) return branch;
+  const pruned = pruneFilterBranch(child, keys, depth + 1);
+  if (pruned === child) return branch;
+  if (Object.keys(pruned).length === 0) {
+    const { [key]: _emptied, ...others } = branch;
+    return others;
+  }
+  return { ...branch, [key]: pruned };
+}
+
+/**
  * Returns `filter` without the value at `path`: the flat key of that name and,
  * for a dotted path, the nested value, pruning parents it leaves empty. Never
  * mutates `filter`. Shared with the client controller.
  */
-export function removeFilterPath(
-  filter: FilterPayload,
+export function removeFilterPath<TRecord = LooseRecord>(
+  filter: FilterPayload<TRecord>,
   path: string,
-): FilterPayload {
-  const { [path]: _flat, ...rest } = filter;
+): FilterPayload<TRecord> {
+  const result: FilterPayload<TRecord> = { ...filter };
+  // `pruned` is that fresh copy seen through its loose shape: pruning walks
+  // nested keys, and a typed filter names no index signature to walk in. Only
+  // this copy is written to; a nested branch is rebuilt, never mutated.
+  const pruned: FilterPayload = result;
+  delete pruned[path];
   const keys = path.split(".");
-  if (keys.length === 1) return rest;
-  const prune = (
-    node: Record<string, unknown>,
-    depth: number,
-  ): Record<string, unknown> => {
-    const key = keys[depth];
-    if (key === undefined) return node;
-    const child = node[key];
-    if (depth === keys.length - 1) {
-      const { [key]: _removed, ...others } = node;
-      return others;
-    }
-    if (!isRecord(child)) return node;
-    const pruned = prune(child, depth + 1);
-    if (pruned === child) return node;
-    if (Object.keys(pruned).length === 0) {
-      const { [key]: _emptied, ...others } = node;
-      return others;
-    }
-    return { ...node, [key]: pruned };
-  };
-  return prune(rest, 0);
+  const [head] = keys;
+  if (head === undefined || keys.length === 1) return result;
+  const branch = pruned[head];
+  if (!isRecord(branch)) return result;
+  const kept = pruneFilterBranch(branch, keys, 1);
+  if (kept === branch) return result;
+  if (Object.keys(kept).length === 0) delete pruned[head];
+  else pruned[head] = kept;
+  return result;
 }
 
 /**
@@ -159,7 +178,7 @@ export function removeFilterPath(
  * the client controller so the page-reset rule lives in one place.
  */
 export function listParamsFromPatch<TRecord>(
-  patch: ListParamsPatch,
+  patch: ListParamsPatch<TRecord>,
 ): Partial<
   Pick<
     ListControllerState<TRecord>,
@@ -355,7 +374,7 @@ export function createListController<
 >(
   ctx: ListControllerContext<TResources>,
   resource: TName,
-  options: ListControllerOptions = {},
+  options: ListControllerOptions<RecordOf<TResources, TName>> = {},
 ): ListController<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   type ListResult = GetListResult<TRecord>;
@@ -367,7 +386,7 @@ export function createListController<
   const kv = ctx.store;
 
   // --- initial params: persisted (when available) over option defaults ---
-  const defaults: PersistedListParams = {
+  const defaults: PersistedListParams<TRecord> = {
     page: 1,
     perPage: options.perPage ?? DEFAULT_PER_PAGE,
     sort: normalizeSort(options.sort, DEFAULT_SORT),
@@ -376,9 +395,9 @@ export function createListController<
   };
   const persisted =
     paramsKey && kv
-      ? kv.getItem<Partial<PersistedListParams>>(paramsKey)
+      ? kv.getItem<Partial<PersistedListParams<TRecord>>>(paramsKey)
       : undefined;
-  const initialParams: PersistedListParams = persisted
+  const initialParams: PersistedListParams<TRecord> = persisted
     ? {
         page: persisted.page ?? defaults.page,
         perPage: persisted.perPage ?? defaults.perPage,
@@ -437,7 +456,7 @@ export function createListController<
   const persistParams = (): void => {
     if (!paramsKey || !kv) return;
     const s = store.getSnapshot();
-    const params: PersistedListParams = {
+    const params: PersistedListParams<TRecord> = {
       page: s.page,
       perPage: s.perPage,
       sort: s.sort,
@@ -495,7 +514,7 @@ export function createListController<
   };
 
   const applyFilters = (
-    filter: FilterPayload,
+    filter: FilterPayload<TRecord>,
     displayedFilters?: Record<string, boolean>,
   ): void => {
     applyParams({
@@ -508,7 +527,7 @@ export function createListController<
     });
   };
 
-  const setParams = (patch: ListParamsPatch): void => {
+  const setParams = (patch: ListParamsPatch<TRecord>): void => {
     if (destroyed) return;
     const next = listParamsFromPatch<TRecord>(patch);
     if (Object.keys(next).length === 0) return;
@@ -519,7 +538,10 @@ export function createListController<
 
   let debounceTimer: ReturnType<typeof setTimeout> | undefined;
   let pendingFilters:
-    | { filter: FilterPayload; displayedFilters?: Record<string, boolean> }
+    | {
+        filter: FilterPayload<TRecord>;
+        displayedFilters?: Record<string, boolean>;
+      }
     | undefined;
   const clearDebounce = (): void => {
     if (debounceTimer !== undefined) {
@@ -531,7 +553,7 @@ export function createListController<
   store.onDestroy(clearDebounce);
 
   const setFilters = (
-    filter: FilterPayload,
+    filter: FilterPayload<TRecord>,
     displayedFilters?: Record<string, boolean>,
     debounced = false,
   ): void => {

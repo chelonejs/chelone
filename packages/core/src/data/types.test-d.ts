@@ -1,7 +1,12 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { defineResources } from "../resource/registry";
-import type { DataProvider } from "./types";
+import type {
+  DataProvider,
+  FilterPayload,
+  GetListParams,
+  GetManyReferenceParams,
+} from "./types";
 
 const postSchema = z.object({ id: z.number(), title: z.string() });
 type Post = z.infer<typeof postSchema>;
@@ -81,5 +86,28 @@ describe("DataProvider inference", () => {
     await dp.getList("posts", { pagination: { cursor: null, limit: 10 } });
     // @ts-expect-error mixing the two modes is rejected
     await dp.getList("posts", { pagination: { page: 1, limit: 10 } });
+  });
+});
+
+describe("FilterPayload", () => {
+  it("bare FilterPayload stays string-keyed for an app that registers nothing", () => {
+    expectTypeOf<FilterPayload>().toEqualTypeOf<{ [key: string]: unknown }>();
+    const filter: FilterPayload = { titel_gte: "x", anything: 1 };
+    expectTypeOf(filter).toEqualTypeOf<FilterPayload>();
+  });
+
+  it("the wire params keep the loose filter: a provider is not generic over the record", () => {
+    expectTypeOf<GetListParams["filter"]>().toEqualTypeOf<
+      FilterPayload | undefined
+    >();
+    expectTypeOf<GetManyReferenceParams["filter"]>().toEqualTypeOf<
+      FilterPayload | undefined
+    >();
+    expectTypeOf<
+      Parameters<typeof dp.getList<"posts">>[1]
+    >().toEqualTypeOf<GetListParams>();
+    expectTypeOf<
+      Parameters<typeof dp.getManyReference<"posts">>[1]
+    >().toEqualTypeOf<GetManyReferenceParams>();
   });
 });
