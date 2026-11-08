@@ -6,9 +6,11 @@ import {
   List,
   RecordField,
   ReferenceManyField,
+  SaveButton,
   Show,
   TextField,
   TextInput,
+  Toolbar,
 } from "@chelone/react";
 
 export function AuthorList() {
@@ -29,6 +31,7 @@ export function AuthorEdit() {
     <Edit>
       <TextInput source="name" />
       <TextInput source="email" />
+      <Toolbar />
     </Edit>
   );
 }
@@ -38,6 +41,9 @@ export function AuthorCreate() {
     <Create>
       <TextInput source="name" />
       <TextInput source="email" />
+      <Toolbar>
+        <SaveButton />
+      </Toolbar>
     </Create>
   );
 }

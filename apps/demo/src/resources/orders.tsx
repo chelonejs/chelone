@@ -20,12 +20,14 @@ import {
   ReferenceField,
   ReferenceInput,
   ReferenceOneField,
+  SaveButton,
   SelectInput,
   Show,
   SingleFieldList,
   TextField,
   TextInput,
   TimeInput,
+  Toolbar,
 } from "@chelone/react";
 
 /** The customer and the products an order is for. */
@@ -101,6 +103,7 @@ export function OrderEdit() {
       <OrderDeliveryInputs />
       <SelectInput source="status" choices={statusChoices} />
       <NumberInput source="total" step={0.01} min={0} />
+      <Toolbar />
     </Edit>
   );
 }
@@ -114,6 +117,9 @@ export function OrderCreate() {
       <OrderDeliveryInputs />
       <SelectInput source="status" choices={statusChoices} />
       <NumberInput source="total" step={0.01} min={0} defaultValue={0} />
+      <Toolbar>
+        <SaveButton />
+      </Toolbar>
     </Create>
   );
 }

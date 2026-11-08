@@ -16,6 +16,7 @@ import {
   Show,
   TextField,
   TextInput,
+  Toolbar,
 } from "@chelone/react";
 import { MdxField, MdxInput } from "@chelone/react/mdx-editor";
 import { RichTextField, RichTextInput } from "@chelone/react/rich-text-input";
@@ -50,6 +51,7 @@ export function PageEdit() {
       <TextInput source="slug" />
       <RichTextInput source="body" label="Body" />
       <MdxInput source="release_notes" label="Release notes" />
+      <Toolbar />
     </Edit>
   );
 }
