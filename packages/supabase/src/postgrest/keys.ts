@@ -5,7 +5,9 @@ type Row = Record<string, unknown>;
 
 export function getPrimaryKey(
   resource: string,
-  primaryKeys: Readonly<Record<string, readonly string[]>> | undefined,
+  primaryKeys:
+    | Readonly<Record<string, readonly string[] | undefined>>
+    | undefined,
 ): readonly string[] {
   return primaryKeys && Object.hasOwn(primaryKeys, resource)
     ? (primaryKeys[resource] ?? ["id"])

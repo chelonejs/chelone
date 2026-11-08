@@ -183,8 +183,31 @@ describe("runGen", () => {
       dir,
     );
 
+    const consumer = join(dir, "consumer.ts");
+    await writeFile(
+      consumer,
+      `import type { ResourceMap } from "@chelone/core";
+import { supabaseDataProvider, type SupabaseDataProviderOptions } from "@chelone/supabase";
+import "./generated/resources";
+
+const connection = { instanceUrl: "https://example.supabase.co", apiKey: "key" };
+const options: SupabaseDataProviderOptions = {
+  ...connection,
+  primaryKeys: { posts: ["id", "author_id"] },
+};
+supabaseDataProvider(options);
+supabaseDataProvider({ ...connection, primaryKeys: { posts: ["id"] } });
+// @ts-expect-error psots is not registered by the generated resources
+supabaseDataProvider({ ...connection, primaryKeys: { psots: ["id"] } });
+// @ts-expect-error idd is not a column in the generated posts record
+supabaseDataProvider({ ...connection, primaryKeys: { posts: ["idd"] } });
+supabaseDataProvider<ResourceMap>({ ...connection, primaryKeys: { anything: ["x"] } });
+`,
+    );
+
     const program = ts.createProgram(
       [
+        consumer,
         join(dir, "generated", "schemas.ts"),
         join(dir, "generated", "resources.ts"),
       ],
