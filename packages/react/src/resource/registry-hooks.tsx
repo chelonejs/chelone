@@ -270,11 +270,12 @@ export function useRegisterResources(
 
   // SEED: effects never run on the server, so the first render publishes the
   // derived definitions itself and the menu lists them in server HTML. Only the
-  // first render, and only names the registry does not hold: nothing subscribes
-  // before the first commit, so no listener is notified mid-render, and a
-  // StrictMode double render finds the entry already there. The effects below
-  // keep unregister and update; their `register()` of an unchanged definition is
-  // an `isEqual` no-op.
+  // first render, and only names the registry does not hold: a StrictMode double
+  // render finds the entry already there. A registry the provider creates has no
+  // subscriber before the first commit. A supplied registry can, and its listener
+  // is then notified mid-render (see `AdminContextProps.registry`). The effects
+  // below keep unregister and update; their `register()` of an unchanged
+  // definition is an `isEqual` no-op.
   const seeded = useRef(false);
   if (!seeded.current) {
     seeded.current = true;

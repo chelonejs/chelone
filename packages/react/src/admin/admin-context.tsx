@@ -93,6 +93,9 @@ export interface AdminContextProps<
   /**
    * An existing runtime resource registry. Omit to have the provider create one
    * (the common case). Supply one to share a registry across trees / for SSR.
+   * The first render of `<Admin>` registers its resources in it, so a listener
+   * already subscribed to a supplied registry is notified during that render:
+   * subscribe after `<Admin>` mounts, or register the resources up front.
    */
   registry?: ResourceRegistry;
   children: ReactNode;
