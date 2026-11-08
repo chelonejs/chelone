@@ -135,8 +135,14 @@ export function useUpdate<
     callbacks?: UndoableUpdateCallbacks<RecordOf<TResources, TName>>,
   ) => {
     const settle = undoableCallbacks(params, callbacks);
+    const { id, data } = params;
     runUndoable({
-      ...undoableUpdateOptions(queryClient, resource, [params.id], params.data),
+      ...undoableUpdateOptions<TResources, TName>(
+        queryClient,
+        resource,
+        [id],
+        data,
+      ),
       commit: settle.commit(() => ctx.dataProvider.update(resource, params)),
     });
     settle.success(patchedRecord(params));

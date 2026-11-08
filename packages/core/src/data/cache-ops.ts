@@ -1,6 +1,7 @@
 import type { InfiniteData, QueryClient } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
-import type { LooseRecord, ResourceRecord } from "../resource/record";
+import type { ResourceRecord } from "../resource/record";
+import type { RecordOf, ResourceMap } from "../resource/registry";
 import { infiniteListKeyPrefix, manyKeyPrefix, oneKey } from "./keys";
 import type { GetListResult } from "./types";
 
@@ -21,6 +22,12 @@ function singleResultListKeyPrefixes(resource: string) {
     [resource, "getManyReference"],
   ] as const;
 }
+
+/** The fields a patch may set on a record of the named resource. */
+type Patch<
+  TResources extends ResourceMap,
+  TName extends keyof TResources,
+> = Partial<RecordOf<TResources, TName>>;
 
 /** The page param is the page number `getInfiniteListOptions` sets. */
 type InfiniteList<TRecord extends ResourceRecord> = InfiniteData<
@@ -81,8 +88,10 @@ function lowerTotal(total: number | undefined, removed: number) {
  * (decrementing `total` when known) and `getMany` entry.
  */
 export function removeRecordsFromCache<
-  TRecord extends ResourceRecord = LooseRecord,
->(queryClient: QueryClient, resource: string, ids: Identifier[]): void {
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(queryClient: QueryClient, resource: TName, ids: Identifier[]): void {
+  type TRecord = RecordOf<TResources, TName>;
   const idSet = new Set(ids.map(String));
   for (const id of ids) {
     queryClient.removeQueries({ queryKey: oneKey(resource, { id }) });
@@ -129,13 +138,15 @@ export function removeRecordsFromCache<
  * `getManyReference`, `getInfiniteList` page and `getMany` entry.
  */
 export function updateRecordsInCache<
-  TRecord extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
 >(
   queryClient: QueryClient,
-  resource: string,
+  resource: TName,
   ids: Identifier[],
-  data: Partial<NoInfer<TRecord>>,
+  data: Patch<TResources, TName>,
 ): void {
+  type TRecord = RecordOf<TResources, TName>;
   const idSet = new Set(ids.map(String));
   for (const id of ids) {
     const key = oneKey(resource, { id });
@@ -223,12 +234,16 @@ function withRestoredRows<TRecord extends ResourceRecord>(
  * when it is called, so another update's patch to a different row survives.
  * An entry that holds none of the ids keeps its cached object.
  */
-export function patchListEntries<TRecord extends ResourceRecord = LooseRecord>(
+export function patchListEntries<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
   queryClient: QueryClient,
-  resource: string,
+  resource: TName,
   idSet: Set<string>,
-  data: Partial<NoInfer<TRecord>>,
+  data: Patch<TResources, TName>,
 ): () => void {
+  type TRecord = RecordOf<TResources, TName>;
   const rollbacks: Array<() => void> = [];
 
   for (const queryKey of singleResultListKeyPrefixes(resource)) {
@@ -288,12 +303,16 @@ export function patchListEntries<TRecord extends ResourceRecord = LooseRecord>(
  * Shallow-merge `data` into the matching records of every cached `getMany`
  * entry (what `ReferenceField` and `ReferenceArrayField` read through).
  */
-export function patchManyEntries<TRecord extends ResourceRecord = LooseRecord>(
+export function patchManyEntries<
+  TResources extends ResourceMap = ResourceMap,
+  TName extends keyof TResources & string = keyof TResources & string,
+>(
   queryClient: QueryClient,
-  resource: string,
+  resource: TName,
   idSet: Set<string>,
-  data: Partial<NoInfer<TRecord>>,
+  data: Patch<TResources, TName>,
 ): void {
+  type TRecord = RecordOf<TResources, TName>;
   const manys = queryClient.getQueriesData<TRecord[]>({
     queryKey: manyKeyPrefix(resource),
   });

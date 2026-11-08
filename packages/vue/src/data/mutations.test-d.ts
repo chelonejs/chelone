@@ -68,6 +68,22 @@ it("mutate still takes an onSuccess option", () => {
   del.mutate({ id: 1, previousData }, { onSuccess: () => {} });
 });
 
+it("an undoable useUpdate and useUpdateMany patch is the named resource's Partial", () => {
+  const update = useUpdate<R, "posts">("posts", undoable);
+  const updateMany = useUpdateMany<R, "posts">("posts", undoable);
+  expectTypeOf<Parameters<typeof update.mutate>[0]["data"]>().toEqualTypeOf<
+    Partial<Post>
+  >();
+  update.mutate({
+    id: 1,
+    // @ts-expect-error title is a string
+    data: { title: 1 },
+    previousData,
+  });
+  // @ts-expect-error title is a string
+  updateMany.mutate({ ids: [1], data: { title: 1 } });
+});
+
 // A kanban move plan is `{ id, data: Record<string, string>, previousData }`,
 // built without knowing the resource, so it must fit `mutateAsync` in either
 // mode through the default resource map.

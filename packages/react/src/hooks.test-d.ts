@@ -49,6 +49,18 @@ it("mutate still takes an onSuccess option on the update and delete results", ()
   );
 });
 
+it("an undoable useUpdate patch is the named resource's Partial", () => {
+  const update = useUpdate<R, "posts">("posts", { mutationMode: "undoable" });
+  type Params = Parameters<typeof update.mutate>[0];
+  expectTypeOf<Params["data"]>().toEqualTypeOf<Partial<Post>>();
+  update.mutate({
+    id: 1,
+    // @ts-expect-error title is a string
+    data: { title: 1 },
+    previousData: { id: 1, title: "y" },
+  });
+});
+
 it("translate params refuse an object value", () => {
   const translate = useTranslate();
   translate("k", { x: 1, y: "two" });
