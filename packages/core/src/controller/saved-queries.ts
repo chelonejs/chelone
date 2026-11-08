@@ -1,27 +1,29 @@
 import type { FilterPayload, SortPayload } from "../data/types";
 import { isPlainObject, isRecord } from "../guards";
+import type { LooseRecord } from "../resource/record";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { ListControllerContext } from "./list-controller";
 
-export interface SavedQueryValue {
-  filter: FilterPayload;
+export interface SavedQueryValue<TRecord = LooseRecord> {
+  filter: FilterPayload<TRecord>;
   displayedFilters: Record<string, boolean>;
-  sort: SortPayload[];
+  sort: SortPayload<TRecord>[];
   perPage: number;
 }
 
-export interface SavedQuery {
+export interface SavedQuery<TRecord = LooseRecord> {
   label: string;
-  value: SavedQueryValue;
+  value: SavedQueryValue<TRecord>;
 }
 
-export interface SavedQueriesState {
-  queries: SavedQuery[];
+export interface SavedQueriesState<TRecord = LooseRecord> {
+  queries: SavedQuery<TRecord>[];
 }
 
-export interface SavedQueriesController extends MicroStore<SavedQueriesState> {
+export interface SavedQueriesController<TRecord = LooseRecord>
+  extends MicroStore<SavedQueriesState<TRecord>> {
   /** Trims the label, ignores a blank one, replaces a same-label query in place, else appends. */
-  save(label: string, value: SavedQueryValue): void;
+  save(label: string, value: SavedQueryValue<TRecord>): void;
   remove(label: string): void;
 }
 
@@ -40,7 +42,14 @@ const isSortPayload = (value: unknown): value is SortPayload =>
   typeof value.field === "string" &&
   (value.order === "ASC" || value.order === "DESC");
 
-function isSavedQueryValue(value: unknown): value is SavedQueryValue {
+/**
+ * Structural only: a field renamed since the query was saved leaves a stale
+ * key, and no guard can check keys without the record. The predicate names the
+ * record the caller asked for, so a guarded value is trusted to hold its keys.
+ */
+function isSavedQueryValue<TRecord = LooseRecord>(
+  value: unknown,
+): value is SavedQueryValue<TRecord> {
   return (
     isRecord(value) &&
     isRecord(value.filter) &&
@@ -60,14 +69,18 @@ function isSavedQueryValue(value: unknown): value is SavedQueryValue {
  * Reads whatever storage holds: non-arrays give `[]`, malformed entries are
  * dropped, labels are trimmed, and a repeated label keeps its first entry.
  */
-export function extractValidSavedQueries(raw: unknown): SavedQuery[] {
+export function extractValidSavedQueries<TRecord = LooseRecord>(
+  // type-escape: storage is trusted to hold keys of the record the caller names; only the structure is checked
+  raw: unknown,
+): SavedQuery<TRecord>[] {
   if (!Array.isArray(raw)) return [];
   const seen = new Set<string>();
-  const queries: SavedQuery[] = [];
+  const queries: SavedQuery<TRecord>[] = [];
   for (const entry of raw) {
     if (!isRecord(entry) || typeof entry.label !== "string") continue;
     const label = entry.label.trim();
-    if (!label || seen.has(label) || !isSavedQueryValue(entry.value)) continue;
+    if (!label || seen.has(label) || !isSavedQueryValue<TRecord>(entry.value))
+      continue;
     seen.add(label);
     queries.push({ label, value: entry.value });
   }
@@ -103,9 +116,9 @@ function isDeepEqual(a: unknown, b: unknown): boolean {
 }
 
 /** Whether `current` list params are the saved query. `displayedFilters` is ignored. */
-export function isSavedQueryActive(
-  query: SavedQueryValue,
-  current: SavedQueryValue,
+export function isSavedQueryActive<TRecord = LooseRecord>(
+  query: SavedQueryValue<TRecord>,
+  current: SavedQueryValue<TRecord>,
 ): boolean {
   return (
     query.perPage === current.perPage &&
@@ -122,18 +135,18 @@ export function isSavedQueryActive(
  * a write still updates local state, and the next attach picks up whatever the
  * store holds.
  */
-export function createSavedQueriesController(
+export function createSavedQueriesController<TRecord = LooseRecord>(
   ctx: Pick<ListControllerContext, "store">,
   resource: string,
   options: SavedQueriesControllerOptions = {},
-): SavedQueriesController {
+): SavedQueriesController<TRecord> {
   const key = savedQueriesKey(options.storeKey ?? resource);
   const kv = ctx.store;
 
   /** The raw value the state was last derived from, to skip no-op resyncs. */
   let lastRaw: unknown = kv?.getItem(key);
-  const store = createMicroStore<SavedQueriesState>(
-    { queries: extractValidSavedQueries(lastRaw) },
+  const store = createMicroStore<SavedQueriesState<TRecord>>(
+    { queries: extractValidSavedQueries<TRecord>(lastRaw) },
     {
       onSubscribed: () => {
         if (!kv) return;
@@ -149,7 +162,7 @@ export function createSavedQueriesController(
     const raw = kv.getItem(key);
     if (raw === lastRaw) return;
     lastRaw = raw;
-    const queries = extractValidSavedQueries(raw);
+    const queries = extractValidSavedQueries<TRecord>(raw);
     if (isDeepEqual(queries, store.getSnapshot().queries)) return;
     store.setState({ queries });
   }
@@ -158,12 +171,12 @@ export function createSavedQueriesController(
    * Detached, nothing keeps state current, so every action starts from the
    * store: a stale snapshot would write over another controller's queries.
    */
-  const current = (): SavedQuery[] => {
+  const current = (): SavedQuery<TRecord>[] => {
     resync();
     return store.getSnapshot().queries;
   };
 
-  const write = (queries: SavedQuery[]): void => {
+  const write = (queries: SavedQuery<TRecord>[]): void => {
     if (!kv) {
       store.setState({ queries });
       return;
@@ -174,11 +187,14 @@ export function createSavedQueriesController(
     resync();
   };
 
-  const save = (label: string, value: SavedQueryValue): void => {
+  const save = (label: string, value: SavedQueryValue<TRecord>): void => {
     const trimmed = label.trim();
     if (!trimmed) return;
-    if (!isSavedQueryValue(value)) return;
-    const next: SavedQuery = { label: trimmed, value: structuredClone(value) };
+    if (!isSavedQueryValue<TRecord>(value)) return;
+    const next: SavedQuery<TRecord> = {
+      label: trimmed,
+      value: structuredClone(value),
+    };
     const queries = current();
     const index = queries.findIndex((query) => query.label === trimmed);
     write(

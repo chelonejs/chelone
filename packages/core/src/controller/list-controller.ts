@@ -44,7 +44,7 @@ export interface ListParamsPatch<TRecord = LooseRecord> {
   filter?: FilterPayload<TRecord>;
   displayedFilters?: Record<string, boolean>;
   /** Replaces wholesale; a single payload never toggles the order. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<TRecord> | SortPayload<TRecord>[];
   perPage?: number;
   /** Defaults to 1 when the patch holds `filter`, `sort` or `perPage`. */
   page?: number;
@@ -162,10 +162,10 @@ const DEFAULT_SORT: SortPayload[] = [{ field: "id", order: "ASC" }];
  * caller's payload is never the object the controller holds. `fallback` is what
  * an absent sort becomes. Shared with the client controller.
  */
-export function normalizeSort(
-  sort: SortPayload | SortPayload[] | undefined,
-  fallback: SortPayload[],
-): SortPayload[] {
+export function normalizeSort<TRecord = LooseRecord>(
+  sort: SortPayload<TRecord> | SortPayload<TRecord>[] | undefined,
+  fallback: SortPayload<TRecord>[],
+): SortPayload<TRecord>[] {
   if (!sort) return fallback.map((entry) => ({ ...entry }));
   const entries = Array.isArray(sort) ? sort : [sort];
   return entries.map((entry) => ({ ...entry }));
@@ -261,7 +261,13 @@ export function listParamsFromPatch<TRecord>(
   if (patch.displayedFilters !== undefined) {
     next.displayedFilters = { ...patch.displayedFilters };
   }
-  if (patch.sort !== undefined) next.sort = normalizeSort(patch.sort, []);
+  if (patch.sort !== undefined) {
+    next.sort = normalizeSort(patch.sort, []).map(({ field, order }) => ({
+      // type-escape: controller state holds its sort with the record erased, as `setSort` does, so the patch's record-keyed field widens to it
+      field: field as SortPayload["field"],
+      order,
+    }));
+  }
   if (patch.perPage !== undefined) next.perPage = patch.perPage;
   if (patch.page !== undefined) {
     next.page = patch.page;
