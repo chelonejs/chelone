@@ -33,6 +33,7 @@ export interface CurrencyFieldProps<RecordType extends ResourceRecord = LooseRec
  * `displayLocale ?? appLocale` and re-formats on `i18n.setLocale`.
  */
 
+import { formatFieldCurrency } from "@chelone/core";
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useLocale } from "../../../i18n/use-locale";
@@ -53,36 +54,14 @@ const emptyText = computed(() =>
   props.empty ? translate(props.empty, { _: props.empty }) : null,
 );
 
-/** Normalize a number-or-`{amount,currency}` value to `{ amount, code }`. */
-function normalize(v: unknown): { amount: number; code: string } {
-  if (
-    typeof v === "object" &&
-    v !== null &&
-    "amount" in v &&
-    (typeof v.amount === "number" || typeof v.amount === "string") &&
-    "currency" in v &&
-    typeof v.currency === "string"
-  ) {
-    // A numeric column serialised as a string is still a valid amount.
-    return { amount: Number(v.amount), code: v.currency };
-  }
-  if (!props.currency) {
-    throw new Error("<CurrencyField>: numeric value requires a `currency` prop");
-  }
-  return { amount: Number(v), code: props.currency };
-}
-
-const formatted = computed<string | null>(() => {
-  const raw = value.value;
-  if (raw == null) return null;
-  const { amount, code } = normalize(raw);
-  const major = props.storeAsMinorUnits ? amount / 100 : amount;
-  return new Intl.NumberFormat(props.displayLocale ?? appLocale.value, {
-    style: "currency",
-    currency: code,
-    ...props.options,
-  }).format(major);
-});
+const formatted = computed<string | null>(() =>
+  formatFieldCurrency(value.value, {
+    currency: props.currency,
+    locale: props.displayLocale ?? appLocale.value,
+    storeAsMinorUnits: props.storeAsMinorUnits,
+    options: props.options,
+  }),
+);
 </script>
 
 <template>

@@ -29,6 +29,14 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isPermissionRowGranted).toBeTypeOf("function");
   });
 
+  it("exports the scalar field formatters", () => {
+    expect(barrel.formatFieldText).toBeTypeOf("function");
+    expect(barrel.defaultNumberTransform).toBeTypeOf("function");
+    expect(barrel.formatFieldNumber).toBeTypeOf("function");
+    expect(barrel.formatFieldDate).toBeTypeOf("function");
+    expect(barrel.formatFieldCurrency).toBeTypeOf("function");
+  });
+
   it("exports noop", () => {
     expect(barrel.noop).toBeTypeOf("function");
     expect(barrel.noop()).toBeUndefined();
