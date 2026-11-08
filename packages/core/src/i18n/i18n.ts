@@ -114,15 +114,16 @@ export type TranslateFor<TCatalog extends MessageCatalog> = <
 export type RegisteredTranslate = TranslateFor<RegisteredMessages>;
 
 /**
- * Narrow the catalog-erased `translate` an adapter holds — `<Admin i18n>` is an
- * {@link AnyCheloneI18n} — to the registered catalog. The one cast lives here,
- * so neither adapter writes one.
+ * Read the catalog-erased `translate` an adapter holds — `<Admin i18n>` is an
+ * {@link AnyCheloneI18n} — as {@link RegisteredTranslate}, so neither adapter
+ * writes a cast. A function that takes any key takes every key the registered
+ * catalog names, so this is plain assignability and not a coercion: the typed
+ * signature narrows what a call may pass, never what the instance accepts.
  */
 export function asRegisteredTranslate(
   translate: AnyCheloneI18n["translate"],
 ): RegisteredTranslate {
-  // type-escape: the registered catalog is a compile-time claim about an instance core cannot see; the runtime accepts any key either way
-  return translate as RegisteredTranslate;
+  return translate;
 }
 
 function interpolate(

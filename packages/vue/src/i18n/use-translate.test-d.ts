@@ -36,6 +36,13 @@ describe("Translate with a registered catalog", () => {
     assertType<Translate>(echo);
   });
 
+  it("Translate fits a parameter typed as the catalog-erased function", () => {
+    const takesLoose = (
+      fn: (key: string, params?: TranslateParamValues) => string,
+    ): string => fn("chelone.action.save");
+    expectTypeOf(takesLoose(translate)).toBeString();
+  });
+
   it("a known key must be passed what its entry interpolates", () => {
     const created: string = translate("chelone.page.create", { name: "Post" });
     expectTypeOf(created).toBeString();
