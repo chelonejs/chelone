@@ -13,6 +13,7 @@ import {
   Show,
   TextField,
   TextInput,
+  Toolbar,
   TranslatableFields,
   TranslatableInputs,
   TreeList,
@@ -41,6 +42,7 @@ export function CategoryEdit() {
       <TranslatableInputs locales={locales}>
         <TextInput source="name" />
       </TranslatableInputs>
+      <Toolbar />
     </Edit>
   );
 }

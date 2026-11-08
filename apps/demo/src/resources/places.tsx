@@ -5,8 +5,10 @@ import {
   Edit,
   List,
   RecordField,
+  SaveButton,
   Show,
   TextInput,
+  Toolbar,
   useListContext,
 } from "@chelone/react";
 import {
@@ -107,7 +109,13 @@ export function PlaceShow() {
  * `bbox-input` and `shape-input` both render a `shape-input` and the
  * `osm-feature-*` buttons all render an `osm-feature-operator`.
  */
-function PlaceForm({ children }: { children: ReactNode }) {
+function PlaceForm({
+  children,
+  creating = false,
+}: {
+  children: ReactNode;
+  creating?: boolean;
+}) {
   return (
     <div className="flex max-w-xl flex-col gap-4">
       {children}
@@ -142,6 +150,7 @@ function PlaceForm({ children }: { children: ReactNode }) {
       <div data-field="bbox">
         <BBoxInput source="bbox" label="Bounding box" />
       </div>
+      <Toolbar>{creating ? <SaveButton /> : undefined}</Toolbar>
     </div>
   );
 }
@@ -166,7 +175,7 @@ export function PlaceEdit() {
 export function PlaceCreate() {
   return (
     <Create>
-      <PlaceForm>
+      <PlaceForm creating>
         <TextInput source="name" />
         <GeocodingInput
           source="address"

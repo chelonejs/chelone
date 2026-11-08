@@ -202,6 +202,9 @@ export function CustomerCreate() {
       <TextInput source="name" />
       <TextInput source="email" />
       <TextInput source="city" />
+      <Toolbar>
+        <SaveButton />
+      </Toolbar>
     </Create>
   );
 }
