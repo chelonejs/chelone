@@ -8,20 +8,27 @@
 export type TextDirection = "ltr" | "rtl";
 
 /**
- * Languages that read right to left in their usual script. A script subtag in
- * the tag wins over this list, so `ar-Latn` (Arabic in Latin letters) is ltr.
+ * Languages whose DEFAULT script runs right to left, the script CLDR's likely
+ * subtags give them (ar → Arabic, he → Hebrew, dv → Thaana, ckb → Arabic).
+ *
+ * A language whose default script is Latin is not here even when some of its
+ * speakers write it another way: Turkmen (`tk`) and Kurmanji Kurdish (`ku`) are
+ * ltr, and their Arabic-script forms arrive as `tk-Arab` / `ku-Arab`, which the
+ * script list below decides. Sorani Kurdish is `ckb`, listed above.
+ *
+ * A script subtag in the tag always wins over this list, so `ar-Latn` (Arabic
+ * in Latin letters) is ltr. A region alone changes nothing, as in CLDR: `fa-TJ`
+ * is Persian in Arabic script, and Tajik in Cyrillic is `tg` or `fa-Cyrl-TJ`.
  */
 const RTL_LANGUAGES = new Set([
   "ar", // Arabic
-  "ckb", // Central Kurdish
+  "ckb", // Central Kurdish (Sorani)
   "dv", // Divehi
   "fa", // Persian
   "he", // Hebrew
-  "ku", // Kurdish
   "nqo", // N'Ko
   "ps", // Pashto
   "sd", // Sindhi
-  "tk", // Turkmen
   "ug", // Uyghur
   "ur", // Urdu
   "yi", // Yiddish
@@ -29,9 +36,9 @@ const RTL_LANGUAGES = new Set([
 
 /**
  * ISO 15924 script codes that run right to left. A tag's script subtag says how
- * a language is written, so this catches the languages the list above misses
- * (`pa-Arab` is Punjabi in Arabic script, `ur-Arab` Urdu, `ckb-Arab` Central
- * Kurdish). Historic scripts are left out: no app localizes to them.
+ * a language is written, so this decides the languages the list above leaves
+ * out: `pa-Arab` is Punjabi in Arabic script, `ku-Arab` Kurdish, `tk-Arab`
+ * Turkmen. Historic scripts are left out: no app localizes to them.
  */
 const RTL_SCRIPTS = new Set([
   "adlm", // Adlam (Fula)

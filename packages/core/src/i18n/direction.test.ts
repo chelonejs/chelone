@@ -14,6 +14,18 @@ describe("getLocaleDirection", () => {
     }
   });
 
+  it("is ltr for a language whose default script is Latin", () => {
+    // Turkmen and Kurmanji Kurdish: CLDR gives them tk-Latn-TM and ku-Latn-TR.
+    // Sorani Kurdish is ckb, which is right to left.
+    for (const locale of ["tk", "tk-TM", "ku", "ku-TR"]) {
+      expect(getLocaleDirection(locale)).toBe("ltr");
+    }
+    // Written in Arabic script, the same languages read right to left.
+    for (const locale of ["tk-Arab", "ku-Arab"]) {
+      expect(getLocaleDirection(locale)).toBe("rtl");
+    }
+  });
+
   it("follows a region-qualified right-to-left tag", () => {
     for (const locale of ["ar-EG", "ar-SA", "ar-MA-1994", "fa-AF", "he-IL"]) {
       expect(getLocaleDirection(locale)).toBe("rtl");
