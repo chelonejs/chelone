@@ -168,9 +168,10 @@ export const DEFAULT_DEBOUNCE_MS = 500;
 export const DEFAULT_SELECT_ALL_LIMIT = 250;
 
 /**
- * The sort a list starts on: `id` ascending, the order every provider falls back
- * to. A record this generic cannot prove carries an `id` path, so the field is
- * narrowed once here.
+ * The sort a list starts on: `id` ascending, as it always was. This is the one
+ * cast this change adds. A schema is not required to declare `id`, so a record
+ * this generic cannot prove carries the path; a resource without one still sends
+ * `id` to its provider, exactly as before the sort was keyed by the record.
  */
 function defaultSort<TRecord>(): SortPayload<TRecord>[] {
   return [
