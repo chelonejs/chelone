@@ -41,10 +41,12 @@
  *     adapters' paths.
  *  5. (reference-slot boundary) `useInRouterContext` / `useCanBlock`: TanStack
  *     has no in-context hook, and `useRouterState` THROWS outside a router (so it
- *     can't be probed conditionally). The adapter tracks presence via its OWN
- *     marker context, set by `RouterWrapper`. Detection therefore covers routers
- *     THIS adapter creates/joins — the appless shell path — not an app's own
- *     pre-existing external TanStack router. Documented + bounded per §0b-6.
+ *     can't be probed conditionally). `tanstackRouterAdapter` tracks presence via
+ *     its OWN marker context, set by `RouterWrapper`, so its detection covers
+ *     only routers it creates. An app's own TanStack router is joined with
+ *     `tanstackHostRouterAdapter`, which DECLARES presence (both hooks return
+ *     `true`) instead of detecting it: the app opts in by choosing it, and
+ *     outside a TanStack `RouterProvider` its hooks throw TanStack's own error.
  *
  * ── Routes / Route / Outlet ──────────────────────────────────────────────────
  * TanStack has no declarative `<Routes>`/`<Route>` children API (its route tree
@@ -110,6 +112,7 @@ import type {
   RouterWrapperProps,
   UseMatchArgs,
 } from "./adapter";
+import { useBasename } from "./context";
 
 /**
  * A marker set by the adapter's `RouterWrapper` so `useInRouterContext` /
@@ -357,11 +360,44 @@ function Route(_props: AdapterRouteProps): ReactNode {
  */
 function Routes({ location, children }: AdapterRoutesProps): ReactNode {
   const current = useLocation();
-  const pathname =
-    typeof location === "string"
-      ? parseLocation(location).pathname
-      : (location?.pathname ?? current.pathname);
+  return renderFirstMatch(
+    children,
+    overridePathname(location) ?? current.pathname,
+  );
+}
 
+/**
+ * `Routes` for an app's own router: its pathname still carries the mount prefix
+ * (an `/admin/$` splat route), which a created router strips through its
+ * `basepath`. Remove the `useBasename()` prefix so the shell matches the same
+ * pathnames under both adapters.
+ */
+function HostRoutes({ location, children }: AdapterRoutesProps): ReactNode {
+  const current = useLocation();
+  const basename = useBasename();
+  return renderFirstMatch(
+    children,
+    withoutBasename(overridePathname(location) ?? current.pathname, basename),
+  );
+}
+
+function overridePathname(
+  location: AdapterRoutesProps["location"],
+): string | undefined {
+  return typeof location === "string"
+    ? parseLocation(location).pathname
+    : location?.pathname;
+}
+
+function withoutBasename(pathname: string, basename: string): string {
+  if (basename === "") return pathname;
+  if (pathname === basename) return "/";
+  return pathname.startsWith(`${basename}/`)
+    ? pathname.slice(basename.length)
+    : pathname;
+}
+
+function renderFirstMatch(children: ReactNode, pathname: string): ReactNode {
   const routes: AdapterRouteProps[] = [];
   const collect = (nodes: ReactNode) => {
     for (const child of toChildArray(nodes)) {
@@ -482,4 +518,27 @@ export const tanstackRouterAdapter: RouterAdapter = {
   Outlet,
   matchPath,
   RouterWrapper,
+};
+
+/** A host router already exists, so there is nothing to create or mark. */
+function HostRouterWrapper({ children }: RouterWrapperProps): ReactNode {
+  return <>{children}</>;
+}
+
+function alwaysTrue(): boolean {
+  return true;
+}
+
+/**
+ * The same hooks and components as `tanstackRouterAdapter`, driving the router
+ * of the nearest TanStack `RouterProvider` (an app's own, as in TanStack Start)
+ * instead of creating one. A constant, so the `RouterAdapterContext` value is
+ * stable across renders.
+ */
+export const tanstackHostRouterAdapter: RouterAdapter = {
+  ...tanstackRouterAdapter,
+  useInRouterContext: alwaysTrue,
+  useCanBlock: alwaysTrue,
+  Routes: HostRoutes,
+  RouterWrapper: HostRouterWrapper,
 };
