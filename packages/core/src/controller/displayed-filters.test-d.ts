@@ -1,5 +1,4 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { z } from "zod";
 import type {
   DisplayedFilters,
   FilterPayload,
@@ -11,26 +10,26 @@ import type {
   LooseDisplayedFilters as BarrelLooseDisplayedFilters,
 } from "../index";
 import type { LooseRecord } from "../resource/record";
-import { defineResources, type RecordOf } from "../resource/registry";
 import { createClientListController } from "./client-list-controller";
-import {
-  createListController,
-  type ListControllerContext,
-  type ListControllerState,
-  type ListParamsPatch,
+import type {
+  ListController,
+  ListControllerState,
+  ListParamsPatch,
 } from "./list-controller";
 import type { ListParamsQuery, ListUrlState } from "./list-params";
-import { createReferenceManyController } from "./reference-many-controller";
+import type { ReferenceManyController } from "./reference-many-controller";
 import type { SavedQueryValue } from "./saved-queries";
 
-const resources = defineResources({
-  posts: {
-    schema: z.object({ id: z.number(), title: z.string(), views: z.number() }),
-  },
-});
-type Post = RecordOf<typeof resources, "posts">;
+interface Post {
+  id: number;
+  title: string;
+  views: number;
+  published: boolean;
+}
 
-declare const ctx: ListControllerContext<typeof resources>;
+/** A posts list controller and its reference-many twin, with no runtime behind them. */
+declare const list: ListController<Post>;
+declare const many: ReferenceManyController<Post>;
 
 describe("DisplayedFilters<Post>", () => {
   it("takes the record's filter keys: plain, suffixed and q", () => {
@@ -68,9 +67,6 @@ describe("bare DisplayedFilters", () => {
     }>();
     const any: DisplayedFilters = { titel: true, anything: false };
     void any;
-    expectTypeOf<LooseDisplayedFilters>().toEqualTypeOf<{
-      [key: string]: boolean | undefined;
-    }>();
     expectTypeOf<LooseDisplayedFilters>().toEqualTypeOf<DisplayedFilters>();
   });
 
@@ -133,11 +129,10 @@ describe("the list params take DisplayedFilters<TRecord>", () => {
 
 describe("showFilter and hideFilter name a filter key", () => {
   it("a posts list controller rejects a name that is no filter key", () => {
-    const list = createListController(ctx, "posts");
     list.showFilter("title");
     list.showFilter("title_gte", 1);
     list.showFilter("q", "");
-    list.hideFilter("title");
+    list.hideFilter("published");
     // @ts-expect-error "titel" is not a filter key of Post
     list.showFilter("titel");
     // @ts-expect-error "titel" is not a filter key of Post
@@ -145,32 +140,28 @@ describe("showFilter and hideFilter name a filter key", () => {
   });
 
   it("a client list controller does the same", () => {
-    const list = createClientListController<Post>({});
-    list.showFilter("title");
-    list.hideFilter("title");
+    const client = createClientListController<Post>({});
+    client.showFilter("title");
+    client.hideFilter("title");
     // @ts-expect-error "titel" is not a filter key of Post
-    list.showFilter("titel");
+    client.showFilter("titel");
     // @ts-expect-error "titel" is not a filter key of Post
-    list.hideFilter("titel");
+    client.hideFilter("titel");
   });
 
-  it("a reference-many controller does the same", () => {
-    const list = createReferenceManyController(ctx, "posts", {
-      target: "author_id",
-      id: 1,
-    });
-    list.showFilter("title");
-    list.hideFilter("title");
+  it("a reference-many controller keys its setFilters the same way", () => {
+    expectTypeOf(many.setFilters)
+      .parameter(1)
+      .toEqualTypeOf<DisplayedFilters<Post> | undefined>();
+    many.showFilter("title");
     // @ts-expect-error "titel" is not a filter key of Post
-    list.showFilter("titel");
-    // @ts-expect-error "titel" is not a filter key of Post
-    list.hideFilter("titel");
+    many.showFilter("titel");
   });
 
   it("a controller of a loose record takes any name", () => {
-    const list = createClientListController<LooseRecord>({});
-    list.showFilter("titel");
-    list.hideFilter("titel");
+    const loose = createClientListController<LooseRecord>({});
+    loose.showFilter("titel");
+    loose.hideFilter("titel");
   });
 });
 

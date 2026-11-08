@@ -3,7 +3,6 @@
   "packages/core/src/controller/infinite-list-controller.ts <-> packages/core/src/controller/reference-many-controller.ts": 1,
   "packages/core/src/controller/list-controller.ts <-> packages/core/src/controller/reference-many-controller.ts": 1,
   "packages/core/src/controller/record-controllers.ts <-> packages/core/src/controller/record-controllers.ts": 1,
-  "packages/core/src/controller/reference-many-controller.ts <-> packages/core/src/controller/reference-one-controller.ts": 1,
   "packages/core/src/data/cache-ops.ts <-> packages/core/src/data/cache-ops.ts": 2,
   "packages/core/src/data/mutation-options.ts <-> packages/core/src/data/mutation-options.ts": 2,
   "packages/core/src/data/types.test-d.ts <-> packages/core/src/data/with-lifecycle-callbacks.test-d.ts": 1,
