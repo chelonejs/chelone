@@ -45,7 +45,7 @@
     },
     {
       "name": "sort",
-      "type": "SortPayload",
+      "type": "SortPayload<LooseRecord>",
       "optional": true,
       "comment": "Sort applied to the choices query."
     },
