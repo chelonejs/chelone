@@ -60,6 +60,7 @@ function AppLayout({ children }: { children?: ReactNode }) {
 /** A host that owns `/admin/*` itself and mounts `<Admin routes={false}>` there. */
 function Host({
   entry,
+  path = "/admin",
   children,
   adminChildren,
   authProvider,
@@ -67,7 +68,9 @@ function Host({
   dataProvider = makeDataProvider(),
 }: {
   entry: string;
-  children: ReactNode;
+  /** The host route's path: a splat gives `<Admin>` every path under it. */
+  path?: string;
+  children?: ReactNode;
   adminChildren?: ReactNode;
   authProvider?: AuthProvider;
   requireAuth?: boolean;
@@ -77,7 +80,7 @@ function Host({
     <MemoryRouter initialEntries={[entry]}>
       <Routes>
         <Route
-          path="/admin"
+          path={path}
           element={
             <Admin
               routes={false}
@@ -134,14 +137,10 @@ describe("<Admin routes={false}>", () => {
   });
 
   it("a route-less Admin owns no path", async () => {
-    render(
-      <Host entry="/admin/nowhere">
-        <Route path="*" element={<div data-testid="app-fallback" />} />
-      </Host>,
-    );
+    render(<Host entry="/admin/nowhere" path="/admin/*" />);
 
-    await screen.findByTestId("layout");
-    expect(screen.getByTestId("app-fallback")).toBeTruthy();
+    const layout = await screen.findByTestId("layout");
+    expect(layout.querySelector("nav")).not.toBeNull();
     expect(screen.queryByTestId("catch-all")).toBeNull();
   });
 

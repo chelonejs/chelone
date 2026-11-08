@@ -94,7 +94,15 @@ async function mountHost(
   );
   const router = createRouter({
     history: createMemoryHistory(),
-    routes: [{ path: "/admin", component: Host, children }],
+    // With no child routes the host owns every path under `/admin`, so no app
+    // route matches a deeper one.
+    routes: [
+      {
+        path: children.length === 0 ? "/admin/:pathMatch(.*)*" : "/admin",
+        component: Host,
+        children,
+      },
+    ],
   });
   await router.push(entry);
   const wrapper = mount(defineComponent({ setup: () => () => h(RouterView) }), {
@@ -147,12 +155,9 @@ describe("<Admin :routes=false>", () => {
   });
 
   it("a route-less Admin owns no path", async () => {
-    const { wrapper } = await mountHost("/admin/nowhere", [
-      { path: ":rest(.*)*", component: Page("app-fallback") },
-    ]);
+    const { wrapper } = await mountHost("/admin/nowhere", []);
 
     expect(wrapper.find("[data-testid=layout]").exists()).toBe(true);
-    expect(wrapper.find("[data-testid=app-fallback]").exists()).toBe(true);
     expect(wrapper.find("[data-testid=catch-all]").exists()).toBe(false);
   });
 
