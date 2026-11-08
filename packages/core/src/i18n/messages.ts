@@ -1,11 +1,25 @@
-/** Plural forms keyed by Intl.PluralRules categories; `other` is the mandatory fallback. */
+/**
+ * A plural message: the `{ one, other }` form, keyed by the `Intl.PluralRules`
+ * categories (`one`, `two`, `few`, `many`, `zero`, `other`). The provider picks
+ * the form for the active locale from the count, so a locale with more than two
+ * forms gets its own (`few` in Polish). `other` is the mandatory fallback: it
+ * stands for a category the message lacks and for a message with no count.
+ */
 export type PluralMessage = Partial<Record<Intl.LDMLPluralRule, string>> & {
   other: string;
 };
 export type MessageValue = string | PluralMessage;
 export type MessageCatalog = Record<string, MessageValue>;
 
-/** The values a message placeholder takes; one type for typed catalogs and the erased view. */
+/**
+ * The values a message placeholder takes; one type for typed catalogs and the
+ * erased view. Two names belong to the provider, not to the message:
+ *
+ * - `_` is the default text for a key no catalog holds, ignored for a key it
+ *   holds, and interpolated with the same params.
+ * - `count` is the plural count; `smart_count` is react-admin's name for the
+ *   same number. `count` wins when both are given.
+ */
 export type TranslateParamValues = Record<string, string | number>;
 
 /** Boundary narrowing for `unknown` input: keeps the string and number entries of a plain object, `undefined` for anything else. */

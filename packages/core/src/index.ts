@@ -833,7 +833,7 @@ export { defaultMessages } from "./i18n/default-messages";
 export type { TextDirection } from "./i18n/direction";
 export { getLocaleDirection } from "./i18n/direction";
 export { englishMessages } from "./i18n/english-messages";
-export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
+export type { AnyCheloneI18n, CheloneI18n, I18nProvider } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";
 export { humanize, humanizeField, pluralize } from "./i18n/inflection";
 export type {
