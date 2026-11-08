@@ -2,8 +2,10 @@ import { QueryObserver, type QueryObserverResult } from "@tanstack/query-core";
 import { type DataContext, getListOptions } from "../data/query-options";
 import { removeEmpty } from "../data/remove-empty";
 import type {
+  DisplayedFilters,
   FilterPayload,
   GetListResult,
+  LooseDisplayedFilters,
   LooseFilterPayload,
   LooseSortPayload,
   PageInfo,
@@ -14,6 +16,7 @@ import type { NotificationStore } from "../notification/notification-store";
 import type { Identifier } from "../resource/identifier";
 import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import type { RecordFilterKey } from "../resource/source-path";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { CheloneStore } from "../store/store";
 
@@ -23,7 +26,7 @@ export interface ListControllerState<TRecord = LooseRecord> {
   /** Always an array in controller state — multi-sort is first-class. */
   sort: SortPayload<TRecord>[];
   filter: FilterPayload<TRecord>;
-  displayedFilters: Record<string, boolean>;
+  displayedFilters: DisplayedFilters<TRecord>;
   selectedIds: Identifier[];
   data: TRecord[] | undefined;
   total: number | undefined;
@@ -43,7 +46,7 @@ export interface ListControllerState<TRecord = LooseRecord> {
 export interface ListParamsPatch<TRecord = LooseRecord> {
   /** Replaces the user filter; empty values are stripped. */
   filter?: FilterPayload<TRecord>;
-  displayedFilters?: Record<string, boolean>;
+  displayedFilters?: DisplayedFilters<TRecord>;
   /** Replaces wholesale; a single payload never toggles the order. */
   sort?: SortPayload<TRecord> | SortPayload<TRecord>[];
   perPage?: number;
@@ -52,18 +55,24 @@ export interface ListParamsPatch<TRecord = LooseRecord> {
 }
 
 /**
- * A {@link ListParamsPatch} with the record type erased: the filter is an open
- * key map and the sort an open field name. Each adapter's list context carries this, because a context cannot
- * be generic and a controller typed to any record must mount in one.
+ * A {@link ListParamsPatch} with the record type erased: the filter and the
+ * displayed filters are open key maps and the sort an open field name. Each
+ * adapter's list context carries this, because a context cannot be generic and
+ * a controller typed to any record must mount in one.
  *
- * Written as `Omit` plus a fresh `filter`, not as `ListParamsPatch` itself:
+ * Written as `Omit` plus fresh `filter`, `displayedFilters` and `sort`, not as
+ * `ListParamsPatch` itself:
  * TypeScript compares two instantiations of one generic interface by the
  * variance of their type argument, so a `ListParamsPatch<Post>` never reaches
  * `ListParamsPatch<LooseRecord>` however the fields read. As a separate type
  * the two line up field by field.
  */
-export type LooseListParamsPatch = Omit<ListParamsPatch, "filter" | "sort"> & {
+export type LooseListParamsPatch = Omit<
+  ListParamsPatch,
+  "filter" | "sort" | "displayedFilters"
+> & {
   filter?: LooseFilterPayload;
+  displayedFilters?: LooseDisplayedFilters;
   sort?: LooseSortPayload | LooseSortPayload[];
 };
 
@@ -91,20 +100,36 @@ export type ListControllerSurface<TRecord> = ListControllerState<TRecord> &
  * own filter keys are the job of {@link ListController.setFilters} and the
  * hooks, which are generic over the record. Erasing only the filter is what
  * lets a controller typed to any record be mounted in one context.
+ *
+ * The displayed filters and the two actions that move them are open for the
+ * same reason, and they must be erased together with it: a filter input names
+ * its filter by a plain `source` (`FilterElementProps` in React's filter form),
+ * so a context keyed by the record would stop every filter input compiling in a
+ * registered app.
  */
 export type ListContextSurface<TRecord = ResourceRecord> = Omit<
   ListControllerSurface<TRecord>,
-  "filter" | "setFilters" | "setParams" | "sort" | "setSort"
+  | "filter"
+  | "setFilters"
+  | "setParams"
+  | "sort"
+  | "setSort"
+  | "displayedFilters"
+  | "showFilter"
+  | "hideFilter"
 > & {
   sort: LooseSortPayload[];
   setSort(sort: LooseSortPayload | LooseSortPayload[]): void;
   filter: LooseFilterPayload;
+  displayedFilters: LooseDisplayedFilters;
   setFilters(
     filter: LooseFilterPayload,
-    displayedFilters?: Record<string, boolean>,
+    displayedFilters?: LooseDisplayedFilters,
     debounced?: boolean,
   ): void;
   setParams(patch: LooseListParamsPatch): void;
+  showFilter(name: string, defaultValue?: unknown): void;
+  hideFilter(name: string): void;
 };
 
 export interface ListController<TRecord>
@@ -117,13 +142,15 @@ export interface ListController<TRecord>
   setSort(sort: SortPayload<TRecord> | SortPayload<TRecord>[]): void;
   setFilters(
     filter: FilterPayload<TRecord>,
-    displayedFilters?: Record<string, boolean>,
+    displayedFilters?: DisplayedFilters<TRecord>,
     debounced?: boolean,
   ): void;
   /** Applies a {@link ListParamsPatch} as one change (one persisted write, one query update; a fetch only if the query changes). An empty patch does nothing. Never debounced. */
   setParams(patch: ListParamsPatch<TRecord>): void;
-  showFilter(name: string, defaultValue?: unknown): void;
-  hideFilter(name: string): void;
+  /** Shows the filter input `name`, and writes `{ [name]: defaultValue }` into the filter when a default is given. */
+  showFilter(name: RecordFilterKey<TRecord>, defaultValue?: unknown): void;
+  /** Hides the filter input `name` and removes that path from the filter. */
+  hideFilter(name: RecordFilterKey<TRecord>): void;
   select(ids: Identifier[]): void;
   toggleItem(id: Identifier): void;
   unselectAll(): void;
@@ -158,7 +185,7 @@ interface PersistedListParams<TRecord> {
   perPage: number;
   sort: SortPayload<TRecord>[];
   filter: FilterPayload<TRecord>;
-  displayedFilters: Record<string, boolean>;
+  displayedFilters: DisplayedFilters<TRecord>;
 }
 
 /** The `perPage` a list starts at when nothing is persisted or in the URL. The single definition: `prev-next` and both adapters read this. */
@@ -268,6 +295,23 @@ export function removeFilterPath<TRecord = LooseRecord>(
   if (Object.keys(kept).length === 0) delete pruned[head];
   else pruned[head] = kept;
   return result;
+}
+
+/**
+ * The displayed filters without the entry named `name`: always a fresh copy,
+ * never the map it was given. Shared with the client controller.
+ */
+export function removeDisplayedFilter<TRecord = LooseRecord>(
+  displayedFilters: DisplayedFilters<TRecord>,
+  name: RecordFilterKey<TRecord>,
+): DisplayedFilters<TRecord> {
+  const kept: DisplayedFilters<TRecord> = { ...displayedFilters };
+  // Key-wise deletion needs an index signature, which a typed map has none of:
+  // `open` is the fresh copy seen through the loose map it falls back to, so
+  // deleting a key here deletes it from `kept`.
+  const open: DisplayedFilters = kept;
+  delete open[name];
+  return kept;
 }
 
 /**
@@ -604,7 +648,7 @@ export function createListController<
 
   const applyFilters = (
     filter: FilterPayload<TRecord>,
-    displayedFilters?: Record<string, boolean>,
+    displayedFilters?: DisplayedFilters<TRecord>,
   ): void => {
     applyParams({
       filter: removeEmpty(filter),
@@ -629,7 +673,7 @@ export function createListController<
   let pendingFilters:
     | {
         filter: FilterPayload<TRecord>;
-        displayedFilters?: Record<string, boolean>;
+        displayedFilters?: DisplayedFilters<TRecord>;
       }
     | undefined;
   const clearDebounce = (): void => {
@@ -643,7 +687,7 @@ export function createListController<
 
   const setFilters = (
     filter: FilterPayload<TRecord>,
-    displayedFilters?: Record<string, boolean>,
+    displayedFilters?: DisplayedFilters<TRecord>,
     debounced = false,
   ): void => {
     if (destroyed) return;
@@ -661,7 +705,10 @@ export function createListController<
     }, options.debounceMs ?? DEFAULT_DEBOUNCE_MS);
   };
 
-  const showFilter = (name: string, defaultValue?: unknown): void => {
+  const showFilter = (
+    name: RecordFilterKey<TRecord>,
+    defaultValue?: unknown,
+  ): void => {
     if (destroyed) return;
     const s = store.getSnapshot();
     applyParams({
@@ -674,7 +721,7 @@ export function createListController<
     });
   };
 
-  const hideFilter = (name: string): void => {
+  const hideFilter = (name: RecordFilterKey<TRecord>): void => {
     if (destroyed) return;
     const s = store.getSnapshot();
     // A debounced filter still pending would bring the removed value back, so
@@ -685,8 +732,10 @@ export function createListController<
       pending ? removeEmpty(pending.filter) : s.filter,
       name,
     );
-    const { [name]: _shown, ...displayedFilters } =
-      pending?.displayedFilters ?? s.displayedFilters;
+    const displayedFilters = removeDisplayedFilter(
+      pending?.displayedFilters ?? s.displayedFilters,
+      name,
+    );
     applyParams({
       filter,
       displayedFilters,

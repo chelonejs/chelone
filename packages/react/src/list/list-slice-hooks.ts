@@ -86,7 +86,7 @@ export function useListSortContext(): ListSortContextValue {
 export interface ListFilterContextValue {
   /** ra-core name for the current user filter (chelone stores it on `filter`). */
   filterValues: FilterPayload;
-  displayedFilters: Record<string, boolean>;
+  displayedFilters: ListContextValue["displayedFilters"];
   setFilters: ListContextValue["setFilters"];
   showFilter: ListContextValue["showFilter"];
   hideFilter: ListContextValue["hideFilter"];

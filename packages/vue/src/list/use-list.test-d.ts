@@ -1,4 +1,5 @@
 import {
+  type DisplayedFilters,
   defineResources,
   type LooseRecord,
   type SortPayload,
@@ -63,6 +64,21 @@ it("a list controller of one record still mounts in a list context", () => {
   expectTypeOf<UseListControllerReturn<Row>>().toExtend<ListContextValue>();
   expectTypeOf<ReturnType<typeof useList<Row>>>().toExtend<ListContextValue>();
   provideListContext(rowController);
+});
+
+it("a list controller keys its displayed filters by the record", () => {
+  expectTypeOf<
+    UseListControllerReturn<Row>["displayedFilters"]
+  >().toEqualTypeOf<DisplayedFilters<Row>>();
+  rowController.showFilter("name");
+  rowController.showFilter("name_gte", "red");
+  rowController.hideFilter("name");
+  // @ts-expect-error "nmae" is no filter key of Row
+  rowController.showFilter("nmae");
+  // @ts-expect-error "nmae" is no filter key of Row
+  rowController.hideFilter("nmae");
+  // The erased context still takes the typed map.
+  expectTypeOf<ReturnType<typeof useList<Row>>>().toExtend<ListContextValue>();
 });
 
 it("the reference controllers sort by the referenced record", () => {
