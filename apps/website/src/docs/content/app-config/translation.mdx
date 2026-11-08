@@ -27,6 +27,11 @@ English is unchanged:
 | `ra.message.loading` | `chelone.message.loading_detail` |
 | `ra.notification.http_error` | `chelone.notification.http_error_label` |
 
+An app that writes its own catalog instead of spreading `englishMessages` can
+mount `<I18nKeyEditor>` after the upgrade (see [Listing the missing
+keys](#listing-the-missing-keys)): it lists every key the locale missed, which
+is exactly the labels still holding their old name.
+
 ## Building the i18n instance
 
 ```tsx title="src/i18n.ts"
