@@ -27,7 +27,7 @@ export interface ClientListControllerOptions<TRecord> {
   /** Initial user filter. */
   filter?: FilterPayload<TRecord>;
   /** Initial sort. Single payload or an array (multi-sort is normalized to an array). */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<TRecord> | SortPayload<TRecord>[];
   /** Initial page (1-based). Default 1. */
   page?: number;
   /** Page size. Default 1000 (ra-core `useList` default — "show everything"). */
@@ -71,7 +71,7 @@ export interface ClientListController<TRecord> extends ListController<TRecord> {
 }
 
 const DEFAULT_PER_PAGE = 1000;
-const DEFAULT_SORT: SortPayload[] = [];
+const DEFAULT_SORT: never[] = [];
 
 /**
  * Flatten a nested filter object into dotted keys (`{nested:{level:5}}` →
@@ -126,7 +126,7 @@ function matchesFilter<TRecord>(
 function applyFilterAndSort<TRecord>(
   records: TRecord[],
   filter: FilterPayload<TRecord>,
-  sort: SortPayload[],
+  sort: SortPayload<TRecord>[],
   filterCallback: (record: TRecord) => boolean,
 ): TRecord[] {
   let result = records;
@@ -247,7 +247,9 @@ export function createClientListController<
     recompute();
   };
 
-  const setSort = (input: SortPayload | SortPayload[]): void => {
+  const setSort = (
+    input: SortPayload<TRecord> | SortPayload<TRecord>[],
+  ): void => {
     if (destroyed) return;
     store.setState({
       sort: nextSortOf(store.getSnapshot().sort, input),

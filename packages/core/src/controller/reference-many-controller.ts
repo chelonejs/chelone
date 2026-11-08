@@ -32,7 +32,7 @@ export interface ReferenceManyControllerOptions<TRecord = LooseRecord> {
   /** Seed for the user filter when nothing is persisted. */
   filterDefaultValues?: FilterPayload<TRecord>;
   /** Initial sort when nothing is persisted: one payload or several, applied in order. Default id ascending. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<TRecord> | SortPayload<TRecord>[];
   /** Default 25. */
   perPage?: number;
   /** Debounce delay for `setFilters(..., debounced=true)`. Default 500ms. */

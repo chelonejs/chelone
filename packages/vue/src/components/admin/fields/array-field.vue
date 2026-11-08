@@ -51,11 +51,11 @@ const value = useFieldValue<RecordType>({
   defaultValue: props.defaultValue,
 });
 
-const data = computed<ResourceRecord[]>(() =>
+const data = computed<LooseRecord[]>(() =>
   Array.isArray(value.value) ? value.value : [],
 );
 
-const listContext = useList({
+const listContext = useList<LooseRecord>({
   data: () => data.value,
   perPage: props.perPage,
   sort: props.sort,

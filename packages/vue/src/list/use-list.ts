@@ -41,7 +41,7 @@ export interface UseListOptions<
   /** Client-side filter for the embedded list. */
   filter?: FilterPayload<TRecord>;
   /** Client-side sort for the embedded list. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<TRecord> | SortPayload<TRecord>[];
   /** Client-side page size. Default 1000 (ra-core `useList` — "show everything"). */
   perPage?: number;
   /** Initial page (1-based). Default 1. */

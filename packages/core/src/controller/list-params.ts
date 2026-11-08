@@ -163,7 +163,7 @@ export function hasCustomParams<TRecord = LooseRecord>(
 export interface ListUrlState<TRecord = LooseRecord> {
   page: number;
   perPage: number;
-  sort: SortPayload[];
+  sort: SortPayload<TRecord>[];
   filter: FilterPayload<TRecord>;
   displayedFilters: Record<string, boolean>;
 }

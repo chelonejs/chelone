@@ -1,11 +1,18 @@
-import type {
-  FilterPayload,
-  Identifier,
-  ListParamsPatch,
-  SortPayload,
+import {
+  defineResources,
+  type FilterPayload,
+  type Identifier,
+  type ListParamsPatch,
+  type LooseRecord,
+  type SortPayload,
 } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
+import { z } from "zod";
 import type { ListContextValue } from "./form";
+import {
+  useReferenceManyFieldController,
+  useReferenceOneFieldController,
+} from "./reference-hooks";
 import type { UseListOptions, UseListResult } from "./use-list";
 import { useList } from "./use-list";
 
@@ -23,7 +30,7 @@ it("useList returns a UseListResult assignable to ListContextValue", () => {
   expectTypeOf(result.total).toEqualTypeOf<number | undefined>();
   expectTypeOf(result.page).toBeNumber();
   expectTypeOf(result.perPage).toBeNumber();
-  expectTypeOf(result.sort).toEqualTypeOf<SortPayload[]>();
+  expectTypeOf(result.sort).toEqualTypeOf<SortPayload<Row>[]>();
   // The hook is generic over the record, so its filter is keyed by the record.
   expectTypeOf(result.filter).toEqualTypeOf<FilterPayload<Row>>();
   expectTypeOf(result.selectedIds).toEqualTypeOf<Identifier[]>();
@@ -33,7 +40,7 @@ it("useList returns a UseListResult assignable to ListContextValue", () => {
 it("useList options accept data/sort/filter/page/perPage + async flags", () => {
   expectTypeOf<UseListOptions<Row>>().toMatchTypeOf<{
     data?: Row[];
-    sort?: SortPayload | SortPayload[];
+    sort?: SortPayload<Row> | SortPayload<Row>[];
     filter?: FilterPayload;
     page?: number;
     perPage?: number;
@@ -70,4 +77,49 @@ it("useList exposes setParams taking a ListParamsPatch", () => {
 
 it("useList is callable with just data", () => {
   expectTypeOf(useList<Row>).toBeCallableWith({ data: [] });
+});
+
+it("a list controller keys its sort by the record and still mounts in a list context", () => {
+  expectTypeOf<UseListResult<Row>["sort"]>().toEqualTypeOf<
+    SortPayload<Row>[]
+  >();
+  expectTypeOf<UseListResult<Row>>().toExtend<ListContextValue>();
+  useList<Row>({ data: [], sort: { field: "name", order: "ASC" } });
+  // @ts-expect-error "nmae" is no path of Row
+  useList<Row>({ data: [], sort: { field: "nmae", order: "ASC" } });
+  // a bare sort still types for a loose record
+  const bareSort: SortPayload = { field: "anything", order: "ASC" };
+  useList<LooseRecord>({ data: [], sort: bareSort });
+  result.setSort({ field: "name", order: "ASC" });
+  // @ts-expect-error "nmae" is no path of Row
+  result.setSort({ field: "nmae", order: "ASC" });
+});
+
+const resources = defineResources({
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+it("the reference hooks sort by the referenced record", () => {
+  useReferenceManyFieldController<typeof resources, "comments">({
+    reference: "comments",
+    target: "post_id",
+    sort: { field: "body", order: "ASC" },
+  });
+  useReferenceManyFieldController<typeof resources, "comments">({
+    reference: "comments",
+    target: "post_id",
+    // @ts-expect-error "bdoy" is no path of a comment
+    sort: { field: "bdoy", order: "ASC" },
+  });
+  useReferenceOneFieldController<typeof resources, "comments">({
+    reference: "comments",
+    target: "post_id",
+    sort: [{ field: "body", order: "DESC" }],
+  });
+  useReferenceOneFieldController<typeof resources, "comments">({
+    reference: "comments",
+    target: "post_id",
+    // @ts-expect-error "bdoy" is no path of a comment
+    sort: [{ field: "bdoy", order: "DESC" }],
+  });
 });

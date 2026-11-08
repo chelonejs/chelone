@@ -1,4 +1,8 @@
-import { defineResources, fakeDataProvider } from "@chelone/core";
+import {
+  defineResources,
+  fakeDataProvider,
+  type LooseRecord,
+} from "@chelone/core";
 import { QueryClient } from "@tanstack/vue-query";
 import { mount } from "@vue/test-utils";
 import { vi } from "vitest";
@@ -128,7 +132,7 @@ export function mountProbe<TResult>(
 
 export const mountMany = (
   options: Omit<
-    UseReferenceManyFieldControllerOptions<"comments">,
+    UseReferenceManyFieldControllerOptions<"comments", LooseRecord, Comment>,
     "reference" | "target"
   > = {},
   record?: RecordValue,
@@ -147,7 +151,7 @@ export const mountMany = (
 
 export const mountOne = (
   options: Omit<
-    UseReferenceOneFieldControllerOptions<"profiles">,
+    UseReferenceOneFieldControllerOptions<"profiles", LooseRecord, Profile>,
     "reference" | "target"
   > = {},
   record?: RecordValue,

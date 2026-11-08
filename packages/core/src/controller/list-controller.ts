@@ -17,11 +17,11 @@ import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { CheloneStore } from "../store/store";
 
-export interface ListControllerState<TRecord> {
+export interface ListControllerState<TRecord = LooseRecord> {
   page: number;
   perPage: number;
   /** Always an array in controller state — multi-sort is first-class. */
-  sort: SortPayload[];
+  sort: SortPayload<TRecord>[];
   filter: FilterPayload<TRecord>;
   displayedFilters: Record<string, boolean>;
   selectedIds: Identifier[];
@@ -53,10 +53,10 @@ export interface ListParamsPatch<TRecord = LooseRecord> {
 
 /**
  * A {@link ListParamsPatch} with the record type erased: the filter is an open
- * key map. Each adapter's list context carries this, because a context cannot
+ * key map and the sort an open field name. Each adapter's list context carries this, because a context cannot
  * be generic and a controller typed to any record must mount in one.
  *
- * Written as `Omit` plus a fresh `filter` and `sort`, not as `ListParamsPatch` itself:
+ * Written as `Omit` plus a fresh `filter`, not as `ListParamsPatch` itself:
  * TypeScript compares two instantiations of one generic interface by the
  * variance of their type argument, so a `ListParamsPatch<Post>` never reaches
  * `ListParamsPatch<LooseRecord>` however the fields read. As a separate type
@@ -79,6 +79,13 @@ export type ListControllerSurface<TRecord> = ListControllerState<TRecord> &
  * The list surface an adapter's list context publishes: the rows typed to
  * `TRecord`, the filter an open key map.
  *
+ * The sort is as open as the filter, for the same reason: a column header or a
+ * URL names a field with no record to check it, so `sort` and `setSort` take
+ * the structural {@link LooseSortPayload}: a `SortPayload<Post>` never reaches
+ * `SortPayload<LooseRecord>` by variance, as with {@link LooseListParamsPatch}.
+ * A record's own sort fields are the job of
+ * {@link ListController.setSort} and the options of each controller.
+ *
  * The filter is open on purpose. What writes a context filter names no record:
  * a filter form's field names, a calendar's range keys, a URL query. A record's
  * own filter keys are the job of {@link ListController.setFilters} and the
@@ -87,8 +94,10 @@ export type ListControllerSurface<TRecord> = ListControllerState<TRecord> &
  */
 export type ListContextSurface<TRecord = ResourceRecord> = Omit<
   ListControllerSurface<TRecord>,
-  "filter" | "setFilters" | "setParams"
+  "filter" | "setFilters" | "setParams" | "sort" | "setSort"
 > & {
+  sort: LooseSortPayload[];
+  setSort(sort: LooseSortPayload | LooseSortPayload[]): void;
   filter: LooseFilterPayload;
   setFilters(
     filter: LooseFilterPayload,
@@ -105,7 +114,7 @@ export interface ListController<TRecord>
   setPage(page: number): void;
   setPerPage(perPage: number): void;
   /** Single payload on the SAME single-sorted field toggles order; anything else replaces. */
-  setSort(sort: SortPayload | SortPayload[]): void;
+  setSort(sort: SortPayload<TRecord> | SortPayload<TRecord>[]): void;
   setFilters(
     filter: FilterPayload<TRecord>,
     displayedFilters?: Record<string, boolean>,
@@ -132,7 +141,7 @@ export interface ListControllerContext<
 
 export interface ListControllerOptions<TRecord = LooseRecord> {
   perPage?: number;
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<TRecord> | SortPayload<TRecord>[];
   /** Permanent filter — merged OVER the user filter for every fetch. */
   filter?: FilterPayload<TRecord>;
   /** Seed for the user filter when nothing is persisted. */
@@ -147,7 +156,7 @@ export interface ListControllerOptions<TRecord = LooseRecord> {
 interface PersistedListParams<TRecord> {
   page: number;
   perPage: number;
-  sort: SortPayload[];
+  sort: SortPayload<TRecord>[];
   filter: FilterPayload<TRecord>;
   displayedFilters: Record<string, boolean>;
 }
@@ -157,14 +166,29 @@ export const DEFAULT_PER_PAGE = 10;
 /** Debounce delay for `setFilters(..., debounced=true)` when no `debounceMs` option is given. Shared with the reference-many and choices controllers. */
 export const DEFAULT_DEBOUNCE_MS = 500;
 export const DEFAULT_SELECT_ALL_LIMIT = 250;
-const DEFAULT_SORT: SortPayload[] = [{ field: "id", order: "ASC" }];
+
+/**
+ * The sort a list starts on: `id` ascending, as it always was. This is the one
+ * cast this change adds. A schema is not required to declare `id`, so a record
+ * this generic cannot prove carries the path; a resource without one still sends
+ * `id` to its provider, exactly as before the sort was keyed by the record.
+ */
+function defaultSort<TRecord>(): SortPayload<TRecord>[] {
+  return [
+    {
+      // type-escape: `id` is the primary key a data provider orders by when no sort is given; a deferred `TRecord` cannot prove `SourcePath<TRecord>` holds it
+      field: "id" as SortPayload<TRecord>["field"],
+      order: "ASC",
+    },
+  ];
+}
 
 /**
  * A sort prop as controller state: always an array, always a fresh copy, so a
  * caller's payload is never the object the controller holds. `fallback` is what
  * an absent sort becomes. Shared with the client controller.
  */
-export function normalizeSort<TRecord = LooseRecord>(
+export function normalizeSort<TRecord>(
   sort: SortPayload<TRecord> | SortPayload<TRecord>[] | undefined,
   fallback: SortPayload<TRecord>[],
 ): SortPayload<TRecord>[] {
@@ -178,10 +202,10 @@ export function normalizeSort<TRecord = LooseRecord>(
  * single-sorted field toggles its order (ra-core column-header semantics);
  * anything else replaces. Shared with the client controller.
  */
-export function nextSortOf(
-  current: SortPayload[],
-  input: SortPayload | SortPayload[],
-): SortPayload[] {
+export function nextSortOf<TRecord>(
+  current: SortPayload<TRecord>[],
+  input: SortPayload<TRecord> | SortPayload<TRecord>[],
+): SortPayload<TRecord>[] {
   if (Array.isArray(input)) return input.map((entry) => ({ ...entry }));
   const single = current.length === 1 ? current[0] : undefined;
   if (single && single.field === input.field) {
@@ -263,13 +287,7 @@ export function listParamsFromPatch<TRecord>(
   if (patch.displayedFilters !== undefined) {
     next.displayedFilters = { ...patch.displayedFilters };
   }
-  if (patch.sort !== undefined) {
-    next.sort = normalizeSort(patch.sort, []).map(({ field, order }) => ({
-      // type-escape: controller state holds its sort with the record erased, as `setSort` does, so the patch's record-keyed field widens to it
-      field: field as SortPayload["field"],
-      order,
-    }));
-  }
+  if (patch.sort !== undefined) next.sort = normalizeSort(patch.sort, []);
   if (patch.perPage !== undefined) next.perPage = patch.perPage;
   if (patch.page !== undefined) {
     next.page = patch.page;
@@ -468,7 +486,7 @@ export function createListController<
   const defaults: PersistedListParams<TRecord> = {
     page: 1,
     perPage: options.perPage ?? DEFAULT_PER_PAGE,
-    sort: normalizeSort(options.sort, DEFAULT_SORT),
+    sort: normalizeSort(options.sort, defaultSort<TRecord>()),
     filter: { ...(options.filterDefaultValues ?? {}) },
     displayedFilters: {},
   };
@@ -574,7 +592,9 @@ export function createListController<
     applyParams({ perPage, page: 1 });
   };
 
-  const setSort = (input: SortPayload | SortPayload[]): void => {
+  const setSort = (
+    input: SortPayload<TRecord> | SortPayload<TRecord>[],
+  ): void => {
     if (destroyed) return;
     applyParams({
       sort: nextSortOf(store.getSnapshot().sort, input),
