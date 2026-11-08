@@ -20,6 +20,7 @@ import {
   FilterLiveForm,
   getFilterFormValues,
   ListContextProvider,
+  type ListContextValue,
   useFilterForm,
   useListContext,
 } from "./filter-live-form";
@@ -79,7 +80,7 @@ function makeFilterHarness({
   strict = false,
   validate,
 }: {
-  list: UseListControllerResult<PostRecord>;
+  list: ListContextValue<PostRecord>;
   strict?: boolean;
   validate?: ReturnType<typeof required>;
 }) {

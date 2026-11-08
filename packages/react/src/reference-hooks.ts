@@ -50,7 +50,7 @@ export interface UseReferenceManyFieldControllerOptions<
   /** Permanent filter, merged over the user filter for every fetch. Keyed by the referenced resource's record. */
   filter?: FilterPayload<ReferenceRecord>;
   /** Initial sort when nothing is persisted. Default id ascending. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<ReferenceRecord> | SortPayload<ReferenceRecord>[];
   /** Default 25. */
   perPage?: number;
   /** KV namespace for params and selection. Default `${reference}.${target}.${id}`; `false` keeps them in memory. */
@@ -65,7 +65,7 @@ export interface UseReferenceOneFieldControllerOptions<
   ReferenceRecord = LooseRecord,
 > extends ReferenceFieldControllerOptions<TName, RecordType> {
   /** Decides which row is first when several match. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<ReferenceRecord> | SortPayload<ReferenceRecord>[];
   /** Narrows the lookup. Keyed by the referenced resource's record. */
   filter?: FilterPayload<ReferenceRecord>;
 }

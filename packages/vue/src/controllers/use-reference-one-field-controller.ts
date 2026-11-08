@@ -47,7 +47,7 @@ export interface UseReferenceOneFieldControllerOptions<
   /** Defaults to the ambient record. */
   record?: MaybeRefOrGetter<RecordValue<RecordType>>;
   /** Decides which row is first when several match. */
-  sort?: SortPayload | SortPayload[];
+  sort?: SortPayload<ReferenceRecord> | SortPayload<ReferenceRecord>[];
   /** Narrows the lookup. */
   filter?: FilterPayload<ReferenceRecord>;
   /** Gates the fetch. Default true. */

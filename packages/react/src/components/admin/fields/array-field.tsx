@@ -50,7 +50,7 @@ function ArrayField<RecordType extends ResourceRecord = LooseRecord>(
     source,
     record,
   });
-  const listContext = useList({
+  const listContext = useList<LooseRecord>({
     data: Array.isArray(value) ? value : emptyArray,
     perPage,
     sort,
@@ -62,7 +62,7 @@ function ArrayField<RecordType extends ResourceRecord = LooseRecord>(
   );
 }
 
-const emptyArray: ResourceRecord[] = [];
+const emptyArray: LooseRecord[] = [];
 
 interface ArrayFieldProps<RecordType extends ResourceRecord = LooseRecord> {
   /** The field path to the array on the current record. */
