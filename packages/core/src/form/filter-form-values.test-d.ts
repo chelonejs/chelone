@@ -1,6 +1,10 @@
 import { describe, expectTypeOf, it } from "vitest";
 import type { FilterPayload } from "../data/types";
-import { getFilterFormValues, mergeFilterValues } from "./filter-form-values";
+import {
+  filterFormReflectShape,
+  getFilterFormValues,
+  mergeFilterValues,
+} from "./filter-form-values";
 
 interface Post {
   id: number;
@@ -32,5 +36,18 @@ describe("getFilterFormValues", () => {
     expectTypeOf(values.formOnly).toBeUnknown();
     // @ts-expect-error titel_gte is not a Post filter key
     getFilterFormValues<Post>({}, { titel_gte: "A" });
+  });
+});
+
+describe("filterFormReflectShape", () => {
+  it("checks filter keys while keeping form values and field metadata open", () => {
+    const shape = filterFormReflectShape<Post>(
+      { formOnly: "" },
+      { "formOnly.nested": {} },
+      { title_gte: "A", q: "x" },
+    );
+    expectTypeOf(shape.formOnly).toBeUnknown();
+    // @ts-expect-error titel_gte is not a Post filter key
+    filterFormReflectShape<Post>({}, {}, { titel_gte: "A" });
   });
 });

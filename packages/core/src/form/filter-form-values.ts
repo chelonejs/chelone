@@ -66,10 +66,10 @@ export function getFilterFormValues<TRecord = LooseRecord>(
  * carried through; registered-but-unset / filter-only keys seed to `undefined`
  * so {@link getFilterFormValues} resolves them from the filter (fallback `''`).
  */
-export function filterFormReflectShape(
+export function filterFormReflectShape<TRecord = LooseRecord>(
   values: Record<string, unknown>,
   fieldMeta: Record<string, unknown>,
-  filter: Record<string, unknown>,
+  filter: FilterPayload<TRecord>,
 ): Record<string, unknown> {
   const shape: Record<string, unknown> = { ...values };
   for (const key of Object.keys(fieldMeta)) {
