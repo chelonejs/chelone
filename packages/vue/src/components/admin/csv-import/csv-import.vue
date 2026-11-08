@@ -141,10 +141,10 @@ function onClose() {
 const busy = computed(() => state.value.status === "running");
 
 const titles = computed(() => ({
-  upload: translate("ra.csv_import.step.upload", { _: "Upload" }),
-  map: translate("ra.csv_import.step.map", { _: "Map columns" }),
-  preview: translate("ra.csv_import.step.preview", { _: "Preview" }),
-  commit: translate("ra.csv_import.step.commit", { _: "Importing" }),
+  upload: translate("chelone.csv_import.step.upload", { _: "Upload" }),
+  map: translate("chelone.csv_import.step.map", { _: "Map columns" }),
+  preview: translate("chelone.csv_import.step.preview", { _: "Preview" }),
+  commit: translate("chelone.csv_import.step.commit", { _: "Importing" }),
 }));
 
 const nextDisabled = computed(() => {
@@ -225,7 +225,7 @@ const unmapped = computed(() =>
 const headerOptions = computed(() => [
   {
     value: "",
-    label: translate("ra.csv_import.unmapped", { _: "Not mapped" }),
+    label: translate("chelone.csv_import.unmapped", { _: "Not mapped" }),
   },
   ...state.value.headers.map((header) => ({ value: header, label: header })),
 ]);
@@ -263,7 +263,7 @@ function downloadErrors() {
 <template>
   <Button type="button" variant="outline" @click="open = true">
     <slot name="icon"><UploadIcon /></slot>
-    {{ label ?? translate("ra.csv_import.import", { _: "Import" }) }}
+    {{ label ?? translate("chelone.csv_import.import", { _: "Import" }) }}
   </Button>
   <Sheet
     :open="open"
@@ -295,7 +295,7 @@ function downloadErrors() {
           <UploadIcon />
           <p>
             {{
-              translate("ra.csv_import.drop", {
+              translate("chelone.csv_import.drop", {
                 _: "Drop a CSV file here, or click to choose one",
               })
             }}
@@ -303,11 +303,11 @@ function downloadErrors() {
           <p v-if="state.fileName" class="font-medium">{{ state.fileName }}</p>
         </div>
         <p v-if="notice === 'wrong_file'" role="alert" class="text-sm text-destructive">
-          {{ translate("ra.csv_import.wrong_file", { _: "Choose a .csv file" }) }}
+          {{ translate("chelone.csv_import.wrong_file", { _: "Choose a .csv file" }) }}
         </p>
         <p v-if="notice === 'not_utf8'" role="status" class="text-sm text-destructive">
           {{
-            translate("ra.csv_import.not_utf8", {
+            translate("chelone.csv_import.not_utf8", {
               _: "This file is not UTF-8, so some letters may be wrong. Save it as CSV UTF-8 and try again.",
             })
           }}
@@ -321,7 +321,7 @@ function downloadErrors() {
         </p>
         <p v-else-if="state.rows.length > 0" class="text-sm">
           {{
-            translate("ra.csv_import.rows_parsed", {
+            translate("chelone.csv_import.rows_parsed", {
               _: "{count} rows parsed",
               count: state.rows.length,
             })
@@ -354,7 +354,7 @@ function downloadErrors() {
         </div>
         <p v-if="unmapped" role="status" class="text-sm text-destructive">
           {{
-            translate("ra.csv_import.required_unmapped", {
+            translate("chelone.csv_import.required_unmapped", {
               _: "Required fields are not mapped",
             })
           }}
@@ -364,7 +364,7 @@ function downloadErrors() {
       <div v-else-if="state.step === 'preview'" class="flex flex-col gap-3">
         <p class="text-sm">
           {{
-            translate("ra.csv_import.preview_summary", {
+            translate("chelone.csv_import.preview_summary", {
               _: "{valid} valid · {errors} errors · {total} total",
               valid: validCount,
               errors: state.validations.length - validCount,
@@ -380,7 +380,7 @@ function downloadErrors() {
                   field
                 }}</TableHead>
                 <TableHead>{{
-                  translate("ra.csv_import.issues", { _: "Issues" })
+                  translate("chelone.csv_import.issues", { _: "Issues" })
                 }}</TableHead>
               </TableRow>
             </TableHeader>
@@ -419,11 +419,11 @@ function downloadErrors() {
         />
         <div v-else class="flex flex-col gap-3 text-sm">
           <p class="font-medium">
-            {{ translate("ra.csv_import.complete", { _: "Import complete" }) }}
+            {{ translate("chelone.csv_import.complete", { _: "Import complete" }) }}
           </p>
           <p>
             {{
-              translate("ra.csv_import.counts", {
+              translate("chelone.csv_import.counts", {
                 _: "{created} created · {failed} failed · {total} total",
                 created: state.report.created,
                 failed: state.report.failed,
@@ -439,7 +439,7 @@ function downloadErrors() {
             @click="downloadErrors"
           >
             {{
-              translate("ra.csv_import.download_errors", {
+              translate("chelone.csv_import.download_errors", {
                 _: "Download error report",
               })
             }}
@@ -451,7 +451,7 @@ function downloadErrors() {
     <template #footer>
       <div class="flex justify-end gap-2">
         <Button v-if="state.step === 'commit'" type="button" :disabled="busy" @click="onClose">
-          {{ translate("ra.csv_import.close", { _: "Close" }) }}
+          {{ translate("chelone.csv_import.close", { _: "Close" }) }}
         </Button>
         <template v-else>
           <Button
@@ -460,10 +460,10 @@ function downloadErrors() {
             :disabled="busy || state.step === 'upload'"
             @click="controller.back()"
           >
-            {{ translate("ra.csv_import.back", { _: "Back" }) }}
+            {{ translate("chelone.csv_import.back", { _: "Back" }) }}
           </Button>
           <Button type="button" :disabled="nextDisabled" @click="void controller.next()">
-            {{ translate("ra.csv_import.next", { _: "Next" }) }}
+            {{ translate("chelone.csv_import.next", { _: "Next" }) }}
           </Button>
         </template>
       </div>

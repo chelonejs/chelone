@@ -1,7 +1,7 @@
 /**
  * The default page heading of `<List>`, `<InfiniteList>`, `<Create>`, `<Edit>`
  * and `<Show>`, mounted under a real `<Admin>`: the resource label through
- * `ra.page.*`, or the record representation once the record loads.
+ * `chelone.page.*`, or the record representation once the record loads.
  */
 
 import {
@@ -22,8 +22,8 @@ import List from "./list.vue";
 import Show from "./show.vue";
 
 const en = {
-  "ra.page.list": "{name} list",
-  "ra.page.create": "New {name}",
+  "chelone.page.list": "{name} list",
+  "chelone.page.create": "New {name}",
 };
 
 function makeI18n(
@@ -60,11 +60,11 @@ const heading = (wrapper: ReturnType<typeof mountAdmin>) =>
   wrapper.find("h2").text();
 
 describe("view titles", () => {
-  it("a List titles itself with the plural resource label through ra.page.list", async () => {
+  it("a List titles itself with the plural resource label through chelone.page.list", async () => {
     const i18n = makeI18n(
       {},
       {
-        "ra.page.list": "Liste de {name}",
+        "chelone.page.list": "Liste de {name}",
         "resources.posts.name": "articles",
       },
     );
@@ -86,7 +86,7 @@ describe("view titles", () => {
     expect(heading(wrapper)).toBe("Posts list");
   });
 
-  it("a Create titles itself with the singular resource label through ra.page.create", async () => {
+  it("a Create titles itself with the singular resource label through chelone.page.create", async () => {
     const wrapper = mountAdmin(
       () => h(Create, { resource: "posts" }),
       makeI18n(),

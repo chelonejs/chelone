@@ -36,8 +36,8 @@ import TranslatableInputs from "./translatable-inputs.vue";
 
 const baseMessages = {
   "chelone.validation.required": "Required",
-  "ra.action.add": "Add",
-  "ra.action.remove": "Remove",
+  "chelone.action.add": "Add",
+  "chelone.action.remove": "Remove",
 };
 
 function makeI18n(extra: Record<string, string> = {}) {
@@ -367,11 +367,11 @@ describe("TranslatableInputs", () => {
     });
   });
 
-  it("labels a tab from ra.locales when translated and capitalizes the code otherwise", async () => {
+  it("labels a tab from chelone.locales when translated and capitalizes the code otherwise", async () => {
     const { wrapper } = mountInForm(
       names,
       { name: { en: "", fr: "" } },
-      { "ra.locales.en": "English" },
+      { "chelone.locales.en": "English" },
     );
     await flushPromises();
 

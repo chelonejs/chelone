@@ -72,7 +72,7 @@ const toggle = () =>
       variant="ghost"
       size="icon"
       class="size-8"
-      :aria-label="translate('ra.action.remove_filter', { _: 'Remove filter' })"
+      :aria-label="translate('chelone.action.remove_filter', { _: 'Remove filter' })"
       @click="toggle"
     >
       <span aria-hidden="true">×</span>

@@ -80,19 +80,19 @@ const options = computed(() => [
     value: "",
     label: props.nullLabel
       ? translate(props.nullLabel, { _: props.nullLabel })
-      : translate("ra.boolean.null", { _: "" }),
+      : translate("chelone.boolean.null", { _: "" }),
   },
   {
     value: "false",
     label: props.falseLabel
       ? translate(props.falseLabel, { _: props.falseLabel })
-      : translate("ra.boolean.false", { _: "No" }),
+      : translate("chelone.boolean.false", { _: "No" }),
   },
   {
     value: "true",
     label: props.trueLabel
       ? translate(props.trueLabel, { _: props.trueLabel })
-      : translate("ra.boolean.true", { _: "Yes" }),
+      : translate("chelone.boolean.true", { _: "Yes" }),
   },
 ]);
 

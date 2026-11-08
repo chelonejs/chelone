@@ -33,7 +33,7 @@ export function TranslatableInputsTab({
       aria-controls={`translatable-content-${groupKey}${locale}`}
       className={cn(!isValid && "text-destructive", className)}
     >
-      {children ?? translate(`ra.locales.${locale}`, { _: fallback })}
+      {children ?? translate(`chelone.locales.${locale}`, { _: fallback })}
     </TabsTrigger>
   );
 }

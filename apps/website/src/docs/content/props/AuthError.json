@@ -11,13 +11,13 @@
       "name": "message",
       "type": "string",
       "optional": true,
-      "comment": "i18n key (or raw message) for the body. Defaults to `ra.message.auth_error`."
+      "comment": "i18n key (or raw message) for the body. Defaults to `chelone.message.auth_error`."
     },
     {
       "name": "title",
       "type": "string",
       "optional": true,
-      "comment": "i18n key for the heading. Defaults to `ra.page.error`."
+      "comment": "i18n key for the heading. Defaults to `chelone.page.error`."
     }
   ]
 }

@@ -5,9 +5,9 @@ import type { FunctionalComponent } from "vue";
 export interface AuthenticationErrorProps {
   /** Override the default warning-triangle glyph. */
   icon?: FunctionalComponent;
-  /** i18n key for the heading. Defaults to `ra.page.authentication_error`. */
+  /** i18n key for the heading. Defaults to `chelone.page.authentication_error`. */
   textPrimary?: string;
-  /** i18n key for the sub-text. Defaults to `ra.message.authentication_error`. */
+  /** i18n key for the sub-text. Defaults to `chelone.message.authentication_error_detail`. */
   textSecondary?: string;
   class?: string;
 }
@@ -31,8 +31,8 @@ import AccessDenied from "./access-denied.vue";
 import { TriangleAlertIcon } from "./icons";
 
 const props = withDefaults(defineProps<AuthenticationErrorProps>(), {
-  textPrimary: "ra.page.authentication_error",
-  textSecondary: "ra.message.authentication_error",
+  textPrimary: "chelone.page.authentication_error",
+  textSecondary: "chelone.message.authentication_error_detail",
 });
 
 const iconComponent = computed(() => props.icon ?? TriangleAlertIcon);

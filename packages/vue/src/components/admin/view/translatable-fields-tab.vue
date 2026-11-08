@@ -29,7 +29,7 @@ const selected = computed(
   () => translatable.selectedLocale.value === props.locale,
 );
 const label = computed(() =>
-  translate(`ra.locales.${props.locale}`, {
+  translate(`chelone.locales.${props.locale}`, {
     _: props.locale.charAt(0).toUpperCase() + props.locale.slice(1),
   }),
 );

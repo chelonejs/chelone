@@ -52,7 +52,7 @@ function onClick(): void {
 <template>
   <div :class="wrapperClass">
     <IconButtonWithTooltip
-      label="ra.action.refresh"
+      label="chelone.action.refresh"
       :class="buttonClass"
       :tabindex="loading ? -1 : undefined"
       :aria-hidden="loading ? 'true' : undefined"
@@ -62,7 +62,7 @@ function onClick(): void {
     </IconButtonWithTooltip>
     <Spinner
       v-if="loading"
-      :aria-label="translate('ra.page.loading', { _: 'Loading' })"
+      :aria-label="translate('chelone.page.loading', { _: 'Loading' })"
       class="absolute inset-0"
     />
   </div>

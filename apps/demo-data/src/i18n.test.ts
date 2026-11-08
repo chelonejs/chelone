@@ -80,32 +80,38 @@ describe("the demo i18n", () => {
     const { i18n, missingKeys } = makeDemoI18n();
     i18n.setLocale("fr");
 
-    expect(i18n.translate("ra.action.refresh")).toBe("Refresh");
+    expect(i18n.translate("chelone.action.refresh")).toBe("Refresh");
     expect(missingKeys.getEntries("fr").map((entry) => entry.key)).toContain(
-      "ra.action.refresh",
+      "chelone.action.refresh",
     );
   });
 
   it("changes the string once a translation is typed for the missing key", async () => {
     const { i18n, missingKeys } = makeDemoI18n();
     i18n.setLocale("fr");
-    i18n.translate("ra.action.refresh");
+    i18n.translate("chelone.action.refresh");
 
-    missingKeys.setTranslation("fr", "ra.action.refresh", "Actualiser");
+    missingKeys.setTranslation("fr", "chelone.action.refresh", "Actualiser");
     await flush();
 
-    expect(i18n.translate("ra.action.refresh")).toBe("Actualiser");
+    expect(i18n.translate("chelone.action.refresh")).toBe("Actualiser");
   });
 
   it("tells subscribers once the new text is in place, and keeps the locale", async () => {
     const demo = makeDemoI18n();
     demo.i18n.setLocale("fr");
-    demo.i18n.translate("ra.action.refresh");
+    demo.i18n.translate("chelone.action.refresh");
     const seen: string[] = [];
-    demo.subscribe(() => seen.push(demo.i18n.translate("ra.action.refresh")));
+    demo.subscribe(() =>
+      seen.push(demo.i18n.translate("chelone.action.refresh")),
+    );
     const before = demo.version();
 
-    demo.missingKeys.setTranslation("fr", "ra.action.refresh", "Actualiser");
+    demo.missingKeys.setTranslation(
+      "fr",
+      "chelone.action.refresh",
+      "Actualiser",
+    );
     await flush();
 
     expect(seen).toEqual(["Actualiser"]);
@@ -127,14 +133,14 @@ describe("the demo i18n", () => {
   it("goes back to English when the typed translation is cleared", async () => {
     const { i18n, missingKeys } = makeDemoI18n();
     i18n.setLocale("fr");
-    i18n.translate("ra.action.refresh");
-    missingKeys.setTranslation("fr", "ra.action.refresh", "Actualiser");
+    i18n.translate("chelone.action.refresh");
+    missingKeys.setTranslation("fr", "chelone.action.refresh", "Actualiser");
     await flush();
 
-    missingKeys.setTranslation("fr", "ra.action.refresh", "");
+    missingKeys.setTranslation("fr", "chelone.action.refresh", "");
     await flush();
 
-    expect(i18n.translate("ra.action.refresh")).toBe("Refresh");
+    expect(i18n.translate("chelone.action.refresh")).toBe("Refresh");
   });
 
   it("keeps an English translation typed here out of the next i18n", async () => {
@@ -211,8 +217,8 @@ describe("what French still lacks", () => {
     i18n.setLocale("fr");
 
     const keys = [
-      "ra.page.dashboard",
-      "ra.page.list",
+      "chelone.page.dashboard",
+      "chelone.page.list",
       "chelone.command_menu.resources",
     ];
     for (const key of keys) i18n.translate(key);

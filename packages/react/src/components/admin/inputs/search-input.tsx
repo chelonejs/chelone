@@ -50,7 +50,7 @@ export const SearchInput = <RecordType extends ResourceRecord = LooseRecord>(
         source={source}
         label={false}
         helperText={false}
-        placeholder={translate("ra.action.search")}
+        placeholder={translate("chelone.action.search")}
         className={cn("grow", className)}
         inputClassName={showClearButton ? "pr-16" : "pr-8"}
         {...rest}
@@ -63,7 +63,7 @@ export const SearchInput = <RecordType extends ResourceRecord = LooseRecord>(
           size="sm"
           onClick={clearFieldValue}
           className="-translate-y-1/2 absolute top-1/2 right-8 size-6 transform rounded-full p-0 text-muted-foreground"
-          aria-label={translate("ra.action.clear_search", {
+          aria-label={translate("chelone.action.clear_search", {
             _: "Clear search",
           })}
         >

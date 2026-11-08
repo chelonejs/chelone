@@ -180,7 +180,7 @@ onBeforeUnmount(() => {
         data-slot="notification-undo"
         @click="undo(toast.id)"
       >
-        {{ translate("ra.action.undo", { _: "Undo" }) }}
+        {{ translate("chelone.action.undo", { _: "Undo" }) }}
       </button>
       <button
         type="button"

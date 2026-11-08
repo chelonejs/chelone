@@ -7,7 +7,7 @@ export interface DashboardMenuItemProps {
   class?: string;
   /** Replaces the default `House` icon. */
   icon?: Component;
-  /** Replaces the default translated label (`ra.page.dashboard`, default "Dashboard"). */
+  /** Replaces the default translated label (`chelone.page.dashboard`, default "Dashboard"). */
   label?: string;
   /** Click handler invoked alongside the default navigation (e.g. close the drawer). */
   onClick?: () => void;
@@ -34,7 +34,7 @@ const translate = useTranslate();
 const basename = useBasename();
 const to = `${basename}/`;
 const label = computed(
-  () => props.label ?? translate("ra.page.dashboard", { _: "Dashboard" }),
+  () => props.label ?? translate("chelone.page.dashboard", { _: "Dashboard" }),
 );
 const icon = computed(() => props.icon ?? HouseIcon);
 </script>

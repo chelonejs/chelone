@@ -63,7 +63,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
         });
       } catch (error) {
         const message = errorMessageOf(error);
-        notify(message ?? "ra.notification.http_error", {
+        notify(message ?? "chelone.notification.http_error_label", {
           type: "warning",
           messageArgs: message === undefined ? undefined : { _: message },
         });
@@ -118,7 +118,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
         noValidate
       >
         <PasswordInput
-          label={translate("ra.auth.password", { _: "Password" })}
+          label={translate("chelone.auth.password", { _: "Password" })}
           source="password"
           autoComplete="new-password"
           autoFocus
@@ -138,7 +138,7 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
           disabled={isSubmitting}
         >
           {isSubmitting ? <Spinner /> : null}
-          {translate("ra.action.save", { _: "Save" })}
+          {translate("chelone.action.save", { _: "Save" })}
         </Button>
       </form>
     </CheloneFormProvider>

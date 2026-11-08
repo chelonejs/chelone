@@ -200,7 +200,7 @@ const title = computed(
         variant="ghost"
         size="icon"
         class="size-7"
-        :aria-label="translate('ra.action.close', { _: 'Close' })"
+        :aria-label="translate('chelone.action.close', { _: 'Close' })"
         @click="inspector.disable()"
       >
         <XIcon />

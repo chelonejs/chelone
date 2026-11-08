@@ -36,7 +36,7 @@ async function mountIndicator(
               locale: "en",
               messages: {
                 en: defineMessages({
-                  "ra.action.refresh": "Refresh",
+                  "chelone.action.refresh": "Refresh",
                   ...messages,
                 }),
               },
@@ -121,7 +121,7 @@ describe("<LoadingIndicator>", () => {
   it("translates the spinner label", async () => {
     const { startQuery } = await mountIndicator(
       {},
-      { "ra.page.loading": "Chargement" },
+      { "chelone.page.loading": "Chargement" },
     );
     await startQuery();
     expect(spinner()?.getAttribute("aria-label")).toBe("Chargement");

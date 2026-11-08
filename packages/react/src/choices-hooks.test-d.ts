@@ -1,4 +1,4 @@
-import type { ChoiceValueOf } from "@chelone/core";
+import type { ChoiceValueOf, FilterPayload, SortPayload } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import {
   type ChoiceRecord,
@@ -30,6 +30,31 @@ describe("choices hook result types", () => {
       (filter: Record<string, unknown>, debounce?: boolean) => void
     >();
     expectTypeOf<ChoicesContextValue>().not.toBeAny();
+  });
+
+  it("ChoicesContextValue<Post> types sort and filter by Post", () => {
+    expectTypeOf<ChoicesContextValue<Author>["sort"]>().toEqualTypeOf<
+      SortPayload<Author>
+    >();
+    expectTypeOf<ChoicesContextValue<Author>["filter"]>().toEqualTypeOf<
+      FilterPayload<Author>
+    >();
+    const ctx = useChoicesContext<Author>();
+    ctx.setSort({ field: "name", order: "ASC" });
+    ctx.setFilters({ name: "Ada" });
+    // @ts-expect-error `nme` is not a path of Author
+    ctx.setSort({ field: "nme", order: "ASC" });
+    // @ts-expect-error `nme` is not a filter key of Author
+    ctx.setFilters({ nme: "Ada" });
+  });
+
+  it("a bare ChoicesContextValue still takes any string key", () => {
+    const ctx = useChoicesContext();
+    ctx.setSort({ field: "anything", order: "DESC" });
+    ctx.setFilters({ anything: 1 });
+    expectTypeOf<ChoicesContextValue["sort"]>().toEqualTypeOf<
+      SortPayload<ChoiceRecord>
+    >();
   });
 
   it("the choices error is Error or null", () => {

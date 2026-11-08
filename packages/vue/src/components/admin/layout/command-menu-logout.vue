@@ -23,12 +23,12 @@ function onSelect(): void {
 <template>
   <CommandGroup :heading="translate('chelone.command_menu.account', { _: 'Account' })">
     <CommandItem
-      :value="translate('ra.auth.logout', { _: 'Log out' })"
+      :value="translate('chelone.auth.logout', { _: 'Log out' })"
       :keywords="['sign out']"
       @select="onSelect"
     >
       <LogOutIcon />
-      {{ translate("ra.auth.logout", { _: "Log out" }) }}
+      {{ translate("chelone.auth.logout", { _: "Log out" }) }}
     </CommandItem>
   </CommandGroup>
 </template>

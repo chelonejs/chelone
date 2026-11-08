@@ -81,7 +81,7 @@ function EditButton<TRecord extends ResourceRecord = LooseRecord>(
       : recordRepresentationValue?.toString();
   const label = useResourceTranslation({
     resourceI18nKey: resource ? `resources.${resource}.action.edit` : undefined,
-    baseI18nKey: "ra.action.edit",
+    baseI18nKey: "chelone.action.edit",
     options: definedParams({
       _: "Edit",
       name: resource ? getResourceLabel(resource, 1) : undefined,

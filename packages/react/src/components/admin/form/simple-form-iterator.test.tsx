@@ -38,15 +38,15 @@ import {
 
 const messages = {
   en: defineMessages({
-    "ra.action.add": "Add",
-    "ra.action.remove": "Remove",
-    "ra.action.move_up": "Move up",
-    "ra.action.move_down": "Move down",
-    "ra.action.clear_array_input": "Clear the array",
-    "ra.message.clear_array_input":
+    "chelone.action.add": "Add",
+    "chelone.action.remove": "Remove",
+    "chelone.action.move_up": "Move up",
+    "chelone.action.move_down": "Move down",
+    "chelone.action.clear_array_input": "Clear the array",
+    "chelone.message.clear_array_input":
       "Are you sure you want to clear the whole array?",
-    "ra.action.confirm": "Confirm",
-    "ra.action.cancel": "Cancel",
+    "chelone.action.confirm": "Confirm",
+    "chelone.action.cancel": "Cancel",
   }),
 };
 
@@ -367,7 +367,7 @@ describe("SimpleFormIterator", () => {
             <TextInput source="" label="Tag" />
           </SimpleFormIterator>
         </ArrayInput>
-        <ArrayInput source="more" label="More" addLabel="ra.action.remove">
+        <ArrayInput source="more" label="More" addLabel="chelone.action.remove">
           <SimpleFormIterator>
             <TextInput source="" label="Tag" />
           </SimpleFormIterator>

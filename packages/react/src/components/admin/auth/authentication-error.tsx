@@ -20,16 +20,16 @@ export interface AuthenticationErrorProps
   extends HTMLAttributes<HTMLDivElement> {
   className?: string;
   icon?: ReactNode;
-  /** i18n key for the heading. Defaults to `ra.page.authentication_error`. */
+  /** i18n key for the heading. Defaults to `chelone.page.authentication_error`. */
   textPrimary?: string;
-  /** i18n key for the sub-text. Defaults to `ra.message.authentication_error`. */
+  /** i18n key for the sub-text. Defaults to `chelone.message.authentication_error_detail`. */
   textSecondary?: string;
 }
 
 function AuthenticationError({
   icon = <TriangleAlert className="size-32" />,
-  textPrimary = "ra.page.authentication_error",
-  textSecondary = "ra.message.authentication_error",
+  textPrimary = "chelone.page.authentication_error",
+  textSecondary = "chelone.message.authentication_error_detail",
   ...rest
 }: AuthenticationErrorProps) {
   return (

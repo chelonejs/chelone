@@ -25,7 +25,7 @@ function ArrayInputRowControls({ children }: { children?: ReactNode }) {
           size="icon"
           className="size-7"
           disabled={item.index === 0}
-          aria-label={translate("ra.action.move_up", { _: "Move up" })}
+          aria-label={translate("chelone.action.move_up", { _: "Move up" })}
           onClick={() => item.reOrder(item.index - 1)}
         >
           <span aria-hidden="true">↑</span>
@@ -36,7 +36,7 @@ function ArrayInputRowControls({ children }: { children?: ReactNode }) {
           size="icon"
           className="size-7"
           disabled={item.index >= item.total - 1}
-          aria-label={translate("ra.action.move_down", { _: "Move down" })}
+          aria-label={translate("chelone.action.move_down", { _: "Move down" })}
           onClick={() => item.reOrder(item.index + 1)}
         >
           <span aria-hidden="true">↓</span>
@@ -47,7 +47,7 @@ function ArrayInputRowControls({ children }: { children?: ReactNode }) {
           size="icon"
           className="size-7"
           data-slot="array-input-remove"
-          aria-label={translate("ra.action.remove", { _: "Remove" })}
+          aria-label={translate("chelone.action.remove", { _: "Remove" })}
           onClick={() => item.remove()}
         >
           <span aria-hidden="true">×</span>

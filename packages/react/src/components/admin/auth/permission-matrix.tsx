@@ -93,7 +93,7 @@ export function PermissionMatrix({
     ? selectedRole
     : entryId(firstRole);
   const actionLabel = (action: string) =>
-    translate(`ra.action.${action}`, { _: capitalize(action) });
+    translate(`chelone.action.${action}`, { _: capitalize(action) });
 
   // Core takes a mutable list; the prop is readonly so a const tuple fits.
   const actionList = [...actions];

@@ -18,8 +18,9 @@ function Providers({ children }: { children: ReactNode }) {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.loading": "Loading",
-        "ra.message.loading": "The page is loading, just a moment please",
+        "chelone.page.loading": "Loading",
+        "chelone.message.loading_detail":
+          "The page is loading, just a moment please",
       }),
     },
   });

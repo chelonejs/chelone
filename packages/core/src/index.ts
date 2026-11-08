@@ -442,6 +442,7 @@ export type {
   DeleteManyResult,
   DeleteParams,
   DeleteResult,
+  DisplayedFilters,
   FilterPayload,
   GetListParams,
   GetListResult,
@@ -452,6 +453,7 @@ export type {
   GetOneParams,
   GetOneResult,
   InfiniteListParams,
+  LooseDisplayedFilters,
   LooseFilterPayload,
   LooseSortPayload,
   PageInfo,
@@ -516,6 +518,7 @@ export type {
 export {
   choiceListsOf,
   createChoicesController,
+  eraseChoicesController,
 } from "./form/choices-controller";
 export {
   formatDate,

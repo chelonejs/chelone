@@ -41,7 +41,7 @@ function CalendarAgendaView<RecordType extends ResourceRecord>({
     >
       {groups.length === 0 ? (
         <p className="px-2 py-6 text-center text-sm text-muted-foreground">
-          {translate("ra.calendar.no_events", { _: "No events" })}
+          {translate("chelone.calendar.no_events", { _: "No events" })}
         </p>
       ) : (
         groups.map((group) => (

@@ -49,6 +49,6 @@ function handleClick(): void {
     @select="handleClick"
   >
     <LogOutIcon />
-    {{ translate("ra.auth.logout", { _: "Log out" }) }}
+    {{ translate("chelone.auth.logout", { _: "Log out" }) }}
   </DropdownMenuItem>
 </template>

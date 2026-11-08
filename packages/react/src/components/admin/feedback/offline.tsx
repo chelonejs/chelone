@@ -43,7 +43,7 @@ function Offline({ children, className, ...rest }: OfflineProps) {
       {...rest}
     >
       <WifiOff className="size-4" />
-      {translate("ra.notification.offline", { _: "You are offline" })}
+      {translate("chelone.notification.offline", { _: "You are offline" })}
     </div>
   );
 }

@@ -47,7 +47,7 @@ const translate = useTranslate();
 const navigate = useNavigate();
 
 const heading = computed(() =>
-  translate("ra.page.not_found", { _: "Not Found" }),
+  translate("chelone.page.not_found", { _: "Not Found" }),
 );
 </script>
 
@@ -66,14 +66,14 @@ const heading = computed(() =>
     </h1>
     <p>
       {{
-        translate("ra.message.not_found", {
+        translate("chelone.message.not_found", {
           _: "The page you requested cannot be found.",
         })
       }}
     </p>
     <div class="mt-8">
       <Button type="button" @click="navigate(-1)">
-        {{ translate("ra.action.back", { _: "Back" }) }}
+        {{ translate("chelone.action.back", { _: "Back" }) }}
       </Button>
     </div>
   </div>

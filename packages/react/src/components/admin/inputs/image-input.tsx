@@ -35,8 +35,8 @@ import { useRecordContext } from "../../../record/record-context";
 function ImageInput(props: ImageInputProps) {
   const {
     accept = { "image/*": [] },
-    labelMultiple = "ra.input.image.upload_several",
-    labelSingle = "ra.input.image.upload_single",
+    labelMultiple = "chelone.input.image.upload_several",
+    labelSingle = "chelone.input.image.upload_single",
     children,
     ...rest
   } = props;

@@ -191,7 +191,7 @@ function JobRow<TRecord extends ResourceRecord>({
                 disabled={busy}
                 onClick={() => onPlan(planJobCancel<TRecord>(job, options))}
               >
-                {translate("ra.action.cancel", { _: "Cancel" })}
+                {translate("chelone.action.cancel", { _: "Cancel" })}
               </Button>
             ) : null}
           </span>

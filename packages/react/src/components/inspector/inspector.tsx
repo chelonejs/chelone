@@ -230,7 +230,7 @@ function InspectorPanel({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={translate("ra.action.close", { _: "Close" })}
+          aria-label={translate("chelone.action.close", { _: "Close" })}
           onClick={inspector.disable}
         >
           <X />

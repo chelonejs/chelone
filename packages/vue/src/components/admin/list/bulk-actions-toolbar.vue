@@ -38,10 +38,10 @@ const count = computed(() => list.selectedIds?.length ?? 0);
 const visible = computed(() => count.value > 0);
 
 const unselectLabel = computed(() =>
-  translate("ra.action.unselect", { _: "Unselect" }),
+  translate("chelone.action.unselect", { _: "Unselect" }),
 );
 const countLabel = computed(() =>
-  translate("ra.action.bulk_actions", {
+  translate("chelone.action.bulk_actions", {
     smart_count: count.value,
     _: `${count.value} rows selected`,
   }),

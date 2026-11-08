@@ -163,7 +163,7 @@ const hasPayload = computed(
           :disabled="busy"
           @click="emit('plan', planJobCancel<TRecord>(job, options))"
         >
-          {{ translate("ra.action.cancel", { _: "Cancel" }) }}
+          {{ translate("chelone.action.cancel", { _: "Cancel" }) }}
         </Button>
       </span>
     </div>

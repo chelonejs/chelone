@@ -172,7 +172,7 @@ describe("presentational feedback", () => {
     expect(wrapper.find('[role="status"]').exists()).toBe(true);
     // No i18n in this harness → translate echoes the key (the `_` fallback IS
     // the key), so the deferred loading messages render as their keys.
-    expect(wrapper.text()).toContain("ra.page.loading");
+    expect(wrapper.text()).toContain("chelone.page.loading");
   });
 
   it("<Spinner> renders and honors the `show` gate", () => {

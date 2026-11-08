@@ -66,7 +66,7 @@ function CreateButton(props: CreateButtonProps) {
     resourceI18nKey: resource
       ? `resources.${resource}.action.create`
       : undefined,
-    baseI18nKey: "ra.action.create",
+    baseI18nKey: "chelone.action.create",
     options: definedParams({
       _: "Create",
       name: resource ? getResourceLabel(resource, 1) : undefined,

@@ -1,9 +1,14 @@
 import { isFilterBranch } from "../data/filter-branch";
 import { removeEmpty } from "../data/remove-empty";
-import type { FilterPayload, SortPayload } from "../data/types";
+import type {
+  DisplayedFilters,
+  FilterPayload,
+  SortPayload,
+} from "../data/types";
 import { getAtPath } from "../resource/get-at-path";
 import type { Identifier } from "../resource/identifier";
 import type { ResourceRecord } from "../resource/record";
+import type { RecordFilterKey } from "../resource/source-path";
 import { createMicroStore } from "../store/micro-store";
 import {
   type ListController,
@@ -12,6 +17,7 @@ import {
   listParamsFromPatch,
   nextSortOf,
   normalizeSort,
+  removeDisplayedFilter,
   removeFilterPath,
 } from "./list-controller";
 
@@ -260,7 +266,7 @@ export function createClientListController<
 
   const setFilters = (
     filter: FilterPayload<TRecord>,
-    displayedFilters?: Record<string, boolean>,
+    displayedFilters?: DisplayedFilters<TRecord>,
   ): void => {
     if (destroyed) return;
     store.setState({
@@ -282,7 +288,10 @@ export function createClientListController<
     recompute();
   };
 
-  const showFilter = (name: string, defaultValue?: unknown): void => {
+  const showFilter = (
+    name: RecordFilterKey<TRecord>,
+    defaultValue?: unknown,
+  ): void => {
     if (destroyed) return;
     const s = store.getSnapshot();
     store.setState({
@@ -295,11 +304,11 @@ export function createClientListController<
     recompute();
   };
 
-  const hideFilter = (name: string): void => {
+  const hideFilter = (name: RecordFilterKey<TRecord>): void => {
     if (destroyed) return;
     const s = store.getSnapshot();
     const filter = removeFilterPath(s.filter, name);
-    const { [name]: _shown, ...displayedFilters } = s.displayedFilters;
+    const displayedFilters = removeDisplayedFilter(s.displayedFilters, name);
     store.setState({ filter, displayedFilters, page: 1 });
     recompute();
   };

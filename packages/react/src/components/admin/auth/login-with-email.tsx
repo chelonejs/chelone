@@ -47,7 +47,7 @@ interface LoginWithEmailProps {
    * `authProvider.login`; ignored when `onSubmit` is set.
    */
   redirectTo?: string;
-  /** Button text. Defaults to the translated `ra.auth.sign_in`. */
+  /** Button text. Defaults to the translated `chelone.auth.sign_in`. */
   submitLabel?: string;
   /** Extra class names applied to the `<form>` element. */
   className?: string;
@@ -98,7 +98,7 @@ function LoginWithEmail(props: LoginWithEmailProps) {
         }
       } catch (error) {
         const message = errorMessageOf(error);
-        notify(message ?? "ra.auth.sign_in_error", {
+        notify(message ?? "chelone.auth.sign_in_error", {
           type: "error",
           messageArgs: message === undefined ? undefined : { _: message },
         });
@@ -148,7 +148,7 @@ function LoginWithEmail(props: LoginWithEmailProps) {
         />
         <Button type="submit" className="cursor-pointer" disabled={busy}>
           {busy ? <Spinner /> : <LogIn />}
-          {submitLabel ?? translate("ra.auth.sign_in", { _: "Sign in" })}
+          {submitLabel ?? translate("chelone.auth.sign_in", { _: "Sign in" })}
         </Button>
       </form>
     </CheloneFormProvider>

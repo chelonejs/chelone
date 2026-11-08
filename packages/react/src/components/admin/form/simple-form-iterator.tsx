@@ -93,7 +93,7 @@ function AddItemButton({
     >
       <Plus aria-hidden="true" className="size-4" />
       {shown == null
-        ? translate("ra.action.add", { _: "Add" })
+        ? translate("chelone.action.add", { _: "Add" })
         : typeof shown === "string"
           ? translate(shown, { _: shown })
           : shown}
@@ -106,7 +106,7 @@ function RemoveItemButton(props: RemoveItemButtonProps): ReactNode {
   const translate = useTranslate();
   return (
     <IconButton
-      label={translate("ra.action.remove", { _: "Remove" })}
+      label={translate("chelone.action.remove", { _: "Remove" })}
       icon={<X aria-hidden="true" className="size-4" />}
       data-slot="array-input-remove"
       {...props}
@@ -127,13 +127,13 @@ function ReOrderButtons({
   return (
     <div className={cn("flex items-center", className)}>
       <IconButton
-        label={translate("ra.action.move_up", { _: "Move up" })}
+        label={translate("chelone.action.move_up", { _: "Move up" })}
         icon={<ArrowUp aria-hidden="true" className="size-4" />}
         disabled={disabled || item.index === 0}
         onClick={() => item.reOrder(item.index - 1)}
       />
       <IconButton
-        label={translate("ra.action.move_down", { _: "Move down" })}
+        label={translate("chelone.action.move_down", { _: "Move down" })}
         icon={<ArrowDown aria-hidden="true" className="size-4" />}
         disabled={disabled || item.index >= item.total - 1}
         onClick={() => item.reOrder(item.index + 1)}
@@ -320,16 +320,16 @@ function SimpleFormIterator(props: SimpleFormIteratorProps): ReactNode {
                 onClick={() => setConfirmOpen(true)}
               >
                 <Trash2 aria-hidden="true" className="size-4" />
-                {translate("ra.action.clear_array_input", {
+                {translate("chelone.action.clear_array_input", {
                   _: "Clear the array",
                 })}
               </Button>
               <Confirm
                 isOpen={confirmOpen}
-                title={translate("ra.action.clear_array_input", {
+                title={translate("chelone.action.clear_array_input", {
                   _: "Clear the array",
                 })}
-                content={translate("ra.message.clear_array_input", {
+                content={translate("chelone.message.clear_array_input", {
                   _: "Are you sure you want to clear the whole array?",
                 })}
                 onClose={() => setConfirmOpen(false)}

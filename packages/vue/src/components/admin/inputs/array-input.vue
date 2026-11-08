@@ -124,14 +124,14 @@ const labelText = computed(() =>
   props.label === false ? null : (props.label ?? humanizeSource(props.source)),
 );
 const addLabelText = computed(
-  () => props.addLabel ?? translate("ra.action.add", { _: "Add" }),
+  () => props.addLabel ?? translate("chelone.action.add", { _: "Add" }),
 );
 
 const clearLabel = computed(() =>
-  translate("ra.action.clear_array_input", { _: "Clear the array" }),
+  translate("chelone.action.clear_array_input", { _: "Clear the array" }),
 );
 const clearMessage = computed(() =>
-  translate("ra.message.clear_array_input", {
+  translate("chelone.message.clear_array_input", {
     _: "Are you sure you want to clear the whole array?",
   }),
 );

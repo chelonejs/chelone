@@ -110,6 +110,34 @@ type _FilterKeyOf<TRecord> = LooseRecord extends TRecord
  */
 export type LooseFilterPayload = { [key: string]: unknown };
 
+/**
+ * Which filter inputs the list shows: a filter key mapped to whether its input
+ * is open. `showFilter(name)` writes `{ [name]: true }` into the filter and
+ * `hideFilter(name)` removes that path from it, so the map is keyed by the same
+ * union {@link FilterPayload} is — a name that is no filter key of the record
+ * stops compiling.
+ *
+ * The values are optional: a map over a literal key union that demanded every
+ * key would force an app to list every filter it has in order to show one.
+ */
+export type DisplayedFilters<TRecord = LooseRecord> = {
+  [TKey in _FilterKeyOf<TRecord>]?: boolean;
+};
+
+/**
+ * The displayed filters with no record behind it: an open key map.
+ * {@link DisplayedFilters}'s loose key set is the registered union once an app
+ * registers resources, so code that walks the map key by key — a filter form
+ * reading `displayedFilters[source]`, an adapter's list context — names this
+ * instead.
+ *
+ * The value carries `undefined` because {@link DisplayedFilters} does: a map
+ * over a literal key union with optional values has no `string` index
+ * signature of plain `boolean` to hand over, so an erased map that demanded one
+ * would reject every typed controller.
+ */
+export type LooseDisplayedFilters = { [key: string]: boolean | undefined };
+
 export interface GetListParams {
   pagination?: Pagination;
   /**

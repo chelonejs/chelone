@@ -177,7 +177,7 @@ function DatagridInput<
               <Checkbox
                 checked={allSelected}
                 onCheckedChange={toggleAll}
-                aria-label={translate("ra.action.select_all", {
+                aria-label={translate("chelone.action.select_all", {
                   _: "Select all",
                 })}
                 aria-invalid={invalid || undefined}
@@ -197,7 +197,7 @@ function DatagridInput<
                   <Checkbox
                     checked={isSelected(id)}
                     onCheckedChange={() => toggle(id)}
-                    aria-label={translate("ra.action.select_row", {
+                    aria-label={translate("chelone.action.select_row", {
                       _: "Select this row",
                     })}
                   />

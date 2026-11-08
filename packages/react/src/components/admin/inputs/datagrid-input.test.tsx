@@ -37,8 +37,8 @@ import { DatagridInput } from "./datagrid-input";
 const messages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    "ra.action.select_all": "Select all",
-    "ra.action.select_row": "Select this row",
+    "chelone.action.select_all": "Select all",
+    "chelone.action.select_row": "Select this row",
   }),
 };
 

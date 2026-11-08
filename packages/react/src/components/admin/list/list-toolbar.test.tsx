@@ -66,9 +66,9 @@ function mount(
         locale: "en",
         messages: {
           en: defineMessages({
-            "ra.action.create": "Create",
-            "ra.action.export": "Export",
-            "ra.action.add_filter": "Add filter",
+            "chelone.action.create": "Create",
+            "chelone.action.export": "Export",
+            "chelone.action.add_filter": "Add filter",
           }),
         },
       })}

@@ -794,12 +794,12 @@ describe("<CalendarList> agenda view", () => {
 });
 
 describe("<CalendarList> views", () => {
-  it("the switcher reads the older ra.calendar.<view> keys unless ra.calendar.view.<view> is set", async () => {
+  it("the switcher reads the older chelone.calendar.<view> keys unless chelone.calendar.view.<view> is set", async () => {
     mount(calendar(), {
       messages: {
-        "ra.calendar.month": "Mois",
-        "ra.calendar.week": "Semaine",
-        "ra.calendar.view.week": "Sem.",
+        "chelone.calendar.month": "Mois",
+        "chelone.calendar.week": "Semaine",
+        "chelone.calendar.view.week": "Sem.",
       },
     });
     await screen.findByText("Standup");

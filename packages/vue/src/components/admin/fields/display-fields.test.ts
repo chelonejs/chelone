@@ -57,14 +57,14 @@ describe("BooleanField", () => {
     const w = mountField(BooleanField, { source: "active" }, { active: true });
     const svg = w.get('[data-slot="boolean-field"]');
     expect(svg.attributes("data-value")).toBe("true");
-    expect(svg.attributes("title")).toBe("ra.boolean.true");
+    expect(svg.attributes("title")).toBe("chelone.boolean.true");
   });
 
   it("renders an x icon for a false value", () => {
     const w = mountField(BooleanField, { source: "active" }, { active: false });
     const svg = w.get('[data-slot="boolean-field"]');
     expect(svg.attributes("data-value")).toBe("false");
-    expect(svg.attributes("title")).toBe("ra.boolean.false");
+    expect(svg.attributes("title")).toBe("chelone.boolean.false");
   });
 
   it("honors valueLabelTrue/False on the tooltip title", () => {

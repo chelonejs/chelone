@@ -99,8 +99,8 @@ function mountLogin(
                 locale: "en",
                 messages: {
                   en: defineMessages({
-                    "ra.auth.sign_in": "Sign in",
-                    "ra.auth.sign_in_error":
+                    "chelone.auth.sign_in": "Sign in",
+                    "chelone.auth.sign_in_error":
                       "Authentication failed, please retry",
                     "chelone.validation.required": "Required",
                   }),
@@ -260,7 +260,7 @@ describe("<LoginWithEmail>", () => {
     expect(errors()).toEqual(["backend down"]);
   });
 
-  it("falls back to ra.auth.sign_in_error when the rejection has no message", async () => {
+  it("falls back to chelone.auth.sign_in_error when the rejection has no message", async () => {
     const { notifications, errors } = makeRecordingStore();
     const onSubmit = vi.fn(async () => {
       throw new Error("");
@@ -272,7 +272,7 @@ describe("<LoginWithEmail>", () => {
     await flushPromises();
     await fillAndSubmit(wrapper, "user@example.com", "hunter2");
 
-    expect(errors()).toEqual(["ra.auth.sign_in_error"]);
+    expect(errors()).toEqual(["chelone.auth.sign_in_error"]);
   });
 
   it("blocks a submit with an empty email or password", async () => {

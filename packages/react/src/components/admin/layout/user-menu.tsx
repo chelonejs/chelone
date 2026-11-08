@@ -61,7 +61,7 @@ function UserMenuInner({ children, label, icon }: UserMenuProps) {
     label != null
       ? translate(label, { _: label })
       : identity?.fullName ||
-        translate("ra.auth.user_menu", { _: "User menu" });
+        translate("chelone.auth.user_menu", { _: "User menu" });
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>

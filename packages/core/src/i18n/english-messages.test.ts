@@ -4,14 +4,20 @@ import { describe, expect, it } from "vitest";
 import { defaultMessages } from "./default-messages";
 import { englishMessages } from "./english-messages";
 import { createI18n } from "./i18n";
+import type { MessageCatalog } from "./messages";
 
 const packagesDir = join(__dirname, "../../..");
 
-function sourceFiles(dir: string): string[] {
+/** The erased view, so a key read from `Object.entries` is not an index error. */
+const english: MessageCatalog = englishMessages;
+
+function sourceFiles(dir: string, includeTests = false): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry);
-    if (statSync(path).isDirectory()) return sourceFiles(path);
-    return /\.(tsx?|vue)$/.test(entry) && !/\.test\./.test(entry) ? [path] : [];
+    if (statSync(path).isDirectory()) return sourceFiles(path, includeTests);
+    const isSource = /\.(tsx?|vue)$/.test(entry);
+    if (!isSource) return [];
+    return includeTests || !/\.test\./.test(entry) ? [path] : [];
   });
 }
 
@@ -19,9 +25,9 @@ function sourceFiles(dir: string): string[] {
  * Keys whose call site passes its own caller-supplied text as the fallback, so
  * a catalog entry would shadow it (Vue's `<SortButton label>`).
  */
-const callerOwned = new Set(["ra.sort.sort_by"]);
+const callerOwned = new Set(["chelone.sort.sort_by"]);
 
-/** Every complete `ra.*` string literal in the React and Vue sources. */
+/** Every complete `chelone.*` string literal in the React and Vue sources. */
 function translatedKeys(): string[] {
   const keys = new Set<string>();
   for (const pkg of ["react", "vue"]) {
@@ -29,7 +35,7 @@ function translatedKeys(): string[] {
       const text = readFileSync(file, "utf8");
       // A key followed by `.` or `${` is a prefix of a dynamic key.
       for (const [, key] of text.matchAll(
-        /["'`](ra\.[a-z_]+(?:\.[a-zA-Z_]+)+)["'`]/g,
+        /["'`](chelone\.[a-z_]+(?:\.[a-zA-Z_]+)+)["'`]/g,
       )) {
         if (key) keys.add(key);
       }
@@ -39,14 +45,30 @@ function translatedKeys(): string[] {
 }
 
 describe("englishMessages", () => {
-  it("carries every ra.* key the React and Vue components translate", () => {
+  it("carries every chelone.* key the React and Vue components translate", () => {
     const missing = translatedKeys().filter((key) => !(key in englishMessages));
     expect(missing).toEqual([]);
   });
 
-  it("keeps the chelone.* controller messages underneath the ra.* ones", () => {
-    for (const key of Object.keys(defaultMessages)) {
+  it("leaves no ra.* key in the React and Vue sources and tests", () => {
+    const left: string[] = [];
+    for (const pkg of ["react", "vue"]) {
+      for (const file of sourceFiles(join(packagesDir, pkg, "src"), true)) {
+        const text = readFileSync(file, "utf8");
+        for (const [, key] of text.matchAll(
+          /["'`](ra\.[A-Za-z_][^"'`]*)["'`]/g,
+        )) {
+          if (key) left.push(`${pkg}: ${key}`);
+        }
+      }
+    }
+    expect(left).toEqual([]);
+  });
+
+  it("keeps the chelone.* controller messages underneath the component ones", () => {
+    for (const [key, value] of Object.entries(defaultMessages)) {
       expect(englishMessages, `missing key: ${key}`).toHaveProperty([key]);
+      expect(english[key], `overridden key: ${key}`).toEqual(value);
     }
   });
 
@@ -69,10 +91,10 @@ describe("englishMessages", () => {
       locale: "en",
       messages: { en: englishMessages },
     });
-    expect(i18n.translate("ra.page.create", { name: "Posts" })).toBe(
+    expect(i18n.translate("chelone.page.create", { name: "Posts" })).toBe(
       "Create Posts",
     );
-    expect(i18n.translate("ra.action.bulk_actions", { count: 3 })).toBe(
+    expect(i18n.translate("chelone.action.bulk_actions", { count: 3 })).toBe(
       "3 items selected",
     );
   });

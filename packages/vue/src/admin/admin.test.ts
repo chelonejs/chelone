@@ -357,7 +357,7 @@ describe("<Admin> — i18n", () => {
   it("an Admin given an i18n uses it, not the English default", async () => {
     const i18n = createI18n({
       locale: "en",
-      messages: { en: defineMessages({ "ra.page.list": "All {name}" }) },
+      messages: { en: defineMessages({ "chelone.page.list": "All {name}" }) },
     });
     const wrapper = mountList(i18n);
     await flushPromises();

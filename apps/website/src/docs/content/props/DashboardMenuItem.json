@@ -17,7 +17,7 @@
       "name": "label",
       "type": "ReactNode",
       "optional": true,
-      "comment": "Replaces the default translated label (`ra.page.dashboard`). Strings are\ntranslated (with the string as fallback); ReactNodes render as-is."
+      "comment": "Replaces the default translated label (`chelone.page.dashboard`). Strings are\ntranslated (with the string as fallback); ReactNodes render as-is."
     },
     {
       "name": "onClick",

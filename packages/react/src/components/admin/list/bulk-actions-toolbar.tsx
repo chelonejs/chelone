@@ -42,14 +42,16 @@ function BulkActionsToolbar({ children, label }: BulkActionsToolbarProps) {
   };
   // chelone i18n returns the KEY when a message is not registered — fall back to
   // a local English string in that case (the ported UI must read regardless).
-  const unselectLabelRaw = translate("ra.action.unselect", {});
+  const unselectLabelRaw = translate("chelone.action.unselect", {});
   const unselectLabel =
-    unselectLabelRaw === "ra.action.unselect" ? "Unselect" : unselectLabelRaw;
-  const countRaw = translate("ra.action.bulk_actions", {
+    unselectLabelRaw === "chelone.action.unselect"
+      ? "Unselect"
+      : unselectLabelRaw;
+  const countRaw = translate("chelone.action.bulk_actions", {
     smart_count: selectedIds.length,
   });
   const countLabel =
-    countRaw === "ra.action.bulk_actions"
+    countRaw === "chelone.action.bulk_actions"
       ? `${selectedIds.length} rows selected`
       : countRaw;
   return (

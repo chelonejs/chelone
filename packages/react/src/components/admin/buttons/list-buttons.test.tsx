@@ -52,8 +52,8 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.refresh": "Refresh",
-        "ra.action.select_all": "Select all",
+        "chelone.action.refresh": "Refresh",
+        "chelone.action.select_all": "Select all",
         "app.reload": "Reload the data",
         "app.news": "Latest news",
       }),

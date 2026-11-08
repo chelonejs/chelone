@@ -35,9 +35,9 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.open_menu": "Open menu",
-        "ra.action.close_menu": "Close menu",
-        "ra.action.toggle_theme": "Toggle theme",
+        "chelone.action.open_menu": "Open menu",
+        "chelone.action.close_menu": "Close menu",
+        "chelone.action.toggle_theme": "Toggle theme",
       }),
     },
   });

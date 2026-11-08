@@ -121,9 +121,9 @@ describe("<ApplicationUpdatedNotification>", () => {
     await mountNotification(
       {},
       {
-        "ra.notification.application_update_available":
+        "chelone.notification.application_update_available":
           "Une nouvelle version est disponible",
-        "ra.action.reload": "Recharger",
+        "chelone.action.reload": "Recharger",
       },
     );
     expect(alert()?.textContent).toContain(

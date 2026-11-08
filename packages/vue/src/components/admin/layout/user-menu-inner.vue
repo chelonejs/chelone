@@ -45,7 +45,7 @@ const ariaLabel = computed(() =>
   props.label != null
     ? translate(props.label, { _: props.label })
     : identity.value?.fullName ||
-      translate("ra.auth.user_menu", { _: "User menu" }),
+      translate("chelone.auth.user_menu", { _: "User menu" }),
 );
 const initial = computed(() => identity.value?.fullName?.charAt(0) ?? "");
 </script>

@@ -81,8 +81,8 @@ function mount({
           locale: "en",
           messages: {
             en: defineMessages({
-              "ra.action.cancel": "Cancel",
-              "ra.action.confirm": "Confirm",
+              "chelone.action.cancel": "Cancel",
+              "chelone.action.confirm": "Confirm",
             }),
           },
         })}

@@ -145,7 +145,7 @@ describe("<Offline>", () => {
   it("translates the default message", async () => {
     onLine = false;
     await mountUnderAdmin(() => h(Offline), {
-      "ra.notification.offline": "Vous êtes hors ligne",
+      "chelone.notification.offline": "Vous êtes hors ligne",
     });
     expect(status()?.textContent).toContain("Vous êtes hors ligne");
   });

@@ -30,15 +30,15 @@
       "name": "cancel",
       "type": "string",
       "optional": true,
-      "default": "\"ra.action.cancel\"",
-      "comment": "Cancel-button label key. Default `\"ra.action.cancel\"`."
+      "default": "\"chelone.action.cancel\"",
+      "comment": "Cancel-button label key. Default `\"chelone.action.cancel\"`."
     },
     {
       "name": "confirm",
       "type": "string",
       "optional": true,
-      "default": "\"ra.action.confirm\"",
-      "comment": "Confirm-button label key. Default `\"ra.action.confirm\"`."
+      "default": "\"chelone.action.confirm\"",
+      "comment": "Confirm-button label key. Default `\"chelone.action.confirm\"`."
     },
     {
       "name": "confirmColor",

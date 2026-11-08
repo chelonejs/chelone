@@ -45,7 +45,7 @@ function mountLayout(
 describe("<SkipNavigationButton>", () => {
   it("shows the translated default label", () => {
     const w = mountLayout(() => h(SkipNavigationButton), {
-      "ra.navigation.skip_nav": "Jump to the page",
+      "chelone.navigation.skip_nav": "Jump to the page",
     });
     expect(w.get("button").text()).toBe("Jump to the page");
   });

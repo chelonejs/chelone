@@ -53,7 +53,7 @@ function Logout({ className, redirectTo, icon }: LogoutProps) {
       className={cn("cursor-pointer", className)}
     >
       {icon ?? <LogOut />}
-      {translate("ra.auth.logout", { _: "Log out" })}
+      {translate("chelone.auth.logout", { _: "Log out" })}
     </DropdownMenuItem>
   );
 }

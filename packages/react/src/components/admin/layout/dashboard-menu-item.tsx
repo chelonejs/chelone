@@ -20,7 +20,7 @@ export interface DashboardMenuItemProps {
   /** Replaces the default `<House />` icon. */
   icon?: ReactNode;
   /**
-   * Replaces the default translated label (`ra.page.dashboard`). Strings are
+   * Replaces the default translated label (`chelone.page.dashboard`). Strings are
    * translated (with the string as fallback); ReactNodes render as-is.
    */
   label?: ReactNode;
@@ -51,7 +51,7 @@ function DashboardMenuItem({
   const basename = useBasename();
   const finalText =
     label === undefined
-      ? translate("ra.page.dashboard", { _: "Dashboard" })
+      ? translate("chelone.page.dashboard", { _: "Dashboard" })
       : typeof label === "string"
         ? translate(label, { _: label })
         : label;

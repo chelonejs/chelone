@@ -13,15 +13,15 @@ import { defineComponent, h } from "vue";
 const i18n = createI18n({
   locale: "en",
   messages: {
-    en: defineMessages({ "ra.action.change_locale": "Change locale" }),
-    fr: defineMessages({ "ra.action.change_locale": "Changer de langue" }),
+    en: defineMessages({ "chelone.action.change_locale": "Change locale" }),
+    fr: defineMessages({ "chelone.action.change_locale": "Changer de langue" }),
   },
 });
 
 const Prompt = defineComponent({
   setup() {
     const translate = useTranslate();
-    return () => h("span", translate("ra.action.change_locale"));
+    return () => h("span", translate("chelone.action.change_locale"));
   },
 });
 </script>

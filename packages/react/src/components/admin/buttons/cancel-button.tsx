@@ -43,7 +43,7 @@ function CancelButton({ ref, ...props }: CancelButtonProps) {
       {...props}
     >
       <CircleX />
-      {translate("ra.action.cancel", { _: "Cancel" })}
+      {translate("chelone.action.cancel", { _: "Cancel" })}
     </Button>
   );
 }

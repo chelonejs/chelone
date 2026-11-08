@@ -34,9 +34,10 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.error": "Something went wrong",
-        "ra.message.auth_error": "A problem occurred during authentication.",
-        "ra.auth.sign_in": "Sign in",
+        "chelone.page.error": "Something went wrong",
+        "chelone.message.auth_error":
+          "A problem occurred during authentication.",
+        "chelone.auth.sign_in": "Sign in",
       }),
     },
   });

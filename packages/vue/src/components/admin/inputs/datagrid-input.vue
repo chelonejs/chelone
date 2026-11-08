@@ -124,7 +124,7 @@ function toggleAll() {
           <TableHead class="w-10">
             <Checkbox
               :model-value="allSelected"
-              :aria-label="translate('ra.action.select_all', { _: 'Select all' })"
+              :aria-label="translate('chelone.action.select_all', { _: 'Select all' })"
               :aria-invalid="invalid || undefined"
               @update:model-value="toggleAll"
             />
@@ -142,7 +142,7 @@ function toggleAll() {
             <Checkbox
               :id="`${id}-${String(rowId)}`"
               :model-value="isSelected(rowId)"
-              :aria-label="translate('ra.action.select_row', { _: 'Select this row' })"
+              :aria-label="translate('chelone.action.select_row', { _: 'Select this row' })"
               @update:model-value="toggle(rowId)"
             />
           </TableCell>

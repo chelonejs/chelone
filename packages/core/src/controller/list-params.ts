@@ -16,7 +16,11 @@
  * two (primary key) for the adapters' location sync.
  */
 
-import type { FilterPayload, SortPayload } from "../data/types";
+import type {
+  DisplayedFilters,
+  FilterPayload,
+  SortPayload,
+} from "../data/types";
 import { isRecord } from "../guards";
 import type { LooseRecord } from "../resource/record";
 import type { ListParamsPatch } from "./list-controller";
@@ -27,12 +31,12 @@ type SortOrder = "ASC" | "DESC";
  * The URL-shaped list params. A flat mirror of the query string: `sort` is the
  * field name and `order` its direction (not a `SortPayload`), so this maps 1:1
  * onto the wire format. Every field is optional — absent means "not in the URL".
- * `TRecord` only keys `filter`: a parse hands back what the URL names, and a
- * list hands it to its own controller.
+ * `TRecord` keys `filter` and `displayedFilters`: a parse hands back what the
+ * URL names, and a list hands it to its own controller.
  */
 export interface ListParamsQuery<TRecord = LooseRecord> {
   filter?: FilterPayload<TRecord>;
-  displayedFilters?: Record<string, boolean>;
+  displayedFilters?: DisplayedFilters<TRecord>;
   sort?: string;
   order?: SortOrder;
   page?: number;
@@ -116,7 +120,7 @@ export function parseListParams<TRecord = LooseRecord>(
   );
   if (filter !== undefined) result.filter = filter;
 
-  const displayedFilters = parseJsonObjectParam<Record<string, boolean>>(
+  const displayedFilters = parseJsonObjectParam<DisplayedFilters<TRecord>>(
     params.get("displayedFilters"),
   );
   if (displayedFilters !== undefined)
@@ -165,7 +169,7 @@ export interface ListUrlState<TRecord = LooseRecord> {
   perPage: number;
   sort: SortPayload<TRecord>[];
   filter: FilterPayload<TRecord>;
-  displayedFilters: Record<string, boolean>;
+  displayedFilters: DisplayedFilters<TRecord>;
 }
 
 /** The query string for a list's state; the primary sort becomes `sort`/`order`. */

@@ -143,17 +143,17 @@ function NullableBooleanInput(props: NullableBooleanInputProps) {
           <SelectItem value={NULL_OPTION}>
             {nullLabel
               ? translate(nullLabel, { _: nullLabel })
-              : translate("ra.boolean.null", { _: "" })}
+              : translate("chelone.boolean.null", { _: "" })}
           </SelectItem>
           <SelectItem value="false">
             {falseLabel
               ? translate(falseLabel, { _: falseLabel })
-              : translate("ra.boolean.false", { _: "No" })}
+              : translate("chelone.boolean.false", { _: "No" })}
           </SelectItem>
           <SelectItem value="true">
             {trueLabel
               ? translate(trueLabel, { _: trueLabel })
-              : translate("ra.boolean.true", { _: "Yes" })}
+              : translate("chelone.boolean.true", { _: "Yes" })}
           </SelectItem>
         </SelectContent>
       </Select>

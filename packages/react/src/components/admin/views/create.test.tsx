@@ -45,7 +45,7 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.create": "Create {name}",
+        "chelone.page.create": "Create {name}",
       }),
     },
   });
@@ -136,7 +136,7 @@ describe("<Create>", () => {
         </Create>
       </Providers>,
     );
-    // ra.page.create = "Create {name}" and getResourceLabel("posts", 1) = "Post".
+    // chelone.page.create = "Create {name}" and getResourceLabel("posts", 1) = "Post".
     expect(screen.getByRole("heading", { name: /create post/i })).toBeTruthy();
   });
 

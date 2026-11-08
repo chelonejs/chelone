@@ -179,7 +179,7 @@ function TextArrayInput(props: TextArrayInputProps) {
           disabled={disabled || readOnly}
         >
           <span className="sr-only">
-            {translate("ra.action.remove", { _: "Remove" })}
+            {translate("chelone.action.remove", { _: "Remove" })}
           </span>
           <X className="size-3" />
         </button>
@@ -246,7 +246,7 @@ function TextArrayInput(props: TextArrayInputProps) {
             <Command>
               <CommandList>
                 <CommandEmpty>
-                  {translate("ra.navigation.no_results", {
+                  {translate("chelone.navigation.no_results", {
                     _: "No results",
                   })}
                 </CommandEmpty>

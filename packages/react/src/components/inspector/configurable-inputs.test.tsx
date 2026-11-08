@@ -47,7 +47,7 @@ import { InspectorButton } from "./inspector-button";
 afterEach(cleanup);
 
 const messages = defineMessages({
-  "ra.action.save": "Save",
+  "chelone.action.save": "Save",
   "resources.posts.fields.title": "Headline",
 });
 

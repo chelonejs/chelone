@@ -36,15 +36,15 @@
       "name": "confirmTitle",
       "type": "string",
       "optional": true,
-      "default": "\"ra.message.delete_title\"",
-      "comment": "Confirmation-dialog title. Default `\"ra.message.delete_title\"`."
+      "default": "\"chelone.message.delete_title\"",
+      "comment": "Confirmation-dialog title. Default `\"chelone.message.delete_title\"`."
     },
     {
       "name": "confirmContent",
       "type": "string",
       "optional": true,
-      "default": "\"ra.message.delete_content\"",
-      "comment": "Confirmation-dialog body copy. Default `\"ra.message.delete_content\"`."
+      "default": "\"chelone.message.delete_content\"",
+      "comment": "Confirmation-dialog body copy. Default `\"chelone.message.delete_content\"`."
     },
     {
       "name": "confirmColor",

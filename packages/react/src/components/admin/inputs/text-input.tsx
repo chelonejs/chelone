@@ -120,7 +120,7 @@ function TextInput(props: TextInputProps) {
       {!multiline && resettable && hasValue ? (
         <button
           type="button"
-          aria-label={translate("ra.action.clear_input_value", {
+          aria-label={translate("chelone.action.clear_input_value", {
             _: "Clear",
           })}
           className="absolute right-2 p-0 text-muted-foreground opacity-50 hover:opacity-100 hover:bg-transparent"

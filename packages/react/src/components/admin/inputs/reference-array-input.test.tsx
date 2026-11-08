@@ -35,9 +35,9 @@ import { ReferenceArrayInput } from "./reference-array-input";
 const messages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    "ra.action.search": "Search...",
-    "ra.navigation.no_results": "No matching item found.",
-    "ra.action.remove": "Remove",
+    "chelone.action.search": "Search...",
+    "chelone.navigation.no_results": "No matching item found.",
+    "chelone.action.remove": "Remove",
   }),
 };
 

@@ -102,11 +102,11 @@ function goBack(): void {
     />
     <h1 class="flex items-center text-3xl mt-5 mb-5 gap-3" role="alert">
       <CircleAlertIcon class="w-[2em] h-[2em]" />
-      {{ translate("ra.page.error", { _: "Something Went Wrong" }) }}
+      {{ translate("chelone.page.error", { _: "Something Went Wrong" }) }}
     </h1>
     <div>
       {{
-        translate("ra.message.error", {
+        translate("chelone.message.error", {
           _: "A client error occurred and your request couldn't be completed.",
         })
       }}
@@ -158,7 +158,7 @@ function goBack(): void {
         @click="goBack"
       >
         <HistoryIcon class="size-4" />
-        {{ translate("ra.action.back", { _: "Back" }) }}
+        {{ translate("chelone.action.back", { _: "Back" }) }}
       </button>
     </div>
   </div>

@@ -73,7 +73,7 @@ function FilterListItem({
           type="button"
           variant="ghost"
           size="icon-sm"
-          aria-label={translate("ra.action.remove_filter", {
+          aria-label={translate("chelone.action.remove_filter", {
             _: "Remove filter",
           })}
           onClick={toggle}

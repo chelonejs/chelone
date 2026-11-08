@@ -39,7 +39,7 @@ function Wrap({
 describe("<SkipNavigationButton>", () => {
   it("shows the translated default label", () => {
     render(
-      <Wrap messages={{ "ra.navigation.skip_nav": "Jump to the page" }}>
+      <Wrap messages={{ "chelone.navigation.skip_nav": "Jump to the page" }}>
         <SkipNavigationButton />
       </Wrap>,
     );

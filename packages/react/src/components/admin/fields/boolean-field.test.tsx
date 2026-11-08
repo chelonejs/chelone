@@ -23,8 +23,8 @@ function wrap(record: LooseRecord) {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.boolean.true": "yes",
-        "ra.boolean.false": "no",
+        "chelone.boolean.true": "yes",
+        "chelone.boolean.false": "no",
       }),
     },
   });

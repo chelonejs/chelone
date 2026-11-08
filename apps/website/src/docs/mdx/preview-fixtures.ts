@@ -180,46 +180,48 @@ export const previewResources = defineResources({
 
 // ── Services ─────────────────────────────────────────────────────────────────
 
-// A minimal English catalog so the ported `ra.*`-keyed components read as
-// English (chelone i18n never throws on a missing key — it echoes the key).
+// A minimal English catalog so the components' label keys read as English
+// (chelone i18n never throws on a missing key — it echoes the key).
 const en = defineMessages({
   ...defaultMessages,
-  "ra.action.edit": "Edit",
-  "ra.action.create": "Create",
-  "ra.action.save": "Save",
-  "ra.action.cancel": "Cancel",
-  "ra.action.delete": "Delete",
-  "ra.action.show": "Show",
-  "ra.action.sort": "Sort",
-  "ra.action.search": "Search",
-  "ra.action.export": "Export",
-  "ra.boolean.true": "Yes",
-  "ra.boolean.false": "No",
-  "ra.boolean.null": " ",
-  "ra.page.list": "{name}",
-  "ra.page.create": "Create {name}",
-  "ra.page.edit": "{name} {recordRepresentation}",
-  "ra.page.show": "{name} {recordRepresentation}",
-  "ra.navigation.no_results": "No {name} found",
-  "ra.navigation.page_range_info": "{offsetBegin}-{offsetEnd} of {total}",
-  "ra.navigation.page_rows_per_page": "Rows per page:",
+  "chelone.action.edit": "Edit",
+  "chelone.action.create": "Create",
+  "chelone.action.save": "Save",
+  "chelone.action.cancel": "Cancel",
+  "chelone.action.delete": "Delete",
+  "chelone.action.show": "Show",
+  "chelone.action.sort": "Sort",
+  "chelone.action.search": "Search",
+  "chelone.action.export": "Export",
+  "chelone.boolean.true": "Yes",
+  "chelone.boolean.false": "No",
+  "chelone.boolean.null": " ",
+  "chelone.page.list": "{name}",
+  "chelone.page.create": "Create {name}",
+  "chelone.page.edit": "{name} {recordRepresentation}",
+  "chelone.page.show": "{name} {recordRepresentation}",
+  "chelone.navigation.no_results": "No {name} found",
+  "chelone.navigation.page_range_info": "{offsetBegin}-{offsetEnd} of {total}",
+  "chelone.navigation.page_rows_per_page": "Rows per page:",
   // The drop-zone prompts of `<FileInput>` and `<ImageInput>`.
-  "ra.input.file.upload_several":
-    englishMessages["ra.input.file.upload_several"],
-  "ra.input.file.upload_single": englishMessages["ra.input.file.upload_single"],
-  "ra.input.image.upload_several":
-    englishMessages["ra.input.image.upload_several"],
-  "ra.input.image.upload_single":
-    englishMessages["ra.input.image.upload_single"],
+  "chelone.input.file.upload_several":
+    englishMessages["chelone.input.file.upload_several"],
+  "chelone.input.file.upload_single":
+    englishMessages["chelone.input.file.upload_single"],
+  "chelone.input.image.upload_several":
+    englishMessages["chelone.input.image.upload_several"],
+  "chelone.input.image.upload_single":
+    englishMessages["chelone.input.image.upload_single"],
   // The screens `<AccessDenied>`, `<AuthenticationError>` and `<AuthError>` show.
-  "ra.page.access_denied": englishMessages["ra.page.access_denied"],
-  "ra.page.authentication_error":
-    englishMessages["ra.page.authentication_error"],
-  "ra.page.error": englishMessages["ra.page.error"],
-  "ra.message.access_denied": englishMessages["ra.message.access_denied"],
-  "ra.message.auth_error": englishMessages["ra.message.auth_error"],
-  "ra.message.authentication_error":
-    englishMessages["ra.message.authentication_error"],
+  "chelone.page.access_denied": englishMessages["chelone.page.access_denied"],
+  "chelone.page.authentication_error":
+    englishMessages["chelone.page.authentication_error"],
+  "chelone.page.error": englishMessages["chelone.page.error"],
+  "chelone.message.access_denied_detail":
+    englishMessages["chelone.message.access_denied_detail"],
+  "chelone.message.auth_error": englishMessages["chelone.message.auth_error"],
+  "chelone.message.authentication_error_detail":
+    englishMessages["chelone.message.authentication_error_detail"],
 });
 
 export function makePreviewI18n() {

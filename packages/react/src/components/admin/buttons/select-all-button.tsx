@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useListContext } from "../../../form";
 import { useTranslate } from "../../../i18n-hooks";
 
-const defaultLabel = "ra.action.select_all";
+const defaultLabel = "chelone.action.select_all";
 
 interface SelectAllButtonProps
   extends Omit<ComponentProps<typeof Button>, "onClick" | "children"> {

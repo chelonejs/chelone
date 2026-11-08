@@ -66,7 +66,7 @@ function Providers({
   const i18n = createI18n({
     locale: "en",
     messages: {
-      en: defineMessages({ "ra.action.create": "Create" }),
+      en: defineMessages({ "chelone.action.create": "Create" }),
     },
   });
   return (

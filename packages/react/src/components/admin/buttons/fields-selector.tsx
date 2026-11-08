@@ -103,8 +103,10 @@ function FieldsSelector({
   );
   const searching = query !== "";
 
-  const moveUp = translate("ra.action.move_column_up", { _: "Move up" });
-  const moveDown = translate("ra.action.move_column_down", { _: "Move down" });
+  const moveUp = translate("chelone.action.move_column_up", { _: "Move up" });
+  const moveDown = translate("chelone.action.move_column_down", {
+    _: "Move down",
+  });
 
   return (
     <>
@@ -114,7 +116,7 @@ function FieldsSelector({
             id={searchId}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder={translate("ra.action.search_columns", {
+            placeholder={translate("chelone.action.search_columns", {
               _: "Search columns",
             })}
             className="pr-9"
@@ -125,7 +127,7 @@ function FieldsSelector({
               variant="ghost"
               size="icon"
               className="absolute top-0 right-0 size-9"
-              aria-label={translate("ra.action.clear_input_value", {
+              aria-label={translate("chelone.action.clear_input_value", {
                 _: "Clear",
               })}
               onClick={() => setQuery("")}
@@ -179,7 +181,7 @@ function FieldsSelector({
       </List>
       <Button type="button" variant="outline" size="sm" onClick={reset}>
         <RotateCcw />
-        {translate("ra.action.reset_columns", { _: "Reset" })}
+        {translate("chelone.action.reset_columns", { _: "Reset" })}
       </Button>
     </>
   );

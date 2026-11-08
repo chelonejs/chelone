@@ -58,7 +58,7 @@ const to = computed(() => {
 });
 const label = computed(() =>
   translate(
-    "ra.action.edit",
+    "chelone.action.edit",
     definedParams({
       _: "Edit",
       name: resource ? getResourceLabel(resource, 1) : undefined,

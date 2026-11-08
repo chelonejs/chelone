@@ -1,6 +1,7 @@
 import { QueryObserver, type QueryObserverResult } from "@tanstack/query-core";
 import { getManyReferenceOptions } from "../data/query-options";
 import type {
+  DisplayedFilters,
   FilterPayload,
   GetManyReferenceResult,
   SortPayload,
@@ -191,7 +192,7 @@ export function createReferenceManyController<
 
   const setFilters = (
     filter: FilterPayload<TRecord>,
-    displayedFilters?: Record<string, boolean>,
+    displayedFilters?: DisplayedFilters<TRecord>,
     debounced = false,
   ): void => {
     if (destroyed) return;

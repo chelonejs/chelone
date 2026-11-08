@@ -180,7 +180,7 @@ function ArrayInput<
             onClick={() => array.add()}
           >
             {addLabel == null
-              ? translate("ra.action.add", { _: "Add" })
+              ? translate("chelone.action.add", { _: "Add" })
               : typeof addLabel === "string"
                 ? translate(addLabel, { _: addLabel })
                 : addLabel}

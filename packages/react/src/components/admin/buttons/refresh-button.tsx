@@ -50,7 +50,7 @@ function RefreshButton({
     }
   };
 
-  const defaultLabel = translate("ra.action.refresh", { _: "Refresh" });
+  const defaultLabel = translate("chelone.action.refresh", { _: "Refresh" });
   const ariaLabel = label != null ? String(label) : defaultLabel;
 
   return (

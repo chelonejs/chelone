@@ -45,7 +45,7 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.edit": "Edit",
+        "chelone.action.edit": "Edit",
       }),
     },
   });

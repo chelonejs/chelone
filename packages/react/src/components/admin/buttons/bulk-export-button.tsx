@@ -73,7 +73,7 @@ function BulkExportButton(props: BulkExportButtonProps) {
     resourceI18nKey: resource
       ? `resources.${resource}.action.export`
       : undefined,
-    baseI18nKey: "ra.action.export",
+    baseI18nKey: "chelone.action.export",
     options: definedParams({
       _: "Export",
       name: resource ? getResourceLabel(resource, 1) : undefined,

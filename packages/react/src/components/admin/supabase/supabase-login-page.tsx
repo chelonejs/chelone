@@ -103,7 +103,7 @@ function SupabaseLoginPage(props: SupabaseLoginPageProps) {
               {disableEmailPassword ? null : (
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="h-px flex-1 bg-border" />
-                  {translate("ra.auth.or", { _: "or" })}
+                  {translate("chelone.auth.or", { _: "or" })}
                   <div className="h-px flex-1 bg-border" />
                 </div>
               )}

@@ -55,10 +55,10 @@ const primary = computed<SortPayload>(
 );
 
 const orderLabel = (order: "ASC" | "DESC"): string =>
-  translate(`ra.sort.${order}`, { _: order });
+  translate(`chelone.sort.${order}`, { _: order });
 
 const buttonLabel = computed(() =>
-  translate("ra.sort.sort_by", {
+  translate("chelone.sort.sort_by", {
     _:
       props.label ??
       `Sort by ${humanizeSource(primary.value.field)} ${orderLabel(

@@ -37,8 +37,8 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.auth.sign_in": "Sign in",
-        "ra.auth.sign_in_error": "Authentication failed, please retry",
+        "chelone.auth.sign_in": "Sign in",
+        "chelone.auth.sign_in_error": "Authentication failed, please retry",
         "chelone.validation.required": "Required",
       }),
     },
@@ -204,7 +204,7 @@ describe("<LoginWithEmail>", () => {
     });
   });
 
-  it("falls back to ra.auth.sign_in_error when the rejection has no message", async () => {
+  it("falls back to chelone.auth.sign_in_error when the rejection has no message", async () => {
     const notifications = createNotificationStore();
     const onSubmit = vi.fn(async () => {
       throw new Error("");
@@ -220,7 +220,7 @@ describe("<LoginWithEmail>", () => {
       const errors = notifications
         .getSnapshot()
         .filter((n) => n.type === "error");
-      expect(errors[0]?.message).toBe("ra.auth.sign_in_error");
+      expect(errors[0]?.message).toBe("chelone.auth.sign_in_error");
     });
   });
 

@@ -64,7 +64,7 @@ async function save(values: LoginValues): Promise<undefined> {
     );
   } catch (error) {
     const message = errorMessageOf(error);
-    notifications?.notify(message ?? "ra.auth.sign_in_error", {
+    notifications?.notify(message ?? "chelone.auth.sign_in_error", {
       type: "error",
       messageArgs: message === undefined ? undefined : { _: message },
     });
@@ -107,7 +107,7 @@ function handleSubmit(event: Event): void {
     />
     <Button type="submit" class="cursor-pointer" :disabled="submitting">
       <Spinner v-if="submitting" />
-      {{ translate("ra.auth.sign_in", { _: "Sign in" }) }}
+      {{ translate("chelone.auth.sign_in", { _: "Sign in" }) }}
     </Button>
   </form>
 </template>

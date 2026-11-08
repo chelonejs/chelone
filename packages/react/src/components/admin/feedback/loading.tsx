@@ -27,8 +27,8 @@ import { useTranslate } from "../../../i18n-hooks";
  */
 function Loading(props: LoadingProps) {
   const {
-    loadingPrimary = "ra.page.loading",
-    loadingSecondary = "ra.message.loading",
+    loadingPrimary = "chelone.page.loading",
+    loadingSecondary = "chelone.message.loading_detail",
     delay = 1000,
     ...rest
   } = props;

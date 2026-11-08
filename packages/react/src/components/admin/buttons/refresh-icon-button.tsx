@@ -15,7 +15,7 @@ import {
 import { useRefresh } from "../../../compat-hooks";
 import { useTranslate } from "../../../i18n-hooks";
 
-const defaultLabel = "ra.action.refresh";
+const defaultLabel = "chelone.action.refresh";
 const defaultIcon = <RotateCw />;
 
 interface RefreshIconButtonProps

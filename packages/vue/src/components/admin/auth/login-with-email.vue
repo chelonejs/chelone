@@ -20,7 +20,7 @@ export interface LoginWithEmailProps {
    * `authProvider.login`; ignored when `onSubmit` is set.
    */
   redirectTo?: string;
-  /** Button text. Defaults to the translated `ra.auth.sign_in`. */
+  /** Button text. Defaults to the translated `chelone.auth.sign_in`. */
   submitLabel?: string;
   /** Extra class names applied to the `<form>` element. */
   class?: string;
@@ -92,7 +92,7 @@ async function save(values: LoginWithEmailValues): Promise<undefined> {
     }
   } catch (error) {
     const message = errorMessageOf(error);
-    notifications?.notify(message ?? "ra.auth.sign_in_error", {
+    notifications?.notify(message ?? "chelone.auth.sign_in_error", {
       type: "error",
       messageArgs: message === undefined ? undefined : { _: message },
     });
@@ -135,7 +135,7 @@ function handleSubmit(event: Event): void {
     >
       <Spinner v-if="props.loading || submitting" />
       <LogInIcon v-else class="size-4" />
-      {{ props.submitLabel ?? translate("ra.auth.sign_in", { _: "Sign in" }) }}
+      {{ props.submitLabel ?? translate("chelone.auth.sign_in", { _: "Sign in" }) }}
     </Button>
   </form>
 </template>

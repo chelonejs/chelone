@@ -35,8 +35,8 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.save": "Save",
-        "ra.action.delete": "Delete",
+        "chelone.action.save": "Save",
+        "chelone.action.delete": "Delete",
       }),
     },
   });

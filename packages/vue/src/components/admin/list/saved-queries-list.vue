@@ -62,7 +62,7 @@ const t = (
 
 const removeLabel = (label: string) =>
   t(
-    "ra.saved_queries.remove_label_with_name",
+    "chelone.saved_queries.remove_label_with_name",
     `Remove saved query "${label}"`,
     { name: label },
   );
@@ -154,17 +154,17 @@ function submit() {
         v-model="name"
         type="text"
         class="h-8 w-48"
-        :aria-label="t('ra.saved_queries.query_name', 'Query name')"
+        :aria-label="t('chelone.saved_queries.query_name', 'Query name')"
       />
       <Button type="submit" size="sm" :disabled="!name.trim()">
-        {{ t("ra.action.save", "Save") }}
+        {{ t("chelone.action.save", "Save") }}
       </Button>
       <Button variant="ghost" size="sm" @click="closeForm">
-        {{ t("ra.action.cancel", "Cancel") }}
+        {{ t("chelone.action.cancel", "Cancel") }}
       </Button>
     </form>
     <Button v-else-if="canSave" variant="outline" size="sm" @click="naming = true">
-      {{ t("ra.saved_queries.new_label", "Save current query") }}
+      {{ t("chelone.saved_queries.new_label", "Save current query") }}
     </Button>
   </div>
 </template>

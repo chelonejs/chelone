@@ -35,7 +35,7 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.dashboard": "Dashboard",
+        "chelone.page.dashboard": "Dashboard",
       }),
     },
   });

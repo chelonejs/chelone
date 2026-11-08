@@ -51,7 +51,7 @@ const notifications = useCheloneNotifications();
 const translate = useTranslate();
 
 const label = computed(() =>
-  translate("ra.action.export", { _: props.label ?? "Export" }),
+  translate("chelone.action.export", { _: props.label ?? "Export" }),
 );
 
 async function onClick(): Promise<void> {

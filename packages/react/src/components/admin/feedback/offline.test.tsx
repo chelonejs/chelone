@@ -139,7 +139,7 @@ describe("<Offline>", () => {
     onLine = false;
     render(
       <Providers
-        messages={{ "ra.notification.offline": "Vous êtes hors ligne" }}
+        messages={{ "chelone.notification.offline": "Vous êtes hors ligne" }}
       >
         <Offline />
       </Providers>,

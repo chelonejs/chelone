@@ -28,8 +28,8 @@ import { SearchInput } from "./search-input";
 
 const messages = {
   en: defineMessages({
-    "ra.action.search": "Search",
-    "ra.action.clear_search": "Clear search",
+    "chelone.action.search": "Search",
+    "chelone.action.clear_search": "Clear search",
   }),
 };
 

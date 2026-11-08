@@ -83,7 +83,7 @@ const translate = useTranslate();
 const getResourceLabel = useGetResourceLabel();
 // Computed so a locale change re-titles the page; `translate` reads the locale.
 const defaultTitle = computed(() =>
-  translate("ra.page.create", { name: getResourceLabel(resource, 1) }),
+  translate("chelone.page.create", { name: getResourceLabel(resource, 1) }),
 );
 
 const form = useForm<Partial<TRecord>>({

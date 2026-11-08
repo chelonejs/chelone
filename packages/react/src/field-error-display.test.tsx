@@ -55,8 +55,8 @@ afterEach(() => {
 
 const messages = {
   en: defineMessages({
-    "ra.validation.required": "Required",
-    "ra.validation.minValue": "Min Value {value}",
+    "chelone.validation.required": "Required",
+    "chelone.validation.minValue": "Min Value {value}",
     "myapp.validation.match": "Must match {match}",
   }),
 };
@@ -64,7 +64,7 @@ const messages = {
 describe("ValidationError (component)", () => {
   it("renders a plain string error, translated", () => {
     const { getByText } = render(
-      <ValidationError error="ra.validation.required" />,
+      <ValidationError error="chelone.validation.required" />,
       { wrapper: makeWrapper(messages) },
     );
     expect(getByText("Required")).toBeTruthy();
@@ -80,7 +80,7 @@ describe("ValidationError (component)", () => {
   it("renders a { message, args } payload, interpolating the args", () => {
     const { getByText } = render(
       <ValidationError
-        error={{ message: "ra.validation.minValue", args: { value: 10 } }}
+        error={{ message: "chelone.validation.minValue", args: { value: 10 } }}
       />,
       { wrapper: makeWrapper(messages) },
     );
@@ -117,14 +117,14 @@ describe("ValidationError (component)", () => {
 
 describe("normalizeFieldError", () => {
   it("passes a plain string through", () => {
-    expect(normalizeFieldError("ra.validation.required")).toBe(
-      "ra.validation.required",
+    expect(normalizeFieldError("chelone.validation.required")).toBe(
+      "chelone.validation.required",
     );
   });
 
   it("passes a { message, args } payload through", () => {
     const payload: TranslatableMessage = {
-      message: "ra.validation.minValue",
+      message: "chelone.validation.minValue",
       args: { value: 5 },
     };
     expect(normalizeFieldError(payload)).toEqual(payload);
@@ -142,15 +142,15 @@ describe("normalizeFieldError", () => {
 describe("useFieldError", () => {
   it("returns a normalized field error for a string input", () => {
     const { result } = renderHook(
-      () => useFieldError("ra.validation.required"),
+      () => useFieldError("chelone.validation.required"),
       { wrapper: makeWrapper(messages) },
     );
-    expect(result.current).toBe("ra.validation.required");
+    expect(result.current).toBe("chelone.validation.required");
   });
 
   it("returns a normalized field error for a payload input", () => {
     const payload: TranslatableMessage = {
-      message: "ra.validation.minValue",
+      message: "chelone.validation.minValue",
       args: { value: 3 },
     };
     const { result } = renderHook(() => useFieldError(payload), {
@@ -171,7 +171,7 @@ describe("useFieldError", () => {
     // A field-level required validator surfaces a translatable error on submit;
     // the probe routes fieldState.error through useFieldError → <ValidationError>.
     const validate = (value: unknown) =>
-      value == null || value === "" ? "ra.validation.required" : undefined;
+      value == null || value === "" ? "chelone.validation.required" : undefined;
     const save = async (): Promise<FieldErrors | undefined> => undefined;
 
     let submit: (() => Promise<void>) | null = null;

@@ -47,8 +47,8 @@ onScopeDispose(() => {
       variant="ghost"
       size="icon"
       class="size-6 rounded-full opacity-0 shadow-sm transition-opacity group-hover:opacity-100"
-      :aria-label="translate('ra.action.delete', { _: 'Delete' })"
-      :title="translate('ra.action.delete', { _: 'Delete' })"
+      :aria-label="translate('chelone.action.delete', { _: 'Delete' })"
+      :title="translate('chelone.action.delete', { _: 'Delete' })"
       @click="emit('remove')"
     >
       <span aria-hidden="true">×</span>

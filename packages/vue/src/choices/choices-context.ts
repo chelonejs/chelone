@@ -24,18 +24,20 @@ import { type InjectionKey, inject, provide } from "vue";
  * data fields through getters (reactive); an inline context is static. The
  * list-mutation actions are inert on an inline context.
  */
-export interface ChoicesContextValue {
-  allChoices: ChoiceRecord[];
-  availableChoices: ChoiceRecord[];
-  selectedChoices: ChoiceRecord[];
+export interface ChoicesContextValue<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+> {
+  allChoices: TChoice[];
+  availableChoices: TChoice[];
+  selectedChoices: TChoice[];
   total: number | undefined;
   isPending: boolean;
   isFetching: boolean;
   error: Error | null;
   page: number;
   perPage: number;
-  sort: SortPayload;
-  filter: FilterPayload;
+  sort: SortPayload<TChoice>;
+  filter: FilterPayload<TChoice>;
   hasNextPage: boolean | undefined;
   hasPreviousPage: boolean | undefined;
   /** The referenced resource name (inline: `undefined`). */
@@ -46,13 +48,13 @@ export interface ChoicesContextValue {
   isFromReference: boolean;
   setPage(page: number): void;
   setPerPage(perPage: number): void;
-  setSort(sort: SortPayload): void;
-  setFilters(filter: FilterPayload, debounce?: boolean): void;
+  setSort(sort: SortPayload<TChoice>): void;
+  setFilters(filter: FilterPayload<TChoice>, debounce?: boolean): void;
   setValue(value: unknown): void;
   refetch(): void;
 }
 
-const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
+const DEFAULT_SORT: SortPayload<ChoiceRecord> = { field: "id", order: "DESC" };
 
 /** Coerces a `string | ChoiceRecord` into a `{ id, name }`-bearing choice. */
 function toChoiceRecord(choice: string | ChoiceRecord): ChoiceRecord {
@@ -143,9 +145,9 @@ export interface UseChoicesContextOptions {
  * {@link provideChoicesContext} value is returned. Throws if neither is present.
  * Call in `setup`.
  */
-export function useChoicesContext(
+export function useChoicesContext<TChoice extends ChoiceRecord = ChoiceRecord>(
   options: UseChoicesContextOptions = {},
-): ChoicesContextValue {
+): ChoicesContextValue<TChoice> {
   const ambient = inject(ChoicesContextKey, null);
   const resolved = options.choices
     ? synthesizeInlineChoices(options.choices, options.source)
@@ -155,5 +157,6 @@ export function useChoicesContext(
       "useChoicesContext: pass `choices` or call provideChoicesContext() above.",
     );
   }
-  return resolved;
+  // type-escape: the context holds the erased value; the caller names its choice shape
+  return resolved as ChoicesContextValue<TChoice>;
 }

@@ -41,7 +41,7 @@ function ForgotPasswordForm({ className }: ForgotPasswordFormProps) {
         await resetPassword.mutateAsync({ email: values.email });
       } catch (error) {
         const message = errorMessageOf(error);
-        notify(message ?? "ra.notification.http_error", {
+        notify(message ?? "chelone.notification.http_error_label", {
           type: "warning",
           messageArgs: message === undefined ? undefined : { _: message },
         });

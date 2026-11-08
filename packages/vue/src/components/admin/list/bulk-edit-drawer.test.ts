@@ -321,7 +321,7 @@ describe("<BulkEditDrawer>", () => {
   it("the description pluralises with the selection size", async () => {
     mountDrawer({
       messages: {
-        "ra.message.bulk_edit_description": {
+        "chelone.message.bulk_edit_description": {
           one: "Changes {smart_count} record.",
           other: "Changes {smart_count} records.",
         },
@@ -395,7 +395,7 @@ describe("<BulkEditDrawer>", () => {
 
     await vi.waitFor(() =>
       expect(notify).toHaveBeenCalledWith(
-        "ra.message.bulk_edit_nested_source",
+        "chelone.message.bulk_edit_nested_source",
         expect.objectContaining({
           type: "error",
           messageArgs: expect.objectContaining({ source: "address.city" }),

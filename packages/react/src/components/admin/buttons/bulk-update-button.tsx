@@ -77,8 +77,8 @@ function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
 ) {
   const {
     className,
-    confirmTitle = "ra.message.bulk_update_title",
-    confirmContent = "ra.message.bulk_update_content",
+    confirmTitle = "chelone.message.bulk_update_title",
+    confirmContent = "chelone.message.bulk_update_content",
     confirmColor = "primary",
     icon = defaultIcon,
     label: labelProp,
@@ -107,7 +107,7 @@ function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
     resourceI18nKey: resource
       ? `resources.${resource}.action.update`
       : undefined,
-    baseI18nKey: "ra.action.update",
+    baseI18nKey: "chelone.action.update",
     options: { _: "Update" },
     userText: labelProp,
   });

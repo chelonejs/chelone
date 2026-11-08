@@ -13,9 +13,9 @@ export interface BulkDeleteButtonProps {
    * window closes. Default (`"pessimistic"`) is confirm-gated.
    */
   mutationMode?: MutationMode;
-  /** Confirmation-dialog title. Default `"ra.message.bulk_delete_title"`. */
+  /** Confirmation-dialog title. Default `"chelone.message.bulk_delete_title"`. */
   confirmTitle?: string;
-  /** Confirmation-dialog body copy. Default `"ra.message.bulk_delete_content"`. */
+  /** Confirmation-dialog body copy. Default `"chelone.message.bulk_delete_content"`. */
   confirmContent?: string;
   /** `"warning"` tints the confirm button destructive. Default `"warning"`. */
   confirmColor?: "primary" | "warning";
@@ -62,8 +62,8 @@ import Confirm from "../feedback/confirm.vue";
 import { TrashIcon } from "./icons";
 
 const props = withDefaults(defineProps<BulkDeleteButtonProps>(), {
-  confirmTitle: "ra.message.bulk_delete_title",
-  confirmContent: "ra.message.bulk_delete_content",
+  confirmTitle: "chelone.message.bulk_delete_title",
+  confirmContent: "chelone.message.bulk_delete_content",
   confirmColor: "warning",
 });
 
@@ -84,7 +84,7 @@ const deleteMany = useDeleteMany(resource);
 
 const isPending = computed(() => deleteMany.isPending.value);
 const label = computed(() =>
-  translate("ra.action.delete", { _: props.label ?? "Delete" }),
+  translate("chelone.action.delete", { _: props.label ?? "Delete" }),
 );
 const classes = computed(() => props.class ?? "h-9");
 
