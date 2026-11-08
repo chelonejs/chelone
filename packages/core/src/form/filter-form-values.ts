@@ -48,9 +48,9 @@ const resolveFilterValue = (
  * reset must carry a value for every mounted input. This never produces
  * `undefined`/`null` for a present form key.
  */
-export function getFilterFormValues(
+export function getFilterFormValues<TRecord = LooseRecord>(
   formValues: Record<string, unknown>,
-  filter: Record<string, unknown>,
+  filter: FilterPayload<TRecord>,
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   for (const key of Object.keys(formValues)) {

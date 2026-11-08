@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import type { FilterPayload } from "../data/types";
-import { mergeFilterValues } from "./filter-form-values";
+import { getFilterFormValues, mergeFilterValues } from "./filter-form-values";
 
 interface Post {
   id: number;
@@ -20,5 +20,17 @@ describe("mergeFilterValues", () => {
   it("keeps bare form merges on the default payload", () => {
     const filter = mergeFilterValues({ status: "draft" }, { custom: true });
     expectTypeOf(filter).toEqualTypeOf<FilterPayload>();
+  });
+});
+
+describe("getFilterFormValues", () => {
+  it("checks filter keys while keeping the form-values map open", () => {
+    const values = getFilterFormValues<Post>(
+      { title_gte: "", formOnly: undefined },
+      { title_gte: "A", q: "x" },
+    );
+    expectTypeOf(values.formOnly).toBeUnknown();
+    // @ts-expect-error titel_gte is not a Post filter key
+    getFilterFormValues<Post>({}, { titel_gte: "A" });
   });
 });
