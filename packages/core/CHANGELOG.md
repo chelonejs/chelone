@@ -1,5 +1,54 @@
 # @chelone/core
 
+## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.10.0...@chelone/core@0.11.0) (2026-11-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **i18n:** every `ra.*` i18n key is now `chelone.*`. Apps that override `ra.*` entries in their own catalogs must rename them.
+
+### Features
+
+* **core,react,vue:** key list and reference sort by the record ([1b482f3](https://github.com/chelonejs/chelone/commit/1b482f3b94c4f0e723169d397af4bdd5345ab8a4))
+* **core,react,vue:** type choices sort and context by the record ([6f988f3](https://github.com/chelonejs/chelone/commit/6f988f387c6fcdfdda38887ae10443f85b292255))
+* **core,react,vue:** type the calendar range helpers by the record ([cb995d6](https://github.com/chelonejs/chelone/commit/cb995d60baf8ba1b46bb10e11920db375a7008e4))
+* **core:** a Resource name must be a registered resource once Register is augmented ([b0e4d08](https://github.com/chelonejs/chelone/commit/b0e4d08fc23cba5f311b67b674d4d8c3685e114c))
+* **core:** check reflected filter values against the record ([988c02a](https://github.com/chelonejs/chelone/commit/988c02a543d85f4f6de888eea539f36814741fb2))
+* **core:** constrain live subscriptions to context resources ([6dbc149](https://github.com/chelonejs/chelone/commit/6dbc14941c60047697975d46386a8558cc4aeb53))
+* **core:** constrain lock verbs to provider resources ([1f53b83](https://github.com/chelonejs/chelone/commit/1f53b8308c7ffb1857945b08aac1ee9573fd14eb))
+* **core:** key displayedFilters, showFilter and hideFilter by the record ([d873681](https://github.com/chelonejs/chelone/commit/d873681492691c262bec21be2dabe57c9c4c5498))
+* **core:** make saved queries generic over the record ([68eef51](https://github.com/chelonejs/chelone/commit/68eef518ea39a538af0f8d3f2e6e9f47a92c8fc4))
+* **core:** make SortPayload generic over the record ([730bf78](https://github.com/chelonejs/chelone/commit/730bf7849537b4ff83f6a70d6b6477097997bb13))
+* **core:** preserve record filter keys when toggling ([b9dfd55](https://github.com/chelonejs/chelone/commit/b9dfd5519c3f7e436005630c5fbb33df530b7202))
+* **core:** type filter form merges by the record ([8fc297d](https://github.com/chelonejs/chelone/commit/8fc297dbf11461f86230fd0cac8db099fc015366))
+* **core:** type filter reflection shape by the record ([a24e467](https://github.com/chelonejs/chelone/commit/a24e467db0499adeb8442795c6890b5d65afbf5a))
+* **core:** type filter selection by the record ([fb7de3a](https://github.com/chelonejs/chelone/commit/fb7de3a70d287a8181de0440da2158069c9df56a))
+* **csv:** a CSV import's fields and mapping are keys of the schema's record ([77a264a](https://github.com/chelonejs/chelone/commit/77a264a9fb9ea17dba8f2af3820d2bf3926a6297))
+* **i18n:** add getLocaleDirection, the core direction rule ([2318eba](https://github.com/chelonejs/chelone/commit/2318eba711323b3b99acd64e7d3d97e525023193))
+* **react,vue:** make useSavedQueries generic over the record ([de9a66d](https://github.com/chelonejs/chelone/commit/de9a66d6b5327d2ed9ade837df74cbfe78ff4912))
+* **reference:** key a reference controller's target by the referenced record ([e40a394](https://github.com/chelonejs/chelone/commit/e40a394a3bdf761016646ee4075103bc1c1393b7))
+
+
+### Bug Fixes
+
+* **core:** derive FilterPayload keys from the resource registry ([db30a37](https://github.com/chelonejs/chelone/commit/db30a37ac630b0841adae6ffd7f5e536d45f8b38))
+* **core:** index the displayed filters through the open key map ([32a4da8](https://github.com/chelonejs/chelone/commit/32a4da813b56334955f7850b267059f1a24a28df))
+* **core:** let a record's filter keys name its plain source paths ([4d8cd05](https://github.com/chelonejs/chelone/commit/4d8cd05251b2ff41cb23269b1491a3fb111ffc69))
+* **core:** map FilterPayload over one key set, not a union of two shapes ([9124684](https://github.com/chelonejs/chelone/commit/91246848abd4d529cf60a682beecbb8985f7e3f3))
+* **core:** type a field descriptor's source as the registry-wide path ([36e722c](https://github.com/chelonejs/chelone/commit/36e722c6cb5b6ba3872f93b0d8e7ff817dc77694))
+* **core:** widen the list context surface and generic list helpers ([c4de4a2](https://github.com/chelonejs/chelone/commit/c4de4a2a7b44c2c2905bfd64ac4ea19ca9e65590))
+* **i18n:** drop Turkmen and Kurdish from the rtl language list ([fd027a5](https://github.com/chelonejs/chelone/commit/fd027a564c64a66f193b4624cd6fc38b502cd187))
+
+
+### Refactors
+
+* **core:** accept the record type for in-place changes ([3e5c2aa](https://github.com/chelonejs/chelone/commit/3e5c2aa3e519b5ad62460488ca33a653efad5ff0))
+* **core:** keep the record type in diff rows ([2608e9f](https://github.com/chelonejs/chelone/commit/2608e9f41a5afadbfc22ff7b7322ef8b0af3e727))
+* **core:** key kanban move data by the record ([86bbe1a](https://github.com/chelonejs/chelone/commit/86bbe1a2649c9010ca031e44d75300fba07b970d))
+* **core:** share the sort helpers the two list controllers copy ([0ccc7d7](https://github.com/chelonejs/chelone/commit/0ccc7d74eab2395f40f5b8d22b973af5afcd0049))
+* **core:** the cache ops take a resource map and a name ([e1af564](https://github.com/chelonejs/chelone/commit/e1af564dcec6dacf93e7cc94919a4df123b4a7f0))
+* **i18n:** move the ra translation keys under chelone ([0aa5cd4](https://github.com/chelonejs/chelone/commit/0aa5cd412ba75afb0da1ffe471301b93d3f2678a))
+
 ## [0.10.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.9.0...@chelone/core@0.10.0) (2026-11-07)
 
 

@@ -1,5 +1,25 @@
 # @chelone/supabase
 
+## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.10.0...@chelone/supabase@0.11.0) (2026-11-08)
+
+
+### Features
+
+* **core:** make SortPayload generic over the record ([730bf78](https://github.com/chelonejs/chelone/commit/730bf7849537b4ff83f6a70d6b6477097997bb13))
+* **supabase:** type primary keys by resource records ([e814699](https://github.com/chelonejs/chelone/commit/e81469900b6c72658472b55bb1b87ac8a27769ec))
+
+
+### Bug Fixes
+
+* **core:** type a field descriptor's source as the registry-wide path ([36e722c](https://github.com/chelonejs/chelone/commit/36e722c6cb5b6ba3872f93b0d8e7ff817dc77694))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.11.0
+
 ## [0.10.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.9.0...@chelone/supabase@0.10.0) (2026-11-07)
 
 

@@ -1,5 +1,52 @@
 # @chelone/vue
 
+## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.10.0...@chelone/vue@0.11.0) (2026-11-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **i18n:** every `ra.*` i18n key is now `chelone.*`. Apps that override `ra.*` entries in their own catalogs must rename them.
+
+### Features
+
+* **core,react,vue:** key list and reference sort by the record ([1b482f3](https://github.com/chelonejs/chelone/commit/1b482f3b94c4f0e723169d397af4bdd5345ab8a4))
+* **core,react,vue:** type choices sort and context by the record ([6f988f3](https://github.com/chelonejs/chelone/commit/6f988f387c6fcdfdda38887ae10443f85b292255))
+* **core,react,vue:** type the calendar range helpers by the record ([cb995d6](https://github.com/chelonejs/chelone/commit/cb995d60baf8ba1b46bb10e11920db375a7008e4))
+* **core:** a Resource name must be a registered resource once Register is augmented ([b0e4d08](https://github.com/chelonejs/chelone/commit/b0e4d08fc23cba5f311b67b674d4d8c3685e114c))
+* **core:** key displayedFilters, showFilter and hideFilter by the record ([d873681](https://github.com/chelonejs/chelone/commit/d873681492691c262bec21be2dabe57c9c4c5498))
+* **core:** make SortPayload generic over the record ([730bf78](https://github.com/chelonejs/chelone/commit/730bf7849537b4ff83f6a70d6b6477097997bb13))
+* **csv:** a CSV import's fields and mapping are keys of the schema's record ([77a264a](https://github.com/chelonejs/chelone/commit/77a264a9fb9ea17dba8f2af3820d2bf3926a6297))
+* **react,vue:** make useSavedQueries generic over the record ([de9a66d](https://github.com/chelonejs/chelone/commit/de9a66d6b5327d2ed9ade837df74cbfe78ff4912))
+* **reference:** key a reference controller's target by the referenced record ([e40a394](https://github.com/chelonejs/chelone/commit/e40a394a3bdf761016646ee4075103bc1c1393b7))
+* **vue:** set dir on the app root from the locale ([9f93c40](https://github.com/chelonejs/chelone/commit/9f93c40ba9c407dab6db9edcc42ac0a077a0ea70))
+
+
+### Bug Fixes
+
+* **core:** type a field descriptor's source as the registry-wide path ([36e722c](https://github.com/chelonejs/chelone/commit/36e722c6cb5b6ba3872f93b0d8e7ff817dc77694))
+* **vue:** key the reference-many hook's filter actions by the record ([16950dc](https://github.com/chelonejs/chelone/commit/16950dce8b8c1fa7ff2a812f618e6469c47b556e))
+* **vue:** pass the record type through the list and reference composables ([b66c63c](https://github.com/chelonejs/chelone/commit/b66c63c07673558479893a12b1bfe1cc63a3a7b2))
+
+
+### Refactors
+
+* **core:** keep the record type in diff rows ([2608e9f](https://github.com/chelonejs/chelone/commit/2608e9f41a5afadbfc22ff7b7322ef8b0af3e727))
+* **core:** the cache ops take a resource map and a name ([e1af564](https://github.com/chelonejs/chelone/commit/e1af564dcec6dacf93e7cc94919a4df123b4a7f0))
+* **i18n:** move the ra translation keys under chelone ([0aa5cd4](https://github.com/chelonejs/chelone/commit/0aa5cd412ba75afb0da1ffe471301b93d3f2678a))
+* **reference:** let the reference hooks own the source default ([391c70a](https://github.com/chelonejs/chelone/commit/391c70a5e158115c3ee2582ffe48f6374820d083))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.11.0
+    * @chelone/utils bumped to 0.11.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.11.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.11.0
+
 ## [0.10.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.9.0...@chelone/vue@0.10.0) (2026-11-07)
 
 
