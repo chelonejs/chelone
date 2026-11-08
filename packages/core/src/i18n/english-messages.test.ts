@@ -11,11 +11,13 @@ const packagesDir = join(__dirname, "../../..");
 /** The erased view, so a key read from `Object.entries` is not an index error. */
 const english: MessageCatalog = englishMessages;
 
-function sourceFiles(dir: string): string[] {
+function sourceFiles(dir: string, includeTests = false): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry);
-    if (statSync(path).isDirectory()) return sourceFiles(path);
-    return /\.(tsx?|vue)$/.test(entry) && !/\.test\./.test(entry) ? [path] : [];
+    if (statSync(path).isDirectory()) return sourceFiles(path, includeTests);
+    const isSource = /\.(tsx?|vue)$/.test(entry);
+    if (!isSource) return [];
+    return includeTests || !/\.test\./.test(entry) ? [path] : [];
   });
 }
 
@@ -48,10 +50,10 @@ describe("englishMessages", () => {
     expect(missing).toEqual([]);
   });
 
-  it("leaves no ra.* key in the React and Vue sources", () => {
+  it("leaves no ra.* key in the React and Vue sources and tests", () => {
     const left: string[] = [];
     for (const pkg of ["react", "vue"]) {
-      for (const file of sourceFiles(join(packagesDir, pkg, "src"))) {
+      for (const file of sourceFiles(join(packagesDir, pkg, "src"), true)) {
         const text = readFileSync(file, "utf8");
         for (const [, key] of text.matchAll(
           /["'`](ra\.[A-Za-z_][^"'`]*)["'`]/g,

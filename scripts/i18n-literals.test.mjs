@@ -197,6 +197,38 @@ async function productionFiles(dir) {
   return files;
 }
 
+/** Every `.ts`, `.tsx` and `.vue` file under `dir`, test files included. */
+async function allSourceFiles(dir) {
+  const files = [];
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    if (entry.name === "node_modules") continue;
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await allSourceFiles(path)));
+      continue;
+    }
+    if (sourceExtensions.has(extname(entry.name))) files.push(path);
+  }
+  return files;
+}
+
+// Every `apps/<name>/src` folder that exists.
+async function appSources() {
+  const sources = [];
+  const apps = join(repoRoot, "apps");
+  for (const entry of await readdir(apps, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const src = join(apps, entry.name, "src");
+    try {
+      await readdir(src);
+    } catch {
+      continue;
+    }
+    sources.push(src);
+  }
+  return sources;
+}
+
 // Every `packages/<name>/src` folder that exists.
 async function packageSources() {
   const sources = [];
@@ -376,10 +408,14 @@ describe("production code", () => {
     assert.deepEqual(missing.sort(), []);
   });
 
-  it("no production file names an ra.* key", async () => {
+  it("no package or demo file names an ra.* key", async () => {
     const left = [];
-    for (const src of await packageSources()) {
-      for (const file of await productionFiles(src)) {
+    const scans = [
+      ...(await packageSources()).map((src) => ({ src, all: false })),
+      ...(await appSources()).map((src) => ({ src, all: true })),
+    ];
+    for (const { src, all } of scans) {
+      for (const file of all ? await allSourceFiles(src) : await productionFiles(src)) {
         const text = await readFile(file, "utf8");
         for (const [, key] of text.matchAll(/\bra\.[A-Za-z_][A-Za-z0-9_.]*/g)) {
           left.push(`${relative(repoRoot, file)}: ${key}`);
