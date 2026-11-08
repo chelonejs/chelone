@@ -5,7 +5,6 @@ import type {
   ChoicesControllerOptions,
   ChoiceValueOf,
   FilterPayload,
-  RecordOf,
   ResourceMap,
   SortPayload,
   SourcePath,
@@ -13,6 +12,7 @@ import type {
 import {
   choiceListsOf,
   createChoicesController,
+  eraseChoicesController,
   getAtPath,
   noop,
   resolveChoiceValue,
@@ -51,8 +51,8 @@ export interface ChoicesContextValue<
   error: Error | null;
   page: number;
   perPage: number;
-  sort: SortPayload;
-  filter: FilterPayload;
+  sort: SortPayload<TChoice>;
+  filter: FilterPayload<TChoice>;
   hasNextPage: boolean | undefined;
   hasPreviousPage: boolean | undefined;
   /** The referenced resource name (inline: undefined). */
@@ -63,13 +63,13 @@ export interface ChoicesContextValue<
   isFromReference: boolean;
   setPage(page: number): void;
   setPerPage(perPage: number): void;
-  setSort(sort: SortPayload): void;
-  setFilters(filter: FilterPayload, debounce?: boolean): void;
+  setSort(sort: SortPayload<TChoice>): void;
+  setFilters(filter: FilterPayload<TChoice>, debounce?: boolean): void;
   setValue(value: unknown): void;
   refetch(): void;
 }
 
-const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
+const DEFAULT_SORT: SortPayload<ChoiceRecord> = { field: "id", order: "DESC" };
 
 /** Coerces a `string | ChoiceRecord` into a `{ id, name }`-bearing choice. */
 function toChoiceRecord(choice: string | ChoiceRecord): ChoiceRecord {
@@ -308,11 +308,15 @@ export function useReferenceInput<
 >(
   options: UseReferenceInputOptions<TResources, TName>,
 ): UseReferenceInputResult {
-  type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
 
-  const [controller] = useState<ChoicesController<TRecord>>(() =>
-    createChoicesController<TResources, TName>(toChoicesContext(ctx), options),
+  const [controller] = useState<ChoicesController<ChoiceRecord>>(() =>
+    eraseChoicesController(
+      createChoicesController<TResources, TName>(
+        toChoicesContext(ctx),
+        options,
+      ),
+    ),
   );
 
   const snapshot = useSyncExternalStore(

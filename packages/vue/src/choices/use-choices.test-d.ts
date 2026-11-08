@@ -1,5 +1,6 @@
+import type { FilterPayload, SortPayload } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type { ChoicesContextValue } from "./choices-context";
+import { type ChoicesContextValue, useChoicesContext } from "./choices-context";
 import {
   type ChoiceRecord,
   type UseChoicesResult,
@@ -69,6 +70,33 @@ describe("useChoices option types", () => {
       disableValue: "anyFlag",
     });
     expectTypeOf(useChoices()).toEqualTypeOf<UseChoicesResult<ChoiceRecord>>();
+  });
+
+  it("ChoicesContextValue<Author> types sort and filter by Author", () => {
+    expectTypeOf<ChoicesContextValue<Author>["sort"]>().toEqualTypeOf<
+      SortPayload<Author>
+    >();
+    expectTypeOf<ChoicesContextValue<Author>["filter"]>().toEqualTypeOf<
+      FilterPayload<Author>
+    >();
+    const ctx = useChoicesContext<Author>();
+    ctx.setSort({ field: "penName", order: "ASC" });
+    ctx.setFilters({ penName: "Ada" });
+    // @ts-expect-error `penname` is not a path of Author
+    ctx.setSort({ field: "penname", order: "ASC" });
+    // @ts-expect-error `penname` is not a filter key of Author
+    ctx.setFilters({ penname: "Ada" });
+    expectTypeOf(ctx.availableChoices).toEqualTypeOf<Author[]>();
+  });
+
+  it("a bare ChoicesContextValue still takes any string key", () => {
+    const ctx = useChoicesContext();
+    ctx.setSort({ field: "anything", order: "DESC" });
+    ctx.setFilters({ anything: 1 });
+    expectTypeOf(ctx.availableChoices).toEqualTypeOf<ChoiceRecord[]>();
+    expectTypeOf<ChoicesContextValue["sort"]>().toEqualTypeOf<
+      SortPayload<ChoiceRecord>
+    >();
   });
 
   it("the choices error is Error or null", () => {
