@@ -830,6 +830,8 @@ export { createOsrmProvider } from "./geo/snap-to-roads";
 export type { JsonObject, JsonValue } from "./guards";
 export { isHeadersInit, isRecord, isThenable } from "./guards";
 export { defaultMessages } from "./i18n/default-messages";
+export type { TextDirection } from "./i18n/direction";
+export { getLocaleDirection } from "./i18n/direction";
 export { englishMessages } from "./i18n/english-messages";
 export type { AnyCheloneI18n, CheloneI18n } from "./i18n/i18n";
 export { createI18n } from "./i18n/i18n";
