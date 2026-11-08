@@ -140,8 +140,8 @@ function DiffViewer<TRecord extends ResourceRecord = LooseRecord>({
 // type-escape: a diffed value is whatever the record held at the source path
 type RenderDiffValue = (source: string, value: unknown) => ReactNode;
 
-function inlineValues(
-  row: RecordDiffRow,
+function inlineValues<TRecord extends ResourceRecord>(
+  row: RecordDiffRow<TRecord>,
   renderValue: RenderDiffValue,
 ): ReactNode {
   switch (row.status) {
