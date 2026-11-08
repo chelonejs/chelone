@@ -122,6 +122,7 @@ const OBJECT_ACCEPT = "application/vnd.pgrst.object+json";
 
 const RETURN_REPRESENTATION = { Prefer: "return=representation" };
 
+// Key options must not infer a map that bypasses the registered resources.
 export function supabaseDataProvider<
   TResources extends ResourceMap = RegisteredResources,
 >({
@@ -132,7 +133,7 @@ export function supabaseDataProvider<
   primaryKeys,
   schema,
   sortOrder,
-}: SupabaseDataProviderOptions<TResources>): DataProvider {
+}: SupabaseDataProviderOptions<NoInfer<TResources>>): DataProvider {
   const baseUrl = `${instanceUrl.replace(/\/+$/, "")}/rest/v1`;
 
   const request = (
