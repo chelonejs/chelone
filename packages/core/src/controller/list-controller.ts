@@ -86,7 +86,7 @@ export type ListControllerSurface<TRecord> = ListControllerState<TRecord> &
 
 /**
  * The list surface an adapter's list context publishes: the rows typed to
- * `TRecord`, the filter an open key map.
+ * `TRecord`, the filter and the displayed filters open key maps.
  *
  * The sort is as open as the filter, for the same reason: a column header or a
  * URL names a field with no record to check it, so `sort` and `setSort` take
@@ -98,8 +98,8 @@ export type ListControllerSurface<TRecord> = ListControllerState<TRecord> &
  * The filter is open on purpose. What writes a context filter names no record:
  * a filter form's field names, a calendar's range keys, a URL query. A record's
  * own filter keys are the job of {@link ListController.setFilters} and the
- * hooks, which are generic over the record. Erasing only the filter is what
- * lets a controller typed to any record be mounted in one context.
+ * hooks, which are generic over the record. Erasing the filter is what lets a
+ * controller typed to any record be mounted in one context.
  *
  * The displayed filters and the two actions that move them are open for the
  * same reason, and they must be erased together with it: a filter input names
@@ -128,6 +128,7 @@ export type ListContextSurface<TRecord = ResourceRecord> = Omit<
     debounced?: boolean,
   ): void;
   setParams(patch: LooseListParamsPatch): void;
+  // type-escape: the erased showFilter seeds a value into a filter, and a filter value is unknown by design (see FilterPayload). The keyed ListController.showFilter above carries the same site.
   showFilter(name: string, defaultValue?: unknown): void;
   hideFilter(name: string): void;
 };
