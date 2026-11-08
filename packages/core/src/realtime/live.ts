@@ -112,9 +112,12 @@ function invalidateResource(ctx: DataContext<ResourceMap>, resource: string) {
 }
 
 /** Refetches the resource's lists, shows and edits when anything in it changes or the connection comes back. */
-export function subscribeLiveResource<TResources extends ResourceMap>(
+export function subscribeLiveResource<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
   ctx: DataContext<TResources>,
-  resource: string,
+  resource: TName,
   options?: LiveOptions,
 ): LiveSubscription {
   return subscribeLive(ctx, {
@@ -127,9 +130,12 @@ export function subscribeLiveResource<TResources extends ResourceMap>(
 }
 
 /** Like `subscribeLiveResource`, for the events of one record. */
-export function subscribeLiveRecord<TResources extends ResourceMap>(
+export function subscribeLiveRecord<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
   ctx: DataContext<TResources>,
-  resource: string,
+  resource: TName,
   id: Identifier,
   options?: LiveOptions,
 ): LiveSubscription {
@@ -143,9 +149,12 @@ export function subscribeLiveRecord<TResources extends ResourceMap>(
 }
 
 /** Like `subscribeLiveRecord`, for several records: one invalidation however many of them change. */
-export function subscribeLiveRecords<TResources extends ResourceMap>(
+export function subscribeLiveRecords<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
   ctx: DataContext<TResources>,
-  resource: string,
+  resource: TName,
   ids: Identifier[],
   options?: LiveOptions,
 ): LiveSubscription {
@@ -160,9 +169,12 @@ export function subscribeLiveRecords<TResources extends ResourceMap>(
 }
 
 /** Refetches one record's lock when it is taken or released. */
-export function subscribeLiveLock<TResources extends ResourceMap>(
+export function subscribeLiveLock<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
   ctx: DataContext<TResources>,
-  resource: string,
+  resource: TName,
   id: Identifier,
 ): LiveSubscription {
   return subscribeLive(ctx, {
@@ -177,10 +189,10 @@ export function subscribeLiveLock<TResources extends ResourceMap>(
 }
 
 /** Refetches the resource's lock list when any lock is taken or released. */
-export function subscribeLiveLocks<TResources extends ResourceMap>(
-  ctx: DataContext<TResources>,
-  resource: string,
-): LiveSubscription {
+export function subscribeLiveLocks<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(ctx: DataContext<TResources>, resource: TName): LiveSubscription {
   return subscribeLive(ctx, {
     caller: "subscribeLiveLocks",
     topics: [lockResourceTopic(resource)],

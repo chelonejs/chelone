@@ -109,17 +109,29 @@ export interface RealtimeTransport {
   onError?(callback: (error: RealtimeTransportError) => void): Unsubscribe;
 }
 
-export interface LockProvider {
-  lock(resource: string, params: LockParams): Promise<Lock>;
-  unlock(resource: string, params: UnlockParams): Promise<Lock>;
-  getLock(resource: string, params: GetLockParams): Promise<Lock | null>;
-  getLocks(resource: string, params?: GetLocksParams): Promise<Lock[]>;
+export interface LockProvider<TResources extends ResourceMap = ResourceMap> {
+  lock<TName extends keyof TResources & string>(
+    resource: TName,
+    params: LockParams,
+  ): Promise<Lock>;
+  unlock<TName extends keyof TResources & string>(
+    resource: TName,
+    params: UnlockParams,
+  ): Promise<Lock>;
+  getLock<TName extends keyof TResources & string>(
+    resource: TName,
+    params: GetLockParams,
+  ): Promise<Lock | null>;
+  getLocks<TName extends keyof TResources & string>(
+    resource: TName,
+    params?: GetLocksParams,
+  ): Promise<Lock[]>;
 }
 
 export interface RealtimeDataProvider<
   TResources extends ResourceMap = ResourceMap,
 > extends DataProvider<TResources>,
-    LockProvider {
+    LockProvider<TResources> {
   subscribe<P = unknown>(
     topic: string,
     callback: SubscriptionCallback<P>,
