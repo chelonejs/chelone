@@ -60,6 +60,11 @@ describe("@chelone/core barrel", () => {
     expect(barrel.pluralize).toBeTypeOf("function");
   });
 
+  it("exports getLocaleDirection — the rule the adapters set `dir` from", () => {
+    expect(barrel.getLocaleDirection("ar")).toBe("rtl");
+    expect(barrel.getLocaleDirection("en")).toBe("ltr");
+  });
+
   it("exports the saved-queries controller and helpers", () => {
     expect(barrel.createSavedQueriesController).toBeTypeOf("function");
     expect(barrel.extractValidSavedQueries).toBeTypeOf("function");

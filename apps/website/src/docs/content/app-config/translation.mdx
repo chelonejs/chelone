@@ -209,6 +209,28 @@ const locale = useLocale();         // "en"
 const setLocale = useSetLocale();   // setLocale("fr")
 ```
 
+## Right to left
+
+`<Admin>` sets `dir` on `<html>` from the active locale, in both adapters, so a
+right-to-left locale renders right to left and switching back to `en` renders
+left to right again. The rule behind it is `getLocaleDirection(locale)`,
+exported from `@chelone/core`, so your own markup can follow it:
+
+```ts
+import { getLocaleDirection } from "@chelone/core";
+
+getLocaleDirection("ar"); // "rtl"
+getLocaleDirection("ar-EG"); // "rtl"
+getLocaleDirection("pa-Arab"); // "rtl"
+getLocaleDirection("pa-Guru"); // "ltr"
+getLocaleDirection("en"); // "ltr"
+```
+
+A tag's script subtag decides over its language, so Punjabi in Arabic script is
+right to left and Punjabi in Gurmukhi is not. `<Admin>` builds an English i18n
+when you pass none, so it sets `dir="ltr"`; only React's low-level
+`<AdminContext>` with no `i18n` leaves `dir` as the host set it.
+
 ## Translatable records
 
 Catalogs localize the interface. To localize the data, a translatable record

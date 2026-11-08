@@ -11,10 +11,12 @@
  *     └ CheloneProvider              (the EXISTING P2–P5 provider: data / query /
  *                                     store / i18n / auth / notifications /
  *                                     resources — NOT reimplemented here)
- *         └ ResourceRegistryProvider (the runtime resource registry, W1-T5)
- *             └ BasenameProvider     (link-building prefix; see below)
- *                 └ RouterWrapper    (join a host router, else create one)
- *                     └ children
+ *         └ LocaleDirectionProvider  (dir on <html> + Radix's direction, from the
+ *                                     i18n instance above it)
+ *             └ ResourceRegistryProvider (the runtime resource registry, W1-T5)
+ *                 └ BasenameProvider (link-building prefix; see below)
+ *                     └ RouterWrapper (join a host router, else create one)
+ *                         └ children
  *
  * `RouterWrapper` sits INSIDE the adapter/registry providers (they are pure
  * context, safe above a router) but wraps the children so the shell renders
@@ -24,18 +26,26 @@
  * so the provider carries it.
  */
 
-import type {
-  AnyCheloneI18n,
-  AuthProvider,
-  CheloneStore,
-  DataProvider,
-  NotificationStore,
-  ResourceMap,
-  ResourceRegistry,
+import {
+  type AnyCheloneI18n,
+  type AuthProvider,
+  type CheloneStore,
+  type DataProvider,
+  getLocaleDirection,
+  type NotificationStore,
+  noop,
+  type ResourceMap,
+  type ResourceRegistry,
 } from "@chelone/core";
 import type { QueryClient } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import {
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 import { useWatchDataErrors } from "../auth-hooks";
+import { DirectionProvider } from "../components/ui/direction";
 import { CheloneProvider } from "../context";
 import {
   ResourceRegistryProvider,
@@ -122,6 +132,47 @@ function AuthErrorWatcher(): null {
 }
 
 /**
+ * The app root's writing direction: `dir` on `<html>` from the active locale, so
+ * a right-to-left locale such as Arabic renders right to left, plus Radix's own
+ * direction context (`<DirectionProvider>`), which its menus, popovers and
+ * sliders read. Follows `setLocale` live. The `dir` the host had comes back when
+ * the providers unmount; with no i18n instance there is no locale to read, so
+ * the host keeps its own.
+ */
+function LocaleDirectionProvider({
+  i18n,
+  children,
+}: {
+  i18n: AnyCheloneI18n | undefined;
+  children: ReactNode;
+}): ReactNode {
+  const locale = useSyncExternalStore(
+    useCallback(
+      (notify: () => void) => i18n?.subscribe(notify) ?? noop,
+      [i18n],
+    ),
+    () => i18n?.getLocale(),
+    () => i18n?.getLocale(),
+  );
+  const direction =
+    locale === undefined ? undefined : getLocaleDirection(locale);
+
+  useEffect(() => {
+    if (direction === undefined) return;
+    const root = window.document.documentElement;
+    const previous = root.getAttribute("dir");
+    root.setAttribute("dir", direction);
+    return () => {
+      if (previous === null) root.removeAttribute("dir");
+      else root.setAttribute("dir", previous);
+    };
+  }, [direction]);
+
+  if (direction === undefined) return children;
+  return <DirectionProvider dir={direction}>{children}</DirectionProvider>;
+}
+
+/**
  * The provider stack (escape hatch). See the module doc for the exact nesting.
  * The registry is created ONCE by `ResourceRegistryProvider` (unless supplied),
  * so it is stable for the provider's lifetime.
@@ -150,12 +201,14 @@ export function AdminContext<TResources extends ResourceMap = ResourceMap>({
         notifications={notifications}
         resources={resources}
       >
-        <ResourceRegistryProvider registry={registry}>
-          <AdminRouterWrapper basename={basename}>
-            <AuthErrorWatcher />
-            {children}
-          </AdminRouterWrapper>
-        </ResourceRegistryProvider>
+        <LocaleDirectionProvider i18n={i18n}>
+          <ResourceRegistryProvider registry={registry}>
+            <AdminRouterWrapper basename={basename}>
+              <AuthErrorWatcher />
+              {children}
+            </AdminRouterWrapper>
+          </ResourceRegistryProvider>
+        </LocaleDirectionProvider>
       </CheloneProvider>
     </RouterAdapterProvider>
   );
