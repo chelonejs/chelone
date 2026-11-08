@@ -168,8 +168,6 @@ describe("showFilter and hideFilter name a filter key", () => {
 describe("the barrel", () => {
   it("re-exports both displayed-filter types", () => {
     expectTypeOf<BarrelDisplayedFilters>().toEqualTypeOf<DisplayedFilters>();
-    expectTypeOf<BarrelLooseDisplayedFilters>().toEqualTypeOf<
-      LooseDisplayedFilters
-    >();
+    expectTypeOf<BarrelLooseDisplayedFilters>().toEqualTypeOf<LooseDisplayedFilters>();
   });
 });

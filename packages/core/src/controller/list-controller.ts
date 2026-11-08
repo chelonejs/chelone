@@ -307,9 +307,11 @@ export function removeDisplayedFilter<TRecord = LooseRecord>(
 ): DisplayedFilters<TRecord> {
   const kept: DisplayedFilters<TRecord> = { ...displayedFilters };
   // Key-wise deletion needs an index signature, which a typed map has none of:
-  // `open` is the fresh copy seen through the loose map it falls back to, so
-  // deleting a key here deletes it from `kept`.
-  const open: DisplayedFilters = kept;
+  // `open` is the fresh copy seen through {@link LooseDisplayedFilters}, so
+  // deleting a key here deletes it from `kept`. The bare `DisplayedFilters`
+  // would not do: once an app registers resources its keys are the registered
+  // union, and a deferred `RecordFilterKey` cannot index it.
+  const open: LooseDisplayedFilters = kept;
   delete open[name];
   return kept;
 }
