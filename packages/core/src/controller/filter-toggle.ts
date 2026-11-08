@@ -6,10 +6,10 @@
  * contains-all rule.
  */
 
+import type { FilterPayload, LooseFilterPayload } from "../data/types";
 import { isPlainObject } from "../guards";
+import type { LooseRecord } from "../resource/record";
 import { deepEqual } from "./deep-equal";
-
-type Filters = Record<string, unknown>;
 
 // Nested plain objects match partially: `{ range: { gte: 1 } }` is held by
 // `{ range: { gte: 1, lte: 9 } }`.
@@ -27,13 +27,19 @@ function matches(expected: unknown, actual: unknown): boolean {
 }
 
 /** True when every defined key of `value` is held by `filters`. */
-export function isFilterSelected(value: Filters, filters: Filters): boolean {
+export function isFilterSelected<TRecord = LooseRecord>(
+  value: FilterPayload<TRecord>,
+  filters: FilterPayload<TRecord>,
+): boolean {
   return matches(value, filters);
 }
 
 // Drops only the leaves `value` holds, so a nested value leaves the sibling
 // sub-keys another control set; a parent left empty goes with its last leaf.
-function omitValue(filters: Filters, value: Filters): Filters {
+function omitValue(
+  filters: LooseFilterPayload,
+  value: LooseFilterPayload,
+): LooseFilterPayload {
   const next = { ...filters };
   for (const key of Object.keys(value)) {
     if (value[key] === undefined) continue;
@@ -54,7 +60,12 @@ function omitValue(filters: Filters, value: Filters): Filters {
  * the keys it holds, down to nested sub-keys, and keeps the rest. Neither
  * argument is mutated.
  */
-export function toggleFilterValue(value: Filters, filters: Filters): Filters {
-  if (!isFilterSelected(value, filters)) return { ...filters, ...value };
-  return omitValue(filters, value);
+export function toggleFilterValue<TRecord = LooseRecord>(
+  value: FilterPayload<TRecord>,
+  filters: FilterPayload<TRecord>,
+): FilterPayload<TRecord> {
+  if (!isFilterSelected<TRecord>(value, filters))
+    return { ...filters, ...value };
+  // type-escape: omitValue only prunes keys from this filter, so the remaining keys still belong to TRecord.
+  return omitValue(filters, value) as FilterPayload<TRecord>;
 }
