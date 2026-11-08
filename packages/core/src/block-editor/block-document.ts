@@ -125,7 +125,7 @@ export function getBlockDefaultAttrs<A extends Attrs>(
 /** One descriptor per attr, for an adapter to build the block's config form from. */
 export function describeBlockAttrs(
   schema: BlockSchema<Attrs>,
-): FieldDescriptor[] {
+): FieldDescriptor<string>[] {
   const shape = shapeOf(schema);
   return Object.keys(shape).map((key) =>
     describeField(key, shape[key], undefined),

@@ -1,5 +1,6 @@
 import { isRecord } from "../guards";
 import type { ResourceConfig } from "./registry";
+import type { AnySourcePath } from "./source-path";
 
 /** The field components both adapters export. Each adapter keeps one exhaustive map over this. */
 export type FieldComponentName =
@@ -40,8 +41,13 @@ export type FieldKind =
   | "referenceArray"
   | "unsupported";
 
-export interface FieldDescriptor {
-  source: string;
+/**
+ * `TSource` is the registry-wide {@link AnySourcePath} by default, so a guesser
+ * hands `source` to a `source` prop whether or not the app registered resources.
+ * A block's attrs are not resource paths and name `FieldDescriptor<string>`.
+ */
+export interface FieldDescriptor<TSource extends string = AnySourcePath> {
+  source: TSource;
   kind: FieldKind;
   /** True for the `id` field. */
   primary: boolean;
@@ -364,11 +370,12 @@ function describeKind(node: Node): Described {
 }
 
 /** For core's block editor helpers; not exported from the package index. */
-export function describeField(
-  source: string,
+export function describeField<TSource extends string>(
+  source: TSource,
+  // type-escape: a registered schema is any Standard Schema value, read structurally
   schema: unknown,
   references: ResourceConfig["references"],
-): FieldDescriptor {
+): FieldDescriptor<TSource> {
   const { node, label } = unwrap(schema);
   const target =
     references && Object.hasOwn(references, source)
@@ -414,8 +421,9 @@ export function describeResource(
   const { shape } = node;
   return {
     resource,
+    // type-escape: the keys come from the registered schema's shape at runtime, which TypeScript cannot connect to the schema's type
     fields: Object.keys(shape).map((source) =>
       describeField(source, shape[source], config.references),
-    ),
+    ) as FieldDescriptor[],
   };
 }

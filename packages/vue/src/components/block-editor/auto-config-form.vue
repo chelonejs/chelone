@@ -44,13 +44,13 @@ const textOf = (value: BlockAttrs[string] | undefined): string =>
 
 const prefix = useId();
 const fields = computed(() => describeBlockAttrs(props.schema));
-const idOf = (field: FieldDescriptor) => `${prefix}-${field.source}`;
-const labelOf = (field: FieldDescriptor) =>
+const idOf = (field: FieldDescriptor<string>) => `${prefix}-${field.source}`;
+const labelOf = (field: FieldDescriptor<string>) =>
   field.label ?? humanizeField(field.source);
-const patch = (field: FieldDescriptor, next: BlockAttrs[string]) =>
+const patch = (field: FieldDescriptor<string>, next: BlockAttrs[string]) =>
   props.onChange({ [field.source]: next });
 
-function choose(field: FieldDescriptor, value: string) {
+function choose(field: FieldDescriptor<string>, value: string) {
   const chosen = field.choices?.find((choice) => String(choice.id) === value);
   if (chosen) patch(field, chosen.id);
 }
