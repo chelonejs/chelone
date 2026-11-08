@@ -42,20 +42,32 @@ export interface SortPayload {
  * {@link AnyFilterSourceKey}, which is plain `string` until `Register` is
  * augmented.
  */
-export type FilterPayload<TRecord = LooseRecord> = _FilterKeys<
-  LooseRecord extends TRecord ? AnyFilterSourceKey : RecordFilterKey<TRecord>
->;
+export type FilterPayload<TRecord = LooseRecord> = {
+  // type-escape: filter values are unknown by design — an operator suffix makes a key's value type ambiguous (`title_gte` wants a string, `views_gte` a number), and the provider decides what a value means
+  [TKey in _FilterKeyOf<TRecord>]?: unknown;
+};
 
 /**
- * The object shape {@link FilterPayload} takes. `string` keys stay an index
- * signature, so an unregistered app keeps today's plain object; a known key set
- * makes every other key an excess property.
+ * The keys a filter takes: the registered union for a loose record, the
+ * record's own keys for a typed one.
+ *
+ * `FilterPayload` maps over that union as ONE key set rather than picking one
+ * of two object shapes with a conditional. A union of a resolved arm and a
+ * deferred one is what stops two identical `FilterPayload<TRecord>`s assigning
+ * to each other inside a generic function, and mapping over `string` is how an
+ * unregistered app keeps today's plain index-signature object.
  */
-type _FilterKeys<TKeys extends string> = string extends TKeys
-  ? // type-escape: filter values are unknown by design — an operator suffix makes a key's value type ambiguous
-    { [key: string]: unknown }
-  : // type-escape: the same, for a record whose filter keys are known
-    { [TKey in TKeys]?: unknown };
+type _FilterKeyOf<TRecord> = LooseRecord extends TRecord
+  ? AnyFilterSourceKey
+  : RecordFilterKey<TRecord>;
+
+/**
+ * A filter with no record behind it: an open key map. {@link FilterPayload}'s
+ * loose key set is the registered union once an app registers resources, so
+ * code that walks a filter key by key — pruning one, stripping empties — names
+ * this instead.
+ */
+export type LooseFilterPayload = { [key: string]: unknown };
 
 export interface GetListParams {
   pagination?: Pagination;

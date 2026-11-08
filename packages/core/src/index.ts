@@ -452,6 +452,7 @@ export type {
   GetOneParams,
   GetOneResult,
   InfiniteListParams,
+  LooseFilterPayload,
   PageInfo,
   PagePagination,
   Pagination,

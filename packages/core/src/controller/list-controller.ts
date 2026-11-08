@@ -4,6 +4,7 @@ import { removeEmpty } from "../data/remove-empty";
 import type {
   FilterPayload,
   GetListResult,
+  LooseFilterPayload,
   PageInfo,
   SortPayload,
 } from "../data/types";
@@ -61,8 +62,7 @@ export interface ListParamsPatch<TRecord = LooseRecord> {
  * the two line up field by field.
  */
 export type LooseListParamsPatch = Omit<ListParamsPatch, "filter"> & {
-  // type-escape: a patch that names no record carries an open filter, and a filter value is unknown by design (see `FilterPayload`)
-  filter?: { [key: string]: unknown };
+  filter?: LooseFilterPayload;
 };
 
 /**
@@ -87,11 +87,9 @@ export type ListContextSurface<TRecord = ResourceRecord> = Omit<
   ListControllerSurface<TRecord>,
   "filter" | "setFilters" | "setParams"
 > & {
-  // type-escape: what writes a context filter names no record, and a filter value is unknown by design (see `FilterPayload`)
-  filter: { [key: string]: unknown };
+  filter: LooseFilterPayload;
   setFilters(
-    // type-escape: the same open filter map as the `filter` field above
-    filter: { [key: string]: unknown },
+    filter: LooseFilterPayload,
     displayedFilters?: Record<string, boolean>,
     debounced?: boolean,
   ): void;
@@ -232,7 +230,7 @@ export function removeFilterPath<TRecord = LooseRecord>(
   // `pruned` is that fresh copy seen through its loose shape: pruning walks
   // nested keys, and a typed filter names no index signature to walk in. Only
   // this copy is written to; a nested branch is rebuilt, never mutated.
-  const pruned: FilterPayload = result;
+  const pruned: LooseFilterPayload = result;
   delete pruned[path];
   const keys = path.split(".");
   const [head] = keys;

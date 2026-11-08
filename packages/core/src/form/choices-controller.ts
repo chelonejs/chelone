@@ -162,7 +162,8 @@ export function createChoicesController<
   const reference = options.reference;
   const lookupKey = options.lookupKey ?? "id";
   const isIdLookup = lookupKey === "id";
-  const permanentFilter: FilterPayload<TRecord> = options.filter ?? {};
+  const permanentFilter: FilterPayload<TRecord> =
+    options.filter === undefined ? {} : options.filter;
   const debounceMs = options.debounceMs ?? DEFAULT_DEBOUNCE_MS;
 
   const store = createMicroStore<ChoicesControllerState<TRecord>>(
