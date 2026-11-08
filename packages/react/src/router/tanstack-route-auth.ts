@@ -23,7 +23,8 @@ export interface RequireAuthBeforeLoadOptions {
 
 /**
  * A route's `beforeLoad` guard: a logged-out visit throws a redirect to the
- * login route before the route renders. The answer lands in the query cache,
+ * login route before the route renders. A visit to the login route itself passes,
+ * so the guard can sit on a root or layout route above it. The answer lands in the query cache,
  * so the shell's `useAuthGate` shows no loading state afterwards.
  */
 export async function requireAuthBeforeLoad({
@@ -36,7 +37,7 @@ export async function requireAuthBeforeLoad({
     location: location.pathname + location.searchStr,
     loginPath,
   });
-  if (!result.authenticated) {
+  if (!result.authenticated && result.redirectTo !== null) {
     throw redirect({ href: result.redirectTo });
   }
 }

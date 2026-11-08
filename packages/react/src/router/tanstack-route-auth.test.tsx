@@ -38,12 +38,20 @@ function mountApp(options: {
   authProvider: AuthProvider;
   initialEntry: string;
   Protected: () => null;
+  /** Put the guard on the root route, above `/login`. */
+  guardRoot?: boolean;
 }) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
   const { authProvider, initialEntry, Protected } = options;
-  const root = createRootRoute({ component: Outlet });
+  const root = createRootRoute({
+    component: Outlet,
+    beforeLoad: options.guardRoot
+      ? ({ location }) =>
+          requireAuthBeforeLoad({ location, authProvider, queryClient })
+      : undefined,
+  });
   const home = createRoute({
     getParentRoute: () => root,
     path: "/",
@@ -103,6 +111,21 @@ describe("a logged-out visit redirects before render", () => {
       "/login?redirect=%2Fadmin%2Fposts",
     );
     expect(rendered).not.toHaveBeenCalled();
+  });
+});
+
+describe("a guard above the login route", () => {
+  it("lets a logged-out visit to /login through instead of looping", async () => {
+    const app = mountApp({
+      authProvider: loggedOut,
+      initialEntry: "/login",
+      Protected: () => null,
+      guardRoot: true,
+    });
+
+    await mountAndLoad(app);
+
+    expect(app.router.state.location.href).toBe("/login");
   });
 });
 

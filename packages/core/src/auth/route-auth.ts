@@ -21,9 +21,14 @@ export interface RouteAuthOptions {
   redirectParam?: string;
 }
 
+/**
+ * `redirectTo` is `null` when the visit is already to the login path: there is
+ * nowhere to send it, and a redirect there would loop a guard that covers the
+ * login route.
+ */
 export type RouteAuthResult =
   | { authenticated: true }
-  | { authenticated: false; redirectTo: string };
+  | { authenticated: false; redirectTo: string | null };
 
 /** `location` without its hash and credential keys. */
 function withoutCredentials(location: string): {
@@ -69,7 +74,7 @@ export async function checkRouteAuth(
     options;
   const { pathname, search } = withoutCredentials(options.location);
   if (pathname === loginPath) {
-    return { authenticated: false, redirectTo: loginPath };
+    return { authenticated: false, redirectTo: null };
   }
   const params = new URLSearchParams({ [redirectParam]: pathname + search });
   return { authenticated: false, redirectTo: `${loginPath}?${params}` };

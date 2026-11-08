@@ -90,12 +90,12 @@ describe("the login redirect carries no token", () => {
 });
 
 describe("a visit to the login path gets no redirect param", () => {
-  it("redirects to the bare login path", async () => {
+  it("has nowhere to redirect, so a guard on the login route cannot loop", async () => {
     const result = await checkRouteAuth(new QueryClient(), loggedOut, {
       location: "/login?foo=1",
     });
 
-    expect(result).toEqual({ authenticated: false, redirectTo: "/login" });
+    expect(result).toEqual({ authenticated: false, redirectTo: null });
   });
 });
 

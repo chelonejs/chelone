@@ -112,7 +112,8 @@ export const Route = createFileRoute("/login")({
 
 The check is plain core logic. A Vue app calls `checkRouteAuth(queryClient,
 authProvider, { location })` from a `vue-router` `beforeEach` guard and
-navigates to `redirectTo` when it resolves `{ authenticated: false }`. Use
+navigates to `redirectTo` when it is a string. A logged-out visit to the login
+path resolves `redirectTo: null`, so a global guard does not loop. Use
 `safeRedirectTarget(raw)` to validate any redirect target you read from a URL.
 
 ## The auth hooks
