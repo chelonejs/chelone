@@ -43,7 +43,13 @@ it("the list filter is keyed by the record's filter keys", () => {
 });
 
 const resources = defineResources({
-  authors: { schema: z.object({ id: z.number(), name: z.string() }) },
+  authors: {
+    schema: z.object({
+      id: z.number(),
+      name: z.string(),
+      article_id: z.number(),
+    }),
+  },
 });
 
 it("the list sort is keyed by the record's sort fields", () => {

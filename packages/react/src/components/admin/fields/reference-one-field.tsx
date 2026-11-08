@@ -75,7 +75,7 @@ function ReferenceOneField<RecordType extends ResourceRecord = LooseRecord>(
   const {
     reference,
     target,
-    source = "id",
+    source,
     record: recordProp,
     children,
     render,

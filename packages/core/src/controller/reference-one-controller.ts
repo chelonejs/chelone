@@ -8,12 +8,13 @@ import type {
 import type { Identifier } from "../resource/identifier";
 import type { LooseRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import type { SourceKey } from "../resource/source-path";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { ListControllerContext } from "./list-controller";
 
 export interface ReferenceOneControllerOptions<TRecord = LooseRecord> {
-  /** The field on the referenced-FROM resource that holds the foreign key. */
-  target: string;
+  /** The field on the referenced-FROM resource that holds the foreign key. A key of the referenced record. */
+  target: SourceKey<TRecord>;
   /** The value `target` must equal. Null or undefined fetches nothing. */
   id: Identifier | null | undefined;
   /** Decides which row is first when several match. Omitted: the provider's order. */

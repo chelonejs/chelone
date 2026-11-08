@@ -9,6 +9,7 @@ import type {
 import type { Identifier } from "../resource/identifier";
 import type { LooseRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import type { SourceKey } from "../resource/source-path";
 import { createMicroStore } from "../store/micro-store";
 import {
   createErrorAnnouncer,
@@ -24,8 +25,8 @@ import {
 } from "./list-controller";
 
 export interface ReferenceManyControllerOptions<TRecord = LooseRecord> {
-  /** The field on the referenced-FROM resource that holds the foreign key. */
-  target: string;
+  /** The field on the referenced-FROM resource that holds the foreign key. A key of the referenced record. */
+  target: SourceKey<TRecord>;
   /** The value `target` must equal. Null or undefined fetches nothing. */
   id: Identifier | null | undefined;
   /** Permanent filter, merged OVER the user filter for every fetch. */

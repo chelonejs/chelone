@@ -114,7 +114,9 @@ it("a list controller keys its displayed filters by the record and still mounts 
 });
 
 const resources = defineResources({
-  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+  comments: {
+    schema: z.object({ id: z.number(), post_id: z.number(), body: z.string() }),
+  },
 });
 
 it("the reference-many hook keys its filters by the referenced record", () => {
