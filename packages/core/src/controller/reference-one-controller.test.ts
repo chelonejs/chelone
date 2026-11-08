@@ -7,12 +7,9 @@ import { defineResources } from "../resource/registry";
 import { createStore } from "../store/store";
 import { createReferenceOneController } from "./reference-one-controller";
 
-// `looseObject` on purpose: these tests filter on plain field names, and a
-// strict record keys its filter by `FilterSourceKey` — `q` plus operator
-// suffixes only. Filter-key typing is pinned in source-path.test-d.ts.
 const resources = defineResources({
   profiles: {
-    schema: z.looseObject({
+    schema: z.object({
       id: z.number(),
       userId: z.number(),
       bio: z.string(),

@@ -10,6 +10,8 @@ import {
   type ListControllerState,
   type ListParamsPatch,
   listParamsFromPatch,
+  nextSortOf,
+  normalizeSort,
   removeFilterPath,
 } from "./list-controller";
 
@@ -70,14 +72,6 @@ export interface ClientListController<TRecord> extends ListController<TRecord> {
 
 const DEFAULT_PER_PAGE = 1000;
 const DEFAULT_SORT: SortPayload[] = [];
-
-function normalizeSort(
-  sort: SortPayload | SortPayload[] | undefined,
-): SortPayload[] {
-  if (!sort) return DEFAULT_SORT.map((entry) => ({ ...entry }));
-  const entries = Array.isArray(sort) ? sort : [sort];
-  return entries.map((entry) => ({ ...entry }));
-}
 
 /**
  * Flatten a nested filter object into dotted keys (`{nested:{level:5}}` →
@@ -186,7 +180,7 @@ export function createClientListController<
   const store = createMicroStore<ListControllerState<TRecord>>({
     page: options.page ?? 1,
     perPage: options.perPage ?? DEFAULT_PER_PAGE,
-    sort: normalizeSort(options.sort),
+    sort: normalizeSort(options.sort, DEFAULT_SORT),
     filter: removeEmpty(options.filter ?? {}),
     displayedFilters: {},
     selectedIds: [],
@@ -255,19 +249,10 @@ export function createClientListController<
 
   const setSort = (input: SortPayload | SortPayload[]): void => {
     if (destroyed) return;
-    const current = store.getSnapshot().sort;
-    const single = current.length === 1 ? current[0] : undefined;
-    let next: SortPayload[];
-    if (Array.isArray(input)) {
-      next = input.map((entry) => ({ ...entry }));
-    } else if (single && single.field === input.field) {
-      next = [
-        { field: input.field, order: single.order === "ASC" ? "DESC" : "ASC" },
-      ];
-    } else {
-      next = [{ field: input.field, order: input.order ?? "ASC" }];
-    }
-    store.setState({ sort: next, page: 1 });
+    store.setState({
+      sort: nextSortOf(store.getSnapshot().sort, input),
+      page: 1,
+    });
     recompute();
   };
 

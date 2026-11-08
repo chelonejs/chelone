@@ -61,6 +61,7 @@ export interface ListParamsPatch<TRecord = LooseRecord> {
  * the two line up field by field.
  */
 export type LooseListParamsPatch = Omit<ListParamsPatch, "filter"> & {
+  // type-escape: a patch that names no record carries an open filter, and a filter value is unknown by design (see `FilterPayload`)
   filter?: { [key: string]: unknown };
 };
 
@@ -86,8 +87,10 @@ export type ListContextSurface<TRecord = ResourceRecord> = Omit<
   ListControllerSurface<TRecord>,
   "filter" | "setFilters" | "setParams"
 > & {
+  // type-escape: what writes a context filter names no record, and a filter value is unknown by design (see `FilterPayload`)
   filter: { [key: string]: unknown };
   setFilters(
+    // type-escape: the same open filter map as the `filter` field above
     filter: { [key: string]: unknown },
     displayedFilters?: Record<string, boolean>,
     debounced?: boolean,
@@ -156,13 +159,37 @@ export const DEFAULT_DEBOUNCE_MS = 500;
 export const DEFAULT_SELECT_ALL_LIMIT = 250;
 const DEFAULT_SORT: SortPayload[] = [{ field: "id", order: "ASC" }];
 
-function normalizeSort(
+/**
+ * A sort prop as controller state: always an array, always a fresh copy, so a
+ * caller's payload is never the object the controller holds. `fallback` is what
+ * an absent sort becomes. Shared with the client controller.
+ */
+export function normalizeSort(
   sort: SortPayload | SortPayload[] | undefined,
   fallback: SortPayload[],
 ): SortPayload[] {
   if (!sort) return fallback.map((entry) => ({ ...entry }));
   const entries = Array.isArray(sort) ? sort : [sort];
   return entries.map((entry) => ({ ...entry }));
+}
+
+/**
+ * The sort a `setSort` input produces: a single payload on the SAME
+ * single-sorted field toggles its order (ra-core column-header semantics);
+ * anything else replaces. Shared with the client controller.
+ */
+export function nextSortOf(
+  current: SortPayload[],
+  input: SortPayload | SortPayload[],
+): SortPayload[] {
+  if (Array.isArray(input)) return input.map((entry) => ({ ...entry }));
+  const single = current.length === 1 ? current[0] : undefined;
+  if (single && single.field === input.field) {
+    return [
+      { field: input.field, order: single.order === "ASC" ? "DESC" : "ASC" },
+    ];
+  }
+  return [{ field: input.field, order: input.order ?? "ASC" }];
 }
 
 /**
@@ -543,20 +570,10 @@ export function createListController<
 
   const setSort = (input: SortPayload | SortPayload[]): void => {
     if (destroyed) return;
-    const current = store.getSnapshot().sort;
-    const single = current.length === 1 ? current[0] : undefined;
-    let next: SortPayload[];
-    if (Array.isArray(input)) {
-      next = input.map((entry) => ({ ...entry }));
-    } else if (single && single.field === input.field) {
-      // Same single field -> toggle order (ra-core column-header semantics).
-      next = [
-        { field: input.field, order: single.order === "ASC" ? "DESC" : "ASC" },
-      ];
-    } else {
-      next = [{ field: input.field, order: input.order ?? "ASC" }];
-    }
-    applyParams({ sort: next, page: 1 });
+    applyParams({
+      sort: nextSortOf(store.getSnapshot().sort, input),
+      page: 1,
+    });
   };
 
   const applyFilters = (

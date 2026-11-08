@@ -1,4 +1,3 @@
-import type { RecordOf } from "@chelone/core";
 import {
   createNotificationStore,
   createStore,
@@ -25,12 +24,9 @@ import {
   useListContext,
 } from "./filter-live-form";
 
-// `looseObject` on purpose: these tests filter on plain field names, and a
-// strict record keys its filter by `FilterSourceKey` — `q` plus operator
-// suffixes only. Filter-key typing is pinned in core's source-path.test-d.ts.
 const resources = defineResources({
   posts: {
-    schema: z.looseObject({ id: z.number(), title: z.string() }),
+    schema: z.object({ id: z.number(), title: z.string() }),
   },
 });
 
@@ -331,11 +327,7 @@ describe("useFilterForm / FilterLiveForm", () => {
   it("reads the real list controller's setFilters through the context (integration)", async () => {
     // Wire a REAL useListController and assert the filter form drives its
     // filter state end-to-end.
-    const latest: {
-      current: UseListControllerResult<
-        RecordOf<typeof resources, "posts">
-      > | null;
-    } = {
+    const latest: { current: UseListControllerResult<PostRecord> | null } = {
       current: null,
     };
     const input: { current: ReturnType<typeof useInput> | null } = {

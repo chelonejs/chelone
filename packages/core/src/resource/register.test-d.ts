@@ -38,6 +38,7 @@ it("with no augmentation AnyFilterSourceKey is string", () => {
 });
 
 it("with no augmentation a loose FilterPayload is string-keyed", () => {
+  // type-escape: naming the open key map is the assertion
   expectTypeOf<FilterPayload>().toEqualTypeOf<{ [key: string]: unknown }>();
   expectTypeOf<FilterPayload>().toEqualTypeOf<FilterPayload<LooseRecord>>();
   const filter: FilterPayload = { titel_gte: "x", anything: 1 };
@@ -66,6 +67,7 @@ const withSchemaless = defineResources({
  * `FilterPayload` itself reads `Register`, which no core file augments.
  */
 type FilterOf<TResources extends ResourceMap> = {
+  // type-escape: mirrors `FilterPayload`'s mapped arm, whose values are unknown by design
   [TKey in AnyFilterSourceKeyOf<TResources>]?: unknown;
 };
 

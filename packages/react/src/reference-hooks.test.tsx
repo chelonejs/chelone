@@ -13,22 +13,17 @@ import {
   useReferenceOneFieldController,
 } from "./reference-hooks";
 
-// `looseObject` on purpose: these tests filter on plain field names, and a
-// strict record keys its filter by `FilterSourceKey` — `q` plus operator
-// suffixes only. Filter-key typing is pinned in core's source-path.test-d.ts.
 const resources = defineResources({
-  posts: {
-    schema: z.looseObject({ id: z.number(), title: z.string() }),
-  },
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
   comments: {
-    schema: z.looseObject({
+    schema: z.object({
       id: z.number(),
       post_id: z.number(),
       body: z.string(),
     }),
   },
   profiles: {
-    schema: z.looseObject({
+    schema: z.object({
       id: z.number(),
       post_id: z.number(),
       bio: z.string(),

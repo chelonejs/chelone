@@ -6,12 +6,9 @@ import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
 import { choiceListsOf, createChoicesController } from "./choices-controller";
 
-// `looseObject` on purpose: these tests filter on plain field names, and a
-// strict record keys its filter by `FilterSourceKey` — `q` plus operator
-// suffixes only. Filter-key typing is pinned in source-path.test-d.ts.
 const resources = defineResources({
   posts: {
-    schema: z.looseObject({
+    schema: z.object({
       id: z.number(),
       title: z.string(),
       isbn: z.string(),
@@ -221,7 +218,7 @@ describe("createChoicesController — setFilters debounce", () => {
     const c = createChoicesController(ctx, { reference: "posts" });
     attach(c);
     await vi.waitFor(() => expect(c.getSnapshot().isPending).toBe(false));
-    c.setFilters({ title: "", category: "tech", note: null });
+    c.setFilters({ title: "", category: "tech", isbn: null });
     expect(c.getSnapshot().filter).toEqual({ category: "tech" });
     c.destroy();
     vi.useRealTimers();

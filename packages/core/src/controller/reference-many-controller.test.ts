@@ -8,12 +8,9 @@ import { defineResources } from "../resource/registry";
 import { createStore } from "../store/store";
 import { createReferenceManyController } from "./reference-many-controller";
 
-// `looseObject` on purpose: these tests filter on plain field names, and a
-// strict record keys its filter by `FilterSourceKey` — `q` plus operator
-// suffixes only. Filter-key typing is pinned in source-path.test-d.ts.
 const resources = defineResources({
   comments: {
-    schema: z.looseObject({
+    schema: z.object({
       id: z.number(),
       postId: z.number(),
       body: z.string(),
@@ -162,7 +159,7 @@ describe("createReferenceManyController", () => {
     // same single field: toggles ASC -> DESC and restarts from page 1
     expect(c.getSnapshot().page).toBe(1);
     await vi.waitFor(() => expect(c.getSnapshot().data?.[0]?.id).toBe(30));
-    c.setFilters({ score: 1, body: "", other: null });
+    c.setFilters({ score: 1, body: "", id: null });
     expect(c.getSnapshot().filter).toEqual({ score: 1 });
     expect(c.getSnapshot().page).toBe(1);
     await vi.waitFor(() =>

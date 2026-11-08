@@ -91,6 +91,7 @@ describe("DataProvider inference", () => {
 
 describe("FilterPayload", () => {
   it("bare FilterPayload stays string-keyed for an app that registers nothing", () => {
+    // type-escape: naming the open key map is the assertion
     expectTypeOf<FilterPayload>().toEqualTypeOf<{ [key: string]: unknown }>();
     const filter: FilterPayload = { titel_gte: "x", anything: 1 };
     expectTypeOf(filter).toEqualTypeOf<FilterPayload>();

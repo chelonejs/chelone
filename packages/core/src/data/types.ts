@@ -52,8 +52,10 @@ export type FilterPayload<TRecord = LooseRecord> = _FilterKeys<
  * makes every other key an excess property.
  */
 type _FilterKeys<TKeys extends string> = string extends TKeys
-  ? { [key: string]: unknown }
-  : { [TKey in TKeys]?: unknown };
+  ? // type-escape: filter values are unknown by design — an operator suffix makes a key's value type ambiguous
+    { [key: string]: unknown }
+  : // type-escape: the same, for a record whose filter keys are known
+    { [TKey in TKeys]?: unknown };
 
 export interface GetListParams {
   pagination?: Pagination;
