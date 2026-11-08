@@ -131,7 +131,7 @@ function matchesFilter<TRecord>(
 
 function applyFilterAndSort<TRecord>(
   records: TRecord[],
-  filter: FilterPayload,
+  filter: FilterPayload<TRecord>,
   sort: SortPayload[],
   filterCallback: (record: TRecord) => boolean,
 ): TRecord[] {

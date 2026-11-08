@@ -224,11 +224,14 @@ export {
   planKanbanMove,
 } from "./controller/kanban-board";
 export type {
+  ListContextSurface,
   ListController,
   ListControllerContext,
   ListControllerOptions,
   ListControllerState,
+  ListControllerSurface,
   ListParamsPatch,
+  LooseListParamsPatch,
 } from "./controller/list-controller";
 export {
   createListController,

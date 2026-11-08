@@ -49,6 +49,52 @@ export interface ListParamsPatch<TRecord = LooseRecord> {
   page?: number;
 }
 
+/**
+ * A {@link ListParamsPatch} with the record type erased: the filter is an open
+ * key map. Each adapter's list context carries this, because a context cannot
+ * be generic and a controller typed to any record must mount in one.
+ *
+ * Written as `Omit` plus a fresh `filter`, not as `ListParamsPatch` itself:
+ * TypeScript compares two instantiations of one generic interface by the
+ * variance of their type argument, so a `ListParamsPatch<Post>` never reaches
+ * `ListParamsPatch<LooseRecord>` however the fields read. As a separate type
+ * the two line up field by field.
+ */
+export type LooseListParamsPatch = Omit<ListParamsPatch, "filter"> & {
+  filter?: { [key: string]: unknown };
+};
+
+/**
+ * A list controller's state and actions, without the micro-store plumbing each
+ * adapter re-binds through its own reactive seam (`useSyncExternalStore` in
+ * React, `useMicroStore` in Vue).
+ */
+export type ListControllerSurface<TRecord> = ListControllerState<TRecord> &
+  Omit<ListController<TRecord>, keyof MicroStore<ListControllerState<TRecord>>>;
+
+/**
+ * The list surface an adapter's list context publishes: the rows typed to
+ * `TRecord`, the filter an open key map.
+ *
+ * The filter is open on purpose. What writes a context filter names no record:
+ * a filter form's field names, a calendar's range keys, a URL query. A record's
+ * own filter keys are the job of {@link ListController.setFilters} and the
+ * hooks, which are generic over the record. Erasing only the filter is what
+ * lets a controller typed to any record be mounted in one context.
+ */
+export type ListContextSurface<TRecord = ResourceRecord> = Omit<
+  ListControllerSurface<TRecord>,
+  "filter" | "setFilters" | "setParams"
+> & {
+  filter: { [key: string]: unknown };
+  setFilters(
+    filter: { [key: string]: unknown },
+    displayedFilters?: Record<string, boolean>,
+    debounced?: boolean,
+  ): void;
+  setParams(patch: LooseListParamsPatch): void;
+};
+
 export interface ListController<TRecord>
   extends MicroStore<ListControllerState<TRecord>> {
   /** The `perPage` the list starts at when nothing is persisted or in the URL. Optional so other list controllers and fakes need not set it. */
@@ -346,10 +392,10 @@ export function resetPageTarget(
  * The actions of a list controller, for an adapter to spread next to its own
  * reactive state. They are the same functions across state changes.
  */
-export function listControllerActions(
+export function listControllerActions<TRecord>(
   controller: Omit<
-    ListController<ResourceRecord>,
-    keyof MicroStore<ListControllerState<ResourceRecord>> | "defaultPerPage"
+    ListController<TRecord>,
+    keyof MicroStore<ListControllerState<TRecord>> | "defaultPerPage"
   >,
 ) {
   return {
