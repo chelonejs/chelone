@@ -60,10 +60,12 @@ function omitValue(
  * the keys it holds, down to nested sub-keys, and keeps the rest. Neither
  * argument is mutated.
  */
-export function toggleFilterValue(
-  value: LooseFilterPayload,
-  filters: LooseFilterPayload,
-): LooseFilterPayload {
-  if (!isFilterSelected(value, filters)) return { ...filters, ...value };
-  return omitValue(filters, value);
+export function toggleFilterValue<TRecord = LooseRecord>(
+  value: FilterPayload<TRecord>,
+  filters: FilterPayload<TRecord>,
+): FilterPayload<TRecord> {
+  if (!isFilterSelected<TRecord>(value, filters))
+    return { ...filters, ...value };
+  // type-escape: omitValue only prunes keys from this filter, so the remaining keys still belong to TRecord.
+  return omitValue(filters, value) as FilterPayload<TRecord>;
 }
