@@ -171,6 +171,63 @@ export function App({ permissions }: { permissions: string }) {
 }
 ```
 
+## Route-less admin
+
+`<Admin>` mounts its own route table by default. A file-routed app owns its URLs
+and wants a loader per route, so pass `routes={false}`. `<Admin>` then renders
+the layout, the auth gate and the shell error boundary around the router's
+`<Outlet>`, and your route fills it with a Chelone page.
+
+```tsx title="app/routes/admin.tsx"
+import { Admin, Layout, Resource } from "@chelone/react";
+import { authProvider, dataProvider, queryClient } from "../providers";
+
+export default function AdminRoute() {
+  return (
+    <Admin
+      routes={false}
+      basename="/admin"
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      authProvider={authProvider}
+      requireAuth
+    >
+      <Admin.Layout>
+        <Layout />
+      </Admin.Layout>
+      <Resource name="posts" hasList hasEdit />
+    </Admin>
+  );
+}
+```
+
+```tsx title="app/routes/admin.posts.tsx"
+import { DataTable, List } from "@chelone/react";
+
+export default function Posts() {
+  return (
+    <List resource="posts">
+      <DataTable>
+        <DataTable.Col source="title" />
+      </DataTable>
+    </List>
+  );
+}
+```
+
+- `<Resource>` children still register, so the menu, `useResourceDefinition`, the
+  record representation and the create and edit buttons work. Their views are not
+  mounted: your routes render `List`, `Create`, `Edit` and `Show`, each given its
+  `resource`. `Edit` and `Show` read the route's `:id` param when given no `id`.
+- Chelone builds links as `/posts`, `/posts/create`, `/posts/:id` and
+  `/posts/:id/show` under `basename`, so route your files to those paths.
+- `<Admin>` owns no path: it adds no catch-all, index redirect or dashboard
+  route. The `catchAll` and `dashboard` slots do nothing.
+- `<CustomRoutes>` and the `authCallback` slot do nothing either, since your app
+  routes those paths.
+- A server render shows an empty menu until hydration, because resources register
+  in an effect.
+
 ## Swapping the router
 
 `<Admin>` defaults to the react-router adapter. Pass a different adapter on

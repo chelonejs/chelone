@@ -66,6 +66,13 @@
       "type": "boolean",
       "optional": true,
       "comment": "Gate the shell behind authentication (the no-flash auth gate). When `true`\n(and an `authProvider` is configured), the shell renders a loading spinner\nwhile the auth check is pending and the `#login` slot (default\n`<LoginPage>`) when unauthenticated — the protected layout never mounts\nduring that window. Defaults `false`: the shell renders immediately, exactly\nas before (parity with React's `<Admin requireAuth>`)."
+    },
+    {
+      "name": "routes",
+      "type": "boolean",
+      "optional": true,
+      "default": "true",
+      "comment": "Add the admin's own routes (default `true`): one per resource view, each\n`customRoutes` entry and each page slot. Pass `false` when the app routes its\nown URLs: `<Admin>` then adds no route and renders the layout around the\n`<router-view>` the host's matched child route fills. `<Resource>` children\nstill register, so the menu and links work, but their views are not mounted.\n`customRoutes` and `#authCallback` do nothing. Read once at setup."
     }
   ],
   "emits": [],
