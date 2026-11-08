@@ -7,8 +7,8 @@ import type {
   FilterPayload,
   GetListParams,
   GetListResult,
+  LooseSortPayload,
   Pagination,
-  SortPayload,
 } from "./types";
 
 /** One array of records per resource name, each typed by that resource's schema. */
@@ -57,7 +57,7 @@ function compareValues(a: unknown, b: unknown): number {
 
 function applySort<TRecord>(
   rows: TRecord[],
-  sort: SortPayload | SortPayload[] | undefined,
+  sort: LooseSortPayload | LooseSortPayload[] | undefined,
 ): TRecord[] {
   if (!sort) return rows;
   const keys = Array.isArray(sort) ? sort : [sort];
