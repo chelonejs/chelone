@@ -9,7 +9,7 @@
  */
 
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { SourceKey } from "../resource/source-path";
 
 export interface KanbanColumnDef {
@@ -29,9 +29,9 @@ export interface KanbanBucket<R> {
  * and `previousData` the record as it was, so an adapter can undo the drop
  * without a second read.
  */
-export interface KanbanMove<R> {
+export interface KanbanMove<R = LooseRecord> {
   id: Identifier;
-  data: Record<string, string>;
+  data: { [K in SourceKey<R>]?: string };
   previousData: R;
 }
 
@@ -91,6 +91,7 @@ export function planKanbanMove<R extends ResourceRecord>(
 ): KanbanMove<R> | null {
   if (!columns.some((column) => column.id === targetColumnId)) return null;
   if (bucketKey(record, groupSource) === targetColumnId) return null;
-  const data: Record<string, string> = { [groupSource]: targetColumnId };
+  // type-escape: the computed key is a SourceKey<R>, but TypeScript cannot carry it into the object type
+  const data = { [groupSource]: targetColumnId } as KanbanMove<R>["data"];
   return { id: record.id, data, previousData: record };
 }
