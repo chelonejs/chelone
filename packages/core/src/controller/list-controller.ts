@@ -5,6 +5,7 @@ import type {
   FilterPayload,
   GetListResult,
   LooseFilterPayload,
+  LooseSortPayload,
   PageInfo,
   SortPayload,
 } from "../data/types";
@@ -55,14 +56,15 @@ export interface ListParamsPatch<TRecord = LooseRecord> {
  * key map. Each adapter's list context carries this, because a context cannot
  * be generic and a controller typed to any record must mount in one.
  *
- * Written as `Omit` plus a fresh `filter`, not as `ListParamsPatch` itself:
+ * Written as `Omit` plus a fresh `filter` and `sort`, not as `ListParamsPatch` itself:
  * TypeScript compares two instantiations of one generic interface by the
  * variance of their type argument, so a `ListParamsPatch<Post>` never reaches
  * `ListParamsPatch<LooseRecord>` however the fields read. As a separate type
  * the two line up field by field.
  */
-export type LooseListParamsPatch = Omit<ListParamsPatch, "filter"> & {
+export type LooseListParamsPatch = Omit<ListParamsPatch, "filter" | "sort"> & {
   filter?: LooseFilterPayload;
+  sort?: LooseSortPayload | LooseSortPayload[];
 };
 
 /**
