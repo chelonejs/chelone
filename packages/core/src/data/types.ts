@@ -29,7 +29,8 @@ export interface SortPayload {
   order: "ASC" | "DESC";
 }
 /**
- * A filter object: {@link FilterSourceKey}s mapped to values. Keys come from the
+ * A filter object: {@link RecordFilterKey}s mapped to values — a record's source
+ * paths, those paths with an operator suffix, and `q`. Keys come from the
  * resource registry the way a `source` prop does from {@link SourceProp}, so an
  * app that registers its resources gets `titel_gte` rejected at the call site.
  *

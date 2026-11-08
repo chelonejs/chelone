@@ -199,14 +199,16 @@ describe("FilterPayload", () => {
     acceptPostFilterPayload({ q: "search" });
     acceptPostFilterPayload({ published_at_gte: "2020-01-01" });
     acceptPostFilterPayload({ "items[0].sku_gte": "a" });
+    // a plain source name, the way a filter form writes it
+    acceptPostFilterPayload({ title: "x" });
     acceptPostFilterPayload({});
   });
 
-  it("FilterPayload<Post> rejects a misspelt key and a bare path", () => {
+  it("FilterPayload<Post> rejects a key Post has no path for", () => {
     // @ts-expect-error "titel_gte" is no filter key of Post
     acceptPostFilterPayload({ titel_gte: "x" });
-    // @ts-expect-error a filter key carries an operator suffix
-    acceptPostFilterPayload({ published_at: "2020-01-01" });
+    // @ts-expect-error "titel" is no path of Post either, suffixed or not
+    acceptPostFilterPayload({ titel: "x" });
   });
 
   it("FilterPayload values stay unknown", () => {

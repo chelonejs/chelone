@@ -157,15 +157,18 @@ export type RowSourcePath<TRecord> = unknown extends TRecord
 export type FilterSourceKey<TRecord> = "q" | `${SourcePath<TRecord>}_${string}`;
 
 /**
- * The filter keys one record accepts, or `string` when it names no paths of
- * its own: a loose record, a resource with no schema and a record with an open
- * key set filter on anything, as {@link RowSourcePath} reads them.
- * {@link FilterSourceKey} alone would give `q` plus an operator pattern, which
- * rejects every plain key.
+ * The filter keys one record accepts: the free-text `q`, its source paths, and
+ * those paths with an operator suffix.
+ *
+ * Plain paths are load-bearing, not a looseness: a filter form writes the key
+ * its input's `source` names (`<TextInput source="title">` pushes
+ * `{ title: "x" }`), and only `calendarRangeFilter` and the like write a
+ * suffix. `string` when the record names no paths of its own — a loose record,
+ * a resource with no schema, a record with an open key set.
  */
 export type RecordFilterKey<TRecord> = string extends keyof TRecord
   ? string
-  : FilterSourceKey<TRecord>;
+  : SourcePath<TRecord> | FilterSourceKey<TRecord>;
 
 /** The source props one record accepts: its paths, its row paths, its filter keys. */
 type _RecordSourcePath<TRecord> =
