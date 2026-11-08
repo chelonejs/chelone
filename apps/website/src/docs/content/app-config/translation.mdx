@@ -16,6 +16,17 @@ while. They now read `chelone.*` with the same group names, so
 still holds `ra.*` entries has no effect, and a component label you translated
 under the old name needs the new one.
 
+Four keys could not keep their name because a core controller already owns it
+and says something else, so they keep the group and name their role. Their
+English is unchanged:
+
+| old key | new key |
+| --- | --- |
+| `ra.message.access_denied` | `chelone.message.access_denied_detail` |
+| `ra.message.authentication_error` | `chelone.message.authentication_error_detail` |
+| `ra.message.loading` | `chelone.message.loading_detail` |
+| `ra.notification.http_error` | `chelone.notification.http_error_label` |
+
 ## Building the i18n instance
 
 ```tsx title="src/i18n.ts"
