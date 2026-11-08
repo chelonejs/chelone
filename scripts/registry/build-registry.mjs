@@ -31,8 +31,16 @@ import {
   isEngineRelative,
   resolveSpecifier,
   rewriteEngineImports,
+  USE_CLIENT,
 } from "./engine-seam.mjs";
 import { fileToItemRef, resolveImport } from "./granularize-block.mjs";
+import {
+  hasUseClient,
+  needsUseClient,
+  withUseClient,
+} from "./use-client.mjs";
+
+const isScript = (file) => file.endsWith(".ts") || file.endsWith(".tsx");
 
 const cwd = process.cwd();
 const registryPath = path.resolve(cwd, "registry.json");
@@ -97,10 +105,25 @@ const verifyOutput = async (registry) => {
       problems.push(`empty dist output: ${item.name}.json`);
       continue;
     }
+    let emittedItem;
     try {
-      JSON.parse(raw);
+      emittedItem = JSON.parse(raw);
     } catch {
       problems.push(`invalid JSON: ${item.name}.json`);
+    }
+    if (USE_CLIENT) {
+      for (const file of emittedItem?.files ?? []) {
+        if (
+          isScript(file.path) &&
+          typeof file.content === "string" &&
+          needsUseClient(file.content) &&
+          !hasUseClient(file.content)
+        ) {
+          problems.push(
+            `missing "use client": ${item.name} (${file.path})`,
+          );
+        }
+      }
     }
     for (const dep of item.registryDependencies ?? []) {
       if (dep.startsWith("@chelone/")) {
@@ -143,6 +166,7 @@ const rewriteEmittedItems = async () => {
   const entries = await readdir(outputDir);
   let filesRewritten = 0;
   let itemsWithEngineDep = 0;
+  let filesMarked = 0;
 
   for (const entry of entries) {
     if (!entry.endsWith(".json") || entry === "registry.json") continue;
@@ -151,8 +175,17 @@ const rewriteEmittedItems = async () => {
     if (!item.files?.length) continue;
 
     let itemRewrote = false;
+    let itemMarked = false;
     for (const file of item.files) {
       if (typeof file.content !== "string") continue;
+      if (USE_CLIENT && isScript(file.path)) {
+        const marked = withUseClient(file.content);
+        if (marked !== file.content) {
+          file.content = marked;
+          itemMarked = true;
+          filesMarked += 1;
+        }
+      }
       const sourceAbs = path.resolve(cwd, file.path);
       const { content, rewrote } = rewriteEngineImports(
         file.content,
@@ -171,11 +204,14 @@ const rewriteEmittedItems = async () => {
       deps.add(ENGINE_PACKAGE);
       item.dependencies = [...deps].sort();
       itemsWithEngineDep += 1;
+    }
+
+    if (itemRewrote || itemMarked) {
       await writeFile(outPath, `${JSON.stringify(item, null, 2)}\n`);
     }
   }
 
-  return { filesRewritten, itemsWithEngineDep };
+  return { filesRewritten, itemsWithEngineDep, filesMarked };
 };
 
 // CONTENT-AWARE ESCAPING-RELATIVE VALIDATOR (finding 3).
@@ -369,7 +405,8 @@ const run = async () => {
 
   // Rewrite engine relatives -> the engine package in shipped content BEFORE the
   // registry.json copy + validators, so dist reflects the installable form.
-  const { filesRewritten, itemsWithEngineDep } = await rewriteEmittedItems();
+  const { filesRewritten, itemsWithEngineDep, filesMarked } =
+    await rewriteEmittedItems();
 
   await copyFile(registryPath, path.join(outputDir, "registry.json"));
 
@@ -386,6 +423,9 @@ const run = async () => {
   console.log(
     `Engine seam: rewrote ${filesRewritten} file(s) across ${itemsWithEngineDep} item(s) to import "${ENGINE_PACKAGE}"; 0 engine-relative escapes remain.`,
   );
+  if (USE_CLIENT) {
+    console.log(`Use client: marked ${filesMarked} file(s).`);
+  }
 };
 
 run().catch((error) => {

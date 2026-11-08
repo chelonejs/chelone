@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig, type Plugin } from "vite";
+import { withUseClient } from "../../scripts/registry/use-client.mjs";
 
 const pkg = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),
@@ -47,8 +48,26 @@ const cleanDist = (): Plugin => {
   };
 };
 
+// A test, story or type-test file never reaches the build; the rest of `src`
+// gets the directive on the module that calls a client API, and
+// `preserveModules` keeps it on that output module. `pre` so the check reads
+// the source, where `onClick={...}` has not become a props object yet.
+const TEST_FILE = /\.(?:test|test-d|stories)\.tsx?$|\/__fixtures__\//;
+
+const useClientDirective = (): Plugin => ({
+  name: "use-client-directive",
+  enforce: "pre",
+  transform(code, id) {
+    const file = id.split("?")[0] ?? id;
+    if (!file.startsWith(`${src}/`) || !/\.tsx?$/.test(file)) return null;
+    if (TEST_FILE.test(file)) return null;
+    const marked = withUseClient(code);
+    return marked === code ? null : { code: marked, map: null };
+  },
+});
+
 export default defineConfig({
-  plugins: [cleanDist()],
+  plugins: [cleanDist(), useClientDirective()],
   resolve: {
     alias: {
       "@/components": `${src}/components`,
@@ -83,6 +102,12 @@ export default defineConfig({
     minify: false,
     rollupOptions: {
       external: isExternal,
+      // The directive is kept per module; the warning fires once for each of the
+      // several hundred marked modules and hides the real ones.
+      onwarn(warning, warn) {
+        if (warning.code === "MODULE_LEVEL_DIRECTIVE") return;
+        warn(warning);
+      },
       output: {
         preserveModules: true,
         preserveModulesRoot: "src",
