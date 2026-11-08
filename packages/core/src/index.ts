@@ -453,6 +453,7 @@ export type {
   GetOneResult,
   InfiniteListParams,
   LooseFilterPayload,
+  LooseSortPayload,
   PageInfo,
   PagePagination,
   Pagination,
