@@ -216,10 +216,10 @@ function optionsSignature(
 /**
  * Register the `<Resource>` children on mount and unregister them on unmount,
  * re-running whenever `permissions` OR any resource DEFINITION changes (parity
- * §0a-8). Registration is lazy (an effect, not render-phase) so a discarded
- * render never mutates the shared registry. The core registry's `isEqual`-guard
- * means a re-run with an unchanged definition is a no-op — subscribers are not
- * churned.
+ * §0a-8). The first render also seeds the registry with definitions it does not
+ * hold yet, so a server render (no effects) sees them; later changes go through
+ * the effects only. The core registry's `isEqual`-guard means a re-run with an
+ * unchanged definition is a no-op — subscribers are not churned.
  *
  * `children` is walked each render (fragments recursed, non-resources ignored).
  * The effect keys on a signature of the DERIVED definitions (name + `has*` flags
@@ -267,6 +267,21 @@ export function useRegisterResources(
   // they are keyed on `names` / `signature` / `permissions` instead.
   const definitionsRef = useRef(definitions);
   definitionsRef.current = definitions;
+
+  // SEED: effects never run on the server, so the first render publishes the
+  // derived definitions itself and the menu lists them in server HTML. Only the
+  // first render, and only names the registry does not hold: nothing subscribes
+  // before the first commit, so no listener is notified mid-render, and a
+  // StrictMode double render finds the entry already there. The effects below
+  // keep unregister and update; their `register()` of an unchanged definition is
+  // an `isEqual` no-op.
+  const seeded = useRef(false);
+  if (!seeded.current) {
+    seeded.current = true;
+    for (const definition of definitions) {
+      if (!registry.get(definition.name)) registry.register(definition);
+    }
+  }
 
   // LIFECYCLE: register on mount, unregister on unmount / resource removal. Keyed
   // on `names` only, so a prop or permissions change does NOT tear a resource
