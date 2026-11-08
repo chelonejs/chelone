@@ -1,6 +1,5 @@
 import type { LooseRecord } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
-import type { UseListControllerReturn } from "../controllers/use-list-controller";
 import { type ListContextValue, useListContext } from "./list-context";
 
 type Post = { id: number; title: string };
@@ -11,7 +10,7 @@ describe("useListContext", () => {
       Post[] | undefined
     >();
     expectTypeOf(useListContext<Post>()).toEqualTypeOf<
-      UseListControllerReturn<Post>
+      ListContextValue<Post>
     >();
   });
 
@@ -19,7 +18,9 @@ describe("useListContext", () => {
     expectTypeOf(useListContext().data).toEqualTypeOf<
       LooseRecord[] | undefined
     >();
-    expectTypeOf(useListContext()).toEqualTypeOf<ListContextValue>();
+    expectTypeOf(useListContext()).toEqualTypeOf<
+      ListContextValue<LooseRecord>
+    >();
   });
 
   it("takes a record type that is not a ResourceRecord", () => {

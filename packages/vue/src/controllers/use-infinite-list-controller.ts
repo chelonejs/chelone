@@ -14,6 +14,7 @@ import {
   type InfiniteListController,
   type InfiniteListControllerState,
   type ListControllerOptions,
+  type LooseRecord,
   listControllerActions,
   type MicroStore,
   type RecordOf,
@@ -26,8 +27,8 @@ import { useMicroStore } from "../store/use-micro-store";
 import { toControllerContext } from "./controller-context";
 
 /** Options for {@link useInfiniteListController}: the core list options + a resource override. */
-export interface UseInfiniteListControllerOptions
-  extends ListControllerOptions {
+export interface UseInfiniteListControllerOptions<TRecord = LooseRecord>
+  extends ListControllerOptions<TRecord> {
   /** Target a specific resource; defaults to the ambient `<Resource>` name. */
   resource?: string;
 }
@@ -50,7 +51,7 @@ export function useInfiniteListController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
 >(
-  options: UseInfiniteListControllerOptions = {},
+  options: UseInfiniteListControllerOptions<RecordOf<TResources, TName>> = {},
 ): UseInfiniteListControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();

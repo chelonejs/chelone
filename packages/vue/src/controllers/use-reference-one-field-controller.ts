@@ -36,6 +36,7 @@ import { foreignKeyOf, useControllerForId } from "./use-controller-for-id";
 export interface UseReferenceOneFieldControllerOptions<
   TName extends string = string,
   RecordType extends ResourceRecord = LooseRecord,
+  ReferenceRecord = LooseRecord,
 > {
   /** The resource whose rows point at the record. */
   reference: TName;
@@ -48,7 +49,7 @@ export interface UseReferenceOneFieldControllerOptions<
   /** Decides which row is first when several match. */
   sort?: SortPayload | SortPayload[];
   /** Narrows the lookup. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<ReferenceRecord>;
   /** Gates the fetch. Default true. */
   enabled?: boolean;
 }
@@ -70,7 +71,11 @@ export function useReferenceOneFieldController<
   TName extends keyof TResources & string = keyof TResources & string,
   RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceOneFieldControllerOptions<TName, RecordType>,
+  options: UseReferenceOneFieldControllerOptions<
+    TName,
+    RecordType,
+    RecordOf<TResources, TName>
+  >,
 ): UseReferenceOneFieldControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();

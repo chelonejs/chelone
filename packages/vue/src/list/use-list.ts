@@ -39,7 +39,7 @@ export interface UseListOptions<
   /** The in-memory records (reactive-aware). `undefined` = not-yet-loaded. */
   data?: MaybeRefOrGetter<TRecord[] | undefined>;
   /** Client-side filter for the embedded list. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<TRecord>;
   /** Client-side sort for the embedded list. */
   sort?: SortPayload | SortPayload[];
   /** Client-side page size. Default 1000 (ra-core `useList` — "show everything"). */
@@ -63,7 +63,7 @@ export interface UseListOptions<
  */
 export function useList<TRecord extends ResourceRecord = ResourceRecord>(
   options: UseListOptions<TRecord> = {},
-): ListContextValue {
+): ListContextValue<TRecord> {
   const controller: ClientListController<TRecord> =
     createClientListController<TRecord>({
       data: toValue(options.data),
@@ -116,5 +116,5 @@ export function useList<TRecord extends ResourceRecord = ResourceRecord>(
     hasNextPage: computed(() => state.value.hasNextPage),
     hasPreviousPage: computed(() => state.value.hasPreviousPage),
     ...listControllerActions(controller),
-  }) as ListContextValue;
+  }) as ListContextValue<TRecord>;
 }

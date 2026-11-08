@@ -26,10 +26,10 @@ import {
   createListController,
   type ListController,
   type ListControllerOptions,
-  type ListControllerState,
+  type ListControllerSurface,
+  type LooseRecord,
   listControllerActions,
   listPatchFromSearch,
-  type MicroStore,
   type RecordOf,
   type ResourceMap,
   serializeListState,
@@ -42,7 +42,8 @@ import { useMicroStore } from "../store/use-micro-store";
 import { toControllerContext } from "./controller-context";
 
 /** Options for {@link useListController}: the core list options + a resource override. */
-export interface UseListControllerOptions extends ListControllerOptions {
+export interface UseListControllerOptions<TRecord = LooseRecord>
+  extends ListControllerOptions<TRecord> {
   /** Target a specific resource; defaults to the ambient `<Resource>` name. */
   resource?: string;
   /**
@@ -66,14 +67,13 @@ export interface UseListControllerOptions extends ListControllerOptions {
  * plus the controller's stable actions (`setPage`/`setSort`/`toggleItem`/…). The
  * same shape the React twin returns, minus the `MicroStore` plumbing.
  */
-export type UseListControllerReturn<TRecord> = ListControllerState<TRecord> &
-  Omit<ListController<TRecord>, keyof MicroStore<ListControllerState<TRecord>>>;
+export type UseListControllerReturn<TRecord> = ListControllerSurface<TRecord>;
 
 export function useListController<
   TResources extends ResourceMap = ResourceMap,
   TName extends keyof TResources & string = keyof TResources & string,
 >(
-  options: UseListControllerOptions = {},
+  options: UseListControllerOptions<RecordOf<TResources, TName>> = {},
 ): UseListControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
@@ -97,7 +97,9 @@ export function useListController<
   // Deep-link seed (URL -> state): apply BEFORE `useMicroStore` subscribes (the first
   // subscriber triggers the fetch), and only when the URL carries custom params,
   // so a clean URL falls back to the option/KV defaults (ra-core semantics).
-  const seed = location ? listPatchFromSearch(location.value.search) : null;
+  const seed = location
+    ? listPatchFromSearch<TRecord>(location.value.search)
+    : null;
   if (seed) controller.setParams(seed);
 
   // The single subscribe seam: mounts the controller's observer (4R acquire),
@@ -128,7 +130,7 @@ export function useListController<
       () => location.value.search,
       (search) => {
         if (search === lastPushed) return;
-        const patch = listPatchFromSearch(search);
+        const patch = listPatchFromSearch<TRecord>(search);
         if (patch) controller.setParams(patch);
       },
     );

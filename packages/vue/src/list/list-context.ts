@@ -12,13 +12,23 @@
  * provider (parity with the React twin).
  */
 
-import type { LooseRecord } from "@chelone/core";
+import type {
+  ListContextSurface,
+  LooseRecord,
+  ResourceRecord,
+} from "@chelone/core";
 import { type InjectionKey, inject, provide } from "vue";
-import type { UseListControllerReturn } from "../controllers/use-list-controller";
 
-/** The ambient list surface — the reactive `useListController` result. */
-export type ListContextValue<TRecord = LooseRecord> =
-  UseListControllerReturn<TRecord>;
+/**
+ * The ambient list surface — the reactive `useListController` result.
+ *
+ * `ListContextSurface` erases the filter members and keeps `data` typed: an
+ * injection key cannot be generic, so a controller typed to any record must be
+ * assignable to the one value this key carries. `ResourceRecord` is the widest
+ * record `data` can hold; `useListContext<T>()` reads it back typed.
+ */
+export type ListContextValue<TRecord = ResourceRecord> =
+  ListContextSurface<TRecord>;
 
 /** The provide/inject key for the ambient list surface. */
 export const ListContextKey: InjectionKey<ListContextValue> = Symbol(

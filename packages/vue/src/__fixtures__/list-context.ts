@@ -1,6 +1,6 @@
 import type { LooseRecord, ResourceRecord } from "@chelone/core";
 import { vi } from "vitest";
-import type { UseListControllerReturn } from "../controllers/use-list-controller";
+import type { ListContextValue } from "../list/list-context";
 
 /**
  * A whole list-controller result with real defaults — the Vue twin of
@@ -13,7 +13,7 @@ import type { UseListControllerReturn } from "../controllers/use-list-controller
  * populated list with a next page. A test that renders rows overrides `data`;
  * one that drives selection overrides `selectedIds`.
  *
- * `TRecord` is the record type the harness's rows carry — `LooseRecord`, what
+ * `TRecord` is the record type the harness's rows carry — `ResourceRecord`, what
  * `ListContextValue` holds, when the test has no schema of its own, or a test's
  * own record interface when it does (`makeListContext<TagRecord>({ data: tags })`).
  * It is pinned by the caller, never inferred from `overrides`, so a bare
@@ -27,9 +27,11 @@ import type { UseListControllerReturn } from "../controllers/use-list-controller
  * in `list-context.test-d.ts`), and copying it through here would let these
  * defaults stand in for a field the controller stopped providing.
  */
-export function makeListContext<TRecord extends ResourceRecord = LooseRecord>(
-  overrides: NoInfer<Partial<UseListControllerReturn<TRecord>>> = {},
-): UseListControllerReturn<TRecord> {
+export function makeListContext<
+  TRecord extends ResourceRecord = ResourceRecord,
+>(
+  overrides: NoInfer<Partial<ListContextValue<TRecord>>> = {},
+): ListContextValue<TRecord> {
   return {
     page: 1,
     perPage: 10,
