@@ -15,13 +15,14 @@ const schema = z.object({
   note: z.string().optional(),
 });
 
+type Contact = z.infer<typeof schema>;
+
 const parsed = (
   rows: Array<Record<string, string>>,
   headers = Object.keys(rows[0] ?? {}),
 ): ParsedCsv => ({ headers, rows, errors: [] });
 
-// type-escape: the tests pass schemas with no `id`, and a bare StandardSchemaV1 has an unknown output
-function setup(options: Partial<CsvImportOptions<unknown>> = {}) {
+function setup(options: Partial<CsvImportOptions<Contact>> = {}) {
   const dataProvider = fakeDataProvider({});
   const create = vi
     .spyOn(dataProvider, "create")
@@ -341,13 +342,14 @@ describe("createCsvImportController", () => {
 
   it("a validation that was reset away does not unblock the one that replaced it", async () => {
     const gates: Array<() => void> = [];
-    const gated: StandardSchemaV1 = {
+    const ada: Contact = { name: "Ada", email: "ada@example.com" };
+    const gated: StandardSchemaV1<z.input<typeof schema>, Contact> = {
       "~standard": {
         version: 1,
         vendor: "test",
-        validate: (value) =>
+        validate: () =>
           new Promise((resolve) => {
-            gates.push(() => resolve({ value }));
+            gates.push(() => resolve({ value: ada }));
           }),
       },
     };

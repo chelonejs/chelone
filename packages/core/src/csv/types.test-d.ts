@@ -61,7 +61,7 @@ describe("createCsvImportController", () => {
     expectTypeOf<CsvImportState["mapping"]>().toEqualTypeOf<
       Record<string, string>
     >();
-    // type-escape: pins that a row is an open map of unknown cell values
-    expectTypeOf<CsvRow>().toEqualTypeOf<Record<string, unknown>>();
+    expectTypeOf<keyof CsvRow>().toEqualTypeOf<string>();
+    expectTypeOf<CsvRow[string]>().toBeUnknown();
   });
 });
