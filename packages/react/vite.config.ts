@@ -54,7 +54,7 @@ const cleanDist = (): Plugin => {
 // the source, where `onClick={...}` has not become a props object yet.
 const TEST_FILE = /\.(?:test|test-d|stories)\.tsx?$|\/__fixtures__\//;
 
-const useClientDirective = (): Plugin => ({
+const markClientModules = (): Plugin => ({
   name: "use-client-directive",
   enforce: "pre",
   transform(code, id) {
@@ -67,7 +67,7 @@ const useClientDirective = (): Plugin => ({
 });
 
 export default defineConfig({
-  plugins: [cleanDist(), useClientDirective()],
+  plugins: [cleanDist(), markClientModules()],
   resolve: {
     alias: {
       "@/components": `${src}/components`,
