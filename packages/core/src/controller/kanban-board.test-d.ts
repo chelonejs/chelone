@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import type { LooseRecord } from "../resource/record";
+import type { SourceKey } from "../resource/source-path";
 import {
   buildKanbanBuckets,
   type KanbanBucket,
@@ -43,6 +44,24 @@ describe("kanban-board source keys", () => {
     planKanbanMove(task, "state", columns, "done");
   });
 
+  it("move data accepts only the record's top-level keys", () => {
+    expectTypeOf<keyof KanbanMove<Task>["data"]>().toEqualTypeOf<
+      SourceKey<Task>
+    >();
+    const move: KanbanMove<Task> = {
+      id: task.id,
+      data: { status: "done" },
+      previousData: task,
+    };
+    expectTypeOf(move.data).toEqualTypeOf<{
+      id?: string;
+      status?: string;
+      title?: string;
+    }>();
+    // @ts-expect-error "state" is not a key of Task
+    move.data = { state: "x" };
+  });
+
   it("a loose record takes any string", () => {
     expectTypeOf(buildKanbanBuckets(loose, "stage", columns)).toEqualTypeOf<
       KanbanBucket<LooseRecord>[]
@@ -50,5 +69,7 @@ describe("kanban-board source keys", () => {
     expectTypeOf(
       planKanbanMove(looseRecord, "whatever", columns, "done"),
     ).toEqualTypeOf<KanbanMove<LooseRecord> | null>();
+    const data: KanbanMove<LooseRecord>["data"] = { anyKey: "done" };
+    expectTypeOf(data).toEqualTypeOf<KanbanMove["data"]>();
   });
 });

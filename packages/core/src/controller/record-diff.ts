@@ -5,13 +5,14 @@
 
 import { isPlainObject, isRecord } from "../guards";
 import { getAtPath } from "../resource/get-at-path";
+import type { LooseRecord } from "../resource/record";
 import type { SourceProp } from "../resource/source-path";
 import { deepEqual } from "./deep-equal";
 
 export type DiffStatus = "unchanged" | "added" | "removed" | "changed";
 
-export interface RecordDiffRow {
-  source: string;
+export interface RecordDiffRow<R = LooseRecord> {
+  source: SourceProp<R>;
   status: DiffStatus;
   // type-escape: a row holds whatever the record held at the source path
   before: unknown;
@@ -44,12 +45,14 @@ export function diffRecords<R>(
   before: R,
   after: R,
   sources?: readonly SourceProp<R>[],
-): RecordDiffRow[] {
+): RecordDiffRow<R>[] {
   const beforeKeys = topLevelKeys(before);
-  const keys: readonly string[] = sources ?? [
+  const inferredKeys = [
     ...beforeKeys,
     ...topLevelKeys(after).filter((key) => !beforeKeys.includes(key)),
   ];
+  // type-escape: Object.keys returns strings, but a record's top-level keys are its source paths
+  const keys = sources ?? (inferredKeys as SourceProp<R>[]);
   return keys.map((source) => {
     const was = getAtPath(before, source);
     const now = getAtPath(after, source);

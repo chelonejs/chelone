@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import type { LooseRecord } from "../resource/record";
+import type { SourceProp } from "../resource/source-path";
 import {
   type DiffStatus,
   diffRecords,
@@ -19,7 +20,10 @@ const loose: LooseRecord = { id: 1 };
 describe("diffRecords sources", () => {
   it("diffRecords accepts paths of the record", () => {
     const rows = diffRecords(before, after, ["title", "author.name"]);
-    expectTypeOf(rows).toEqualTypeOf<RecordDiffRow[]>();
+    expectTypeOf(rows).toEqualTypeOf<RecordDiffRow<Post>[]>();
+    expectTypeOf<(typeof rows)[number]["source"]>().toEqualTypeOf<
+      SourceProp<Post>
+    >();
     expectTypeOf<RecordDiffRow["status"]>().toEqualTypeOf<DiffStatus>();
     expectTypeOf<DiffStatus>().toEqualTypeOf<
       "unchanged" | "added" | "removed" | "changed"
@@ -32,6 +36,15 @@ describe("diffRecords sources", () => {
   });
 
   it("a loose record takes any string", () => {
-    diffRecords(loose, loose, ["anything.at[0].all"]);
+    expectTypeOf(
+      diffRecords(loose, loose, ["anything.at[0].all"]),
+    ).toEqualTypeOf<RecordDiffRow<LooseRecord>[]>();
+    expectTypeOf<RecordDiffRow["source"]>().toEqualTypeOf<SourceProp>();
+  });
+
+  it("inferred top-level rows keep the record's paths", () => {
+    expectTypeOf(diffRecords(before, after)).toEqualTypeOf<
+      RecordDiffRow<Post>[]
+    >();
   });
 });

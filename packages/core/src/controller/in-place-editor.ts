@@ -57,8 +57,7 @@ export interface InPlaceSave<R extends ResourceRecord> {
  */
 export function planInPlaceSave<R extends ResourceRecord>(
   record: R,
-  // type-escape: dirty values come from a form read by name
-  dirty: Record<string, unknown>,
+  dirty: Partial<NoInfer<R>>,
 ): InPlaceSave<R> | null {
   if (!isLooseRecord(record)) return null;
   const changed = Object.entries(dirty).filter(

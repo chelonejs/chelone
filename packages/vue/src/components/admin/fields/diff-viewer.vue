@@ -88,9 +88,9 @@ function statusWord(status: DiffStatus): string {
   return translate(`chelone.diff_viewer.status.${status}`, { _: status });
 }
 
-const removes = (row: RecordDiffRow) =>
+const removes = (row: RecordDiffRow<RecordType>) =>
   row.status === "removed" || row.status === "changed";
-const adds = (row: RecordDiffRow) =>
+const adds = (row: RecordDiffRow<RecordType>) =>
   row.status === "added" || row.status === "changed";
 </script>
 

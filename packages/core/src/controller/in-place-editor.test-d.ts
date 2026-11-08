@@ -27,6 +27,15 @@ describe("in-place editor types", () => {
     } | null>();
   });
 
+  it("dirty fields cannot widen the record type", () => {
+    // @ts-expect-error "titel" is not a field of Post
+    planInPlaceSave(post, { titel: "new" });
+    // @ts-expect-error extra dirty fields cannot be inferred into Post
+    planInPlaceSave(post, { title: "new", extra: true });
+    // @ts-expect-error the dirty title must have Post's value type
+    planInPlaceSave(post, { title: 42 });
+  });
+
   it("the saving state holds a preview of the record's type", () => {
     expectTypeOf<InPlaceEditorState<Post>>().toEqualTypeOf<
       | { status: "reading" }
