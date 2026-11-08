@@ -33,8 +33,8 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.auth.logout": "Log out",
-        "ra.auth.user_menu": "User menu",
+        "chelone.auth.logout": "Log out",
+        "chelone.auth.user_menu": "User menu",
       }),
     },
   });

@@ -629,10 +629,10 @@ describe("normalizeFormError", () => {
   it("keeps the string and number args when others are not message params", () => {
     expect(
       normalizeFormError({
-        message: "ra.validation.minLength",
+        message: "chelone.validation.minLength",
         args: { min: 5, strict: true, extra: undefined },
       }),
-    ).toEqual({ message: "ra.validation.minLength", args: { min: 5 } });
+    ).toEqual({ message: "chelone.validation.minLength", args: { min: 5 } });
   });
 
   it("uses an Error's message", () => {

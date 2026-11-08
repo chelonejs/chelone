@@ -40,9 +40,9 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.auth.sign_in": "Sign in",
-        "ra.auth.sign_in_error": "Authentication failed, please retry",
-        "ra.validation.required": "Required",
+        "chelone.auth.sign_in": "Sign in",
+        "chelone.auth.sign_in_error": "Authentication failed, please retry",
+        "chelone.validation.required": "Required",
       }),
     },
   });
@@ -121,10 +121,11 @@ describe("<LoginForm>", () => {
     );
   });
 
-  it("renders the English `_` fallback for `ra.*` labels under the default catalog", () => {
-    // The default catalog carries only `chelone.*` keys — no `ra.*`. Without
-    // the core `_`-fallback fix, `translate("ra.auth.sign_in", { _: "Sign in" })`
-    // echoes the raw key and the button reads "ra.auth.sign_in".
+  it("renders the English `_` fallback for a label the default catalog lacks", () => {
+    // `defaultMessages` is the core catalog only: it has no component label
+    // keys. Without the core `_`-fallback fix,
+    // `translate("chelone.auth.sign_in", { _: "Sign in" })` echoes the raw key
+    // and the button reads "chelone.auth.sign_in".
     const i18n = createI18n({
       locale: "en",
       messages: { en: defaultMessages },
@@ -135,7 +136,7 @@ describe("<LoginForm>", () => {
       </Wrap>,
     );
     expect(screen.getByRole("button", { name: /sign in/i })).toBeTruthy();
-    expect(screen.queryByText("ra.auth.sign_in")).toBeNull();
+    expect(screen.queryByText("chelone.auth.sign_in")).toBeNull();
   });
 
   it("surfaces an error notification when login rejects", async () => {

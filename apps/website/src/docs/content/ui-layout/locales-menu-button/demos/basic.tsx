@@ -12,7 +12,7 @@ function LocaleSelector() {
 
   return (
     <div className="flex items-center gap-2 [&_button]:inline-flex">
-      <span>{translate("ra.action.change_locale")}</span>
+      <span>{translate("chelone.action.change_locale")}</span>
       <LocalesMenuButton />
     </div>
   );
@@ -25,8 +25,10 @@ export default function LocalesMenuButtonDemo() {
     createI18n({
       locale: "en",
       messages: {
-        en: defineMessages({ "ra.action.change_locale": "Change locale" }),
-        fr: defineMessages({ "ra.action.change_locale": "Changer de langue" }),
+        en: defineMessages({ "chelone.action.change_locale": "Change locale" }),
+        fr: defineMessages({
+          "chelone.action.change_locale": "Changer de langue",
+        }),
       },
     }),
   );

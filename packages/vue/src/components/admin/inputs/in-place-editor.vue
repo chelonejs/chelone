@@ -231,7 +231,7 @@ function onReadingKeydown(event: KeyboardEvent) {
       tabindex="0"
       data-slot="in-place-editor-reading"
       class="cursor-pointer"
-      :aria-label="translate('ra.action.edit', { _: 'Edit' })"
+      :aria-label="translate('chelone.action.edit', { _: 'Edit' })"
       @click.stop="dispatch({ type: 'edit' })"
       @keydown="onReadingKeydown"
     >

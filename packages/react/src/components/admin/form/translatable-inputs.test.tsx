@@ -47,8 +47,8 @@ import { TranslatableInputs } from "./translatable-inputs";
 
 const baseMessages = {
   "chelone.validation.required": "Required",
-  "ra.action.add": "Add",
-  "ra.action.remove": "Remove",
+  "chelone.action.add": "Add",
+  "chelone.action.remove": "Remove",
 };
 
 function makeI18n(extra: Record<string, string> = {}) {
@@ -436,12 +436,12 @@ describe("TranslatableInputs", () => {
     });
   });
 
-  it("labels a tab from ra.locales when translated and capitalizes the code otherwise", () => {
+  it("labels a tab from chelone.locales when translated and capitalizes the code otherwise", () => {
     setup(
       <TranslatableInputs locales={["en", "fr"]}>
         <TextInput source="name" label="Name" />
       </TranslatableInputs>,
-      { messages: { "ra.locales.en": "English" } },
+      { messages: { "chelone.locales.en": "English" } },
     );
     expect(screen.getByRole("tab", { name: "English" })).toBeTruthy();
     expect(screen.getByRole("tab", { name: "Fr" })).toBeTruthy();

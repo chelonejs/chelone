@@ -122,7 +122,7 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
         ([path, meta]) => meta?.isDirty && /[.[]/.test(path),
       );
       if (nested) {
-        notify("ra.message.bulk_edit_nested_source", {
+        notify("chelone.message.bulk_edit_nested_source", {
           type: "error",
           messageArgs: {
             source: nested[0],
@@ -203,7 +203,7 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
                 <SheetHeader>
                   <SheetTitle>{title}</SheetTitle>
                   <SheetDescription>
-                    {translate("ra.message.bulk_edit_description", {
+                    {translate("chelone.message.bulk_edit_description", {
                       smart_count: count,
                       _: "Only the fields you change are applied to {smart_count} selected record(s).",
                     })}
@@ -214,13 +214,13 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
                 </div>
                 <SheetFooter>
                   <Button type="submit" disabled={isSubmitting}>
-                    {translate("ra.action.bulk_edit_apply", {
+                    {translate("chelone.action.bulk_edit_apply", {
                       smart_count: count,
                       _: "Apply to {smart_count} record(s)",
                     })}
                   </Button>
                   <Button type="button" variant="outline" onClick={close}>
-                    {translate("ra.action.cancel", { _: "Cancel" })}
+                    {translate("chelone.action.cancel", { _: "Cancel" })}
                   </Button>
                 </SheetFooter>
               </form>

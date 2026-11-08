@@ -62,7 +62,7 @@ function ColumnsButton({
       <PopoverTrigger asChild>
         <Button variant={variant} disabled={empty} {...buttonProps}>
           <Columns3 />
-          {translate("ra.action.select_columns", { _: "Columns" })}
+          {translate("chelone.action.select_columns", { _: "Columns" })}
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" className="flex flex-col gap-3">

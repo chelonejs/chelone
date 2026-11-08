@@ -11,15 +11,15 @@
       "name": "textPrimary",
       "type": "string",
       "optional": true,
-      "default": "\"ra.page.authentication_error\"",
-      "comment": "i18n key for the heading. Defaults to `ra.page.authentication_error`."
+      "default": "\"chelone.page.authentication_error\"",
+      "comment": "i18n key for the heading. Defaults to `chelone.page.authentication_error`."
     },
     {
       "name": "textSecondary",
       "type": "string",
       "optional": true,
-      "default": "\"ra.message.authentication_error\"",
-      "comment": "i18n key for the sub-text. Defaults to `ra.message.authentication_error`."
+      "default": "\"chelone.message.authentication_error\"",
+      "comment": "i18n key for the sub-text. Defaults to `chelone.message.authentication_error`."
     }
   ],
   "emits": [],

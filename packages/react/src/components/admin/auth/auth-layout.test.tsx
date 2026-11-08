@@ -31,7 +31,7 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.auth.sign_in_error": "Authentication failed",
+        "chelone.auth.sign_in_error": "Authentication failed",
       }),
     },
   });
@@ -95,7 +95,7 @@ describe("<AuthLayout>", () => {
       </Wrap>,
     );
     act(() => {
-      notifications.notify("ra.auth.sign_in_error", { type: "error" });
+      notifications.notify("chelone.auth.sign_in_error", { type: "error" });
     });
     await waitFor(() =>
       expect(screen.getByText("Authentication failed")).toBeTruthy(),

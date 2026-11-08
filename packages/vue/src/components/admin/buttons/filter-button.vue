@@ -66,10 +66,10 @@ const isDisplayed = (source: string): boolean =>
   list.displayedFilters[source] === true;
 
 const addLabel = computed(() =>
-  translate("ra.action.add_filter", { _: "Add filter" }),
+  translate("chelone.action.add_filter", { _: "Add filter" }),
 );
 const removeAllLabel = computed(() =>
-  translate("ra.action.remove_all_filters", { _: "Remove all filters" }),
+  translate("chelone.action.remove_all_filters", { _: "Remove all filters" }),
 );
 
 function onToggle(entry: FilterButtonEntry): void {

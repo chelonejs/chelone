@@ -5,7 +5,7 @@
  * writing each of null/true/false back to the form, disabled, and error
  * surfacing.
  *
- * The `ra.boolean.*` option keys are kept from shadmin verbatim (the port keeps
+ * The `chelone.boolean.*` option keys are kept from shadmin verbatim (the port keeps
  * shadmin's translate idiom); chelone `translate` echoes a missing key, so the
  * catalog below supplies them so the option labels resolve.
  */
@@ -35,9 +35,9 @@ import { NullableBooleanInput } from "./nullable-boolean-input";
 const messages = {
   en: defineMessages({
     "chelone.validation.required": "Required",
-    "ra.boolean.null": "",
-    "ra.boolean.true": "Yes",
-    "ra.boolean.false": "No",
+    "chelone.boolean.null": "",
+    "chelone.boolean.true": "Yes",
+    "chelone.boolean.false": "No",
   }),
 };
 

@@ -90,7 +90,7 @@ describe("<PermissionMatrix>", () => {
         resources: ["posts", { id: "comments", label: "Remarks" }],
         actions: ["list", "publish"],
       },
-      { "ra.action.list": "Browse" },
+      { "chelone.action.list": "Browse" },
     );
     expect(
       screen.getAllByRole("columnheader").map((header) => header.textContent),
@@ -255,7 +255,7 @@ describe("<PermissionMatrix>", () => {
   it("names each cell with the translated action shown in its column header", () => {
     renderMatrix(
       { roles: ["admin"], resources: ["posts"] },
-      { "ra.action.list": "Browse" },
+      { "chelone.action.list": "Browse" },
     );
     expect(cell("admin.posts.list").getAttribute("aria-label")).toBe(
       "admin Browse Posts",

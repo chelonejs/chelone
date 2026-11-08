@@ -44,8 +44,8 @@ const translate = useTranslate();
 
 const toggleLabel = computed(() =>
   visible.value
-    ? translate("ra.input.password.toggle_visible", { _: "Hide password" })
-    : translate("ra.input.password.toggle_hidden", { _: "Show password" }),
+    ? translate("chelone.input.password.toggle_visible", { _: "Hide password" })
+    : translate("chelone.input.password.toggle_hidden", { _: "Show password" }),
 );
 </script>
 

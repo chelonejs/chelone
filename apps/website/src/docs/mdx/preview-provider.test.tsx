@@ -227,7 +227,7 @@ describe("PreviewProvider — live admin previews render against the fixture pro
   });
 
   // The preview catalog has to translate a drop zone's prompt rather than echo the
-  // `ra.input.*` key.
+  // `chelone.input.*` key.
   it.each([
     [
       "<ImageInput>",

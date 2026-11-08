@@ -46,7 +46,7 @@ const translate = useTranslate();
 const getResourceLabel = useGetResourceLabel();
 // Computed so a locale change re-titles the page; `translate` reads the locale.
 const defaultTitle = computed(() =>
-  translate("ra.page.list", { name: getResourceLabel(resource, 2) }),
+  translate("chelone.page.list", { name: getResourceLabel(resource, 2) }),
 );
 </script>
 

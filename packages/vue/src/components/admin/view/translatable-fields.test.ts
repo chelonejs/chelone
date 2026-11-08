@@ -237,9 +237,9 @@ describe("TranslatableFields", () => {
     );
   });
 
-  it("TranslatableFields labels a tab from ra.locales when translated and capitalizes the code otherwise", async () => {
+  it("TranslatableFields labels a tab from chelone.locales when translated and capitalizes the code otherwise", async () => {
     const { wrapper } = await mountFields(titles, {
-      messages: { "ra.locales.en": "English" },
+      messages: { "chelone.locales.en": "English" },
     });
     expect(tabLabels(wrapper)).toEqual(["English", "Fr"]);
   });

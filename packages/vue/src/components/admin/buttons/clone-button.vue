@@ -46,7 +46,7 @@ const to = computed(() => {
   return `${createPath({ resource, type: "create" })}?source=${encodeURIComponent(JSON.stringify(copy))}`;
 });
 const label = computed(
-  () => props.label ?? translate("ra.action.clone", { _: "Clone" }),
+  () => props.label ?? translate("chelone.action.clone", { _: "Clone" }),
 );
 const classes = computed(() =>
   buttonVariants({ variant: "outline", class: props.class }),

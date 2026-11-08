@@ -4,11 +4,17 @@ description: "Localize the admin with createI18n and message catalogs."
 ---
 
 Chelone localizes through a small i18n instance you build with `createI18n` and
-hand to `<Admin i18n={…}>`. A catalog is a flat map of keys to strings; the
-components translate `ra.*` keys (page titles, pagination, bulk-action labels,
-booleans, auth) and the core controllers emit `chelone.*` keys (save
-notifications, validation). An `<Admin>` with no `i18n` reads in English; see
-[Without i18n](#without-i18n).
+hand to `<Admin i18n={…}>`. A catalog is a flat map of keys to strings; every
+key sits under `chelone.*`, whether a component translates it (page titles,
+pagination, bulk-action labels, booleans, auth) or a core controller emits it
+(save notifications, validation). An `<Admin>` with no `i18n` reads in English;
+see [Without i18n](#without-i18n).
+
+The components were ported from react-admin and kept its `ra.*` keys for a
+while. They now read `chelone.*` with the same group names, so
+`ra.page.list` is `chelone.page.list`. Nothing maps the old keys: a catalog that
+still holds `ra.*` entries has no effect, and a component label you translated
+under the old name needs the new one.
 
 ## Building the i18n instance
 
@@ -16,8 +22,8 @@ notifications, validation). An `<Admin>` with no `i18n` reads in English; see
 import { createI18n, defineMessages, englishMessages } from "@chelone/core";
 
 const en = defineMessages({
-  ...englishMessages, // the English ra.* and chelone.* keys
-  "ra.page.list": "All {name}", // override or add your own
+  ...englishMessages, // every English chelone.* key
+  "chelone.page.list": "All {name}", // override or add your own
 });
 
 export function makeI18n() {
@@ -33,44 +39,47 @@ export function makeI18n() {
 
 ## What ships in `englishMessages`
 
-`englishMessages` is the English catalog: every `ra.*` key the components
-translate, `defaultMessages` (the `chelone.*` keys the core controllers emit:
-notifications, validation, auth and loading messages) and `mapMessages` (the
-maps add-on's labels). Spread it first, then add or override entries. For
-another language, copy its keys and translate the values.
+`englishMessages` is the English catalog: the component labels,
+`defaultMessages` (the keys the core controllers emit: notifications,
+validation, auth and loading messages) and `mapMessages` (the maps add-on's
+labels). No entry repeats another. Spread it first, then add or override
+entries. For another language, copy its keys and translate the values.
 
-`defaultMessages` alone holds only the `chelone.*` keys. Use it when you want
-to write every `ra.*` label yourself.
+`defaultMessages` alone holds the controller keys only. Use it when you want to
+write every component label yourself.
 
-The `ra.*` keys are the ones the components pass to `translate`. Most call it
-with an English default, so a missing key still reads as English (see
+The component labels are the keys the components pass to `translate`. Most call
+it with an English default, so a missing key still reads as English (see
 [Missing keys](#missing-keys-never-throw)). The keys, by group:
 
-- `ra.action.*`: `add`, `add_filter`, `back`, `bulk_actions`, `bulk_edit_apply`, `cancel`,
+- `chelone.action.*`: `add`, `add_filter`, `back`, `bulk_actions`, `bulk_edit_apply`, `cancel`,
   `clear_input_value`, `clear_search`, `close_menu`, `confirm`, `create`,
   `delete`, `edit`, `export`, `list`, `move_down`, `move_up`, `open_menu`,
   `refresh`, `remove`, `remove_all_filters`, `remove_filter`, `save`, `search`,
   `select_all`, `select_row`, `show`, `toggle_theme`, `undo`, `unselect`,
   `update`
-- `ra.auth.*`: `logout`, `sign_in`, `sign_in_error`, `user_menu`
-- `ra.boolean.*`: `true`, `false`, `null`
-- `ra.input.*`: `file.upload_single`, `file.upload_several`,
+- `chelone.auth.*`: `logout`, `sign_in`, `sign_in_error`, `user_menu`
+- `chelone.boolean.*`: `true`, `false`, `null`
+- `chelone.input.*`: `file.upload_single`, `file.upload_several`,
   `image.upload_single`, `image.upload_several`, `password.toggle_hidden`,
   `password.toggle_visible`
-- `ra.message.*`: `access_denied`, `auth_error`, `authentication_error`,
+- `chelone.message.*`: `access_denied_detail`, `auth_error`,
+  `authentication_error_detail`,
   `bulk_delete_content`, `bulk_delete_title`, `bulk_edit_description`,
   `bulk_edit_nested_source`, `bulk_update_content`, `bulk_update_title`,
-  `delete_content`, `delete_title`, `error`, `loading`
-- `ra.navigation.*`: `next`, `no_results`, `page_range_info`,
+  `delete_content`, `delete_title`, `error`, `loading_detail`
+- `chelone.navigation.*`: `next`, `no_results`, `page_range_info`,
   `page_rows_per_page`, `partial_page_range_info`, `previous`
-- `ra.page.*`: `access_denied`, `authentication_error`, `create`, `dashboard`,
+- `chelone.notification.*`: `application_update_available`, `http_error_label`,
+  `offline`
+- `chelone.page.*`: `access_denied`, `authentication_error`, `create`, `dashboard`,
   `error`, `list`, `loading`
-- `ra.saved_queries.*`: `new_label`, `query_name`, `remove_label_with_name`
-- `ra.sort.*`: `sort_by`
-- `ra.theme.*`: `dark`, `light`, `system`
+- `chelone.saved_queries.*`: `new_label`, `query_name`, `remove_label_with_name`
+- `chelone.sort.*`: `sort_by`
+- `chelone.theme.*`: `dark`, `light`, `system`
 
 The list is read from the components, so it can grow. To check for a key,
-search the source for `translate("ra.`.
+search the source for `translate("chelone.`.
 
 ## Interpolation and plurals
 
@@ -78,15 +87,15 @@ Chelone uses **single-brace** interpolation — `{name}` — **not** react-admin
 `%{name}`:
 
 ```ts
-"ra.page.create": "Create {name}",
-"ra.navigation.page_range_info": "{offsetBegin}-{offsetEnd} of {total}",
+"chelone.page.create": "Create {name}",
+"chelone.navigation.page_range_info": "{offsetBegin}-{offsetEnd} of {total}",
 ```
 
 Plurals are an object keyed by `Intl.PluralRules` categories (not react-admin's
 `a |||| b`). `other` is required:
 
 ```ts
-"ra.action.bulk_actions": {
+"chelone.action.bulk_actions": {
   one: "1 item selected",
   other: "{count} items selected",
 },
@@ -97,8 +106,8 @@ react-admin and the components use) when `count` is absent. Whichever you pass
 also fills `{count}` and `{smart_count}` in the text:
 
 ```ts
-i18n.translate("ra.action.bulk_actions", { count: 1 }); // "1 item selected"
-i18n.translate("ra.action.bulk_actions", { count: 4 }); // "4 items selected"
+i18n.translate("chelone.action.bulk_actions", { count: 1 }); // "1 item selected"
+i18n.translate("chelone.action.bulk_actions", { count: 4 }); // "4 items selected"
 ```
 
 On an instance typed from a `defineMessages` catalog, a plural message requires
@@ -116,11 +125,11 @@ params, and most components pass one, so labels such as "Cancel" or "Refresh"
 read as English without a catalog entry:
 
 ```ts
-translate("ra.action.cancel", { _: "Cancel" }); // "Cancel" when the key is missing
+translate("chelone.action.cancel", { _: "Cancel" }); // "Cancel" when the key is missing
 ```
 
 Where a component passes no `_`, a catalog that lacks the key shows the raw
-`ra.page.list`-style key. `englishMessages` covers the keys the components
+`chelone.page.list`-style key. `englishMessages` covers the keys the components
 translate; a catalog that does not spread it needs the keys you see.
 
 ### Listing the missing keys
@@ -153,7 +162,7 @@ holds it. The export is flat JSON to spread into a catalog. See
 
 `i18n` is optional on `<Admin>`. Without it, `<Admin>` builds one instance from
 `englishMessages` with locale `en`, so a list's heading reads "Posts", not
-`ra.page.list`. An `i18n` you pass is used as is, with no English merged in:
+`chelone.page.list`. An `i18n` you pass is used as is, with no English merged in:
 spread `englishMessages` into your catalog to extend it.
 
 A component mounted outside `<Admin>` has no instance, so `useTranslate()`
@@ -179,7 +188,7 @@ Read and change the active locale from your components:
 ```tsx
 import { useTranslate, useLocale, useSetLocale } from "@chelone/react";
 
-const translate = useTranslate();   // translate("ra.action.save")
+const translate = useTranslate();   // translate("chelone.action.save")
 const locale = useLocale();         // "en"
 const setLocale = useSetLocale();   // setLocale("fr")
 ```

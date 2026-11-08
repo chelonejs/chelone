@@ -11,7 +11,7 @@
       "name": "label",
       "type": "string",
       "optional": true,
-      "comment": "Replaces the default translated label (`ra.page.dashboard`, default \"Dashboard\")."
+      "comment": "Replaces the default translated label (`chelone.page.dashboard`, default \"Dashboard\")."
     },
     {
       "name": "onClick",

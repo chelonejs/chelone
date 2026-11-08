@@ -5,9 +5,9 @@ import type { FunctionalComponent } from "vue";
 export interface AccessDeniedProps {
   /** Override the default padlock glyph. */
   icon?: FunctionalComponent;
-  /** i18n key for the heading. Defaults to `ra.page.access_denied`. */
+  /** i18n key for the heading. Defaults to `chelone.page.access_denied`. */
   textPrimary?: string;
-  /** i18n key for the sub-text. Defaults to `ra.message.access_denied`. */
+  /** i18n key for the sub-text. Defaults to `chelone.message.access_denied_detail`. */
   textSecondary?: string;
   class?: string;
 }
@@ -29,8 +29,8 @@ import { cn } from "../../../lib/utils";
 import { LockIcon } from "./icons";
 
 const props = withDefaults(defineProps<AccessDeniedProps>(), {
-  textPrimary: "ra.page.access_denied",
-  textSecondary: "ra.message.access_denied",
+  textPrimary: "chelone.page.access_denied",
+  textSecondary: "chelone.message.access_denied_detail",
 });
 
 defineSlots<{

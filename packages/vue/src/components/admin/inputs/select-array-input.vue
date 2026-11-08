@@ -144,7 +144,7 @@ function onClear() {
               role="button"
               tabindex="0"
               class="cursor-pointer text-muted-foreground opacity-50 hover:opacity-100"
-              :aria-label="translate('ra.action.clear_input_value', { _: 'Clear value' })"
+              :aria-label="translate('chelone.action.clear_input_value', { _: 'Clear value' })"
               @click.stop="onClear"
               @keydown.enter.prevent="onClear"
               @keydown.space.prevent="onClear"
@@ -162,7 +162,7 @@ function onClear() {
             v-if="allChoices.length === 0"
             class="px-3 py-2 text-sm text-muted-foreground"
           >
-            {{ translate("ra.navigation.no_results", { _: "No results" }) }}
+            {{ translate("chelone.navigation.no_results", { _: "No results" }) }}
           </p>
           <label
             v-for="choice in allChoices"

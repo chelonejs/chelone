@@ -127,22 +127,22 @@ const pageTokens = computed<PageToken[]>(() => {
 });
 
 const previousLabel = computed(() =>
-  translate("ra.navigation.previous", { _: "Previous" }),
+  translate("chelone.navigation.previous", { _: "Previous" }),
 );
 const nextLabel = computed(() =>
-  translate("ra.navigation.next", { _: "Next" }),
+  translate("chelone.navigation.next", { _: "Next" }),
 );
 const rowsPerPageLabel = computed(() =>
-  translate("ra.navigation.page_rows_per_page", { _: "Rows per page" }),
+  translate("chelone.navigation.page_rows_per_page", { _: "Rows per page" }),
 );
 const rangeLabel = computed(() =>
   isPartial.value
-    ? translate("ra.navigation.partial_page_range_info", {
+    ? translate("chelone.navigation.partial_page_range_info", {
         offsetBegin: pageStart.value,
         offsetEnd: pageEnd.value,
         _: `${pageStart.value}-${pageEnd.value}`,
       })
-    : translate("ra.navigation.page_range_info", {
+    : translate("chelone.navigation.page_range_info", {
         offsetBegin: pageStart.value,
         offsetEnd: pageEnd.value,
         total: totalDisplay.value,

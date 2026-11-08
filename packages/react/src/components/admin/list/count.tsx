@@ -71,7 +71,9 @@ function Count(props: CountProps) {
     return (
       <CircleXIcon
         role="img"
-        aria-label={translate("ra.notification.http_error", { _: "Error" })}
+        aria-label={translate("chelone.notification.http_error_label", {
+          _: "Error",
+        })}
         className={cn("size-4 text-destructive", className)}
       />
     );

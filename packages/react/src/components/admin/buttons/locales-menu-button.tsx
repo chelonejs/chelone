@@ -83,7 +83,7 @@ function LocalesMenu({
           variant="ghost"
           size="icon"
           className="hidden sm:inline-flex"
-          aria-label={translate("ra.action.change_locale", {
+          aria-label={translate("chelone.action.change_locale", {
             _: "Change locale",
           })}
           ref={ref}

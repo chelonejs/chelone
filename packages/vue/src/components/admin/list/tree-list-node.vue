@@ -135,8 +135,8 @@ function onFocusin(event: FocusEvent) {
         class="flex size-6 shrink-0 items-center justify-center rounded-md hover:bg-accent"
         :aria-label="
           open
-            ? translate('ra.action.collapse', { _: 'Collapse' })
-            : translate('ra.action.expand', { _: 'Expand' })
+            ? translate('chelone.action.collapse', { _: 'Collapse' })
+            : translate('chelone.action.expand', { _: 'Expand' })
         "
         @click="tree.toggle(record.id)"
       >

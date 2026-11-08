@@ -136,9 +136,9 @@ function FilterFormInput(inProps: FilterFormInputProps) {
   const resource = useResourceContext(inProps);
   const translate = useTranslate();
   // chelone i18n returns the KEY when unregistered — fall back to English.
-  const removeFilterRaw = translate("ra.action.remove_filter", {});
+  const removeFilterRaw = translate("chelone.action.remove_filter", {});
   const removeFilterTitle =
-    removeFilterRaw === "ra.action.remove_filter"
+    removeFilterRaw === "chelone.action.remove_filter"
       ? "Remove filter"
       : removeFilterRaw;
 

@@ -1,9 +1,9 @@
 <script lang="ts">
 /** Props for {@link AuthError}. */
 export interface AuthErrorProps {
-  /** i18n key for the heading. Defaults to `ra.page.error`. */
+  /** i18n key for the heading. Defaults to `chelone.page.error`. */
   title?: string;
-  /** i18n key (or raw message) for the body. Defaults to `ra.message.auth_error`. */
+  /** i18n key (or raw message) for the body. Defaults to `chelone.message.auth_error`. */
   message?: string;
   class?: string;
 }
@@ -32,8 +32,8 @@ import { buttonVariants } from "../../ui/button-variants";
 import { CircleAlertIcon, LockIcon } from "./icons";
 
 const props = withDefaults(defineProps<AuthErrorProps>(), {
-  title: "ra.page.error",
-  message: "ra.message.auth_error",
+  title: "chelone.page.error",
+  message: "chelone.message.auth_error",
 });
 
 const translate = useTranslate();
@@ -50,7 +50,7 @@ const linkClasses = computed(() => buttonVariants({ variant: "default" }));
     </h1>
     <p class="my-5">{{ translate(props.message, { _: props.message }) }}</p>
     <RouterLink :to="DEFAULT_LOGIN_PATH" :class="linkClasses" data-slot="auth-error-signin">
-      <LockIcon class="size-4" /> {{ translate("ra.auth.sign_in", { _: "Sign in" }) }}
+      <LockIcon class="size-4" /> {{ translate("chelone.auth.sign_in", { _: "Sign in" }) }}
     </RouterLink>
   </div>
 </template>

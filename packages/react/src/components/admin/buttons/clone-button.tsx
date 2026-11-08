@@ -71,7 +71,7 @@ function CloneButton<TRecord extends ResourceRecord = LooseRecord>(
     resourceI18nKey: resource
       ? `resources.${resource}.action.clone`
       : undefined,
-    baseI18nKey: "ra.action.clone",
+    baseI18nKey: "chelone.action.clone",
     options: definedParams({
       _: "Clone",
       name: resource ? getResourceLabel(resource, 1) : undefined,

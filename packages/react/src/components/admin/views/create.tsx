@@ -15,7 +15,7 @@
  * `useCreateForm`), the `SaveContext.save(data)` compat bridge over `submit()`,
  * and breadcrumb/button chrome deferred to later waves (`title`/`actions` are
  * the seams; `actions` defaults to nothing). `defaultTitle` is COMPUTED from
- * the resource label (`ra.page.create`).
+ * the resource label (`chelone.page.create`).
  */
 
 import {
@@ -142,7 +142,7 @@ function Create<TRecord = LooseRecord>(props: CreateProps<TRecord>) {
 
   const translate = useTranslate();
   const getResourceLabel = useGetResourceLabel();
-  const defaultTitle = translate("ra.page.create", {
+  const defaultTitle = translate("chelone.page.create", {
     name: getResourceLabel(resource, 1),
   });
 

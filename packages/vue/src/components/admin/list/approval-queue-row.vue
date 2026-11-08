@@ -195,7 +195,7 @@ async function confirm(): Promise<void> {
       <Textarea :id="reasonId" v-model="reason" />
       <div class="flex justify-end gap-2">
         <Button type="button" variant="ghost" @click="close">
-          {{ translate("ra.action.cancel", { _: "Cancel" }) }}
+          {{ translate("chelone.action.cancel", { _: "Cancel" }) }}
         </Button>
         <Button
           type="submit"

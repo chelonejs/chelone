@@ -16,16 +16,16 @@ import { useTranslate } from "../../../i18n-hooks";
 export interface AccessDeniedProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
   icon?: ReactNode;
-  /** i18n key for the heading. Defaults to `ra.page.access_denied`. */
+  /** i18n key for the heading. Defaults to `chelone.page.access_denied`. */
   textPrimary?: string;
-  /** i18n key for the sub-text. Defaults to `ra.message.access_denied`. */
+  /** i18n key for the sub-text. Defaults to `chelone.message.access_denied_detail`. */
   textSecondary?: string;
 }
 
 function AccessDenied({
   icon = <Lock className="size-32" />,
-  textPrimary = "ra.page.access_denied",
-  textSecondary = "ra.message.access_denied",
+  textPrimary = "chelone.page.access_denied",
+  textSecondary = "chelone.message.access_denied_detail",
   className,
   ...rest
 }: AccessDeniedProps) {

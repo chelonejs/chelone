@@ -20,7 +20,7 @@ function setup(messages: Record<string, string> = {}) {
   const i18n = createI18n({
     locale: "en",
     messages: {
-      en: defineMessages({ "ra.action.refresh": "Refresh", ...messages }),
+      en: defineMessages({ "chelone.action.refresh": "Refresh", ...messages }),
     },
   });
   const Providers = ({ children }: { children: ReactNode }) => (
@@ -120,7 +120,7 @@ describe("<LoadingIndicator>", () => {
 
   it("translates the spinner label", async () => {
     const { Providers, startQuery } = setup({
-      "ra.page.loading": "Chargement",
+      "chelone.page.loading": "Chargement",
     });
     render(
       <Providers>

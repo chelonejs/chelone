@@ -111,8 +111,9 @@ function AutocompleteInput<
   const { id, field, fieldState, isRequired } = useInput({ ...props, source });
   const fieldValue = toChoiceValue<TChoice>(field.value);
   const translate = useTranslate();
-  const { placeholder = translate("ra.action.search", { _: "Search..." }) } =
-    props;
+  const {
+    placeholder = translate("chelone.action.search", { _: "Search..." }),
+  } = props;
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
@@ -245,7 +246,9 @@ function AutocompleteInput<
 
   const noMatchText =
     noOptionsText ??
-    translate("ra.navigation.no_results", { _: "No matching item found." });
+    translate("chelone.navigation.no_results", {
+      _: "No matching item found.",
+    });
 
   const effectiveOpen =
     open && (!shouldRenderSuggestions || shouldRenderSuggestions(filterValue));
@@ -315,7 +318,9 @@ function AutocompleteInput<
           {/* We filter ourselves when matchSuggestion is provided or reference. */}
           <Command shouldFilter={!isFromReference && !matchSuggestion}>
             <CommandInput
-              placeholder={translate("ra.action.search", { _: "Search..." })}
+              placeholder={translate("chelone.action.search", {
+                _: "Search...",
+              })}
               value={filterValue}
               onValueChange={(filter) => {
                 setFilterValue(filter);

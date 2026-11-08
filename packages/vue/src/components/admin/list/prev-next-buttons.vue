@@ -53,7 +53,7 @@ const ghostIcon = buttonVariants({ variant: "ghost", size: "icon" });
   <span
     v-else-if="controller.error"
     role="img"
-    :aria-label="translate('ra.notification.http_error', { _: 'Error' })"
+    :aria-label="translate('chelone.notification.http_error_label', { _: 'Error' })"
     :class="cn('inline-flex text-destructive', props.class)"
   >
     <AlertCircleIcon />
@@ -68,7 +68,7 @@ const ghostIcon = buttonVariants({ variant: "ghost", size: "icon" });
     <RouterLink
       v-if="controller.prevPath"
       :to="controller.prevPath"
-      :aria-label="translate('ra.navigation.previous', { _: 'Previous' })"
+      :aria-label="translate('chelone.navigation.previous', { _: 'Previous' })"
       :class="ghostIcon"
     >
       <ChevronLeftIcon />
@@ -77,7 +77,7 @@ const ghostIcon = buttonVariants({ variant: "ghost", size: "icon" });
       v-else
       variant="ghost"
       size="icon"
-      :aria-label="translate('ra.navigation.previous', { _: 'Previous' })"
+      :aria-label="translate('chelone.navigation.previous', { _: 'Previous' })"
       disabled
     >
       <ChevronLeftIcon />
@@ -95,7 +95,7 @@ const ghostIcon = buttonVariants({ variant: "ghost", size: "icon" });
     <RouterLink
       v-if="controller.nextPath"
       :to="controller.nextPath"
-      :aria-label="translate('ra.navigation.next', { _: 'Next' })"
+      :aria-label="translate('chelone.navigation.next', { _: 'Next' })"
       :class="ghostIcon"
     >
       <ChevronRightIcon />
@@ -104,7 +104,7 @@ const ghostIcon = buttonVariants({ variant: "ghost", size: "icon" });
       v-else
       variant="ghost"
       size="icon"
-      :aria-label="translate('ra.navigation.next', { _: 'Next' })"
+      :aria-label="translate('chelone.navigation.next', { _: 'Next' })"
       disabled
     >
       <ChevronRightIcon />

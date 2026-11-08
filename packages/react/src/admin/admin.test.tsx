@@ -563,13 +563,13 @@ describe("<Admin> — i18n", () => {
     );
 
     expect(await screen.findByRole("heading", { name: "Posts" })).toBeTruthy();
-    expect(screen.queryByText("ra.page.list")).toBeNull();
+    expect(screen.queryByText("chelone.page.list")).toBeNull();
   });
 
   it("an Admin given an i18n uses it, not the English default", async () => {
     const i18n = createI18n({
       locale: "en",
-      messages: { en: defineMessages({ "ra.page.list": "All {name}" }) },
+      messages: { en: defineMessages({ "chelone.page.list": "All {name}" }) },
     });
     render(
       <MemoryRouter initialEntries={["/posts"]}>

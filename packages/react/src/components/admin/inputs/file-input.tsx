@@ -92,8 +92,8 @@ function FileInput(props: FileInputProps) {
     validateFileRemoval,
 
     placeholder,
-    labelMultiple = "ra.input.file.upload_several",
-    labelSingle = "ra.input.file.upload_single",
+    labelMultiple = "chelone.input.file.upload_several",
+    labelSingle = "chelone.input.file.upload_single",
     removeIcon,
     ...rest
   } = props;
@@ -347,8 +347,8 @@ function FileInputPreview(props: FileInputPreviewProps) {
         size="icon"
         className="size-6 rounded-full shadow-sm cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity"
         onClick={onRemove}
-        aria-label={translate("ra.action.delete")}
-        title={translate("ra.action.delete")}
+        aria-label={translate("chelone.action.delete")}
+        title={translate("chelone.action.delete")}
       >
         <RemoveIcon className="size-4" />
       </Button>

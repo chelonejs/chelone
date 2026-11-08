@@ -66,7 +66,7 @@ function ListButton(props: ListButtonProps) {
   const getResourceLabel = useGetResourceLabel();
   const label = useResourceTranslation({
     resourceI18nKey: `resources.${resource}.action.list`,
-    baseI18nKey: "ra.action.list",
+    baseI18nKey: "chelone.action.list",
     options: {
       _: "List",
       name: getResourceLabel(resource, 1),

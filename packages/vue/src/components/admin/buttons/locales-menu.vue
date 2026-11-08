@@ -40,7 +40,7 @@ const translate = useTranslate();
         variant="ghost"
         size="icon"
         :class="cn('hidden sm:inline-flex', props.class)"
-        :aria-label="translate('ra.action.change_locale', { _: 'Change locale' })"
+        :aria-label="translate('chelone.action.change_locale', { _: 'Change locale' })"
         data-slot="locales-menu-button"
       >
         <slot name="icon">{{ locale.toUpperCase() }}</slot>

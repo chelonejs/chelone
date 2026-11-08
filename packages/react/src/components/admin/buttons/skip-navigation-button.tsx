@@ -13,7 +13,7 @@ import { warning } from "../../../util/warning";
 
 interface SkipNavigationButtonProps
   extends Omit<ComponentProps<typeof Button>, "onClick" | "ref"> {
-  /** An i18n key (contains a dot) or literal text. Default `ra.navigation.skip_nav`. */
+  /** An i18n key (contains a dot) or literal text. Default `chelone.navigation.skip_nav`. */
   label?: string;
   ref?: Ref<HTMLButtonElement>;
 }
@@ -32,7 +32,12 @@ interface SkipNavigationButtonProps
  * );
  */
 function SkipNavigationButton(props: SkipNavigationButtonProps) {
-  const { className, label = "ra.navigation.skip_nav", ref, ...rest } = props;
+  const {
+    className,
+    label = "chelone.navigation.skip_nav",
+    ref,
+    ...rest
+  } = props;
   const translate = useTranslate();
 
   const handleClick = () => {

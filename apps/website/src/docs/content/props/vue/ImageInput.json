@@ -60,14 +60,14 @@
       "name": "labelMultiple",
       "type": "string",
       "optional": true,
-      "default": "\"ra.input.image.upload_several\"",
+      "default": "\"chelone.input.image.upload_several\"",
       "comment": "i18n key for the multiple-files prompt."
     },
     {
       "name": "labelSingle",
       "type": "string",
       "optional": true,
-      "default": "\"ra.input.image.upload_single\"",
+      "default": "\"chelone.input.image.upload_single\"",
       "comment": "i18n key for the single-file prompt."
     },
     {

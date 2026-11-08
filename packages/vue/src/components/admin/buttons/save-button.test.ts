@@ -26,7 +26,7 @@ afterEach(() => {
 const i18n = () =>
   createI18n({
     locale: "en",
-    messages: { en: defineMessages({ "ra.action.save": "Save" }) },
+    messages: { en: defineMessages({ "chelone.action.save": "Save" }) },
   });
 
 interface Counts {

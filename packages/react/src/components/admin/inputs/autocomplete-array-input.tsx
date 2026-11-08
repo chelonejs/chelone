@@ -102,8 +102,9 @@ function AutocompleteArrayInput<
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
   const { id, field, fieldState, isRequired } = useInput({ ...props, source });
   const translate = useTranslate();
-  const { placeholder = translate("ra.action.search", { _: "Search..." }) } =
-    props;
+  const {
+    placeholder = translate("chelone.action.search", { _: "Search..." }),
+  } = props;
 
   const invalid = fieldState.invalid;
   // chelone `fieldState.error` is ALREADY the displayable
@@ -214,7 +215,9 @@ function AutocompleteArrayInput<
 
   const emptyText =
     noOptionsText ??
-    translate("ra.navigation.no_results", { _: "No matching item found." });
+    translate("chelone.navigation.no_results", {
+      _: "No matching item found.",
+    });
 
   const getInputText = useCallback(
     (choice: TChoice) =>
@@ -305,7 +308,7 @@ function AutocompleteArrayInput<
                       }}
                     >
                       <span className="sr-only">
-                        {translate("ra.action.remove", { _: "Remove" })}
+                        {translate("chelone.action.remove", { _: "Remove" })}
                       </span>
                       <X className="size-3" />
                     </button>

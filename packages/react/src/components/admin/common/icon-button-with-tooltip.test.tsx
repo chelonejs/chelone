@@ -27,7 +27,7 @@ function Providers({ children }: { children: ReactNode }) {
       i18n={createI18n({
         locale: "en",
         messages: {
-          en: defineMessages({ "ra.action.refresh": "Refresh data" }),
+          en: defineMessages({ "chelone.action.refresh": "Refresh data" }),
         },
       })}
     >
@@ -42,7 +42,7 @@ describe("<IconButtonWithTooltip>", () => {
   it("names the button by its translated label", () => {
     render(
       <Providers>
-        <IconButtonWithTooltip label="ra.action.refresh">
+        <IconButtonWithTooltip label="chelone.action.refresh">
           {icon}
         </IconButtonWithTooltip>
       </Providers>,

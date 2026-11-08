@@ -39,14 +39,14 @@ const filtered = computed(() => Object.keys(list.filter ?? {}).length > 0);
     <p class="text-muted-foreground">
       {{
         filtered
-          ? translate("ra.navigation.no_filtered_results", {
+          ? translate("chelone.navigation.no_filtered_results", {
               _: "No results found with the current filters.",
             })
-          : translate("ra.navigation.no_results", { _: "No results found" })
+          : translate("chelone.navigation.no_results", { _: "No results found" })
       }}
     </p>
     <Button v-if="filtered" variant="outline" size="sm" @click="list.setFilters({}, {})">
-      {{ translate("ra.navigation.clear_filters", { _: "Clear filters" }) }}
+      {{ translate("chelone.navigation.clear_filters", { _: "Clear filters" }) }}
     </Button>
   </div>
 </template>

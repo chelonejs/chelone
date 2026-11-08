@@ -45,10 +45,10 @@ const baseAuth = (over: Partial<AuthProvider> = {}): AuthProvider => ({
 });
 
 const messages = {
-  "ra.action.update": "Update",
-  "ra.action.confirm": "Confirm",
-  "ra.message.bulk_update_title": "Update this post?",
-  "ra.message.bulk_update_content": "The post will be patched.",
+  "chelone.action.update": "Update",
+  "chelone.action.confirm": "Confirm",
+  "chelone.message.bulk_update_title": "Update this post?",
+  "chelone.message.bulk_update_content": "The post will be patched.",
 };
 
 function mount({

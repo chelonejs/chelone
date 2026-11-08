@@ -59,10 +59,10 @@ const showClearButton = computed(
   () => !props.disableClearable && hasValue.value,
 );
 const searchPlaceholder = computed(
-  () => props.placeholder ?? translate("ra.action.search", { _: "Search" }),
+  () => props.placeholder ?? translate("chelone.action.search", { _: "Search" }),
 );
 const clearLabel = computed(() =>
-  translate("ra.action.clear_search", { _: "Clear search" }),
+  translate("chelone.action.clear_search", { _: "Clear search" }),
 );
 
 function handleClear() {

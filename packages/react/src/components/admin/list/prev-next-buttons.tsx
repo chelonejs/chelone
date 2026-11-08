@@ -55,7 +55,9 @@ function PrevNextButtons(props: PrevNextButtonsProps) {
     return (
       <CircleXIcon
         role="img"
-        aria-label={translate("ra.notification.http_error", { _: "Error" })}
+        aria-label={translate("chelone.notification.http_error_label", {
+          _: "Error",
+        })}
         className={cn("size-4 text-destructive", className)}
       />
     );
@@ -72,8 +74,8 @@ function PrevNextButtons(props: PrevNextButtonsProps) {
     );
   }
 
-  const previous = translate("ra.navigation.previous", { _: "Previous" });
-  const next = translate("ra.navigation.next", { _: "Next" });
+  const previous = translate("chelone.navigation.previous", { _: "Previous" });
+  const next = translate("chelone.navigation.next", { _: "Next" });
   const ghostIcon = buttonVariants({ variant: "ghost", size: "icon" });
 
   return (

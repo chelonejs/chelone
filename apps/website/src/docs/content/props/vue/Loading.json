@@ -5,15 +5,15 @@
       "name": "loadingPrimary",
       "type": "string",
       "optional": true,
-      "default": "\"ra.page.loading\"",
-      "comment": "Primary heading i18n key. Default `\"ra.page.loading\"`."
+      "default": "\"chelone.page.loading\"",
+      "comment": "Primary heading i18n key. Default `\"chelone.page.loading\"`."
     },
     {
       "name": "loadingSecondary",
       "type": "string",
       "optional": true,
-      "default": "\"ra.message.loading\"",
-      "comment": "Secondary line i18n key. Default `\"ra.message.loading\"`."
+      "default": "\"chelone.message.loading\"",
+      "comment": "Secondary line i18n key. Default `\"chelone.message.loading\"`."
     },
     {
       "name": "delay",

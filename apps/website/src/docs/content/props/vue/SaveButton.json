@@ -5,7 +5,7 @@
       "name": "label",
       "type": "string",
       "optional": true,
-      "default": "\"ra.action.save\"",
+      "default": "\"chelone.action.save\"",
       "comment": ""
     },
     {

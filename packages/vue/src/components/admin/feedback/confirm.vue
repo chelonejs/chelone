@@ -11,9 +11,9 @@ export interface ConfirmProps {
   title: string;
   /** Dialog body copy (i18n key or literal — translated with a `_` fallback). */
   content?: string;
-  /** Cancel-button label key. Default `"ra.action.cancel"`. */
+  /** Cancel-button label key. Default `"chelone.action.cancel"`. */
   cancel?: string;
-  /** Confirm-button label key. Default `"ra.action.confirm"`. */
+  /** Confirm-button label key. Default `"chelone.action.confirm"`. */
   confirm?: string;
   /** `"warning"` tints the confirm button destructive. Default `"primary"`. */
   confirmColor?: "primary" | "warning";
@@ -54,8 +54,8 @@ import { AlertCircleIcon, CheckCircleIcon } from "./icons";
 
 const props = withDefaults(defineProps<ConfirmProps>(), {
   isOpen: false,
-  cancel: "ra.action.cancel",
-  confirm: "ra.action.confirm",
+  cancel: "chelone.action.cancel",
+  confirm: "chelone.action.confirm",
   confirmColor: "primary",
 });
 

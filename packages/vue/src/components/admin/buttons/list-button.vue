@@ -44,7 +44,7 @@ const translate = useTranslate();
 
 const to = computed(() => createPath({ type: "list", resource }));
 const label = computed(() =>
-  translate("ra.action.list", {
+  translate("chelone.action.list", {
     _: "List",
     name: getResourceLabel(resource, 1),
   }),

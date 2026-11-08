@@ -79,8 +79,8 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
     className,
     onClick,
     ref,
-    confirmTitle = "ra.message.bulk_delete_title",
-    confirmContent = "ra.message.bulk_delete_content",
+    confirmTitle = "chelone.message.bulk_delete_title",
+    confirmContent = "chelone.message.bulk_delete_content",
     confirmColor = "warning",
     mutationMode = "pessimistic",
   } = props;
@@ -104,7 +104,7 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
     resourceI18nKey: resource
       ? `resources.${resource}.action.delete`
       : undefined,
-    baseI18nKey: "ra.action.delete",
+    baseI18nKey: "chelone.action.delete",
     options: definedParams({
       _: "Delete",
       name: resource ? getResourceLabel(resource, 1) : undefined,

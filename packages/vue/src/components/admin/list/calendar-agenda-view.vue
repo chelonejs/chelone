@@ -62,7 +62,7 @@ const time = computed(
       data-slot="calendar-agenda-empty"
       class="px-2 py-6 text-center text-sm text-muted-foreground"
     >
-      {{ translate("ra.calendar.no_events", { _: "No events in this range" }) }}
+      {{ translate("chelone.calendar.no_events", { _: "No events in this range" }) }}
     </p>
     <section
       v-for="group in groups"

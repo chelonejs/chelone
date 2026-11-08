@@ -30,13 +30,14 @@ function makeI18n() {
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.page.access_denied": "Access denied",
-        "ra.message.access_denied": "You do not have permission.",
-        "ra.page.authentication_error": "Authentication error",
-        "ra.message.authentication_error": "Please sign in again.",
-        "ra.page.error": "Something went wrong",
-        "ra.message.auth_error": "A problem occurred during authentication.",
-        "ra.auth.sign_in": "Sign in",
+        "chelone.page.access_denied": "Access denied",
+        "chelone.message.access_denied_detail": "You do not have permission.",
+        "chelone.page.authentication_error": "Authentication error",
+        "chelone.message.authentication_error_detail": "Please sign in again.",
+        "chelone.page.error": "Something went wrong",
+        "chelone.message.auth_error":
+          "A problem occurred during authentication.",
+        "chelone.auth.sign_in": "Sign in",
       }),
     },
   });

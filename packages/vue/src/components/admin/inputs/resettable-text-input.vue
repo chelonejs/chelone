@@ -70,7 +70,7 @@ const showClearButton = computed(
   () => props.resettable && (props.clearAlwaysVisible || hasValue.value),
 );
 const clearLabel = computed(() =>
-  translate("ra.action.clear_input_value", { _: "Clear value" }),
+  translate("chelone.action.clear_input_value", { _: "Clear value" }),
 );
 
 function handleClear() {

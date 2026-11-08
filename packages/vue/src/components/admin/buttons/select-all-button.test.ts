@@ -43,7 +43,7 @@ const seed = [
 
 /** Which of `messages` a mount registers; an empty object registers none. */
 const messages = {
-  "ra.action.select_all": "Take the whole list",
+  "chelone.action.select_all": "Take the whole list",
   "app.pick_all": "Every row on this page",
 };
 

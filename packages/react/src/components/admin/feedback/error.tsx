@@ -99,10 +99,10 @@ function ErrorPage(props: InternalErrorProps) {
       ) : null}
       <h1 className="flex items-center text-3xl mt-5 mb-5 gap-3" role="alert">
         <CircleAlert className="w-[2em] h-[2em]" />
-        {translate("ra.page.error", { _: "Something Went Wrong" })}
+        {translate("chelone.page.error", { _: "Something Went Wrong" })}
       </h1>
       <div>
-        {translate("ra.message.error", {
+        {translate("chelone.message.error", {
           _: "A client error occurred and your request couldn't be completed.",
         })}
       </div>
@@ -162,7 +162,7 @@ function ErrorPage(props: InternalErrorProps) {
       <div className="mt-8">
         <Button onClick={goBack}>
           <History />
-          {translate("ra.action.back", { _: "Back" })}
+          {translate("chelone.action.back", { _: "Back" })}
         </Button>
       </div>
     </div>

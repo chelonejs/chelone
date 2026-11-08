@@ -43,6 +43,6 @@ const bannerClass = computed(() =>
   </div>
   <div v-else-if="isOffline" role="status" aria-live="polite" :class="bannerClass">
     <WifiOffIcon class="size-4" />
-    {{ translate("ra.notification.offline", { _: "You are offline" }) }}
+    {{ translate("chelone.notification.offline", { _: "You are offline" }) }}
   </div>
 </template>

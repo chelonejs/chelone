@@ -1,9 +1,9 @@
 <script lang="ts">
 /** Props for {@link Loading}. */
 export interface LoadingProps {
-  /** Primary heading i18n key. Default `"ra.page.loading"`. */
+  /** Primary heading i18n key. Default `"chelone.page.loading"`. */
   loadingPrimary?: string;
-  /** Secondary line i18n key. Default `"ra.message.loading"`. */
+  /** Secondary line i18n key. Default `"chelone.message.loading_detail"`. */
   loadingSecondary?: string;
   /** Delay (ms) before the indicator appears. Default `1000`. */
   delay?: number;
@@ -27,8 +27,8 @@ import Spinner from "./spinner.vue";
 import { useTimeout } from "./use-timeout";
 
 const props = withDefaults(defineProps<LoadingProps>(), {
-  loadingPrimary: "ra.page.loading",
-  loadingSecondary: "ra.message.loading",
+  loadingPrimary: "chelone.page.loading",
+  loadingSecondary: "chelone.message.loading_detail",
   delay: 1000,
 });
 

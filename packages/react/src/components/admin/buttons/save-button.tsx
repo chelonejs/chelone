@@ -16,7 +16,7 @@
  *   fires `submit()` programmatically (the button is never inside a `<form>`).
  *
  * The label routes through `translate(key, { _: fallback })` so an untranslated
- * `ra.action.save` still renders "Save".
+ * `chelone.action.save` still renders "Save".
  */
 
 import { useSelector } from "@tanstack/react-store";
@@ -37,7 +37,7 @@ interface Props {
   alwaysEnable?: boolean;
   disabled?: boolean;
   icon?: React.ReactNode;
-  /** i18n key (or literal) for the button label. Defaults to `ra.action.save`. */
+  /** i18n key (or literal) for the button label. Defaults to `chelone.action.save`. */
   label?: string;
   variant?:
     | "default"
@@ -72,7 +72,7 @@ function SaveButton(props: SaveButtonProps) {
   const {
     className,
     icon = defaultIcon,
-    label = "ra.action.save",
+    label = "chelone.action.save",
     onClick,
     alwaysEnable = false,
     disabled: disabledProp,

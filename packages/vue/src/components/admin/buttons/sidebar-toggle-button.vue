@@ -33,8 +33,8 @@ const translate = useTranslate();
 
 const label = computed(() =>
   open.value
-    ? translate("ra.action.close_menu", { _: "Close menu" })
-    : translate("ra.action.open_menu", { _: "Open menu" }),
+    ? translate("chelone.action.close_menu", { _: "Close menu" })
+    : translate("chelone.action.open_menu", { _: "Open menu" }),
 );
 </script>
 

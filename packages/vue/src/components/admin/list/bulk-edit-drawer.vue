@@ -81,7 +81,7 @@ const { form, submit, submitting } = useForm<Record<string, unknown>>({
       ([path, meta]) => meta?.isDirty && /[.[]/.test(path),
     );
     if (nested) {
-      notifications?.notify("ra.message.bulk_edit_nested_source", {
+      notifications?.notify("chelone.message.bulk_edit_nested_source", {
         type: "error",
         messageArgs: {
           source: nested[0],
@@ -138,19 +138,19 @@ const title = computed(() =>
   props.title ? translate(props.title, { _: props.title }) : label.value,
 );
 const description = computed(() =>
-  translate("ra.message.bulk_edit_description", {
+  translate("chelone.message.bulk_edit_description", {
     smart_count: count.value,
     _: "Only the fields you change are applied to {smart_count} selected record(s).",
   }),
 );
 const applyLabel = computed(() =>
-  translate("ra.action.bulk_edit_apply", {
+  translate("chelone.action.bulk_edit_apply", {
     smart_count: count.value,
     _: "Apply to {smart_count} record(s)",
   }),
 );
 const cancelLabel = computed(() =>
-  translate("ra.action.cancel", { _: "Cancel" }),
+  translate("chelone.action.cancel", { _: "Cancel" }),
 );
 </script>
 

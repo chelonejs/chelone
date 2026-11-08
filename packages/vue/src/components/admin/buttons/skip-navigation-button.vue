@@ -1,7 +1,7 @@
 <script lang="ts">
 /** Props for {@link SkipNavigationButton}. */
 export interface SkipNavigationButtonProps {
-  /** An i18n key (contains a dot) or literal text. Default `ra.navigation.skip_nav`. */
+  /** An i18n key (contains a dot) or literal text. Default `chelone.navigation.skip_nav`. */
   label?: string;
   /** Extra CSS class appended to the button. */
   class?: string;
@@ -27,7 +27,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import Button from "../../ui/button.vue";
 
 const props = withDefaults(defineProps<SkipNavigationButtonProps>(), {
-  label: "ra.navigation.skip_nav",
+  label: "chelone.navigation.skip_nav",
 });
 
 const translate = useTranslate();

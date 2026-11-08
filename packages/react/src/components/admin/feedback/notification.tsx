@@ -86,7 +86,7 @@ function Notification(props: ToasterProps) {
         const toastId = toast[type](finalMessage, {
           duration: notification.autoHideDuration,
           action: {
-            label: translateRef.current("ra.action.undo", { _: "Undo" }),
+            label: translateRef.current("chelone.action.undo", { _: "Undo" }),
             onClick: () => {
               notification.undo?.();
               toast.dismiss(toastId);

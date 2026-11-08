@@ -84,7 +84,7 @@ const isPending = computed(() => updateMany.isPending.value);
 const label = computed(() =>
   props.label
     ? translate(props.label, { _: props.label })
-    : translate("ra.action.update", { _: "Update" }),
+    : translate("chelone.action.update", { _: "Update" }),
 );
 
 async function onClick(event: MouseEvent): Promise<void> {
@@ -119,7 +119,7 @@ async function onClick(event: MouseEvent): Promise<void> {
   }
   const message =
     props.confirmContent ??
-    translate("ra.message.bulk_update_content", {
+    translate("chelone.message.bulk_update_content", {
       smart_count: ids.length,
       _: "Are you sure you want to update these items?",
     });

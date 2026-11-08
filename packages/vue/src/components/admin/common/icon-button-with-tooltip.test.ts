@@ -34,7 +34,9 @@ async function mountButton(
             i18n: createI18n({
               locale: "en",
               messages: {
-                en: defineMessages({ "ra.action.refresh": "Refresh data" }),
+                en: defineMessages({
+                  "chelone.action.refresh": "Refresh data",
+                }),
               },
             }),
           },
@@ -67,7 +69,7 @@ const button = () =>
 
 describe("<IconButtonWithTooltip>", () => {
   it("names the button by its translated label", async () => {
-    await mountButton({ label: "ra.action.refresh" });
+    await mountButton({ label: "chelone.action.refresh" });
     expect(button()?.getAttribute("aria-label")).toBe("Refresh data");
   });
 
@@ -77,7 +79,7 @@ describe("<IconButtonWithTooltip>", () => {
   });
 
   it("sets title to the translated label", async () => {
-    await mountButton({ label: "ra.action.refresh" });
+    await mountButton({ label: "chelone.action.refresh" });
     expect(button()?.getAttribute("title")).toBe("Refresh data");
   });
 

@@ -35,7 +35,7 @@ function LoadingIndicator({ className, onClick }: LoadingIndicatorProps) {
   return (
     <div className={cn("relative size-4", className)}>
       <IconButtonWithTooltip
-        label="ra.action.refresh"
+        label="chelone.action.refresh"
         onClick={handleClick}
         className={cn(
           "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
@@ -48,7 +48,7 @@ function LoadingIndicator({ className, onClick }: LoadingIndicatorProps) {
       </IconButtonWithTooltip>
       {loading && (
         <Spinner
-          aria-label={translate("ra.page.loading", { _: "Loading" })}
+          aria-label={translate("chelone.page.loading", { _: "Loading" })}
           className="absolute inset-0"
         />
       )}

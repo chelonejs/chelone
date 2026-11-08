@@ -82,8 +82,8 @@ const props = withDefaults(
   {
     label: undefined,
     multiple: false,
-    labelMultiple: "ra.input.file.upload_several",
-    labelSingle: "ra.input.file.upload_single",
+    labelMultiple: "chelone.input.file.upload_several",
+    labelSingle: "chelone.input.file.upload_single",
   },
 );
 

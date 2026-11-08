@@ -187,7 +187,7 @@ function FilterButton(props: FilterButtonProps) {
             aria-haspopup="true"
           >
             <Filter />
-            {translate("ra.action.add_filter", { _: "Add filter" })}
+            {translate("chelone.action.add_filter", { _: "Add filter" })}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
@@ -224,7 +224,7 @@ function FilterButton(props: FilterButtonProps) {
               }}
             >
               <X className="size-4 mr-2" />
-              {translate("ra.action.remove_all_filters", {
+              {translate("chelone.action.remove_all_filters", {
                 _: "Remove all filters",
               })}
             </DropdownMenuItem>

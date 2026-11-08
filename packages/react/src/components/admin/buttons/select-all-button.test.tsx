@@ -32,7 +32,7 @@ import { SelectAllButton } from "./select-all-button";
 afterEach(cleanup);
 
 const messages = {
-  "ra.action.select_all": "Take the whole list",
+  "chelone.action.select_all": "Take the whole list",
   "app.pick_all": "Every row on this page",
 };
 

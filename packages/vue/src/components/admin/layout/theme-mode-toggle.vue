@@ -32,7 +32,7 @@ function cycle(): void {
 }
 
 const label = computed(() =>
-  translate("ra.action.toggle_theme", { _: "Toggle theme" }),
+  translate("chelone.action.toggle_theme", { _: "Toggle theme" }),
 );
 </script>
 

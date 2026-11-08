@@ -64,7 +64,7 @@ const label = computed(() => {
   const explicit = isTruthy.value
     ? props.valueLabelTrue
     : props.valueLabelFalse;
-  const key = explicit ?? (isTruthy.value ? "ra.boolean.true" : "ra.boolean.false");
+  const key = explicit ?? (isTruthy.value ? "chelone.boolean.true" : "chelone.boolean.false");
   return translate(key, { _: key });
 });
 

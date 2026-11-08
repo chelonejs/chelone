@@ -65,7 +65,7 @@ interface SortButtonProps extends ButtonProps {
 function SortButtonComponent(props: SortButtonProps) {
   const {
     fields,
-    label = "ra.sort.sort_by",
+    label = "chelone.sort.sort_by",
     icon = defaultIcon,
     resource: _resource,
     ref,
@@ -98,7 +98,7 @@ function SortButtonComponent(props: SortButtonProps) {
       typeof fieldLabel === "string"
         ? fieldLabel.charAt(0).toLowerCase() + fieldLabel.slice(1)
         : undefined,
-    order: translate(`ra.sort.${primarySort.order}`, {
+    order: translate(`chelone.sort.${primarySort.order}`, {
       _: primarySort.order,
     }),
   });
@@ -152,7 +152,7 @@ function SortButtonComponent(props: SortButtonProps) {
               source: field,
             })}{" "}
             {translate(
-              `ra.sort.${
+              `chelone.sort.${
                 primarySort.field === field
                   ? inverseOrder(primarySort.order)
                   : "ASC"

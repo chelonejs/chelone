@@ -108,7 +108,7 @@ function SavedQueriesList({
               size="icon-sm"
               variant="ghost"
               aria-label={t(
-                "ra.saved_queries.remove_label_with_name",
+                "chelone.saved_queries.remove_label_with_name",
                 `Remove saved query "${label}"`,
                 { name: label },
               )}
@@ -125,16 +125,16 @@ function SavedQueriesList({
             id={nameId}
             type="text"
             className="h-8 w-48"
-            aria-label={t("ra.saved_queries.query_name", "Query name")}
+            aria-label={t("chelone.saved_queries.query_name", "Query name")}
             autoFocus
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
           <Button type="submit" size="sm" disabled={!name.trim()}>
-            {t("ra.action.save", "Save")}
+            {t("chelone.action.save", "Save")}
           </Button>
           <Button type="button" size="sm" variant="ghost" onClick={closeForm}>
-            {t("ra.action.cancel", "Cancel")}
+            {t("chelone.action.cancel", "Cancel")}
           </Button>
         </form>
       ) : canSave ? (
@@ -144,7 +144,7 @@ function SavedQueriesList({
           variant="outline"
           onClick={() => setNaming(true)}
         >
-          {t("ra.saved_queries.new_label", "Save current query")}
+          {t("chelone.saved_queries.new_label", "Save current query")}
         </Button>
       ) : null}
     </div>

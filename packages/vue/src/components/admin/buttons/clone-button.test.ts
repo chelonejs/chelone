@@ -36,9 +36,9 @@ const makeI18n = () =>
     locale: "en",
     messages: {
       en: defineMessages({
-        "ra.action.clone": "Clone",
-        "ra.action.save": "Save",
-        "ra.page.create": "Create {name}",
+        "chelone.action.clone": "Clone",
+        "chelone.action.save": "Save",
+        "chelone.page.create": "Create {name}",
       }),
     },
   });

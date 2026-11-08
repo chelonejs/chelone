@@ -58,7 +58,7 @@ function ResettableTextInput(props: ResettableTextInputProps) {
   const { hasValue, clearFieldValue } = useClearableFieldValue(source);
 
   const showClearButton = resettable && (clearAlwaysVisible || hasValue);
-  const clearLabel = translate("ra.action.clear_input_value", {
+  const clearLabel = translate("chelone.action.clear_input_value", {
     _: "Clear value",
   });
 

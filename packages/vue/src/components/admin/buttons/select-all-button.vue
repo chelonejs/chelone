@@ -9,7 +9,7 @@ export interface SelectAllButtonProps {
   class?: string;
 }
 
-const defaultLabel = "ra.action.select_all";
+const defaultLabel = "chelone.action.select_all";
 </script>
 
 <script setup lang="ts">

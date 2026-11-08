@@ -28,7 +28,7 @@ const navigate = useNavigate();
 const translate = useTranslate();
 
 const label = computed(() =>
-  translate("ra.action.cancel", { _: props.label ?? "Cancel" }),
+  translate("chelone.action.cancel", { _: props.label ?? "Cancel" }),
 );
 
 function onClick(): void {

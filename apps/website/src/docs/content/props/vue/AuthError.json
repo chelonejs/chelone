@@ -5,15 +5,15 @@
       "name": "title",
       "type": "string",
       "optional": true,
-      "default": "\"ra.page.error\"",
-      "comment": "i18n key for the heading. Defaults to `ra.page.error`."
+      "default": "\"chelone.page.error\"",
+      "comment": "i18n key for the heading. Defaults to `chelone.page.error`."
     },
     {
       "name": "message",
       "type": "string",
       "optional": true,
-      "default": "\"ra.message.auth_error\"",
-      "comment": "i18n key (or raw message) for the body. Defaults to `ra.message.auth_error`."
+      "default": "\"chelone.message.auth_error\"",
+      "comment": "i18n key (or raw message) for the body. Defaults to `chelone.message.auth_error`."
     }
   ],
   "emits": [],

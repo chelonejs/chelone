@@ -38,7 +38,7 @@ function makeI18n(locales: string[], changeLocale?: string) {
       code,
       defineMessages(
         changeLocale && code === "en"
-          ? { "ra.action.change_locale": changeLocale }
+          ? { "chelone.action.change_locale": changeLocale }
           : {},
       ),
     ]),

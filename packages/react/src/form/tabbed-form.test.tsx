@@ -270,7 +270,7 @@ function renderInEditRoute(
       queryClient={queryClient}
       i18n={createI18n({
         locale: "en",
-        messages: { en: defineMessages({ "ra.action.edit": "Edit" }) },
+        messages: { en: defineMessages({ "chelone.action.edit": "Edit" }) },
       })}
     >
       <ResourceRegistryProvider registry={registry}>
