@@ -8035,6 +8035,7 @@
         "papaparse",
         "react-dropzone"
       ],
+      "devDependencies": ["@tanstack/form-core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
