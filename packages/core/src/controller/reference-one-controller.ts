@@ -6,11 +6,12 @@ import type {
   SortPayload,
 } from "../data/types";
 import type { Identifier } from "../resource/identifier";
+import type { LooseRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { ListControllerContext } from "./list-controller";
 
-export interface ReferenceOneControllerOptions {
+export interface ReferenceOneControllerOptions<TRecord = LooseRecord> {
   /** The field on the referenced-FROM resource that holds the foreign key. */
   target: string;
   /** The value `target` must equal. Null or undefined fetches nothing. */
@@ -18,7 +19,7 @@ export interface ReferenceOneControllerOptions {
   /** Decides which row is first when several match. Omitted: the provider's order. */
   sort?: SortPayload | SortPayload[];
   /** Narrows the lookup, e.g. to one kind of row. Default: no filter. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<TRecord>;
   /** Gates the fetch. A disabled lookup with no cached data reads `isPending: true`. Default true. */
   enabled?: boolean;
 }
@@ -53,7 +54,7 @@ export function createReferenceOneController<
 >(
   ctx: ListControllerContext<TResources>,
   reference: TName,
-  options: ReferenceOneControllerOptions,
+  options: ReferenceOneControllerOptions<RecordOf<TResources, TName>>,
 ): ReferenceOneController<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   type ReferenceResult = GetManyReferenceResult<TRecord>;

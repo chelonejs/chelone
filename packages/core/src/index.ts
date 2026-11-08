@@ -224,11 +224,14 @@ export {
   planKanbanMove,
 } from "./controller/kanban-board";
 export type {
+  ListContextSurface,
   ListController,
   ListControllerContext,
   ListControllerOptions,
   ListControllerState,
+  ListControllerSurface,
   ListParamsPatch,
+  LooseListParamsPatch,
 } from "./controller/list-controller";
 export {
   createListController,
@@ -449,6 +452,7 @@ export type {
   GetOneParams,
   GetOneResult,
   InfiniteListParams,
+  LooseFilterPayload,
   PageInfo,
   PagePagination,
   Pagination,
@@ -1036,9 +1040,12 @@ export {
   createResourceRegistry,
 } from "./resource/registry-store";
 export type {
+  AnyFilterSourceKey,
+  AnyFilterSourceKeyOf,
   AnySourcePath,
   AnySourcePathOf,
   FilterSourceKey,
+  RecordFilterKey,
   RowSourcePath,
   SourceKey,
   SourcePath,

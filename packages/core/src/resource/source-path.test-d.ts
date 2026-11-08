@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
+import type { FilterPayload } from "../data/types";
 import type { LooseRecord, ResourceRecord } from "./record";
 import { defineResources } from "./registry";
 import type {
@@ -61,6 +62,8 @@ declare function acceptPostPath(source: SourcePath<Post>): void;
 declare function acceptPostRow(source: RowSourcePath<Post>): void;
 declare function acceptPostFilter(source: FilterSourceKey<Post>): void;
 declare function acceptPostSource(source: SourceProp<Post>): void;
+declare function acceptPostFilterPayload(filter: FilterPayload<Post>): void;
+declare function acceptFilterPayload(filter: FilterPayload): void;
 declare function acceptResourcePath(
   source: AnySourcePathOf<typeof resources>,
 ): void;
@@ -188,6 +191,34 @@ describe("FilterSourceKey", () => {
     acceptPostFilter("items[0].sku_gte");
     // @ts-expect-error a bare path is not a filter key
     acceptPostFilter("published_at");
+  });
+});
+
+describe("FilterPayload", () => {
+  it("FilterPayload<Post> takes Post's filter keys", () => {
+    acceptPostFilterPayload({ q: "search" });
+    acceptPostFilterPayload({ published_at_gte: "2020-01-01" });
+    acceptPostFilterPayload({ "items[0].sku_gte": "a" });
+    // a plain source name, the way a filter form writes it
+    acceptPostFilterPayload({ title: "x" });
+    acceptPostFilterPayload({});
+  });
+
+  it("FilterPayload<Post> rejects a key Post has no path for", () => {
+    // @ts-expect-error "titel_gte" is no filter key of Post
+    acceptPostFilterPayload({ titel_gte: "x" });
+    // @ts-expect-error "titel" is no path of Post either, suffixed or not
+    acceptPostFilterPayload({ titel: "x" });
+  });
+
+  it("FilterPayload values stay unknown", () => {
+    expectTypeOf<FilterPayload<Post>["title_gte"]>().toBeUnknown();
+    expectTypeOf<FilterPayload<Post>["q"]>().toBeUnknown();
+  });
+
+  it("FilterPayload is string-keyed for a loose record", () => {
+    acceptFilterPayload({ anything: 1, titel_gte: "x" });
+    expectTypeOf<FilterPayload>().toEqualTypeOf<FilterPayload<LooseRecord>>();
   });
 });
 

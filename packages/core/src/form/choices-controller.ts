@@ -48,7 +48,7 @@ export interface ChoicesControllerState<TRecord> {
   perPage: number;
   sort: SortPayload;
   /** The dynamic (user) filter — permanent filter is merged in on fetch. */
-  filter: FilterPayload;
+  filter: FilterPayload<TRecord>;
   /** All choices: page + missing selected prepended (deduped by lookupKey). */
   allChoices: TRecord[];
   /** The fetched page only. */
@@ -78,7 +78,7 @@ export interface ChoicesController<TRecord>
   /** Replaces the sort and resets the page to 1. */
   setSort(sort: SortPayload): void;
   /** Sets the dynamic filter (`removeEmpty` applied). `debounce` delays by `debounceMs`. */
-  setFilters(filter: FilterPayload, debounce?: boolean): void;
+  setFilters(filter: FilterPayload<TRecord>, debounce?: boolean): void;
   /** Feeds the selected-record resolution. Scalar or array; `null`/`[]` clears. */
   setValue(value: unknown): void;
   refetch(): void;
@@ -104,12 +104,14 @@ export interface ChoicesControllerOptions<
    */
   lookupKey?: SourceKey<RecordOf<TResources, TName>>;
   /** Permanent filter — merged OVER the dynamic filter for every choices fetch. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<RecordOf<TResources, TName>>;
   page?: number;
   perPage?: number;
   sort?: SortPayload;
   /** Gate the CHOICES query on the current filter values. Selected always resolves. */
-  enableGetChoices?: (filterValues: FilterPayload) => boolean;
+  enableGetChoices?: (
+    filterValues: FilterPayload<RecordOf<TResources, TName>>,
+  ) => boolean;
   /** Debounce delay for `setFilters(..., true)`. Default 500ms. */
   debounceMs?: number;
   /** The FK source field on the referencing side (metadata only). */
@@ -160,7 +162,8 @@ export function createChoicesController<
   const reference = options.reference;
   const lookupKey = options.lookupKey ?? "id";
   const isIdLookup = lookupKey === "id";
-  const permanentFilter = options.filter ?? {};
+  const permanentFilter: FilterPayload<TRecord> =
+    options.filter === undefined ? {} : options.filter;
   const debounceMs = options.debounceMs ?? DEFAULT_DEBOUNCE_MS;
 
   const store = createMicroStore<ChoicesControllerState<TRecord>>(
@@ -388,7 +391,7 @@ export function createChoicesController<
     choicesObserver?.setOptions(buildChoicesOptions());
   };
 
-  const applyFilters = (filter: FilterPayload): void => {
+  const applyFilters = (filter: FilterPayload<TRecord>): void => {
     store.setState({ filter: removeEmpty(filter), page: 1 });
     choicesObserver?.setOptions(buildChoicesOptions());
   };
@@ -402,7 +405,10 @@ export function createChoicesController<
   };
   store.onDestroy(clearDebounce);
 
-  const setFilters = (filter: FilterPayload, debounce = false): void => {
+  const setFilters = (
+    filter: FilterPayload<TRecord>,
+    debounce = false,
+  ): void => {
     if (destroyed) return;
     clearDebounce();
     if (!debounce) {

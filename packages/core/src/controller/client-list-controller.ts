@@ -10,6 +10,8 @@ import {
   type ListControllerState,
   type ListParamsPatch,
   listParamsFromPatch,
+  nextSortOf,
+  normalizeSort,
   removeFilterPath,
 } from "./list-controller";
 
@@ -23,7 +25,7 @@ export interface ClientListControllerOptions<TRecord> {
   /** The in-memory records. `undefined` = not-yet-loaded (data/total stay undefined). */
   data?: TRecord[];
   /** Initial user filter. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<TRecord>;
   /** Initial sort. Single payload or an array (multi-sort is normalized to an array). */
   sort?: SortPayload | SortPayload[];
   /** Initial page (1-based). Default 1. */
@@ -59,7 +61,7 @@ export interface ClientListController<TRecord> extends ListController<TRecord> {
   /** Replace the source records (external `data` prop change) and recompute. */
   setData(data: TRecord[] | undefined): void;
   /** Replace the user filter from the `filter` prop (external change) and recompute. */
-  setSourceFilter(filter: FilterPayload): void;
+  setSourceFilter(filter: FilterPayload<TRecord>): void;
   /**
    * Push external loading-flag changes (async source feeding a client list).
    * An `isPending` transition re-runs the derived-slice recompute so data
@@ -70,14 +72,6 @@ export interface ClientListController<TRecord> extends ListController<TRecord> {
 
 const DEFAULT_PER_PAGE = 1000;
 const DEFAULT_SORT: SortPayload[] = [];
-
-function normalizeSort(
-  sort: SortPayload | SortPayload[] | undefined,
-): SortPayload[] {
-  if (!sort) return DEFAULT_SORT.map((entry) => ({ ...entry }));
-  const entries = Array.isArray(sort) ? sort : [sort];
-  return entries.map((entry) => ({ ...entry }));
-}
 
 /**
  * Flatten a nested filter object into dotted keys (`{nested:{level:5}}` →
@@ -131,7 +125,7 @@ function matchesFilter<TRecord>(
 
 function applyFilterAndSort<TRecord>(
   records: TRecord[],
-  filter: FilterPayload,
+  filter: FilterPayload<TRecord>,
   sort: SortPayload[],
   filterCallback: (record: TRecord) => boolean,
 ): TRecord[] {
@@ -186,7 +180,7 @@ export function createClientListController<
   const store = createMicroStore<ListControllerState<TRecord>>({
     page: options.page ?? 1,
     perPage: options.perPage ?? DEFAULT_PER_PAGE,
-    sort: normalizeSort(options.sort),
+    sort: normalizeSort(options.sort, DEFAULT_SORT),
     filter: removeEmpty(options.filter ?? {}),
     displayedFilters: {},
     selectedIds: [],
@@ -255,24 +249,15 @@ export function createClientListController<
 
   const setSort = (input: SortPayload | SortPayload[]): void => {
     if (destroyed) return;
-    const current = store.getSnapshot().sort;
-    const single = current.length === 1 ? current[0] : undefined;
-    let next: SortPayload[];
-    if (Array.isArray(input)) {
-      next = input.map((entry) => ({ ...entry }));
-    } else if (single && single.field === input.field) {
-      next = [
-        { field: input.field, order: single.order === "ASC" ? "DESC" : "ASC" },
-      ];
-    } else {
-      next = [{ field: input.field, order: input.order ?? "ASC" }];
-    }
-    store.setState({ sort: next, page: 1 });
+    store.setState({
+      sort: nextSortOf(store.getSnapshot().sort, input),
+      page: 1,
+    });
     recompute();
   };
 
   const setFilters = (
-    filter: FilterPayload,
+    filter: FilterPayload<TRecord>,
     displayedFilters?: Record<string, boolean>,
   ): void => {
     if (destroyed) return;
@@ -287,7 +272,7 @@ export function createClientListController<
     recompute();
   };
 
-  const setParams = (patch: ListParamsPatch): void => {
+  const setParams = (patch: ListParamsPatch<TRecord>): void => {
     if (destroyed) return;
     const next = listParamsFromPatch<TRecord>(patch);
     if (Object.keys(next).length === 0) return;
@@ -365,7 +350,7 @@ export function createClientListController<
     recompute();
   };
 
-  const setSourceFilter = (filter: FilterPayload): void => {
+  const setSourceFilter = (filter: FilterPayload<TRecord>): void => {
     if (destroyed) return;
     store.setState({ filter: removeEmpty(filter), page: 1 });
     recompute();

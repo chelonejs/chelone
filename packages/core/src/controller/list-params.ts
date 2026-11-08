@@ -18,6 +18,7 @@
 
 import type { FilterPayload, SortPayload } from "../data/types";
 import { isRecord } from "../guards";
+import type { LooseRecord } from "../resource/record";
 import type { ListParamsPatch } from "./list-controller";
 
 type SortOrder = "ASC" | "DESC";
@@ -26,9 +27,11 @@ type SortOrder = "ASC" | "DESC";
  * The URL-shaped list params. A flat mirror of the query string: `sort` is the
  * field name and `order` its direction (not a `SortPayload`), so this maps 1:1
  * onto the wire format. Every field is optional — absent means "not in the URL".
+ * `TRecord` only keys `filter`: a parse hands back what the URL names, and a
+ * list hands it to its own controller.
  */
-export interface ListParamsQuery {
-  filter?: FilterPayload;
+export interface ListParamsQuery<TRecord = LooseRecord> {
+  filter?: FilterPayload<TRecord>;
   displayedFilters?: Record<string, boolean>;
   sort?: string;
   order?: SortOrder;
@@ -45,7 +48,9 @@ function isSortOrder(value: string): value is SortOrder {
  * or `''` when no field is set). Only defined fields are emitted; `filter` and
  * `displayedFilters` are JSON-encoded (an empty object serializes as `{}`).
  */
-export function serializeListParams(params: ListParamsQuery): string {
+export function serializeListParams<TRecord = LooseRecord>(
+  params: ListParamsQuery<TRecord>,
+): string {
   const search = new URLSearchParams();
   if (params.filter !== undefined) {
     search.set("filter", JSON.stringify(params.filter));
@@ -98,13 +103,17 @@ function parsePositiveIntParam(raw: string | null): number | undefined {
  * `page`/`perPage`, or one below 1; and an `order` outside `ASC`/`DESC` are
  * simply omitted. `order` is upper-cased first.
  */
-export function parseListParams(search: string): ListParamsQuery {
+export function parseListParams<TRecord = LooseRecord>(
+  search: string,
+): ListParamsQuery<TRecord> {
   const params = new URLSearchParams(
     search.startsWith("?") ? search.slice(1) : search,
   );
-  const result: ListParamsQuery = {};
+  const result: ListParamsQuery<TRecord> = {};
 
-  const filter = parseJsonObjectParam<FilterPayload>(params.get("filter"));
+  const filter = parseJsonObjectParam<FilterPayload<TRecord>>(
+    params.get("filter"),
+  );
   if (filter !== undefined) result.filter = filter;
 
   const displayedFilters = parseJsonObjectParam<Record<string, boolean>>(
@@ -138,7 +147,9 @@ export function parseListParams(search: string): ListParamsQuery {
  * defaults. Mirrors react-admin's `hasCustomParams` semantics (an empty filter
  * and `page === 1` are not "custom"), without its filter-must-be-present guard.
  */
-export function hasCustomParams(params: ListParamsQuery): boolean {
+export function hasCustomParams<TRecord = LooseRecord>(
+  params: ListParamsQuery<TRecord>,
+): boolean {
   return (
     (params.filter !== undefined && Object.keys(params.filter).length > 0) ||
     params.sort !== undefined ||
@@ -149,16 +160,18 @@ export function hasCustomParams(params: ListParamsQuery): boolean {
 }
 
 /** The list-controller state a URL carries. */
-export interface ListUrlState {
+export interface ListUrlState<TRecord = LooseRecord> {
   page: number;
   perPage: number;
   sort: SortPayload[];
-  filter: FilterPayload;
+  filter: FilterPayload<TRecord>;
   displayedFilters: Record<string, boolean>;
 }
 
 /** The query string for a list's state; the primary sort becomes `sort`/`order`. */
-export function serializeListState(state: ListUrlState): string {
+export function serializeListState<TRecord = LooseRecord>(
+  state: ListUrlState<TRecord>,
+): string {
   const primary = state.sort[0];
   return serializeListParams({
     filter: state.filter,
@@ -175,10 +188,12 @@ export function serializeListState(state: ListUrlState): string {
  * it sets none of {@link hasCustomParams}, so a clean URL keeps the option and
  * store defaults. Shown filter inputs without a filter clear the filter.
  */
-export function listPatchFromSearch(search: string): ListParamsPatch | null {
-  const query = parseListParams(search);
+export function listPatchFromSearch<TRecord = LooseRecord>(
+  search: string,
+): ListParamsPatch<TRecord> | null {
+  const query = parseListParams<TRecord>(search);
   if (!hasCustomParams(query)) return null;
-  const patch: ListParamsPatch = {};
+  const patch: ListParamsPatch<TRecord> = {};
   if (query.filter !== undefined || query.displayedFilters !== undefined) {
     patch.filter = query.filter ?? {};
     patch.displayedFilters = query.displayedFilters;

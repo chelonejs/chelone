@@ -40,6 +40,7 @@ import { foreignKeyOf, useControllerForId } from "./use-controller-for-id";
 export interface UseReferenceManyFieldControllerOptions<
   TName extends string = string,
   RecordType extends ResourceRecord = LooseRecord,
+  ReferenceRecord = LooseRecord,
 > {
   /** The resource whose rows point at the record. */
   reference: TName;
@@ -50,7 +51,7 @@ export interface UseReferenceManyFieldControllerOptions<
   /** Defaults to the ambient record. */
   record?: MaybeRefOrGetter<RecordValue<RecordType>>;
   /** Permanent filter, merged over the user filter for every fetch. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<ReferenceRecord>;
   /** Initial sort when nothing is persisted. Default id ascending. */
   sort?: SortPayload | SortPayload[];
   /** Default 25. */
@@ -82,7 +83,11 @@ export function useReferenceManyFieldController<
   TName extends keyof TResources & string = keyof TResources & string,
   RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceManyFieldControllerOptions<TName, RecordType>,
+  options: UseReferenceManyFieldControllerOptions<
+    TName,
+    RecordType,
+    RecordOf<TResources, TName>
+  >,
 ): UseReferenceManyFieldControllerReturn<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
@@ -132,11 +137,12 @@ export function useReferenceManyFieldController<
     setPerPage: (perPage: number) => controller().setPerPage(perPage),
     setSort: (sort: SortPayload | SortPayload[]) => controller().setSort(sort),
     setFilters: (
-      filter: FilterPayload,
+      filter: FilterPayload<TRecord>,
       displayedFilters?: Record<string, boolean>,
       debounced?: boolean,
     ) => controller().setFilters(filter, displayedFilters, debounced),
-    setParams: (patch: ListParamsPatch) => controller().setParams(patch),
+    setParams: (patch: ListParamsPatch<TRecord>) =>
+      controller().setParams(patch),
     showFilter: (name: string, defaultValue?: unknown) =>
       controller().showFilter(name, defaultValue),
     hideFilter: (name: string) => controller().hideFilter(name),

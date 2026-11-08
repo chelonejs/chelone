@@ -91,7 +91,7 @@ export function useList<TRecord extends ResourceRecord = ResourceRecord>(
     }
     if (lastReflectedFilterKey.current === filterKey) return;
     lastReflectedFilterKey.current = filterKey;
-    controller.setSourceFilter(filterRef.current ?? EMPTY_FILTER);
+    controller.setSourceFilter(filterRef.current ?? {});
   }, [filterKey, controller]);
 
   // Reflect external LOADING-FLAG prop changes (async source feeding the list).

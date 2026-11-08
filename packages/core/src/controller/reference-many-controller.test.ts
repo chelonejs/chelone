@@ -159,7 +159,7 @@ describe("createReferenceManyController", () => {
     // same single field: toggles ASC -> DESC and restarts from page 1
     expect(c.getSnapshot().page).toBe(1);
     await vi.waitFor(() => expect(c.getSnapshot().data?.[0]?.id).toBe(30));
-    c.setFilters({ score: 1, body: "", other: null });
+    c.setFilters({ score: 1, body: "", id: null });
     expect(c.getSnapshot().filter).toEqual({ score: 1 });
     expect(c.getSnapshot().page).toBe(1);
     await vi.waitFor(() =>

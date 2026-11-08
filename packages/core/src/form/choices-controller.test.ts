@@ -218,7 +218,7 @@ describe("createChoicesController — setFilters debounce", () => {
     const c = createChoicesController(ctx, { reference: "posts" });
     attach(c);
     await vi.waitFor(() => expect(c.getSnapshot().isPending).toBe(false));
-    c.setFilters({ title: "", category: "tech", note: null });
+    c.setFilters({ title: "", category: "tech", isbn: null });
     expect(c.getSnapshot().filter).toEqual({ category: "tech" });
     c.destroy();
     vi.useRealTimers();

@@ -41,7 +41,7 @@ function makeRouter(): Router {
  * fast in tests.
  */
 function mountList(
-  options: UseListControllerOptions = {},
+  options: UseListControllerOptions<Post> = {},
   provideResource?: string,
 ) {
   const capture: { result?: UseListControllerReturn<Post> } = {};

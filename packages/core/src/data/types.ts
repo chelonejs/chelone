@@ -1,6 +1,10 @@
 import type { Identifier } from "../resource/identifier";
 import type { LooseRecord, ResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import type {
+  AnyFilterSourceKey,
+  RecordFilterKey,
+} from "../resource/source-path";
 
 export interface PagePagination {
   page: number;
@@ -24,7 +28,46 @@ export interface SortPayload {
   field: string;
   order: "ASC" | "DESC";
 }
-export type FilterPayload = { [key: string]: unknown };
+/**
+ * A filter object: {@link RecordFilterKey}s mapped to values — a record's source
+ * paths, those paths with an operator suffix, and `q`. Keys come from the
+ * resource registry the way a `source` prop does from {@link SourceProp}, so an
+ * app that registers its resources gets `titel_gte` rejected at the call site.
+ *
+ * Values stay `unknown`: an operator suffix makes a key's value type ambiguous
+ * (`title_gte` wants a string, `views_gte` a number), and the provider decides
+ * what a value means.
+ *
+ * A loose record (the default, and every app that registers nothing) is keyed by
+ * {@link AnyFilterSourceKey}, which is plain `string` until `Register` is
+ * augmented.
+ */
+export type FilterPayload<TRecord = LooseRecord> = {
+  // type-escape: filter values are unknown by design — an operator suffix makes a key's value type ambiguous (`title_gte` wants a string, `views_gte` a number), and the provider decides what a value means
+  [TKey in _FilterKeyOf<TRecord>]?: unknown;
+};
+
+/**
+ * The keys a filter takes: the registered union for a loose record, the
+ * record's own keys for a typed one.
+ *
+ * `FilterPayload` maps over that union as ONE key set rather than picking one
+ * of two object shapes with a conditional. A union of a resolved arm and a
+ * deferred one is what stops two identical `FilterPayload<TRecord>`s assigning
+ * to each other inside a generic function, and mapping over `string` is how an
+ * unregistered app keeps today's plain index-signature object.
+ */
+type _FilterKeyOf<TRecord> = LooseRecord extends TRecord
+  ? AnyFilterSourceKey
+  : RecordFilterKey<TRecord>;
+
+/**
+ * A filter with no record behind it: an open key map. {@link FilterPayload}'s
+ * loose key set is the registered union once an app registers resources, so
+ * code that walks a filter key by key — pruning one, stripping empties — names
+ * this instead.
+ */
+export type LooseFilterPayload = { [key: string]: unknown };
 
 export interface GetListParams {
   pagination?: Pagination;

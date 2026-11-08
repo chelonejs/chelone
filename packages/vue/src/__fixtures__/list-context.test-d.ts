@@ -6,11 +6,7 @@ import type { ListContextValue, useListContext } from "../list/list-context";
 import type { useList } from "../list/use-list";
 import { makeListContext } from "./list-context";
 
-/**
- * A test's own record type. A type alias, not an interface: `ListContextValue`
- * holds `LooseRecord` rows, and only an alias carries the index signature that
- * makes them assignable to it.
- */
+/** A test's own record type, pinned by the caller. */
 type TagRecord = { id: number; name: string };
 
 describe("makeListContext", () => {
@@ -94,22 +90,20 @@ describe("makeListContext", () => {
   });
 
   it("a live list controller is already a ListContextValue — a harness needs no cast", () => {
-    // `ListContextValue` is the `useListController` result over the fallback
-    // record, so a live controller feeds `provideListContext` as it is, and so
-    // does an infinite one (extra fields, same surface) and `useList`.
-    // `ReturnType` of a generic function reads its constraint (`unknown`), not
-    // its default, so the record type is named.
+    // `ListContextValue` erases only the filter members, and `data` is
+    // covariant, so a live controller feeds `provideListContext` as it is, and
+    // so does an infinite one (extra fields, same surface) and `useList`.
     expectTypeOf<
-      ReturnType<typeof useListContext<LooseRecord>>
-    >().toEqualTypeOf<ListContextValue>();
+      ReturnType<typeof useListContext<{ id: number; title: string }>>
+    >().toMatchTypeOf<ListContextValue>();
     expectTypeOf<
-      ReturnType<typeof useList>
-    >().toEqualTypeOf<ListContextValue>();
+      ReturnType<typeof useList<{ id: number; title: string }>>
+    >().toMatchTypeOf<ListContextValue>();
     expectTypeOf<
-      UseListControllerReturn<LooseRecord>
-    >().toEqualTypeOf<ListContextValue>();
+      UseListControllerReturn<{ id: number; title: string }>
+    >().toMatchTypeOf<ListContextValue>();
     expectTypeOf<
-      UseInfiniteListControllerReturn<LooseRecord>
+      UseInfiniteListControllerReturn<{ id: number; title: string }>
     >().toMatchTypeOf<ListContextValue>();
   });
 });

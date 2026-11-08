@@ -17,3 +17,14 @@ it("the list error option is Error or null", () => {
   // @ts-expect-error undefined would leave a stale error in place
   useList({ error: () => maybeError });
 });
+
+interface Row {
+  id: number;
+  name: string;
+}
+
+it("the list filter is keyed by the record's filter keys", () => {
+  useList<Row>({ filter: { name: "red", name_gte: "r", q: "search" } });
+  // @ts-expect-error "nmae" is no path of Row, suffixed or not
+  useList<Row>({ filter: { nmae: "red" } });
+});

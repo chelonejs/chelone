@@ -8,6 +8,7 @@ interface Row {
   category: string;
   tags: string[];
   nested?: { level: number };
+  author?: { name: string };
 }
 
 const data: Row[] = [

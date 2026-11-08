@@ -6,6 +6,7 @@ import type {
   SortPayload,
 } from "../data/types";
 import type { Identifier } from "../resource/identifier";
+import type { LooseRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { createMicroStore } from "../store/micro-store";
 import {
@@ -21,15 +22,15 @@ import {
   runSelectAll,
 } from "./list-controller";
 
-export interface ReferenceManyControllerOptions {
+export interface ReferenceManyControllerOptions<TRecord = LooseRecord> {
   /** The field on the referenced-FROM resource that holds the foreign key. */
   target: string;
   /** The value `target` must equal. Null or undefined fetches nothing. */
   id: Identifier | null | undefined;
   /** Permanent filter, merged OVER the user filter for every fetch. */
-  filter?: FilterPayload;
+  filter?: FilterPayload<TRecord>;
   /** Seed for the user filter when nothing is persisted. */
-  filterDefaultValues?: FilterPayload;
+  filterDefaultValues?: FilterPayload<TRecord>;
   /** Initial sort when nothing is persisted: one payload or several, applied in order. Default id ascending. */
   sort?: SortPayload | SortPayload[];
   /** Default 25. */
@@ -70,7 +71,7 @@ export function createReferenceManyController<
 >(
   ctx: ListControllerContext<TResources>,
   reference: TName,
-  options: ReferenceManyControllerOptions,
+  options: ReferenceManyControllerOptions<RecordOf<TResources, TName>>,
 ): ReferenceManyController<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   type ReferenceResult = GetManyReferenceResult<TRecord>;
@@ -87,17 +88,16 @@ export function createReferenceManyController<
   // The inner controller still observes the `getList` entry that matches its
   // params, so it gets no notifications: a cached `getList` failure is not
   // this reference list's error.
-  const inner = createListController(
-    { ...ctx, notifications: undefined },
-    reference,
-    {
-      perPage: options.perPage ?? DEFAULT_REFERENCE_PER_PAGE,
-      sort: options.sort,
-      filterDefaultValues: options.filterDefaultValues,
-      storeKey,
-      enabled: false,
-    },
-  );
+  const inner: ListController<TRecord> = createListController<
+    TResources,
+    TName
+  >({ ...ctx, notifications: undefined }, reference, {
+    perPage: options.perPage ?? DEFAULT_REFERENCE_PER_PAGE,
+    sort: options.sort,
+    filterDefaultValues: options.filterDefaultValues,
+    storeKey,
+    enabled: false,
+  });
 
   const initial = inner.getSnapshot();
   const store = createMicroStore<ListControllerState<TRecord>>(
@@ -189,7 +189,7 @@ export function createReferenceManyController<
   }
 
   const setFilters = (
-    filter: FilterPayload,
+    filter: FilterPayload<TRecord>,
     displayedFilters?: Record<string, boolean>,
     debounced = false,
   ): void => {
@@ -209,7 +209,7 @@ export function createReferenceManyController<
     }, options.debounceMs ?? DEFAULT_DEBOUNCE_MS);
   };
 
-  const setParams = (patch: ListParamsPatch): void => {
+  const setParams = (patch: ListParamsPatch<TRecord>): void => {
     // A pending debounced filter would overwrite this patch's filter.
     if (patch.filter !== undefined) clearDebounce();
     through(inner.setParams)(patch);

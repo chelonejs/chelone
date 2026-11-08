@@ -56,7 +56,10 @@ async function makeRouter(initial = "/"): Promise<Router> {
  * Mount `useListController` under `<Admin>` over the given router and hand back
  * the live reactive result plus the router (to read/assert the URL query).
  */
-function mountList(router: Router, options: UseListControllerOptions = {}) {
+function mountList(
+  router: Router,
+  options: UseListControllerOptions<Post> = {},
+) {
   const capture: { result?: UseListControllerReturn<Post> } = {};
   const dataProvider = fakeDataProvider<Resources>({
     posts: structuredClone(rows),

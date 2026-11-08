@@ -24,7 +24,8 @@ it("useList returns a UseListResult assignable to ListContextValue", () => {
   expectTypeOf(result.page).toBeNumber();
   expectTypeOf(result.perPage).toBeNumber();
   expectTypeOf(result.sort).toEqualTypeOf<SortPayload[]>();
-  expectTypeOf(result.filter).toEqualTypeOf<FilterPayload>();
+  // The hook is generic over the record, so its filter is keyed by the record.
+  expectTypeOf(result.filter).toEqualTypeOf<FilterPayload<Row>>();
   expectTypeOf(result.selectedIds).toEqualTypeOf<Identifier[]>();
   expectTypeOf(result.isPending).toBeBoolean();
 });
@@ -54,7 +55,9 @@ it("useList selection + param actions are present", () => {
 
 it("useList exposes setParams taking a ListParamsPatch", () => {
   expectTypeOf(result.setParams).toBeFunction();
-  expectTypeOf(result.setParams).parameters.toEqualTypeOf<[ListParamsPatch]>();
+  expectTypeOf(result.setParams).parameters.toEqualTypeOf<
+    [ListParamsPatch<Row>]
+  >();
   expectTypeOf(result.setParams).returns.toBeVoid();
   expectTypeOf<ListParamsPatch>().toEqualTypeOf<{
     filter?: FilterPayload;

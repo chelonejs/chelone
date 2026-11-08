@@ -9,13 +9,19 @@ import { createListController } from "./list-controller";
 
 const resources = defineResources({
   posts: {
-    schema: z.object({ id: z.number(), title: z.string(), views: z.number() }),
+    schema: z.object({
+      id: z.number(),
+      title: z.string(),
+      views: z.number(),
+      author: z.object({ id: z.number(), name: z.string() }),
+    }),
   },
 });
 const rows = Array.from({ length: 25 }, (_, i) => ({
   id: i + 1,
   title: `t${String(i + 1).padStart(2, "0")}`,
   views: (i * 7) % 5,
+  author: { id: (i % 3) + 1, name: `a${(i % 3) + 1}` },
 }));
 
 function makeCtx() {
