@@ -5,7 +5,7 @@
  * Each `@ts-expect-error` must stay an error, or `tsc` fails on the unused
  * directive.
  */
-import { createResourceComponents } from "@chelone/react";
+import { createResourceComponents, Resource } from "@chelone/react";
 import "./index";
 
 const posts = createResourceComponents("posts");
@@ -30,3 +30,13 @@ export function RegisterProof() {
 
 // @ts-expect-error `comments` is no registered resource
 createResourceComponents("comments");
+
+export function ResourceNameProof() {
+  return (
+    <>
+      <Resource name="posts" />
+      {/* @ts-expect-error `comments` is no registered resource */}
+      <Resource name="comments" />
+    </>
+  );
+}

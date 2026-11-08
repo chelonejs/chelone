@@ -6,11 +6,14 @@ import {
   createCsvImportController,
   csvErrorRows,
   downloadCSV,
+  type LooseRecord,
   PREVIEW_ROWS,
   parseCsvWith,
   REPLACEMENT_CHAR,
   recordsToCSV,
+  type SourceKey,
 } from "@chelone/core";
+import type { StandardSchemaV1 } from "@tanstack/form-core";
 import { Upload } from "lucide-react";
 import Papa from "papaparse";
 import {
@@ -60,15 +63,16 @@ const readText = (file: File) =>
     reader.readAsText(file);
   });
 
-export interface CsvImportProps {
+export interface CsvImportProps<TRecord = LooseRecord> {
   /** A Standard Schema (zod, valibot, ...). Its keys are the fields; its non-optional keys are required. */
-  schema?: Parameters<typeof createCsvImportController>[0]["schema"];
+  // type-escape: a CSV cell is a string, so the schema takes any input and its output is the record
+  schema?: StandardSchemaV1<unknown, TRecord>;
   /** Overrides the schema's keys. Without either, the CSV headers are the fields. */
-  fields?: string[];
+  fields?: SourceKey<TRecord>[];
   /** Overrides the schema's non-optional keys. */
-  requiredFields?: string[];
+  requiredFields?: SourceKey<TRecord>[];
   /** A starting field to header mapping. When non-empty it replaces the auto-match. */
-  mapping?: Record<string, string>;
+  mapping?: Partial<Record<SourceKey<TRecord>, string>>;
   /** Reshapes a mapped row before the schema sees it. */
   transform?: CsvTransform;
   /** Rows created at once. Default 100. */
@@ -92,7 +96,7 @@ const defaultIcon = <Upload />;
  * the resource's fields, preview the rows the schema accepts, then create them
  * with `dataProvider.create`. Needs the optional `papaparse` peer.
  */
-export function CsvImport({
+export function CsvImport<TRecord = LooseRecord>({
   schema,
   fields,
   requiredFields,
@@ -105,7 +109,7 @@ export function CsvImport({
   onComplete,
   onError,
   children,
-}: CsvImportProps) {
+}: CsvImportProps<TRecord>) {
   const translate = useTranslate();
   const dataProvider = useDataProvider();
   const ambient = useResourceContext();

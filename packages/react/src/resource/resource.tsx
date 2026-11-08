@@ -18,6 +18,7 @@
 import {
   computeDefinition,
   type RegisteredPermissions,
+  type RegisteredResourceName,
   type ResourceDefinition,
 } from "@chelone/core";
 import type { ComponentType, ReactElement, ReactNode } from "react";
@@ -40,8 +41,11 @@ import { ResourceContextProvider } from "./resource-context";
 export type ResourceViewChild = ComponentType<object> | ReactElement;
 
 export interface ResourceProps {
-  /** The resource name — the registry key and the route base (`<name>/*`). */
-  name: string;
+  /**
+   * The resource name — the registry key and the route base (`<name>/*`). A
+   * registered resource once `Register` is augmented, else any string.
+   */
+  name: RegisteredResourceName;
   /** The list view (component or element). Presence sets `hasList`. */
   list?: ResourceViewChild;
   /** The create view. Presence sets `hasCreate`. */

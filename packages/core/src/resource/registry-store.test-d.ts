@@ -38,6 +38,20 @@ describe("registry-store types", () => {
     >();
   });
 
+  it("with nothing registered a resource name is any string, and lookups take any string", () => {
+    expectTypeOf<ResourceDefinition["name"]>().toEqualTypeOf<string>();
+    expectTypeOf<ComputeDefinitionProps["name"]>().toEqualTypeOf<string>();
+    const registry = createResourceRegistry();
+    registry.get("x");
+    registry.unregister("x");
+    expectTypeOf<ResourceRegistry["get"]>()
+      .parameter(0)
+      .toEqualTypeOf<string>();
+    expectTypeOf<ResourceDefinitionMap>().toEqualTypeOf<{
+      [name: string]: ResourceDefinition;
+    }>();
+  });
+
   it("createResourceRegistry returns the ResourceRegistry contract", () => {
     expectTypeOf(
       createResourceRegistry,

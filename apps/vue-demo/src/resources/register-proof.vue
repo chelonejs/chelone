@@ -6,7 +6,7 @@
  * at the call site. Each `@vue-expect-error` must stay an error, or the
  * typecheck fails on the unused directive.
  */
-import { createResourceComponents } from "@chelone/vue";
+import { createResourceComponents, Resource } from "@chelone/vue";
 import "./schema";
 
 const posts = createResourceComponents("posts");
@@ -27,4 +27,9 @@ createResourceComponents("comments");
   <!-- a path that only authors has -->
   <!-- @vue-expect-error -->
   <posts.TextInput source="name" />
+
+  <!-- a registered resource name passes, an unregistered one fails -->
+  <Resource name="posts" />
+  <!-- @vue-expect-error `comments` is no registered resource -->
+  <Resource name="comments" />
 </template>

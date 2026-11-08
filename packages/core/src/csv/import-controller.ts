@@ -1,3 +1,4 @@
+import type { LooseRecord } from "../resource/record";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import { matchCsvHeaders } from "./match-headers";
 import { runCsvImport } from "./run-import";
@@ -39,8 +40,8 @@ export interface CsvImportController {
 const asError = (error: unknown) =>
   error instanceof Error ? error : new Error(String(error));
 
-export function createCsvImportController(
-  options: CsvImportOptions,
+export function createCsvImportController<TRecord = LooseRecord>(
+  options: CsvImportOptions<TRecord>,
 ): CsvImportController {
   const fromSchema = csvSchemaFields(options.schema);
   const explicitFields = options.fields ?? fromSchema.fields;

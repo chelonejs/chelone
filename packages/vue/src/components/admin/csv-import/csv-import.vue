@@ -1,20 +1,22 @@
-<script lang="ts">
+<script lang="ts" generic="TRecord = LooseRecord">
 import type {
   CsvImportOptions,
   CsvImportReport,
   CsvTransform,
+  LooseRecord,
+  SourceKey,
 } from "@chelone/core";
 
 /** Props for {@link CsvImport}. */
-export interface CsvImportProps {
+export interface CsvImportProps<TRecord = LooseRecord> {
   /** A Standard Schema (zod, valibot, ...). Its keys are the fields; its non-optional keys are required. */
-  schema?: CsvImportOptions["schema"];
+  schema?: CsvImportOptions<TRecord>["schema"];
   /** Overrides the schema's keys. Without either, the CSV headers are the fields. */
-  fields?: string[];
+  fields?: SourceKey<TRecord>[];
   /** Overrides the schema's non-optional keys. */
-  requiredFields?: string[];
+  requiredFields?: SourceKey<TRecord>[];
   /** A starting field to header mapping. When non-empty it replaces the auto-match. */
-  mapping?: Record<string, string>;
+  mapping?: Partial<Record<SourceKey<TRecord>, string>>;
   /** Reshapes a mapped row before the schema sees it. */
   transform?: CsvTransform;
   /** Rows created at once. Default 100. */
@@ -28,7 +30,7 @@ export interface CsvImportProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="TRecord = LooseRecord">
 /**
  * `<CsvImport>` — a button that opens a four-step sheet: upload a CSV file, map
  * its columns to the resource's fields, preview the rows the schema accepts,
@@ -76,7 +78,7 @@ import {
 import { UploadIcon } from "./upload-icon";
 import { CsvImportKey, type CsvImportContextValue } from "./use-csv-import";
 
-const props = defineProps<CsvImportProps>();
+const props = defineProps<CsvImportProps<TRecord>>();
 
 const translate = useTranslate();
 const { dataProvider } = useCheloneContext();

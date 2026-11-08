@@ -17,6 +17,7 @@
  * `<Resource>` also carries the view components as props.
  */
 
+import type { RegisteredResourceName } from "@chelone/core";
 import {
   type Component,
   type ComputedRef,
@@ -37,8 +38,11 @@ import { useResourceContext } from "../resource-context";
  * the menu / breadcrumb surface (later phases).
  */
 export interface ResourceDefinition {
-  /** The resource name — the registry key and the route base (`/{name}`). */
-  name: string;
+  /**
+   * The resource name — the registry key and the route base (`/{name}`). A
+   * registered resource once `Register` is augmented, else any string.
+   */
+  name: RegisteredResourceName;
   /** The list view. Presence adds the `/{name}` route. */
   list?: Component;
   /** The create view. Presence adds the `/{name}/create` route. */
