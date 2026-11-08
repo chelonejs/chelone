@@ -1,6 +1,7 @@
 import { isFilterBranch } from "../data/filter-branch";
-import type { FilterPayload } from "../data/types";
+import type { FilterPayload, LooseFilterPayload } from "../data/types";
 import { isRecord } from "../guards";
+import type { LooseRecord } from "../resource/record";
 
 /**
  * Pure helpers a live filter form uses to keep its values and the list filter
@@ -11,7 +12,7 @@ import { isRecord } from "../guards";
 const resolveFilterValue = (
   formValues: Record<string, unknown>,
   key: string,
-  filter: Record<string, unknown>,
+  filter: LooseFilterPayload,
 ): unknown => {
   const formValue = formValues[key];
   // Nullish, arrays and Dates: take the filter value (fallback '') as-is; do
@@ -88,18 +89,21 @@ export function filterFormReflectShape(
  * REPLACED (never element-merged) — matching ra's mergeObjNotArray. The result
  * is a fresh object (no mutation of the inputs).
  */
-export function mergeFilterValues(
-  filter: Record<string, unknown>,
-  values: Record<string, unknown>,
-): FilterPayload {
-  const merged: Record<string, unknown> = { ...filter };
-  for (const key of Object.keys(values)) {
-    const next = values[key];
-    const prev = merged[key];
+export function mergeFilterValues<TRecord = LooseRecord>(
+  filter: FilterPayload<TRecord>,
+  values: FilterPayload<TRecord>,
+): FilterPayload<TRecord> {
+  const merged: FilterPayload<TRecord> = { ...filter };
+  // Key-wise reads and writes use the open shape of these same filter maps.
+  const incoming: LooseFilterPayload = values;
+  const target: LooseFilterPayload = merged;
+  for (const key of Object.keys(incoming)) {
+    const next = incoming[key];
+    const prev = target[key];
     if (isFilterBranch(next) && isFilterBranch(prev)) {
-      merged[key] = { ...prev, ...next };
+      target[key] = { ...prev, ...next };
     } else {
-      merged[key] = next;
+      target[key] = next;
     }
   }
   return merged;
