@@ -25,17 +25,60 @@ type CatalogValue<
   : never;
 
 /**
+ * The contract of an i18n engine handed to `<Admin i18n>`: these members, with
+ * this behaviour. `createI18n` is one implementation; an app can bring i18next,
+ * Lingui or its own adapter, and `@chelone/test-utils`'s
+ * `testI18nProviderContract` runs the conventions below against any of them.
+ *
+ * The conventions, in one line each:
+ * - Placeholders are `{name}`, filled from the params.
+ * - A key no catalog holds returns the key, and `translate` never throws.
+ * - A string `_` param is the default text for a missing key only.
+ * - `count` and `smart_count` both name the plural count; `count` wins.
+ * - Plurals are `{ one, other }` forms picked by `Intl.PluralRules`.
+ */
+export interface I18nProvider {
+  /**
+   * The message for `key`, interpolated and pluralized.
+   *
+   * - A `{name}` placeholder with no matching param is left as written.
+   * - A key no catalog holds comes back as `key` itself. `translate` never
+   *   throws, so a missing label surfaces instead of breaking the render.
+   * - A string `_` param is the default text for a missing key, and only for
+   *   one: a key the catalog holds ignores it. The default is interpolated
+   *   with the same params, so `{ _: "Hi {name}", name: "Ada" }` renders
+   *   "Hi Ada".
+   * - For a plural message the count is `count`, or `smart_count` (the name
+   *   react-admin and the components use) when `count` is absent; `count` wins
+   *   when both are given. Whichever one is used also fills `{count}` and
+   *   `{smart_count}` in the text.
+   */
+  translate(key: string, params?: TranslateParamValues): string;
+  /** The active locale, as a BCP 47 tag. */
+  getLocale(): string;
+  /**
+   * Make `locale` active and notify each subscriber once, before returning.
+   * Setting the locale that is already active notifies no one: a spurious
+   * notification re-renders every component that reads the locale.
+   */
+  setLocale(locale: string): void;
+  /** Every locale the provider can translate. */
+  getLocales(): string[];
+  /**
+   * Register `callback` for locale changes and return its unsubscribe, which
+   * stops the notifications. Components subscribe so a `setLocale` re-renders
+   * them.
+   */
+  subscribe(callback: () => void): () => void;
+}
+
+/**
  * Catalog-erased view of an i18n instance — what a type-erased holder (e.g. a
  * React context) can carry. Any `CheloneI18n<TCatalog>` is structurally
  * assignable to this; key-level literal typing lives on the concrete instance.
+ * An alias of `I18nProvider`, the name the adapters' props carry.
  */
-export interface AnyCheloneI18n {
-  translate(key: string, params?: TranslateParamValues): string;
-  getLocale(): string;
-  setLocale(locale: string): void;
-  getLocales(): string[];
-  subscribe(callback: () => void): () => void;
-}
+export type AnyCheloneI18n = I18nProvider;
 
 export interface CheloneI18n<TCatalog extends MessageCatalog> {
   /**
