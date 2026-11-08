@@ -34,7 +34,7 @@ export function useInfiniteListController<
   TName extends keyof TResources & string = keyof TResources & string,
 >(
   resource: TName,
-  options?: ListControllerOptions,
+  options?: ListControllerOptions<RecordOf<TResources, TName>>,
 ): UseInfiniteListControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();

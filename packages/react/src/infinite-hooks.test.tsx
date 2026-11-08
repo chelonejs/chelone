@@ -14,7 +14,10 @@ import {
 } from "./infinite-hooks";
 import { useInfiniteListContext } from "./list/infinite-list-context";
 
-const postSchema = z.object({
+// `looseObject` on purpose: these tests filter on plain field names, and a
+// strict record keys its filter by `FilterSourceKey` — `q` plus operator
+// suffixes only. Filter-key typing is pinned in core's source-path.test-d.ts.
+const postSchema = z.looseObject({
   id: z.number(),
   title: z.string(),
   group: z.string(),

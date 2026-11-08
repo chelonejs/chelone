@@ -1,6 +1,6 @@
 import type { ResourceRecord } from "@chelone/core";
 import { vi } from "vitest";
-import type { UseListControllerResult } from "../controller-hooks";
+import type { ListContextValue } from "../form";
 
 /**
  * A whole list-controller result with real defaults, so a test that builds its
@@ -17,7 +17,8 @@ import type { UseListControllerResult } from "../controller-hooks";
  * the test has no schema of its own, a test's own record interface when it does
  * (`makeListContext<PostRecord>({ data: posts })`). It is pinned by the caller,
  * never inferred from `overrides`, so a bare `makeListContext()` is always a
- * `ListContextValue`.
+ * `ListContextValue`. The filter is the open key map a context carries, not a
+ * record's own filter keys.
  *
  * A harness that runs a real list controller (`useList`, `useListController`)
  * passes that result as it is instead: it is already a `ListContextValue` (pinned
@@ -27,8 +28,8 @@ import type { UseListControllerResult } from "../controller-hooks";
 export function makeListContext<
   TRecord extends ResourceRecord = ResourceRecord,
 >(
-  overrides: NoInfer<Partial<UseListControllerResult<TRecord>>> = {},
-): UseListControllerResult<TRecord> {
+  overrides: NoInfer<Partial<ListContextValue<TRecord>>> = {},
+): ListContextValue<TRecord> {
   return {
     page: 1,
     perPage: 10,

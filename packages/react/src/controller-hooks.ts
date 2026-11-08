@@ -16,7 +16,7 @@ import {
   type ListController,
   type ListControllerContext,
   type ListControllerOptions,
-  type ListControllerState,
+  type ListControllerSurface,
   type LooseRecord,
   listControllerActions,
   listPatchFromSearch,
@@ -41,14 +41,14 @@ import { type CheloneContextValue, useCheloneContext } from "./context";
 import { RouterAdapterContext } from "./router/adapter";
 
 /** Reactive controller state plus the controller's stable actions. */
-export type UseListControllerResult<TRecord> = ListControllerState<TRecord> &
-  Omit<ListController<TRecord>, keyof MicroStore<ListControllerState<TRecord>>>;
+export type UseListControllerResult<TRecord> = ListControllerSurface<TRecord>;
 
 /**
  * Options for {@link useListController} — the vanilla {@link ListControllerOptions}
  * plus the React-only `syncWithLocation` URL-sync switch.
  */
-export interface UseListControllerOptions extends ListControllerOptions {
+export interface UseListControllerOptions<TRecord = LooseRecord>
+  extends ListControllerOptions<TRecord> {
   /**
    * Sync list params (filter / sort / page / perPage / displayedFilters) to the
    * URL query string, ra-core `useListParams`-style: the initial params are
@@ -109,7 +109,7 @@ export function useListController<
   TName extends keyof TResources & string = keyof TResources & string,
 >(
   resource: TName,
-  options?: UseListControllerOptions,
+  options?: UseListControllerOptions<RecordOf<TResources, TName>>,
 ): UseListControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const ctx = useCheloneContext<TResources>();
@@ -139,7 +139,9 @@ export function useListController<
     // fetch already uses the URL params. A clean URL keeps the option/KV
     // defaults (ra-core semantics).
     const patch =
-      syncEnabled && location ? listPatchFromSearch(location.search) : null;
+      syncEnabled && location
+        ? listPatchFromSearch<TRecord>(location.search)
+        : null;
     if (patch) created.setParams(patch);
     return created;
   });
@@ -182,7 +184,7 @@ export function useListController<
     if (search === undefined || search === seenSearchRef.current) return;
     seenSearchRef.current = search;
     if (search === lastPushedRef.current) return;
-    const patch = listPatchFromSearch(search);
+    const patch = listPatchFromSearch<TRecord>(search);
     if (patch) controller.setParams(patch);
   }, [search, controller]);
 

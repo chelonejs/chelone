@@ -3,10 +3,15 @@ import { StrictMode } from "react";
 import { describe, expect, it } from "vitest";
 import { useList } from "./use-list";
 
+// The index signature is on purpose: this file filters on plain field names,
+// and a record without one keys its filter by `FilterSourceKey` — `q` plus
+// operator suffixes only. Filter-key typing is pinned in core's
+// source-path.test-d.ts.
 interface Row {
   id: number;
   name: string;
   category: string;
+  [key: string]: unknown;
 }
 
 const data: Row[] = [

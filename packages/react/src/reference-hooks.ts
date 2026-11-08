@@ -45,9 +45,10 @@ interface ReferenceFieldControllerOptions<
 export interface UseReferenceManyFieldControllerOptions<
   TName extends string = string,
   RecordType extends ResourceRecord = LooseRecord,
+  ReferenceRecord = LooseRecord,
 > extends ReferenceFieldControllerOptions<TName, RecordType> {
-  /** Permanent filter, merged over the user filter for every fetch. */
-  filter?: FilterPayload;
+  /** Permanent filter, merged over the user filter for every fetch. Keyed by the referenced resource's record. */
+  filter?: FilterPayload<ReferenceRecord>;
   /** Initial sort when nothing is persisted. Default id ascending. */
   sort?: SortPayload | SortPayload[];
   /** Default 25. */
@@ -61,11 +62,12 @@ export interface UseReferenceManyFieldControllerOptions<
 export interface UseReferenceOneFieldControllerOptions<
   TName extends string = string,
   RecordType extends ResourceRecord = LooseRecord,
+  ReferenceRecord = LooseRecord,
 > extends ReferenceFieldControllerOptions<TName, RecordType> {
   /** Decides which row is first when several match. */
   sort?: SortPayload | SortPayload[];
-  /** Narrows the lookup. */
-  filter?: FilterPayload;
+  /** Narrows the lookup. Keyed by the referenced resource's record. */
+  filter?: FilterPayload<ReferenceRecord>;
 }
 
 /** Reactive controller state plus the controller's stable actions; drops into a list context. */
@@ -160,7 +162,11 @@ export function useReferenceManyFieldController<
   TName extends keyof TResources & string = keyof TResources & string,
   RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceManyFieldControllerOptions<TName, RecordType>,
+  options: UseReferenceManyFieldControllerOptions<
+    TName,
+    RecordType,
+    RecordOf<TResources, TName>
+  >,
 ): UseReferenceManyFieldControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const { controller, snapshot } = useReferenceFieldBridge<
@@ -200,7 +206,11 @@ export function useReferenceOneFieldController<
   TName extends keyof TResources & string = keyof TResources & string,
   RecordType extends ResourceRecord = LooseRecord,
 >(
-  options: UseReferenceOneFieldControllerOptions<TName, RecordType>,
+  options: UseReferenceOneFieldControllerOptions<
+    TName,
+    RecordType,
+    RecordOf<TResources, TName>
+  >,
 ): UseReferenceOneFieldControllerResult<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   const { controller, snapshot } = useReferenceFieldBridge<

@@ -1,6 +1,7 @@
 import type {
   CheloneFormApi,
   FieldErrors,
+  ListContextSurface,
   ResourceRecord,
   SourceScope,
 } from "@chelone/core";
@@ -17,7 +18,6 @@ import {
   useEffect,
   useRef,
 } from "react";
-import type { UseListControllerResult } from "../controller-hooks";
 import {
   CheloneFormProvider,
   SourceContextProvider,
@@ -46,12 +46,15 @@ import { FormGroupsProvider } from "./group-hooks";
 /* -------------------------------------------------------------------------- */
 
 /**
- * The ambient list surface. Mirrors ra-core's `ListContext` (the full list
- * controller result). Erased to `ResourceRecord` because a React context
- * cannot be generic; FilterLiveForm reads only `filter` + `setFilters` from it,
- * and both are record-shape-agnostic.
+ * The ambient list surface. Mirrors ra-core's `ListContext` (the list
+ * controller result). A React context cannot be generic, so `ListContextSurface`
+ * erases it: `data` carries the record type the caller names, and the filter is
+ * an open key map — what writes a context filter (a filter form, a calendar
+ * range, a URL) names no record keys. `useListContext<T>()` reads it back typed.
  */
-export type ListContextValue = UseListControllerResult<ResourceRecord>;
+export type ListContextValue<
+  RecordType extends ResourceRecord = ResourceRecord,
+> = ListContextSurface<RecordType>;
 
 const ListContext = createContext<ListContextValue | null>(null);
 
@@ -80,14 +83,15 @@ export function ListContextProvider({
  */
 export function useListContext<
   RecordType extends ResourceRecord = ResourceRecord,
->(): UseListControllerResult<RecordType> {
+>(): ListContextValue<RecordType> {
   const ctx = useContext(ListContext);
   if (!ctx) {
     throw new Error(
       "useListContext: no <ListContextProvider> found above this component.",
     );
   }
-  return ctx as UseListControllerResult<RecordType>;
+  // type-escape: a context cannot carry the record type, so the erased list is read back as the record the caller names
+  return ctx as ListContextValue<RecordType>;
 }
 
 export { getFilterFormValues };

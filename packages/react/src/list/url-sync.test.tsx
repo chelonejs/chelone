@@ -27,8 +27,13 @@ import { useListController } from "../controller-hooks";
 import type { AdapterLinkProps, RouterAdapter } from "../router/adapter";
 import { RouterAdapterProvider } from "../router/adapter";
 
+// `looseObject` on purpose: these tests filter on plain field names, and a
+// strict record keys its filter by `FilterSourceKey` — `q` plus operator
+// suffixes only. Filter-key typing is pinned in core's source-path.test-d.ts.
 const resources = defineResources({
-  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  posts: {
+    schema: z.looseObject({ id: z.number(), title: z.string() }),
+  },
 });
 const rows = Array.from({ length: 25 }, (_, i) => ({
   id: i + 1,
