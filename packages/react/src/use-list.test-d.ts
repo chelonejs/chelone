@@ -96,7 +96,9 @@ it("a list controller keys its sort by the record and still mounts in a list con
 });
 
 const resources = defineResources({
-  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+  comments: {
+    schema: z.object({ id: z.number(), post_id: z.number(), body: z.string() }),
+  },
 });
 
 it("the reference hooks sort by the referenced record", () => {

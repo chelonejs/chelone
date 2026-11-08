@@ -16,6 +16,8 @@ import {
   type ResourceMap,
   type ResourceRecord,
   type SortPayload,
+  type SourceKey,
+  type SourceProp,
 } from "@chelone/core";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { useCheloneContext } from "./context";
@@ -29,13 +31,19 @@ import {
 interface ReferenceFieldControllerOptions<
   TName extends string,
   RecordType extends ResourceRecord = LooseRecord,
+  ReferenceRecord = LooseRecord,
 > {
   /** The resource whose rows point at the record. */
   reference: TName;
-  /** The field on `reference` that holds the foreign key. */
-  target: string;
-  /** The field on the record whose value `target` must equal. Default `"id"`. */
-  source?: string;
+  /** The field on `reference` that holds the foreign key. A key of the referenced record. */
+  target: SourceKey<ReferenceRecord>;
+  /**
+   * The field on the record whose value `target` must equal. Default `"id"`,
+   * spelled out because `SourceProp<RecordType>` stays deferred while
+   * `RecordType` is an unresolved parameter, so the compiler cannot see that
+   * `"id"` is one of its paths.
+   */
+  source?: SourceProp<RecordType> | "id";
   /** Defaults to the ambient record (`useRecordContext`). */
   record?: RecordContextValue<RecordType>;
   /** Gates the data fetch only. Default true. */
@@ -46,7 +54,7 @@ export interface UseReferenceManyFieldControllerOptions<
   TName extends string = string,
   RecordType extends ResourceRecord = LooseRecord,
   ReferenceRecord = LooseRecord,
-> extends ReferenceFieldControllerOptions<TName, RecordType> {
+> extends ReferenceFieldControllerOptions<TName, RecordType, ReferenceRecord> {
   /** Permanent filter, merged over the user filter for every fetch. Keyed by the referenced resource's record. */
   filter?: FilterPayload<ReferenceRecord>;
   /** Initial sort when nothing is persisted. Default id ascending. */
@@ -63,7 +71,7 @@ export interface UseReferenceOneFieldControllerOptions<
   TName extends string = string,
   RecordType extends ResourceRecord = LooseRecord,
   ReferenceRecord = LooseRecord,
-> extends ReferenceFieldControllerOptions<TName, RecordType> {
+> extends ReferenceFieldControllerOptions<TName, RecordType, ReferenceRecord> {
   /** Decides which row is first when several match. */
   sort?: SortPayload<ReferenceRecord> | SortPayload<ReferenceRecord>[];
   /** Narrows the lookup. Keyed by the referenced resource's record. */

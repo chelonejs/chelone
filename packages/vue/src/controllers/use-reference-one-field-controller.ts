@@ -20,38 +20,26 @@ import {
   type ResourceMap,
   type ResourceRecord,
   type SortPayload,
+  type SourceKey,
 } from "@chelone/core";
-import {
-  computed,
-  inject,
-  type MaybeRefOrGetter,
-  reactive,
-  toValue,
-} from "vue";
+import { computed, inject, reactive, toValue } from "vue";
 import { useCheloneContext } from "../context";
-import { RecordContextKey, type RecordValue } from "../record/record-context";
+import { RecordContextKey } from "../record/record-context";
 import { toControllerContext } from "./controller-context";
+import type { ReferenceFieldControllerOptions } from "./reference-field-options";
 import { foreignKeyOf, useControllerForId } from "./use-controller-for-id";
 
 export interface UseReferenceOneFieldControllerOptions<
   TName extends string = string,
   RecordType extends ResourceRecord = LooseRecord,
   ReferenceRecord = LooseRecord,
-> {
-  /** The resource whose rows point at the record. */
-  reference: TName;
-  /** The field on `reference` that holds the foreign key. */
-  target: string;
-  /** The field on the record whose value `target` must equal. Default `"id"`. */
-  source?: string;
-  /** Defaults to the ambient record. */
-  record?: MaybeRefOrGetter<RecordValue<RecordType>>;
+> extends ReferenceFieldControllerOptions<TName, RecordType> {
+  /** The field on `reference` that holds the foreign key. A key of the referenced record. */
+  target: SourceKey<ReferenceRecord>;
   /** Decides which row is first when several match. */
   sort?: SortPayload<ReferenceRecord> | SortPayload<ReferenceRecord>[];
   /** Narrows the lookup. */
   filter?: FilterPayload<ReferenceRecord>;
-  /** Gates the fetch. Default true. */
-  enabled?: boolean;
 }
 
 /** Live lookup state plus the controller's stable `refetch`. */

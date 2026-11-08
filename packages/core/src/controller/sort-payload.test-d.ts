@@ -15,7 +15,12 @@ import { createReferenceOneController } from "./reference-one-controller";
 
 const resources = defineResources({
   posts: {
-    schema: z.object({ id: z.number(), title: z.string(), views: z.number() }),
+    schema: z.object({
+      id: z.number(),
+      title: z.string(),
+      views: z.number(),
+      author_id: z.number(),
+    }),
   },
 });
 type Post = RecordOf<typeof resources, "posts">;
