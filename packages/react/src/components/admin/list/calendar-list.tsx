@@ -148,10 +148,10 @@ function CalendarList<RecordType extends ResourceRecord = LooseRecord>({
   const rangeValues = () =>
     rangeFilter
       ? rangeFilter(range)
-      : calendarRangeFilter(startSource, range, endSource);
+      : calendarRangeFilter<RecordType>(startSource, range, endSource);
   const staleKeys = rangeFilter
     ? []
-    : staleCalendarRangeKeys(startSource, endSource);
+    : staleCalendarRangeKeys<RecordType>(startSource, endSource);
   const listFilter = list.filter;
   const inSync =
     list.perPage === perPage &&
