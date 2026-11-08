@@ -214,8 +214,8 @@ const setLocale = useSetLocale();   // setLocale("fr")
 `<Admin i18n>` takes any object that satisfies `I18nProvider`, exported from
 `@chelone/core`. `createI18n` is one implementation of it; an adapter over
 i18next, Lingui or your own engine works as long as it honours the same
-conventions. `AnyCheloneI18n`, the name the adapters' props carry, is an alias of
-`I18nProvider`.
+conventions. The adapters type their `i18n` prop as `AnyCheloneI18n`, an alias of
+`I18nProvider`, so the props tables show `I18nProvider`.
 
 | member | what it must do |
 | --- | --- |

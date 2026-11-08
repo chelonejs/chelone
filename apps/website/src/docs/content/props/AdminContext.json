@@ -33,7 +33,7 @@
     },
     {
       "name": "i18n",
-      "type": "AnyCheloneI18n",
+      "type": "I18nProvider",
       "optional": true,
       "comment": "The optional i18n instance (translations)."
     },
