@@ -46,6 +46,8 @@ export {
   setPermissionRow,
   togglePermission,
 } from "./auth/permission-matrix";
+export type { RouteAuthOptions, RouteAuthResult } from "./auth/route-auth";
+export { checkRouteAuth, safeRedirectTarget } from "./auth/route-auth";
 export type { AuthProvider, CanAccessParams, UserIdentity } from "./auth/types";
 export type {
   Attrs as BlockAttrs,

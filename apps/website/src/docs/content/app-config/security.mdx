@@ -67,6 +67,54 @@ replace it by adding an `<Admin.LoginPage>` child:
 Chelone also ships `<LoginForm>`, the logout action (`<Logout>`), the OAuth return
 (`<AuthCallback>`), and the standalone `<AuthLayout>` for login-adjacent pages.
 
+## Route guards
+
+`requireAuth` checks the session in the shell after it renders. In a file-routed
+TanStack app, a route's `beforeLoad` can check it earlier: a logged-out visit
+redirects to the login route before the protected page renders, and the answer is
+cached, so the shell's `useAuthGate` shows no loading state.
+
+```tsx
+import {
+  redirectAuthenticatedBeforeLoad,
+  requireAuthBeforeLoad,
+} from "@chelone/react/tanstack-router";
+
+export const Route = createFileRoute("/admin/posts")({
+  beforeLoad: ({ location, context }) =>
+    requireAuthBeforeLoad({
+      location,
+      authProvider: context.authProvider,
+      queryClient: context.queryClient,
+    }),
+});
+
+// routes/login.tsx: a signed-in visit goes on to the `redirect` target
+export const Route = createFileRoute("/login")({
+  beforeLoad: ({ location, context }) =>
+    redirectAuthenticatedBeforeLoad({
+      location,
+      authProvider: context.authProvider,
+      queryClient: context.queryClient,
+    }),
+});
+```
+
+- The redirect is `/login?redirect=<path and query>`. Pass `loginPath` to change
+  the login path. The hash and the credential keys `access_token`, `id_token`,
+  `refresh_token`, `token`, `code` and `state` are left out of the redirect.
+- `redirectAuthenticatedBeforeLoad` sends a signed-in visit to the `redirect`
+  param only when it is a same-origin path, and to `/` otherwise.
+- After a successful `login`, call `router.invalidate()` so the route's
+  `beforeLoad` runs again and moves the visitor on to the `redirect` target.
+  `useLogin` is unchanged.
+- No `authProvider` counts as signed in.
+
+The check is plain core logic. A Vue app calls `checkRouteAuth(queryClient,
+authProvider, { location })` from a `vue-router` `beforeEach` guard and
+navigates to `redirectTo` when it resolves `{ authenticated: false }`. Use
+`safeRedirectTarget(raw)` to validate any redirect target you read from a URL.
+
 ## The auth hooks
 
 Components call auth through hooks rather than the provider directly. `useLogin`
