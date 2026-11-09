@@ -69,7 +69,7 @@ function canMove<TRecord extends object>(
 export function jobStatusSource<TRecord extends object>(
   source?: SourceKey<TRecord>,
 ): keyof TRecord & string {
-  // type-escape: SourceKey<TRecord> is a key of TRecord, or string where TRecord's keys are every string
+  // type-escape: context: SourceKey<TRecord> is a key of TRecord, or string where TRecord's keys are every string
   return (source ?? "status") as keyof TRecord & string;
 }
 
@@ -100,7 +100,7 @@ function plan<TRecord extends ResourceRecord>(
   allowed: boolean,
 ): JobPlan<TRecord> | null {
   if (!allowed) return null;
-  // type-escape: the patch holds one key of the record, the status the job's rules just allowed
+  // type-escape: builder: the patch holds one key of the record, the status the job's rules just allowed
   const data = { [source]: value } as Partial<TRecord>;
   return { id: record.id, data, previousData: record };
 }
