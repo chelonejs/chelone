@@ -1,4 +1,8 @@
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import {
+  formatFieldCurrency,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useLocale, useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -48,46 +52,27 @@ function CurrencyField<RecordType extends ResourceRecord = LooseRecord>({
   });
   const appLocale = useLocale();
   const translate = useTranslate();
-  const locale = displayLocale ?? appLocale;
+  const formatted = formatFieldCurrency(value, {
+    currency,
+    locale: displayLocale ?? appLocale,
+    storeAsMinorUnits,
+    options,
+  });
 
-  if (value == null) {
-    if (!empty) return null;
+  if (formatted != null) {
     return (
       <span {...sanitizeFieldRestProps(rest)} className={className}>
-        {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
+        {formatted}
       </span>
     );
   }
 
-  const { amount, code } = normalizeCurrencyValue(value, currency);
-  const major = storeAsMinorUnits ? amount / 100 : amount;
-  const formatted = new Intl.NumberFormat(locale, {
-    style: "currency",
-    currency: code,
-    ...options,
-  }).format(major);
-
+  if (!empty) return null;
   return (
     <span {...sanitizeFieldRestProps(rest)} className={className}>
-      {formatted}
+      {typeof empty === "string" ? translate(empty, { _: empty }) : empty}
     </span>
   );
-}
-
-function normalizeCurrencyValue(
-  v: unknown,
-  fallbackCurrency?: string,
-): { amount: number; code: string } {
-  if (typeof v === "object" && v !== null && "amount" in v && "currency" in v) {
-    // A numeric or jsonb column can hand back the amount as a string.
-    return { amount: Number(v.amount), code: String(v.currency) };
-  }
-  if (!fallbackCurrency) {
-    throw new Error(
-      "<CurrencyField>: numeric value requires a `currency` prop",
-    );
-  }
-  return { amount: Number(v), code: fallbackCurrency };
 }
 
 export { CurrencyField, type CurrencyFieldProps };
