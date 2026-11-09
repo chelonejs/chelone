@@ -22,6 +22,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - `pnpm check:duplication` (jscpd, counted per file pair against `duplication-baseline.json`) fails on new duplication and names both copies. Remove the copy instead. `pnpm check:duplication --update` is only for a pull request that removes or moves duplication, never to let a new clone through.
 - `pnpm check:type-cost` fails when a package's Instantiations or Types pass `type-cost-budget.json`. Find what grew first. `pnpm check:type-cost --update` is for a change that needs the cost, with why in the pull request, and for a TypeScript upgrade.
 - Prop parity: `pnpm test:scripts` compares each component's React and Vue props with `prop-parity-baseline.json`, set aside `class`/`className`, `readonly`/`readOnly`, callback props and emits, and `children` and slots, so a React prop a Vue slot stands for is not a gap. A new one-sided prop fails, and so does a row the adapters no longer have. `node scripts/prop-parity.test.mjs --update` rewrites the list.
+- Export parity: `pnpm test:scripts` compares the hooks and factories (`use*`, `create*`) each adapter's `package.json` entry points export with `export-parity-baseline.json`, a row per one-sided export, as `react:.:useEvent` or `vue:./maps:useMapLayer`. Components are left out, since `showcase.json` tracks them. A new one-sided hook fails, and so does a row the adapters no longer have or a note that is none of `untriaged`, `matches <row>`, `intended: <reason>` or `gap: <what is missing>`; an issue that closes a gap takes its row out. `node scripts/export-parity.test.mjs --update` rewrites the list, keeping every note as written.
 - Run `pnpm format` before every commit: `pnpm lint` fails on any file Biome would reformat. The pre-push hook in `.githooks/` runs `pnpm lint` and refuses the push when it fails; it also runs the duplication check, and skips it with a warning when jscpd is not installed (CI still runs it); `pnpm install` turns it on.
 - Commits: a conventional prefix (`feat:`, `fix:`, `test:`, `chore:`, `docs:`, `refactor:`) and a body that says why. Pull request bodies: a short bullet list of what changed, no em dashes, no bold.
 
@@ -47,7 +48,7 @@ From the root, the same commands CI runs (`.github/workflows/ci.yml`):
 pnpm install --frozen-lockfile
 pnpm format      # the fix, not a CI step: biome rewrites files so lint passes
 pnpm lint        # biome
-pnpm test:scripts # node --test over scripts/, prop parity included
+pnpm test:scripts # node --test over scripts/, prop and export parity included
 pnpm check:duplication
 pnpm check:type-escapes
 pnpm check:type-cost
