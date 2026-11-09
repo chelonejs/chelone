@@ -15,8 +15,9 @@ const installPage = read(
 const installVueSection = installPage.split("## Install for Vue")[1];
 
 it("the Vue section sits after Getting Started and React and lists setup, admin-slots, forms and differences", () => {
-  expect(rootMeta.slice(0, 3)).toEqual([
+  expect(rootMeta.slice(0, 4)).toEqual([
     { dir: "getting-started", title: "Getting Started" },
+    { dir: "type-safety", title: "Type Safety" },
     { dir: "react", title: "React" },
     { dir: "vue", title: "Vue" },
   ]);

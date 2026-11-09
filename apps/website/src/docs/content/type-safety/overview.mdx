@@ -1,0 +1,158 @@
+---
+title: "Type Safety"
+description: "Chelone compiles loose. One file of registration is what turns a source from a plain string into a checked path."
+---
+
+Chelone types its own shapes exactly: a component's props, a hook's return, a
+data provider's payload. What it cannot know on its own is your app — which
+resources it has, what a record of each one holds, which catalog it translates
+against, what its permissions look like. Until you say, every one of those holes
+takes the loose answer: `source` is a `string`, `useTranslate` takes any key,
+`usePermissions` returns `unknown`.
+
+That default is what lets an app mount `<Admin>` before it has written a single
+schema, and it is not a warning. It is also the whole cost of staying there: a
+misspelt field name compiles, and shows up as an empty column.
+
+## Loose until you register
+
+An app that registers nothing. `createResourceComponents` hands back the
+components of a resource, and with no registry behind it every name is accepted
+and every `source` is a `string`:
+
+<FrameworkCode>
+
+```tsx twoslash title="src/posts.tsx"
+import { createResourceComponents } from "@chelone/react";
+
+// Nothing registered: every `source` is a plain `string`.
+const { TextField } = createResourceComponents("posts");
+const field = <TextField source="titel" />;
+```
+
+```vue twoslash title="src/posts.vue"
+<script setup lang="ts">
+import { createResourceComponents } from "@chelone/vue";
+
+// Nothing registered: every `source` is a plain `string`.
+const { TextField } = createResourceComponents("posts");
+</script>
+
+<template>
+  <TextField source="titel" />
+</template>
+```
+
+</FrameworkCode>
+
+`titel` is a typo for `title`, and TypeScript agrees with it. Nothing in this
+snippet is wrong until the app says what its records hold.
+
+## Registered, the same line fails
+
+Add a schema and one `declare module` block, and the same `source="titel"` is an
+error:
+
+<FrameworkCode>
+
+```tsx twoslash title="src/posts.tsx"
+import {
+  defineResources,
+  type RegisteredRecord,
+  type SourceProp,
+} from "@chelone/core";
+import { createResourceComponents } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+const { TextField } = createResourceComponents("posts");
+
+// The paths a `source` accepts now.
+type PostSource = SourceProp<RegisteredRecord<"posts">>;
+//    ^?
+
+// @errors: 2820
+const field = <TextField source="titel" />;
+```
+
+```vue twoslash title="src/posts.vue"
+<script setup lang="ts">
+import {
+  defineResources,
+  type RegisteredRecord,
+  type SourceProp,
+} from "@chelone/core";
+import { createResourceComponents } from "@chelone/vue";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+const { TextField } = createResourceComponents("posts");
+
+// The paths a `source` accepts now.
+type PostSource = SourceProp<RegisteredRecord<"posts">>;
+//    ^?
+
+// @errors: 2820
+</script>
+
+<template>
+  <TextField source="titel" />
+</template>
+```
+
+</FrameworkCode>
+
+The augmentation is global to your TypeScript program: one file names the
+resources, and every component and hook in the app reads them off it. Hover the
+`^?` line to see the paths `source` now accepts — the record's own fields, plus
+the filter keys a filter form writes (`title_gte`) and the free-text `q`.
+
+Nothing about the loose shape is removed. A registered app still compiles the
+same code; what changed is that a name the registry has no record of stops
+compiling.
+
+## What registering types
+
+Every fence in this section is a `twoslash` fence: the website build type-checks
+each one, so a snippet whose types drift fails the build instead of going stale.
+
+- [Registering your app](/docs/type-safety/registering-your-app) — the one file
+  that does the registering: `defineResources`, the `Register` augmentation, and
+  handing the map to `<Admin resources={…}>` in React and
+  `<Admin :registry="…">` in Vue.
+- [Resource registry and codegen](/docs/type-safety/resource-registry-and-codegen)
+  — the registry as a runtime value, and `chelone-supabase gen`, which writes the
+  `defineResources` map and its augmentation from your database types.
+- [Typed components](/docs/type-safety/typed-components) — how a component's
+  props read the registry, and `createResourceComponents` binding one resource's
+  record into every `source` it takes.
+- [Typed hooks](/docs/type-safety/typed-hooks) — the hooks that read the same
+  registry: what a record type arrives as, and what a hook returns for a
+  registered resource.
+- [Sources, filters and sort](/docs/type-safety/sources-filters-and-sort) — the
+  path grammar behind `source`: dotted paths, bracket indices, row-relative
+  paths, and the operator-suffixed keys filters and sort buttons take.
+- [Translations and permissions](/docs/type-safety/translations-and-permissions)
+  — the other two things you can register: the message catalog behind
+  `useTranslate`, and the permission type behind `usePermissions`.
+- [When types widen](/docs/type-safety/when-types-widen) — the fallbacks, and
+  why a resource with no schema, a `z.any()` column or a jsonb column keeps
+  taking any `string`.

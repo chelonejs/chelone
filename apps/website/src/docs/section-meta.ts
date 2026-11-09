@@ -1,6 +1,7 @@
 import {
   Atom,
   Boxes,
+  Braces,
   KeyRound,
   Layers,
   LayoutDashboard,
@@ -21,6 +22,11 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
     "getting-started": {
       icon: Rocket,
       blurb: "Install Chelone and set up your first admin in minutes.",
+    },
+    "type-safety": {
+      icon: Braces,
+      blurb:
+        "Register your resources once, and every source, filter and key is checked.",
     },
     "app-config": {
       icon: Settings2,
@@ -69,6 +75,7 @@ export const SECTION_META: Record<string, { icon: LucideIcon; blurb: string }> =
 // Guide sections aren't components — keep the directory to the library itself.
 export const GUIDE_SECTIONS = new Set([
   "getting-started",
+  "type-safety",
   "react",
   "vue",
   "app-config",
