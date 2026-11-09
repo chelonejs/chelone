@@ -1,3 +1,4 @@
+import type { RegisteredMessages } from "../resource/register";
 import type {
   MessageCatalog,
   MessageKey,
@@ -104,6 +105,68 @@ export interface CheloneI18n<TCatalog extends MessageCatalog> {
   setLocale(locale: string): void;
   getLocales(): string[];
   subscribe(callback: () => void): () => void;
+}
+
+/** Whether a catalog names its keys one by one, rather than being an open `Record<string, MessageValue>`. */
+type HasKnownKeys<TCatalog extends MessageCatalog> =
+  string extends MessageKey<TCatalog> ? false : true;
+
+/**
+ * The keys `translate` takes: every key the catalog holds, plus any other
+ * string, so a key only the app's own catalog has, or one built at runtime as
+ * a template (`resources.${name}.name`), still compiles. The known keys are
+ * what autocompletes.
+ */
+type TranslatableKey<TCatalog extends MessageCatalog> =
+  HasKnownKeys<TCatalog> extends true
+    ? CatalogKey<TCatalog> | (string & {})
+    : string;
+
+/** Params a call may pass for a known entry: its own params plus the `_` fallback. */
+type CallParams<TValue extends MessageValue> = [
+  TranslateParams<TValue>,
+] extends [undefined]
+  ? { _?: string } | undefined
+  : TranslateParams<TValue> & { _?: string };
+
+/** The params argument for a key: an entry's placeholders, or loose params for a key the catalog does not hold. */
+type TranslateArgs<TCatalog extends MessageCatalog, K extends string> =
+  HasKnownKeys<TCatalog> extends false
+    ? [params?: TranslateParamValues]
+    : K extends CatalogKey<TCatalog>
+      ? CallParams<CatalogValue<TCatalog, K>> extends infer P
+        ? undefined extends P
+          ? [params?: Exclude<P, undefined>]
+          : [params: P]
+        : never
+      : [params?: TranslateParamValues];
+
+/**
+ * `translate` typed against a catalog: a key the catalog holds autocompletes
+ * and must be passed its placeholders; any other key still compiles with
+ * {@link TranslateParamValues}.
+ */
+export type TranslateFor<TCatalog extends MessageCatalog> = <
+  K extends TranslatableKey<TCatalog>,
+>(
+  key: K,
+  ...params: TranslateArgs<TCatalog, K>
+) => string;
+
+/** `translate` typed against the app's registered catalog (see {@link RegisteredMessages}). */
+export type RegisteredTranslate = TranslateFor<RegisteredMessages>;
+
+/**
+ * Read the catalog-erased `translate` an adapter holds — `<Admin i18n>` is an
+ * {@link AnyCheloneI18n} — as {@link RegisteredTranslate}, so neither adapter
+ * writes a cast. A function that takes any key takes every key the registered
+ * catalog names, so this is plain assignability and not a coercion: the typed
+ * signature narrows what a call may pass, never what the instance accepts.
+ */
+export function asRegisteredTranslate(
+  translate: AnyCheloneI18n["translate"],
+): RegisteredTranslate {
+  return translate;
 }
 
 function interpolate(

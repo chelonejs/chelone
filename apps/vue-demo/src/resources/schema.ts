@@ -11,7 +11,7 @@
  * `.min(1)` rule blocks the save and surfaces the message.
  */
 
-import { defineResources } from "@chelone/core";
+import { defineResources, type englishMessages } from "@chelone/core";
 import { z } from "zod";
 
 /** The record shape + the form validator, in one place. */
@@ -82,10 +82,15 @@ export const resources = defineResources({
  * Registering the map types every `source` prop against it. `places` has no
  * schema, so its entry is `{}` and the plain components still accept its paths.
  * `createResourceComponents` is the strict path: see `register-proof.vue`.
+ *
+ * Registering `englishMessages` — the catalog `makeDemoI18n` mounts — types
+ * every `useTranslate()` key and param in the app. The demos' own `demo.*` keys
+ * are not in it, so they keep the loose arm with a `_` default.
  */
 declare module "@chelone/core" {
   interface Register {
     resources: typeof resources;
+    messages: typeof englishMessages;
   }
 }
 
