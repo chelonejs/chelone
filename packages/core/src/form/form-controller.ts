@@ -97,9 +97,12 @@ export interface FormControllerOptions<TRecord> {
   defaultValues?: TRecord;
   /**
    * Resource schema (zod or any Standard Schema) — wired as the default form
-   * validator by the submit pipeline (T2).
+   * validator by the submit pipeline (T2). Typed by what it outputs, so a
+   * schema whose input differs (a zod `transform`) fits and one for another
+   * record does not.
    */
-  schema?: StandardSchemaV1<TRecord, unknown>;
+  // type-escape: schema: validation reads the raw values whatever the schema's input type
+  schema?: StandardSchemaV1<unknown, Partial<TRecord>>;
   /** Form-level validate fn (ra contract) — consumed by the submit pipeline (T2). */
   validate?: FormLevelValidate<TRecord>;
   /**

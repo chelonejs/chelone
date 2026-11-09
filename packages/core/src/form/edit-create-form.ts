@@ -14,7 +14,7 @@ import {
 import type { MutationMode } from "../data/mutation-options";
 import { isPlainObject } from "../guards";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
+import { isResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { type FieldName, type FieldValue, toFieldName } from "./field-name";
 import {
@@ -37,18 +37,6 @@ export interface FormControllerContext<
   resources?: TResources;
 }
 
-/** The registry schema for `resource`, widened to the form's Partial data type. */
-function registrySchema<TResources extends ResourceMap, TFormData>(
-  ctx: FormControllerContext<TResources>,
-  resource: keyof TResources & string,
-): StandardSchemaV1<TFormData, unknown> | undefined {
-  // The registry types schemas as a bare StandardSchemaV1, so the widening to
-  // the form data type is a cast.
-  return ctx.resources?.[resource]?.schema as
-    | StandardSchemaV1<TFormData, unknown>
-    | undefined;
-}
-
 /**
  * Parity merge (§0b defaultValues precedence): `override` (the record) WINS,
  * including `null`; explicit `undefined` falls back to the base (an absent
@@ -67,6 +55,11 @@ function deepMerge<T>(base: T, override: T | Partial<T> | undefined): T {
   }
   // type-escape: the merged object has `base`'s keys plus `override`'s, each a `T` member or a `Partial<T>` one
   return result as T;
+}
+
+/** A record's id, or `undefined` for one whose schema output has no `id`. */
+function idOf<TRecord>(record: TRecord | undefined): Identifier | undefined {
+  return isResourceRecord(record) ? record.id : undefined;
 }
 
 export type HydrationAction =
@@ -354,7 +347,11 @@ export function createEditFormController<
   const formController: FormController<TFormData> = createFormController({
     defaultValues: baseDefaults,
     schema:
-      options.schema ?? registrySchema<TResources, TFormData>(ctx, resource),
+      options.schema ??
+      // type-escape: schema: RecordOf reads TRecord from this schema's output, which TypeScript cannot follow through the generic map
+      (ctx.resources?.[resource]?.schema as
+        | StandardSchemaV1<unknown, TRecord>
+        | undefined),
     validate: options.validate,
     sanitizeEmptyValues: options.sanitizeEmptyValues,
     getRecord: () => recordController.getSnapshot().record,
@@ -378,10 +375,8 @@ export function createEditFormController<
     if (record === undefined || record === lastHydrated) return;
     const form = formController.form;
     const action = resolveHydrationAction(
-      lastHydrated === undefined
-        ? undefined
-        : (lastHydrated as ResourceRecord).id,
-      (record as ResourceRecord).id,
+      idOf(lastHydrated),
+      idOf(record),
       form.state.isTouched,
     );
     lastHydrated = record;
@@ -477,14 +472,18 @@ export function createCreateFormController<
   );
 
   const seed: TFormData = options.record ?? {};
-  const baseDefaults = options.defaultValues ?? {};
+  const baseDefaults: TFormData = options.defaultValues ?? {};
   const resetOnSuccess = options.resetOnSuccess !== false;
 
   const submitOptions = createSubmitOptions<TRecord>();
   const formController: FormController<TFormData> = createFormController({
     defaultValues: deepMerge(baseDefaults, seed),
     schema:
-      options.schema ?? registrySchema<TResources, TFormData>(ctx, resource),
+      options.schema ??
+      // type-escape: schema: RecordOf reads TRecord from this schema's output, which TypeScript cannot follow through the generic map
+      (ctx.resources?.[resource]?.schema as
+        | StandardSchemaV1<unknown, TRecord>
+        | undefined),
     validate: options.validate,
     sanitizeEmptyValues: options.sanitizeEmptyValues,
     // ra parity: the create sanitize baseline is the seed record.

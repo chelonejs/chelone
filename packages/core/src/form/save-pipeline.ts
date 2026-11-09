@@ -50,7 +50,8 @@ export function sanitizeEmptyValues<TValues>(
 
 export interface ComposeFormValidatorConfig<TFormData> {
   /** Resource schema (zod or any Standard Schema) — the D6 default validator. */
-  schema?: StandardSchemaV1<TFormData, unknown>;
+  // type-escape: schema: validation reads the raw values whatever the schema's input type
+  schema?: StandardSchemaV1<unknown, Partial<TFormData>>;
   /** Form-level validate fn (ra contract). Sync results merge here; async fns are the submit pipeline's job. */
   validate?: FormLevelValidate<TFormData>;
   /**
@@ -172,7 +173,16 @@ export function composeFormValidator<TFormData>(
       }
     };
 
-    if (schema) absorb(runFormValidator(schema, props));
+    if (schema) {
+      absorb(
+        readFormValidatorResult(
+          standardSchemaValidators.validate(
+            { value: props.value, validationSource: "form" },
+            schema,
+          ),
+        ),
+      );
+    }
     if (validate && !validateIsAsync) {
       const result = validate(props.value);
       if (isThenable(result)) {

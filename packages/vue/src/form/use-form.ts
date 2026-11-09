@@ -26,7 +26,6 @@ import type {
   FormController,
   FormControllerOptions,
   FormLevelValidate,
-  ResourceMap,
 } from "@chelone/core";
 import { createFormController } from "@chelone/core";
 import { type ComputedRef, computed } from "vue";
@@ -103,19 +102,6 @@ export interface UseFormReturn<TFormData> {
   reset: (values?: TFormData) => void;
 }
 
-/** The registry schema for `resource`, widened to the form's data type. */
-function registrySchema<TFormData>(
-  resources: ResourceMap | undefined,
-  resource: string | undefined,
-): FormSchema<TFormData> {
-  if (!resources || !resource) return undefined;
-  const entry = resources[resource];
-  // zod >= 3.24 implements Standard Schema; the registry types schemas broadly,
-  // so widening to the form data type is a cast (mirrors core's registrySchema).
-  // type-escape: the registry's schema slot to the form's data type.
-  return entry?.schema as FormSchema<TFormData>;
-}
-
 export function useForm<TFormData = Record<string, unknown>>(
   options: UseFormOptions<TFormData>,
 ): UseFormReturn<TFormData> {
@@ -131,9 +117,10 @@ export function useForm<TFormData = Record<string, unknown>>(
   // `<Resource name="posts">` would otherwise be rejected for a missing `title`.
   const schema =
     options.schema ??
-    (options.recordForm === false
+    (options.recordForm === false || resource === undefined
       ? undefined
-      : registrySchema<TFormData>(ctx.resources, resource));
+      : // type-escape: context: the Chelone context erases the registry, so its schema's output is not tied to the caller's TFormData
+        (ctx.resources?.[resource]?.schema as FormSchema<TFormData>));
 
   const controller: FormController<TFormData> = createFormController<TFormData>(
     {
