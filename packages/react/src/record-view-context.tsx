@@ -63,7 +63,7 @@ export function EditContextProvider<RecordType = ResourceRecord>({
   value,
   children,
 }: EditContextProviderProps<RecordType>): ReactNode {
-  // type-escape: the context stores each view's value at its own record, and `useEditContext` reads it back at the caller's
+  // type-escape: context: stores each view's value at its own record; `useEditContext` reads it back at the caller's
   const stored = value as EditContextValue;
   return <EditContext.Provider value={stored}>{children}</EditContext.Provider>;
 }
@@ -164,7 +164,7 @@ export function CreateContextProvider<RecordType = ResourceRecord>({
   value,
   children,
 }: CreateContextProviderProps<RecordType>): ReactNode {
-  // type-escape: the context stores each view's value at its own record, and `useCreateContext` reads it back at the caller's
+  // type-escape: context: stores each view's value at its own record; `useCreateContext` reads it back at the caller's
   const stored = value as CreateContextValue;
   return (
     <CreateContext.Provider value={stored}>{children}</CreateContext.Provider>

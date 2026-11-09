@@ -356,6 +356,11 @@ export {
   isSavedQueryActive,
   savedQueriesKey,
 } from "./controller/saved-queries";
+export type {
+  ServerListPage,
+  ServerListPageInput,
+} from "./controller/server-list-page";
+export { loadServerListPage } from "./controller/server-list-page";
 export { resolveNotificationKey } from "./controller/translate-fallback";
 export {
   defaultExporter,

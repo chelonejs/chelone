@@ -61,9 +61,9 @@ export function useFieldValue<
 export function useFieldValue(params: {
   source: string;
   record?: object;
-  // type-escape: implementation signature; the overload above states the type
+  // type-escape: context: implementation signature; the overload above states the type
   defaultValue?: unknown;
-  // type-escape: as above
+  // type-escape: context: as above
 }): unknown {
   const { defaultValue, source } = params;
   const ambient = useContext(RecordContext);
