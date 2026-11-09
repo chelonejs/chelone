@@ -3,7 +3,9 @@ import {
   type GetManyParams,
   type GetOneParams,
   type Identifier,
+  type RegisteredResources,
   type ResourceMap,
+  type ResourceNameArg,
   subscribeLiveRecord,
   subscribeLiveRecords,
   subscribeLiveResource,
@@ -22,10 +24,10 @@ const isEnabled = (enabled: LiveReadOptions["enabled"]) =>
 
 /** `useGetList`, kept fresh: refetches when the resource changes or the connection comes back. */
 export function useGetListLive<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: MaybeRefOrGetter<TName>,
+  resource: MaybeRefOrGetter<TName & ResourceNameArg<TResources, TName>>,
   params: MaybeRefOrGetter<GetListParams> = {},
   options: LiveReadOptions = {},
 ) {
@@ -40,10 +42,10 @@ export function useGetListLive<
 
 /** `useGetOne`, kept fresh: refetches when the record changes or the connection comes back. */
 export function useGetOneLive<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: TName,
+  resource: TName & ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetOneParams>,
   options: LiveReadOptions = {},
 ) {
@@ -58,10 +60,10 @@ export function useGetOneLive<
 
 /** `useGetMany`, kept fresh: refetches when any listed record changes or the connection comes back. */
 export function useGetManyLive<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: TName,
+  resource: TName & ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyParams>,
   options: LiveReadOptions = {},
 ) {

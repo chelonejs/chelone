@@ -26,7 +26,9 @@ import {
   getManyOptions,
   getManyReferenceOptions,
   getOneOptions,
+  type RegisteredResources,
   type ResourceMap,
+  type ResourceNameArg,
 } from "@chelone/core";
 import { useQuery } from "@tanstack/vue-query";
 import { computed, type MaybeRefOrGetter, toValue } from "vue";
@@ -34,10 +36,10 @@ import { useCheloneContext } from "../context";
 
 /** Fetch one record by id, reactively. `enabled` gates the fetch (skip a null id). */
 export function useGetOne<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: TName,
+  resource: TName & ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetOneParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
@@ -56,10 +58,10 @@ export function useGetOne<
  * FK array to its records). `enabled` gates the fetch (skip an empty id list).
  */
 export function useGetMany<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: TName,
+  resource: TName & ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
@@ -77,10 +79,10 @@ export function useGetMany<
  * component reach the data provider as one `getMany` per resource.
  */
 export function useGetManyAggregate<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: TName,
+  resource: TName & ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
@@ -104,10 +106,10 @@ export type ListQueryOptions = {
  * changing resource re-keys the query.
  */
 export function useGetList<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: MaybeRefOrGetter<TName>,
+  resource: MaybeRefOrGetter<TName & ResourceNameArg<TResources, TName>>,
   params: MaybeRefOrGetter<GetListParams> = {},
   options: ListQueryOptions = {},
 ) {
@@ -130,10 +132,10 @@ export function useGetList<
 
 /** Fetch the records whose `target` field equals `id`, reactively. */
 export function useGetManyReference<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
 >(
-  resource: TName,
+  resource: TName & ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyReferenceParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
