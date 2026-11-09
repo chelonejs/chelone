@@ -105,6 +105,7 @@ provideChoicesContext(choicesContext);
 const { form } = useCheloneFormContext();
 const source = useWrappedSource(props.source);
 const { store } = form.ambient;
+// type-escape: context: the ambient form is record-free, so a field value is unknown
 const fieldValue = useSubscribable<unknown>({
   getSnapshot: () => form.ambient.getFieldValue(source),
   subscribe: (listener) => subscribeStore(store, listener),

@@ -286,7 +286,7 @@ export const blocks = [
     title: "Chelone Server Components",
     categories: ["chelone", "fields"],
     description:
-      "The opt-in React Server Components add-on: readFieldValue reads a typed value off a record passed as a prop, and serverEmptyText prints a field's empty text, with no hook or context, so they run in a server component.",
+      "The opt-in React Server Components add-on: the server text, number and date fields, and ServerList, which renders one loaded list page with sort and page links. Each reads a record or a page passed as a prop, with no hook or context, so it runs in a server component.",
     granularize: true,
     inferDependencies: true,
     sourceDirs: [{ path: "src/components/rsc", recursive: true }],

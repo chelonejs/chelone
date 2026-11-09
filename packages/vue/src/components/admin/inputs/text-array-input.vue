@@ -52,7 +52,7 @@ const {
   error,
   touched,
   isRequired,
-} = useInput<unknown, string, string[]>({
+} = useInput<unknown, string, string[]>({ // type-escape: context: no record, so the record-free form is the sentinel `SourcePath` and `SourceValue` test for
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,

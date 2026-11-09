@@ -46,6 +46,7 @@ const props = withDefaults(defineProps<TextInputProps>(), {
 });
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput<
+  // type-escape: context: no record, so the record-free form is the sentinel `SourcePath` and `SourceValue` test for
   unknown,
   string,
   string
