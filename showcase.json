@@ -3538,6 +3538,19 @@
       }
     }
   },
+  "server-list": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/server-list"
+      },
+      "demo": {
+        "path": "/rsc/posts"
+      }
+    }
+  },
+  "server-list-link": {
+    "shownBy": "server-list"
+  },
   "server-scalar-fields": {
     "react": {
       "docs": {
