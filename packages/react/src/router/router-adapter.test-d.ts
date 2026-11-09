@@ -26,6 +26,7 @@ import {
   useNavigate,
   useParams,
   type useRedirect,
+  useRevalidate,
 } from "./nav-hooks";
 import { reactRouterAdapter } from "./react-router-adapter";
 
@@ -64,6 +65,22 @@ describe("RouterAdapter type contract", () => {
       index: true,
       element: createElement("div"),
     });
+  });
+
+  it("an adapter with no useRevalidate is still a RouterAdapter", () => {
+    const { useRevalidate: _, ...withoutRevalidate } = {
+      ...reactRouterAdapter,
+      useRevalidate: () => () => {},
+    };
+    expectTypeOf(withoutRevalidate).not.toHaveProperty("useRevalidate");
+    assertType<RouterAdapter>(withoutRevalidate);
+  });
+
+  it("useRevalidate returns a () => void", () => {
+    expectTypeOf<
+      NonNullable<RouterAdapter["useRevalidate"]>
+    >().returns.toEqualTypeOf<() => void>();
+    expectTypeOf(useRevalidate).returns.toEqualTypeOf<() => void>();
   });
 
   it("useLocation returns a CheloneLocation", () => {

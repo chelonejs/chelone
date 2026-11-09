@@ -27,6 +27,7 @@
   "react:.:useResolvedTheme": "intended: React reads its theme context through a hook; Vue calls the exported resolveTheme on its reactive useTheme ref",
   "react:.:useResourceSourceScope": "intended: React carries the field label key in the source scope; Vue's useTranslateLabel builds resources.<resource>.fields.<source> at the label read",
   "react:.:useResourceTranslation": "gap: Vue has no resource-scoped label resolver with a base-key fallback and a userText override; useTranslateLabel covers field labels only",
+  "react:.:useRevalidate": "intended: re-runs a server-rendered route's data for a React server component island; Vue has no server components",
   "react:.:useSaveContext": "gap: Vue publishes no ambient save surface; its SaveButton submits the form context, so a component outside the form cannot reach the view's save or saving state",
   "react:.:useScrollToTop": "gap: Vue sets the _scrollToTop navigation state but nothing reads it, so a Vue navigation never scrolls to the top and lists keep no scroll memory",
   "react:.:useShowContext": "gap: Vue's <Show> publishes no ambient show surface, so a Vue descendant cannot read the record or title",

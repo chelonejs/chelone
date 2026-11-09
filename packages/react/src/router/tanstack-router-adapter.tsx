@@ -318,6 +318,14 @@ function useCanBlock(): boolean {
   return useContext(InTanstackRouterContext);
 }
 
+/** TanStack re-runs the matched routes' loaders on `invalidate()`. */
+function useRevalidate(): () => void {
+  const router = useTSRouter();
+  return useCallback(() => {
+    void router.invalidate();
+  }, [router]);
+}
+
 const Link = forwardRef<HTMLAnchorElement, AdapterLinkProps>(
   ({ to, replace, state, children, ...rest }, ref) => (
     <TSLink
@@ -511,6 +519,7 @@ export const tanstackRouterAdapter: RouterAdapter = {
   useMatch,
   useInRouterContext,
   useCanBlock,
+  useRevalidate,
   Link,
   Navigate,
   Route,

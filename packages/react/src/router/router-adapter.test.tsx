@@ -5,7 +5,11 @@
  * own RouterWrapper) so navigation is observable without a real DOM history.
  */
 
-import { type AuthProvider, fakeDataProvider } from "@chelone/core";
+import {
+  type AuthProvider,
+  fakeDataProvider,
+  type NavigateOpts,
+} from "@chelone/core";
 import { elementOf } from "@chelone/test-utils";
 import { QueryClient } from "@tanstack/react-query";
 import {
@@ -25,7 +29,11 @@ import {
 } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CheloneProvider } from "../context";
-import { RouterAdapterProvider, useRouterAdapter } from "./adapter";
+import {
+  type RouterAdapter,
+  RouterAdapterProvider,
+  useRouterAdapter,
+} from "./adapter";
 import { BasenameProvider } from "./context";
 import {
   useBlocker,
@@ -36,6 +44,7 @@ import {
   useNavigate,
   useParams,
   useRedirect,
+  useRevalidate,
 } from "./nav-hooks";
 import { reactRouterAdapter } from "./react-router-adapter";
 
@@ -958,5 +967,72 @@ describe("useGetPathForRecord — inference + explicit + access", () => {
     }
     render(withProviders(<Probe />));
     expect(path).toBe(false);
+  });
+});
+
+/** The default adapter with a navigator that records its calls instead of moving. */
+function recordNavigation() {
+  const calls: [string | number, NavigateOpts | undefined][] = [];
+  function navigate(to: string, opts?: NavigateOpts): void;
+  function navigate(delta: number): void;
+  function navigate(to: string | number, opts?: NavigateOpts): void {
+    calls.push([to, opts]);
+  }
+  const recording: RouterAdapter = { ...adapter, useNavigate: () => navigate };
+  return { calls, recording };
+}
+
+describe("useRevalidate", () => {
+  it("useRevalidate calls the adapter's revalidate", () => {
+    const revalidate = vi.fn();
+    const withRevalidate: RouterAdapter = {
+      ...adapter,
+      useRevalidate: () => revalidate,
+    };
+    const { result } = renderHook(() => useRevalidate(), {
+      wrapper: ({ children }) => (
+        <RouterAdapterProvider adapter={withRevalidate}>
+          <MemoryRouter>{children}</MemoryRouter>
+        </RouterAdapterProvider>
+      ),
+    });
+    result.current();
+    expect(revalidate).toHaveBeenCalledOnce();
+  });
+
+  it("useRevalidate without adapter support re-navigates in place", () => {
+    const { calls, recording } = recordNavigation();
+    const { result } = renderHook(() => useRevalidate(), {
+      wrapper: ({ children }) => (
+        <RouterAdapterProvider adapter={recording}>
+          <MemoryRouter initialEntries={["/posts?page=2"]}>
+            {children}
+          </MemoryRouter>
+        </RouterAdapterProvider>
+      ),
+    });
+    result.current();
+    expect(calls).toEqual([["/posts?page=2", { replace: true }]]);
+  });
+
+  it("re-navigating in place keeps the hash and the history state", () => {
+    const { calls, recording } = recordNavigation();
+    const { result } = renderHook(() => useRevalidate(), {
+      wrapper: ({ children }) => (
+        <RouterAdapterProvider adapter={recording}>
+          <MemoryRouter
+            initialEntries={[
+              { pathname: "/posts", hash: "#top", state: { fromApp: 7 } },
+            ]}
+          >
+            {children}
+          </MemoryRouter>
+        </RouterAdapterProvider>
+      ),
+    });
+    result.current();
+    expect(calls).toEqual([
+      ["/posts#top", { replace: true, state: { fromApp: 7 } }],
+    ]);
   });
 });
