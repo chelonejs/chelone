@@ -94,7 +94,7 @@ export interface CsvImportState {
 export interface CsvImportOptions<TRecord = LooseRecord> {
   dataProvider: DataProvider;
   resource: string;
-  // type-escape: a CSV cell is a string, so the schema takes any input and its output is the record
+  // type-escape: schema: a CSV cell is a string, so the input is any value and the output is the record
   schema?: StandardSchemaV1<unknown, TRecord>;
   /** Overrides the schema's keys. Without either, the CSV headers are the fields. */
   fields?: SourceKey<TRecord>[];
