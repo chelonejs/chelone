@@ -17,7 +17,10 @@ names. It ships in the `@chelone/react/rsc` entry.
   `page.references` points at: its `representation` path, else its default
   representation, else the raw id when the page holds no such record.
 - `rowActions` renders in a last cell of each row.
-- An empty page prints `chelone.navigation.no_results`.
+- An empty page prints `chelone.navigation.no_results`. Past the last page,
+  previous links back to the last page that holds records.
+- The URL holds one sort, so a page link under a multi-key sort leaves the
+  sort out, and the loader's `sort` option applies on the next page too.
 
 The links render the router adapter's `Link` under a `RouterAdapterProvider`,
 so a click is a client navigation, and a plain `<a href>` with none. Either

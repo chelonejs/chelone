@@ -2,12 +2,17 @@
 
 import {
   createI18n,
+  defineResources,
+  fakeDataProvider,
   type GetListParams,
   type Identifier,
+  loadServerListPage,
   type PageInfo,
 } from "@chelone/core";
+import { QueryClient } from "@tanstack/react-query";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { ServerList } from "./server-list";
 
 interface Post {
@@ -255,6 +260,57 @@ describe("ServerList", () => {
       expect(pageLinks(more).next?.attrs.href).toBe("/posts?page=3&perPage=2");
     });
 
+    it("keeps a multi-key sort on the next page", async () => {
+      const resources = defineResources({
+        posts: {
+          schema: z.object({
+            id: z.number(),
+            title: z.string(),
+            status: z.string(),
+          }),
+        },
+      });
+      const ctx = {
+        dataProvider: fakeDataProvider<typeof resources>({
+          posts: [1, 2, 3, 4].map((id) => ({
+            id,
+            title: `Post ${id}`,
+            status: "draft",
+          })),
+        }),
+        queryClient: new QueryClient(),
+      };
+      const options = {
+        perPage: 2,
+        sort: [
+          { field: "status", order: "ASC" },
+          { field: "id", order: "DESC" },
+        ] as const,
+      };
+      const first = await loadServerListPage(ctx, "posts", {
+        options: { ...options, sort: [...options.sort] },
+        references: {},
+      });
+      const next = pageLinks(
+        renderToStaticMarkup(
+          <ServerList
+            page={first}
+            path="/posts"
+            columns={[{ source: "title", label: "Title" }]}
+          />,
+        ),
+      ).next?.attrs.href;
+      expect(next).toBe("/posts?page=2&perPage=2");
+
+      const second = await loadServerListPage(ctx, "posts", {
+        options: { ...options, sort: [...options.sort] },
+        search: new URL(next ?? "", "http://localhost").search,
+        references: {},
+      });
+      expect(second.params.sort).toEqual(first.params.sort);
+      expect(second.params.pagination).toEqual({ page: 2, perPage: 2 });
+    });
+
     it("translates the labels through i18n", () => {
       const i18n = createI18n({
         locale: "fr",
@@ -350,6 +406,46 @@ describe("ServerList", () => {
     );
     expect(markup).toContain("No results found");
     expect(tags(markup, "table")).toEqual([]);
+  });
+
+  it("links a page past the end back to the last page with records", () => {
+    const columns = [{ source: "title", label: "Title" }] as const;
+    const byTotal = renderToStaticMarkup(
+      <ServerList
+        page={fixturePage({
+          params: {
+            pagination: { page: 99, perPage: 2 },
+            sort: { field: "title", order: "ASC" },
+          },
+          data: [],
+          total: 6,
+        })}
+        path="/posts"
+        columns={[...columns]}
+      />,
+    );
+    expect(byTotal).toContain("No results found");
+    const links = tags(tags(byTotal, "nav")[0]?.html ?? "", "a");
+    expect(links.map((a) => [a.text, a.attrs.href])).toEqual([
+      ["Go to previous page", "/posts?sort=title&order=ASC&page=3&perPage=2"],
+      ["Go to next page", undefined],
+    ]);
+
+    const byPageInfo = renderToStaticMarkup(
+      <ServerList
+        page={fixturePage({
+          params: { pagination: { page: 5, perPage: 2 } },
+          data: [],
+          total: undefined,
+          pageInfo: { hasNextPage: false },
+        })}
+        path="/posts"
+        columns={[...columns]}
+      />,
+    );
+    expect(
+      tags(tags(byPageInfo, "nav")[0]?.html ?? "", "a")[0]?.attrs.href,
+    ).toBe("/posts?page=4&perPage=2");
   });
 
   it("renders no script", () => {

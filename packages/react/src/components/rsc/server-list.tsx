@@ -198,30 +198,72 @@ function ServerList<
   rowActions,
   className,
 }: ServerListProps<RecordType, TReferences>) {
-  if (page.data.length === 0) {
-    return (
-      <div className={className}>
-        <p className="py-4 text-sm text-muted-foreground">
-          {translate(i18n, "chelone.navigation.no_results")}
-        </p>
-      </div>
-    );
-  }
-
   const { pagination, sort, filter } = page.params;
   const { page: current, perPage } =
     pagination && "page" in pagination
       ? pagination
       : { page: 1, perPage: DEFAULT_PER_PAGE };
   const primary = Array.isArray(sort) ? sort[0] : sort;
-  const state = { sort: primary, filter, perPage };
+  // The URL holds one sort. A page link that wrote the primary key alone would
+  // fetch the next page on a different order, so it leaves the sort out and
+  // the loader's own multi-key sort applies again.
+  const multiKey = Array.isArray(sort) && sort.length > 1;
+  const state = { sort: multiKey ? undefined : primary, filter, perPage };
+
+  const lastPage =
+    page.total === undefined
+      ? undefined
+      : Math.max(1, Math.ceil(page.total / perPage));
+  // Past the end, previous goes to the last page that holds records.
+  const previousPage =
+    lastPage !== undefined && current > lastPage ? lastPage : current - 1;
+  const hasNext =
+    page.data.length > 0 &&
+    (page.total === undefined
+      ? page.pageInfo?.hasNextPage === true
+      : current * perPage < page.total);
+
+  const linkClass =
+    "inline-flex h-8 items-center rounded-md px-3 text-sm hover:bg-muted aria-disabled:pointer-events-none aria-disabled:opacity-50";
+  const pageLinks = (
+    <>
+      <ServerListLink
+        className={linkClass}
+        href={
+          current > 1 ? hrefOf(path, state, { page: previousPage }) : undefined
+        }
+      >
+        {translate(i18n, "chelone.navigation.previous")}
+      </ServerListLink>
+      <ServerListLink
+        className={linkClass}
+        href={hasNext ? hrefOf(path, state, { page: current + 1 }) : undefined}
+      >
+        {translate(i18n, "chelone.navigation.next")}
+      </ServerListLink>
+    </>
+  );
+
+  if (page.data.length === 0) {
+    return (
+      <div className={cn("flex flex-col gap-2", className)}>
+        <p className="py-4 text-sm text-muted-foreground">
+          {translate(i18n, "chelone.navigation.no_results")}
+        </p>
+        {current > 1 && (
+          <nav
+            aria-label="pagination"
+            className="flex items-center justify-end gap-2"
+          >
+            {pageLinks}
+          </nav>
+        )}
+      </div>
+    );
+  }
 
   const offsetBegin = (current - 1) * perPage + 1;
   const offsetEnd = offsetBegin + page.data.length - 1;
-  const hasNext =
-    page.total === undefined
-      ? page.pageInfo?.hasNextPage === true
-      : current * perPage < page.total;
   const range =
     page.total === undefined
       ? translate(i18n, "chelone.navigation.partial_page_range_info", {
@@ -233,9 +275,6 @@ function ServerList<
           offsetEnd,
           total: page.total,
         });
-
-  const linkClass =
-    "inline-flex h-8 items-center rounded-md px-3 text-sm hover:bg-muted aria-disabled:pointer-events-none aria-disabled:opacity-50";
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
@@ -315,22 +354,7 @@ function ServerList<
         className="flex items-center justify-end gap-2"
       >
         <span className="text-sm text-muted-foreground">{range}</span>
-        <ServerListLink
-          className={linkClass}
-          href={
-            current > 1 ? hrefOf(path, state, { page: current - 1 }) : undefined
-          }
-        >
-          {translate(i18n, "chelone.navigation.previous")}
-        </ServerListLink>
-        <ServerListLink
-          className={linkClass}
-          href={
-            hasNext ? hrefOf(path, state, { page: current + 1 }) : undefined
-          }
-        >
-          {translate(i18n, "chelone.navigation.next")}
-        </ServerListLink>
+        {pageLinks}
       </nav>
     </div>
   );
