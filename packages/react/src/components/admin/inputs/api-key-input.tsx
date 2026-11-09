@@ -61,7 +61,7 @@ function ApiKeyInput<TRecord extends ResourceRecord = LooseRecord>(
       } else if (record && resource) {
         await update.mutateAsync({
           id: record.id,
-          // type-escape: `source` is a path of TRecord, so a null written there is a patch of it; the compiler cannot see through a computed key
+          // type-escape: builder: `source` is a path of TRecord, so a null written there is a patch of it; the compiler cannot see through a computed key
           data: { [source]: null } as Partial<TRecord>,
           previousData: record,
         });
