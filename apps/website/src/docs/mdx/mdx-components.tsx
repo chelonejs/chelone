@@ -9,6 +9,7 @@ import { Link } from "react-router";
 import { Callout } from "./callout";
 import { Card, Cards } from "./cards";
 import { ComponentPreview } from "./component-preview";
+import { FrameworkCode } from "./framework-code";
 import { HeadingLink } from "./heading-link";
 import { PropsTable } from "./props-table";
 import { TabItem, Tabs } from "./tabs";
@@ -116,6 +117,7 @@ const components: MDXComponents = {
   Cards,
   Card,
   ComponentPreview,
+  FrameworkCode,
   PropsTable,
 };
 
