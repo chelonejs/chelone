@@ -31,6 +31,7 @@ Every component has a demo in the docs and a place in the demos, in both adapter
 
 - A new component lands with a docs demo in `apps/website/src/docs/content/<section>/<name>/demos/`, a place in `apps/demo` and `apps/vue-demo` where it does real work, and a complete entry: `{ "react": { "docs": PAGE, "demo": PAGE }, "vue": { "demo": PAGE } }`. A component in one adapter has that adapter's side only.
 - A PAGE is `{ "path": "/demo/posts/create" }`. The demos live under `/demo/` and `/vue-demo/`. Older entries also hold `see` and `click`, which nothing reads.
+- An RSC component's demo place is its route in `apps/start-demo` (for example `/rsc/posts`), since `/demo/` cannot run a server function, and its `showcase.json` entry names that page.
 - A part that only renders inside another component is `{ "shownBy": "<that component>" }`.
 - A Vue docs demo is a `demos/<file>.vue` beside its React twin, on the same page with `?framework=vue`, so an entry names the docs page once.
 
