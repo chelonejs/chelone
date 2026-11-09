@@ -1,6 +1,7 @@
 import type {
   CheloneFormApi,
   FieldErrors,
+  FilterPayload,
   ListContextSurface,
   ResourceRecord,
   SourceScope,
@@ -115,7 +116,7 @@ export interface UseFilterFormOptions {
 /** What {@link useFilterForm} returns: the form + provider inputs. */
 export interface UseFilterFormResult {
   /** The form to expose via `<CheloneFormProvider>` (erased filter-values shape). */
-  form: CheloneFormApi<Record<string, unknown>>;
+  form: CheloneFormApi<FilterPayload>;
   /** The filter-flavored source scope (identity source, resource-keyed labels). */
   sourceScope: SourceScope;
   /** Validity: `false` blocks a filter push (the validity gate). */
@@ -144,7 +145,7 @@ export function useFilterForm(
   // controller options are captured-once by `useForm`; the external-reflect
   // effect keeps it in sync afterwards).
   const initialFilterRef = useRef(list.filter);
-  const { form, canSubmit } = useForm<Record<string, unknown>>({
+  const { form, canSubmit } = useForm<FilterPayload>({
     defaultValues: { ...initialFilterRef.current },
     resetOnSuccess: false,
     save: noopSave,
@@ -168,7 +169,7 @@ export function useFilterForm(
   const hasJustBeenModifiedByUser = useRef(false);
   const isReflecting = useRef(false);
   // The last values we pushed / reflected — the value-change baseline.
-  const lastSeenValues = useRef<Record<string, unknown>>({
+  const lastSeenValues = useRef<FilterPayload>({
     ...form.store.state.values,
   });
 
