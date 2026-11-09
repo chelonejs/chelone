@@ -8245,6 +8245,35 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "rsc",
+      "type": "registry:block",
+      "title": "Chelone Server Components",
+      "categories": ["chelone", "fields"],
+      "description": "The opt-in React Server Components add-on: readFieldValue reads a typed value off a record passed as a prop, and serverEmptyText prints a field's empty text, with no hook or context, so they run in a server component.",
+      "dependencies": ["@chelone/core"],
+      "files": [
+        {
+          "path": "src/components/rsc/read-field-value.ts",
+          "type": "registry:component"
+        }
+      ],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "read-field-value",
+      "type": "registry:component",
+      "title": "Read Field Value",
+      "files": [
+        {
+          "path": "src/components/rsc/read-field-value.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "style-chelone",
       "type": "registry:base",
       "title": "Chelone",
