@@ -10,7 +10,24 @@
     "@chelone/core:defineResources"
   ],
   "sources-filters-and-sort": [],
-  "translations-and-permissions": [],
+  "translations-and-permissions": [
+    "@chelone/core:AuthProvider",
+    "@chelone/core:HasLiteralMessages",
+    "@chelone/core:RegisteredLiteralMessages",
+    "@chelone/core:RegisteredMessages",
+    "@chelone/core:RegisteredPermissions",
+    "@chelone/core:RegisteredTranslate",
+    "@chelone/core:TranslateFor",
+    "@chelone/react:AdminChildren",
+    "@chelone/react:AdminUIProps",
+    "@chelone/react:UsePermissionsResult",
+    "@chelone/react:useAdminChildren",
+    "@chelone/react:useResolvedChildren",
+    "@chelone/supabase:SupabaseAuthProvider",
+    "@chelone/supabase:SupabaseAuthProviderOptions",
+    "@chelone/supabase:supabaseAuthProvider",
+    "@chelone/vue:UsePermissionsResult"
+  ],
   "typed-components": [
     "@chelone/react:createResourceComponents",
     "@chelone/react:createResourceComponentsOf",
