@@ -16,8 +16,11 @@
 // behind them. An entry only one adapter has, such as React's `./tanstack-router`, is
 // compared as an entry with nothing on the other side.
 //
-// A note is `untriaged`, `matches <row>` for the other adapter's export of the same
-// thing, `intended: <reason>`, or `gap: <what is missing>`.
+// A note is `matches <row>` for the other adapter's export of the same thing,
+// `intended: <reason>`, or `gap: <what is missing>`. No row may sit untriaged: a note
+// has to say which of the three it is, so the list can tell a renamed twin from a
+// missing feature. `--update` writes a new row as `gap: untriaged`, which this check
+// rejects until the pull request that added the export names the gap.
 //
 //   pnpm test:scripts                                    the check, with the rules pinned
 //   node scripts/export-parity.test.mjs --update         rewrite the baseline from the tree
@@ -37,7 +40,9 @@ const packages = { react: path.join(root, "packages/react"), vue: path.join(root
 /** Hooks and factories: the value exports this check compares. */
 const HOOK_OR_FACTORY = /^(use|create)[A-Z]/;
 /** A note the baseline accepts. */
-const NOTE = /^(?:untriaged|matches react:\S+:\S+|matches vue:\S+:\S+|intended: \S.*|gap: \S.*)$/;
+const NOTE = /^(?:matches react:\S+:\S+|matches vue:\S+:\S+|intended: \S.*|gap: \S.*)$/;
+/** The note `--update` writes for a row it has no note for, which the check rejects. */
+const PLACEHOLDER = "gap: untriaged";
 /** A `matches` note and the row it names. */
 const MATCHES = /^matches (react|vue):(\S+):(\S+)$/;
 /** A module an entry point or a re-export can name. */
@@ -311,8 +316,9 @@ export function baselineText(baseline) {
 }
 
 /**
- * The baseline rewritten from the adapters: every new row as `untriaged`, every row the
- * adapters no longer have dropped, and every other note kept as it was written.
+ * The baseline rewritten from the adapters: every new row as the `gap: untriaged`
+ * placeholder, which the check rejects until it is edited, every row the adapters no
+ * longer have dropped, and every other note kept as it was written.
  *
  * @param {ExportKey[]} rows
  * @param {Baseline} baseline
@@ -321,13 +327,14 @@ export function baselineText(baseline) {
 export function updatedBaseline(rows, baseline) {
   /** @type {Baseline} */
   const notes = {};
-  for (const row of rows) notes[row] = baseline[row] ?? "untriaged";
+  for (const row of rows) notes[row] = baseline[row] ?? PLACEHOLDER;
   return notes;
 }
 
 /**
  * Why a row's note is no note the baseline accepts. A `matches` row must be an export
- * of the other adapter at the entry it names.
+ * of the other adapter at the entry it names, and a `gap:` note must say what is
+ * missing rather than hold the `--update` placeholder.
  *
  * @param {ExportKey} row
  * @param {string} note
@@ -335,9 +342,13 @@ export function updatedBaseline(rows, baseline) {
  * @returns {string | undefined}
  */
 function noteProblem(row, note, adapters) {
-  const reset = `Fix the export, write a note, or run \`node scripts/export-parity.test.mjs --update\` to reset the row to \`untriaged\`.`;
+  const reset = `Fix the export or write a note; \`node scripts/export-parity.test.mjs --update\` adds a missing row as \`${PLACEHOLDER}\` and keeps every note as written.`;
   if (!NOTE.test(note)) {
-    return `${row}: the note \`${note}\` is none of \`untriaged\`, \`matches <row>\`, \`intended: <reason>\` or \`gap: <what is missing>\`. ${reset}`;
+    return `${row}: the note \`${note}\` is none of \`matches <row>\`, \`intended: <reason>\` or \`gap: <what is missing>\`. ${reset}`;
+  }
+  if (note === PLACEHOLDER) {
+    const other = sideOf(row) === "react" ? "vue" : "react";
+    return `${row}: the note \`${PLACEHOLDER}\` is a placeholder. Name what ${other} lacks, or give the export to ${other} too.`;
   }
   const match = MATCHES.exec(note);
   if (!match) return undefined;
@@ -373,7 +384,7 @@ export function parityProblems(react, vue, baseline) {
   for (const row of rows) {
     if (row in baseline) continue;
     problems.push(
-      `${row}: no row in export-parity-baseline.json. Give the export to the other adapter too, or run \`node scripts/export-parity.test.mjs --update\` to add the row as \`untriaged\` and triage it in the pull request.`,
+      `${row}: no row in export-parity-baseline.json. Give the export to the other adapter too, or run \`node scripts/export-parity.test.mjs --update\` to add the row as \`${PLACEHOLDER}\` and name the gap in the pull request.`,
     );
   }
   for (const row of Object.keys(baseline)) {
@@ -554,7 +565,7 @@ describe("parityProblems", () => {
   const held = {
     "react:.:useThing": "gap: React has no twin for it",
     "react:./maps:useMapThing": "intended: only Vue renders a map",
-    "vue:.:useOther": "untriaged",
+    "vue:.:useOther": "intended: Vue renders it inline",
   };
 
   it("holds the adapters where a baseline that names every row says they are", () => {
@@ -564,12 +575,12 @@ describe("parityProblems", () => {
   it("a one-sided export with no row fails", () => {
     const rest = Object.fromEntries(Object.entries(held).filter(([row]) => row !== "react:.:useThing"));
     assert.deepEqual(parityProblems(react, vue, rest), [
-      "react:.:useThing: no row in export-parity-baseline.json. Give the export to the other adapter too, or run `node scripts/export-parity.test.mjs --update` to add the row as `untriaged` and triage it in the pull request.",
+      "react:.:useThing: no row in export-parity-baseline.json. Give the export to the other adapter too, or run `node scripts/export-parity.test.mjs --update` to add the row as `gap: untriaged` and name the gap in the pull request.",
     ]);
   });
 
   it("a row the adapters no longer have fails", () => {
-    assert.deepEqual(parityProblems(react, vue, { ...held, "vue:.:useGone": "untriaged" }), [
+    assert.deepEqual(parityProblems(react, vue, { ...held, "vue:.:useGone": "gap: never landed" }), [
       "vue:.:useGone: a row the adapters no longer have. Run `node scripts/export-parity.test.mjs --update` to drop it.",
     ]);
   });
@@ -578,15 +589,27 @@ describe("parityProblems", () => {
     const bad = (note) => parityProblems(react, vue, { ...held, "vue:.:useOther": note })[0];
     assert.equal(
       bad("maybe: someone will look"),
-      "vue:.:useOther: the note `maybe: someone will look` is none of `untriaged`, `matches <row>`, `intended: <reason>` or `gap: <what is missing>`. Fix the export, write a note, or run `node scripts/export-parity.test.mjs --update` to reset the row to `untriaged`.",
+      "vue:.:useOther: the note `maybe: someone will look` is none of `matches <row>`, `intended: <reason>` or `gap: <what is missing>`. Fix the export or write a note; `node scripts/export-parity.test.mjs --update` adds a missing row as `gap: untriaged` and keeps every note as written.",
     );
     assert.ok(bad("matches something").includes("is none of"));
     assert.ok(bad("intended:").includes("is none of"));
   });
 
+  it("an untriaged note fails", () => {
+    assert.deepEqual(parityProblems(react, vue, { ...held, "vue:.:useOther": "untriaged" }), [
+      "vue:.:useOther: the note `untriaged` is none of `matches <row>`, `intended: <reason>` or `gap: <what is missing>`. Fix the export or write a note; `node scripts/export-parity.test.mjs --update` adds a missing row as `gap: untriaged` and keeps every note as written.",
+    ]);
+  });
+
+  it("a gap note left as the update placeholder fails", () => {
+    assert.deepEqual(parityProblems(react, vue, { ...held, "vue:.:useOther": "gap: untriaged" }), [
+      "vue:.:useOther: the note `gap: untriaged` is a placeholder. Name what react lacks, or give the export to react too.",
+    ]);
+  });
+
   it("a matches note naming no export fails", () => {
     assert.deepEqual(parityProblems(react, vue, { ...held, "react:.:useThing": "matches vue:.:useMissing" }), [
-      "react:.:useThing: the note `matches vue:.:useMissing` names `vue:.:useMissing`, which vue does not export at `.`. Fix the export, write a note, or run `node scripts/export-parity.test.mjs --update` to reset the row to `untriaged`.",
+      "react:.:useThing: the note `matches vue:.:useMissing` names `vue:.:useMissing`, which vue does not export at `.`. Fix the export or write a note; `node scripts/export-parity.test.mjs --update` adds a missing row as `gap: untriaged` and keeps every note as written.",
     ]);
   });
 
@@ -599,6 +622,14 @@ describe("parityProblems", () => {
       "react:.:useThing: the note `matches react:.:useNamed` names a row on its own side. `matches` names the other adapter's export of the same thing.",
     ]);
   });
+
+  it("update writes new rows as gap: untriaged, which fails", () => {
+    const written = updatedBaseline(["react:.:useThing"], {});
+    assert.deepEqual(written, { "react:.:useThing": "gap: untriaged" });
+    assert.deepEqual(parityProblems(react, vue, { ...held, ...written }), [
+      "react:.:useThing: the note `gap: untriaged` is a placeholder. Name what vue lacks, or give the export to vue too.",
+    ]);
+  });
 });
 
 describe("updatedBaseline", () => {
@@ -606,7 +637,7 @@ describe("updatedBaseline", () => {
     const rows = ["react:.:useNew", "vue:.:useHeld"];
     const baseline = { "vue:.:useHeld": "intended: React reads the store directly", "vue:.:useGone": "gap: never landed" };
     assert.deepEqual(updatedBaseline(rows, baseline), {
-      "react:.:useNew": "untriaged",
+      "react:.:useNew": "gap: untriaged",
       "vue:.:useHeld": "intended: React reads the store directly",
     });
   });
@@ -614,8 +645,8 @@ describe("updatedBaseline", () => {
   it("writes the rows in code-unit order", () => {
     // `./maps` sorts before `.`: `/` is below `:` in code units.
     assert.equal(
-      baselineText({ "vue:.:useB": "untriaged", "react:.:useA": "untriaged", "react:./maps:useC": "untriaged" }),
-      `{\n  "react:./maps:useC": "untriaged",\n  "react:.:useA": "untriaged",\n  "vue:.:useB": "untriaged"\n}\n`,
+      baselineText({ "vue:.:useB": "gap: no twin", "react:.:useA": "gap: no twin", "react:./maps:useC": "gap: no twin" }),
+      `{\n  "react:./maps:useC": "gap: no twin",\n  "react:.:useA": "gap: no twin",\n  "vue:.:useB": "gap: no twin"\n}\n`,
     );
   });
 });
