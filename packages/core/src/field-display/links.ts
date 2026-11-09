@@ -37,32 +37,42 @@ interface RawItem {
   title: string | undefined;
 }
 
+function safeSrc(
+  value: unknown,
+  isSafe: (src: string) => boolean,
+): string | undefined {
+  if (value == null) return undefined;
+  const text = String(value);
+  return isSafe(text) ? text : undefined;
+}
+
+/** Each item's `src` stays only when `isSafe` passes it. */
 function rawItems(
   value: unknown,
   record: unknown,
   { src, title }: LinkFieldOptions,
+  isSafe: (src: string) => boolean,
 ): RawItem[] | null {
   if (value == null || (Array.isArray(value) && value.length === 0)) {
     return null;
   }
   if (Array.isArray(value)) {
-    return value.map((item) => {
+    const items: RawItem[] = [];
+    for (const item of value) {
       const itemTitle = title ? String(getAtPath(item, title) ?? title) : title;
       // `src` falls back to `title`, which may be absent: a miss stays
       // `undefined`, never the text "undefined".
       const itemSrc = src ? (getAtPath(item, src) ?? title) : title;
-      return {
-        src: itemSrc == null ? undefined : String(itemSrc),
-        title: itemTitle,
-      };
-    });
+      items.push({ src: safeSrc(itemSrc, isSafe), title: itemTitle });
+    }
+    return items;
   }
   // A single value takes its title off the record, with the literal as the
   // fallback. No `title` yields `undefined`, never the whole record's text.
   const fromRecord = title ? getAtPath(record, title) : undefined;
   return [
     {
-      src: String(value),
+      src: safeSrc(value, isSafe),
       title: title
         ? fromRecord == null
           ? title
@@ -87,12 +97,9 @@ export function fileFieldLinks(
   record: unknown,
   options: LinkFieldOptions,
 ): FileFieldLink[] | null {
-  const items = rawItems(value, record, options);
+  const items = rawItems(value, record, options, isSafeFileUrl);
   if (items === null) return null;
-  return items.map(({ src, title }) => ({
-    href: src !== undefined && isSafeFileUrl(src) ? src : undefined,
-    title,
-  }));
+  return items.map(({ src, title }) => ({ href: src, title }));
 }
 
 export interface ImageFieldSource {
@@ -111,13 +118,7 @@ export function imageFieldSources(
   record: unknown,
   options: LinkFieldOptions,
 ): ImageFieldSource[] | null {
-  const items = rawItems(value, record, options);
-  if (items === null) return null;
-  return items.map(({ src, title }) => ({
-    src:
-      src !== undefined && isSafeImageSrc(src, { allowDataImages: true })
-        ? src
-        : undefined,
-    title,
-  }));
+  return rawItems(value, record, options, (src) =>
+    isSafeImageSrc(src, { allowDataImages: true }),
+  );
 }
