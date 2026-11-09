@@ -44,10 +44,8 @@ it("ListContextValue carries the list filter surface FilterLiveForm reads", () =
   expectTypeOf(value.setFilters).toBeFunction();
 });
 
-it("getFilterFormValues maps a form-values record to an all-keys-present record", () => {
-  expectTypeOf(getFilterFormValues).returns.toEqualTypeOf<
-    Record<string, unknown>
-  >();
+it("getFilterFormValues maps a filter payload to an all-keys-present filter payload", () => {
+  expectTypeOf(getFilterFormValues).returns.toEqualTypeOf<FilterPayload>();
 });
 
 it("useListContext types its rows from the generic", () => {
