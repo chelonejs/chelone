@@ -67,14 +67,27 @@ export interface UndoableHandle<TResult = unknown> {
 }
 
 /**
- * Module-level registry of still-undoable mutations (those neither committed
- * nor undone). Drives the adapter's `beforeunload` guard: if any remain
- * pending when the page unloads, commit them so the server is not left behind
- * the optimistic cache.
+ * The undoable state: the only core module-scope state shared across clients
+ * (every other module-scope map in core is a constant or a `WeakMap` keyed by
+ * `QueryClient`). All three are page-global.
+ *
+ * - `pendingUndoables`: the mutations neither committed nor undone. Written by
+ *   an undoable mutation's start, commit and undo, and by nothing else. Drives
+ *   the adapter's `beforeunload` guard: if any remain pending when the page
+ *   unloads, commit them so the server is not left behind the optimistic cache.
+ * - `settledListeners`: the listeners waiting for the last pending mutation to
+ *   settle — the page's live-update hold.
+ * - `inFlightCommits`: committed undoables whose deferred server call has not
+ *   settled yet.
+ *
+ * Server code never reaches them: a server read path calls the query option
+ * factories, and never `undoableUpdateOptions` or `undoableDeleteOptions`, the
+ * two an adapter calls to start an undoable. Their readers — the `beforeunload`
+ * guard and the live-update hold — are per page by design, and a server never
+ * starts an undoable.
  */
 const pendingUndoables = new Set<UndoableHandle<unknown>>();
 const settledListeners = new Set<() => void>();
-/** Committed undoables whose deferred server call has not settled yet. */
 let inFlightCommits = 0;
 
 /** Calls the listeners once no undoable is pending: after an undo, or after a commit's server call settles. */
