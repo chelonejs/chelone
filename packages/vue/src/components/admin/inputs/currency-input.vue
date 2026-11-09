@@ -42,6 +42,7 @@ import { cn } from "../../../lib/utils";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
 import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
+import { targetOf } from "./event-target";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
@@ -120,9 +121,11 @@ function onAmountInput(raw: string) {
 }
 function onCurrencyChange(event: Event) {
   if (!isComposite.value) return;
+  const select = targetOf(event, HTMLSelectElement);
+  if (!select) return;
   setValue({
     amount: composite.value?.amount ?? 0,
-    currency: (event.target as HTMLSelectElement).value,
+    currency: select.value,
   });
 }
 function onBlur() {
