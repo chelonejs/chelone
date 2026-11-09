@@ -37,7 +37,7 @@ const packages = { react: path.join(root, "packages/react"), vue: path.join(root
 /** Hooks and factories: the value exports this check compares. */
 const HOOK_OR_FACTORY = /^(use|create)[A-Z]/;
 /** A note the baseline accepts. */
-const NOTE = /^(?:untriaged|matches \S+|intended: \S.*|gap: \S.*)$/;
+const NOTE = /^(?:untriaged|matches react:\S+:\S+|matches vue:\S+:\S+|intended: \S.*|gap: \S.*)$/;
 /** A `matches` note and the row it names. */
 const MATCHES = /^matches (react|vue):(\S+):(\S+)$/;
 /** A module an entry point or a re-export can name. */
@@ -124,6 +124,10 @@ function reexportedNames(statement, module, load, cache, names) {
     const followed = exportedNames(target, load, cache);
     for (const name of followed.values) names.values.add(name);
     for (const name of followed.types) names.types.add(name);
+    return;
+  }
+  if (ts.isNamespaceExport(clause)) {
+    names.values.add(clause.name.text);
     return;
   }
   if (!ts.isNamedExports(clause)) return;
@@ -537,9 +541,13 @@ describe("parityProblems", () => {
   });
 
   it("a note in no known form fails", () => {
-    assert.deepEqual(parityProblems(react, vue, { ...held, "vue:.:useOther": "maybe: someone will look" }), [
+    const bad = (note) => parityProblems(react, vue, { ...held, "vue:.:useOther": note })[0];
+    assert.equal(
+      bad("maybe: someone will look"),
       "vue:.:useOther: the note `maybe: someone will look` is none of `untriaged`, `matches <row>`, `intended: <reason>` or `gap: <what is missing>`. Fix the export, write a note, or run `node scripts/export-parity.test.mjs --update` to reset the row to `untriaged`.",
-    ]);
+    );
+    assert.ok(bad("matches something").includes("is none of"));
+    assert.ok(bad("intended:").includes("is none of"));
   });
 
   it("a matches note naming no export fails", () => {
