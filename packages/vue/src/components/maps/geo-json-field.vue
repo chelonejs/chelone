@@ -7,7 +7,7 @@ import type { GeoJsonViewProps } from "./geo-json-view.vue";
 export interface GeoJsonFieldProps<TRecord = unknown>
   extends Partial<Omit<GeoJsonViewProps, "data">> {
   /** The record property holding the GeoJSON value. */
-  source: SourceProp;
+  source: SourceProp<TRecord>;
   /** Defaults to the ambient record. */
   record?: TRecord;
   /** Used when the property is `undefined`. */
@@ -53,14 +53,15 @@ const props = withDefaults(defineProps<GeoJsonFieldProps<TRecord>>(), {
 
 const translate = useTranslate();
 // A getter, so a new record prop reaches the computed value.
-// type-escape: context: `source` is the loose `SourceProp`, so the read is untyped
-const value = useFieldValue<unknown>({
+const read = useFieldValue<TRecord>({
   source: props.source,
   get record() {
     return props.record;
   },
-  defaultValue: props.defaultValue,
 });
+const value = computed(() =>
+  read.value === undefined ? props.defaultValue : read.value,
+);
 // Coordinates outside the longitude and latitude range, such as projected
 // metres, cannot be drawn: MapLibre throws, so they show the empty panel.
 const geometry = computed(() => {

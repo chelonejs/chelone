@@ -82,6 +82,19 @@ type Rules<TRecord extends ResourceRecord> = Pick<
   "retryFrom" | "cancelFrom" | "retryValue" | "cancelValue"
 >;
 
+/**
+ * What a row's date and payload fields read: the two values, taken from the job
+ * at the configured sources, since those sources are runtime strings no
+ * resource's paths name.
+ */
+interface JobValues {
+  id: ResourceRecord["id"];
+  // type-escape: server: getAtPath reads a record by a runtime path and returns unknown
+  createdAt: unknown;
+  // type-escape: server: getAtPath reads a record by a runtime path and returns unknown
+  payload: unknown;
+}
+
 // type-escape: server: getAtPath reads a record by a runtime path and returns unknown
 const text = (value: unknown) =>
   value == null || value === "" ? undefined : String(value);
@@ -120,7 +133,13 @@ function JobRow<TRecord extends ResourceRecord>({
   const type = text(getAtPath(job, fields.typeSource));
   const error = text(getAtPath(job, fields.errorSource));
   const attempts = getAtPath(job, fields.attemptsSource);
-  const hasPayload = getAtPath(job, fields.payloadSource) != null;
+  const payload = getAtPath(job, fields.payloadSource);
+  const hasPayload = payload != null;
+  const values: JobValues = {
+    id: job.id,
+    createdAt: getAtPath(job, fields.createdAtSource),
+    payload,
+  };
 
   return (
     <RecordContextProvider value={job}>
@@ -148,8 +167,9 @@ function JobRow<TRecord extends ResourceRecord>({
               })}
             </span>
           )}
-          <DateField
-            source={fields.createdAtSource}
+          <DateField<JobValues>
+            source="createdAt"
+            record={values}
             showTime
             className="text-muted-foreground"
           />
@@ -205,8 +225,9 @@ function JobRow<TRecord extends ResourceRecord>({
           </p>
         ) : null}
         {hasPayload && showPayload ? (
-          <JsonField
-            source={fields.payloadSource}
+          <JsonField<JobValues>
+            source="payload"
+            record={values}
             className="overflow-x-auto rounded-md bg-muted p-2 text-xs"
           />
         ) : null}

@@ -1,3 +1,4 @@
+import type { SourceProp } from "@chelone/core";
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -5,8 +6,10 @@ import { cn } from "@/lib/utils";
 import { useTranslate } from "../../../i18n-hooks";
 import { TextInput, type TextInputProps } from "./text-input";
 
-interface PasswordInputProps
-  extends Omit<TextInputProps, "type" | "multiline"> {
+interface PasswordInputProps<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+> extends Omit<TextInputProps<TRecord, TPath>, "type" | "multiline"> {
   initiallyVisible?: boolean;
 }
 
@@ -26,7 +29,10 @@ interface PasswordInputProps
  *   </Edit>
  * );
  */
-function PasswordInput(props: PasswordInputProps) {
+function PasswordInput<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+>(props: PasswordInputProps<TRecord, TPath>) {
   const {
     initiallyVisible = false,
     className,
@@ -37,7 +43,7 @@ function PasswordInput(props: PasswordInputProps) {
   const translate = useTranslate();
 
   return (
-    <TextInput
+    <TextInput<TRecord, TPath>
       {...rest}
       type={visible ? "text" : "password"}
       className={className}

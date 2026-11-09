@@ -4417,7 +4417,7 @@
         "@chelone/lib-utils",
         "@chelone/text-input"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },

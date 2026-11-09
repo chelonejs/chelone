@@ -167,7 +167,9 @@ import NullableBooleanInput from "./components/admin/inputs/nullable-boolean-inp
 import NumberInput, {
   type NumberInputProps,
 } from "./components/admin/inputs/number-input.vue";
-import PasswordInput from "./components/admin/inputs/password-input.vue";
+import PasswordInput, {
+  type PasswordInputProps,
+} from "./components/admin/inputs/password-input.vue";
 import PhoneInput from "./components/admin/inputs/phone-input.vue";
 import RadioButtonGroupInput from "./components/admin/inputs/radio-button-group-input.vue";
 import RatingInput, {
@@ -189,7 +191,9 @@ import SubscriptionPlanPicker, {
   type SubscriptionPlanPickerProps,
 } from "./components/admin/inputs/subscription-plan-picker.vue";
 import TextArrayInput from "./components/admin/inputs/text-array-input.vue";
-import TextInput from "./components/admin/inputs/text-input.vue";
+import TextInput, {
+  type TextInputProps,
+} from "./components/admin/inputs/text-input.vue";
 import TimeInput, {
   type TimeInputProps,
 } from "./components/admin/inputs/time-input.vue";
@@ -414,6 +418,9 @@ type ArrayInputSlots = NonNullable<Parameters<typeof ArrayInput>[1]>["slots"];
 /** The preview slot `<FileInput>` declares: a per-file preview child. */
 type FileInputSlots = NonNullable<Parameters<typeof FileInput>[1]>["slots"];
 
+/** The `controlSuffix` slot `<TextInput>` declares: it does not depend on its generics. */
+type TextInputSlots = NonNullable<Parameters<typeof TextInput>[1]>["slots"];
+
 /**
  * `ArrayInput` is generic over its record and its `source`, so its rows are
  * typed by the array at that `source`. A generic SFC has no constructor for
@@ -479,6 +486,7 @@ type TypedInputMembers<TRecord> = {
   ) => VNode;
   FileInput: GenericValueMember<FileInputProps, TRecord, FileInputSlots>;
   NumberInput: GenericValueMember<NumberInputProps, TRecord>;
+  PasswordInput: GenericValueMember<PasswordInputProps, TRecord>;
   RatingInput: <TPath extends SourceProp<TRecord>>(
     props: RatingInputProps<TRecord, TPath> &
       VNodeProps &
@@ -497,6 +505,7 @@ type TypedInputMembers<TRecord> = {
       VNodeProps &
       AllowedComponentProps,
   ) => VNode;
+  TextInput: GenericValueMember<TextInputProps, TRecord, TextInputSlots>;
   TimeInput: GenericValueMember<TimeInputProps, TRecord>;
   WebhookEndpointInput: <TPath extends SourceProp<TRecord>>(
     props: WebhookEndpointInputProps<TRecord, TPath> &
