@@ -152,6 +152,26 @@ describe("with a resource map", () => {
       // @ts-expect-error "quote_ids" is a book field, not a resource
       reference: "quote_ids",
     });
+    ReferenceOneField<LooseRecord, typeof library, "writers">({
+      // @ts-expect-error "tags" is no resource of the map
+      reference: "tags",
+      target: "id",
+    });
+    ReferenceManyField<LooseRecord, typeof library, "quotes">({
+      // @ts-expect-error "tags" is no resource of the map
+      reference: "tags",
+      target: "id",
+    });
+    ReferenceArrayField<LooseRecord, typeof library, "quotes">({
+      source: "quote_ids",
+      // @ts-expect-error "tags" is no resource of the map
+      reference: "tags",
+    });
+    ReferenceInput<LooseRecord, typeof library, "writers">({
+      source: "writer_id",
+      // @ts-expect-error "tags" is no resource of the map
+      reference: "tags",
+    });
   });
 
   it("a target the referenced record does not have is a type error", () => {

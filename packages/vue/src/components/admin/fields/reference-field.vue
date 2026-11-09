@@ -75,9 +75,10 @@ import { useGetPathForRecord } from "../../../router";
 
 // An explicit `undefined` default keeps Vue from casting an absent `link` to
 // `false` (the prop's type includes a boolean), which would disable inference.
-const props = withDefaults(defineProps<ReferenceFieldProps<RecordType>>(), {
-  link: undefined,
-});
+const props = withDefaults(
+  defineProps<ReferenceFieldProps<RecordType, TResources, TReference>>(),
+  { link: undefined },
+);
 
 const fk = useFieldValue({ source: props.source, record: props.record });
 // The FK read: only a string or number counts as an id.

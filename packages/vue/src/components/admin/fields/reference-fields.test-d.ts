@@ -2,8 +2,9 @@
  * `reference` and `target` on the Vue reference components, typed against a
  * resource map. The map is a type argument, as in `createResourceComponentsOf`,
  * so these tests need no `Register` augmentation, which is global to a TypeScript
- * program. Each case is a props object: the SFCs are generic, so their props are
- * read through the exported props interfaces.
+ * program. Most cases are props objects checked against the exported props
+ * interfaces; the "SFCs" block calls each component, so a component that
+ * ignores its generics fails there.
  */
 
 import {
@@ -16,12 +17,24 @@ import {
 } from "@chelone/core";
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
-import type { ReferenceArrayInputProps } from "../inputs/reference-array-input.vue";
-import type { ReferenceInputProps } from "../inputs/reference-input.vue";
-import type { ReferenceArrayFieldProps } from "./reference-array-field.vue";
-import type { ReferenceFieldProps } from "./reference-field.vue";
-import type { ReferenceManyFieldProps } from "./reference-many-field.vue";
-import type { ReferenceOneFieldProps } from "./reference-one-field.vue";
+import ReferenceArrayInput, {
+  type ReferenceArrayInputProps,
+} from "../inputs/reference-array-input.vue";
+import ReferenceInput, {
+  type ReferenceInputProps,
+} from "../inputs/reference-input.vue";
+import ReferenceArrayField, {
+  type ReferenceArrayFieldProps,
+} from "./reference-array-field.vue";
+import ReferenceField, {
+  type ReferenceFieldProps,
+} from "./reference-field.vue";
+import ReferenceManyField, {
+  type ReferenceManyFieldProps,
+} from "./reference-many-field.vue";
+import ReferenceOneField, {
+  type ReferenceOneFieldProps,
+} from "./reference-one-field.vue";
 
 const catalog = defineResources({
   authors: { schema: z.object({ id: z.number(), name: z.string() }) },
@@ -177,5 +190,78 @@ describe("the components under a resource map", () => {
         record: author,
       };
     void [field, badField, badArray];
+  });
+});
+
+describe("the SFCs under a resource map", () => {
+  it("reference takes only the map's names on all six", () => {
+    ReferenceField<Author, typeof catalog, "reviews">({
+      source: "id",
+      reference: "reviews",
+    });
+    ReferenceOneField<Author, typeof catalog, "reviews">({
+      reference: "reviews",
+      target: "author_id",
+    });
+    ReferenceManyField<Author, typeof catalog, "reviews">({
+      reference: "reviews",
+      target: "author_id",
+    });
+    ReferenceArrayField<Author, typeof catalog, "badges">({
+      source: "id",
+      reference: "badges",
+    });
+    ReferenceInput<typeof catalog, "badges">({
+      source: "author_id",
+      reference: "badges",
+    });
+    ReferenceArrayInput<typeof catalog, "badges">({
+      source: "author_ids",
+      reference: "badges",
+    });
+
+    ReferenceField<Author, typeof catalog, "reviews">({
+      source: "id",
+      // @ts-expect-error "tags" is no resource of the catalog
+      reference: "tags",
+    });
+    ReferenceOneField<Author, typeof catalog, "reviews">({
+      // @ts-expect-error "tags" is no resource of the catalog
+      reference: "tags",
+      target: "id",
+    });
+    ReferenceManyField<Author, typeof catalog, "reviews">({
+      // @ts-expect-error "tags" is no resource of the catalog
+      reference: "tags",
+      target: "id",
+    });
+    ReferenceArrayField<Author, typeof catalog, "badges">({
+      source: "id",
+      // @ts-expect-error "tags" is no resource of the catalog
+      reference: "tags",
+    });
+    ReferenceInput<typeof catalog, "badges">({
+      source: "author_id",
+      // @ts-expect-error "tags" is no resource of the catalog
+      reference: "tags",
+    });
+    ReferenceArrayInput<typeof catalog, "badges">({
+      source: "author_ids",
+      // @ts-expect-error "tags" is no resource of the catalog
+      reference: "tags",
+    });
+  });
+
+  it("target takes only a key of the referenced record", () => {
+    ReferenceManyField<Author, typeof catalog, "reviews">({
+      reference: "reviews",
+      // @ts-expect-error "authorid" is no key of a review
+      target: "authorid",
+    });
+    ReferenceOneField<Author, typeof catalog, "reviews">({
+      reference: "reviews",
+      // @ts-expect-error "name" is a key of an author, not of a review
+      target: "name",
+    });
   });
 });
