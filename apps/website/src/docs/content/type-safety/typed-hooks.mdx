@@ -5,11 +5,16 @@ description: "What a record type arrives as, and what the hooks return for a reg
 
 The data hooks read the app's registered resources directly, so
 `useGetList("posts")` is typed with no factory: the name picks the record, and a
-name the app never registered is rejected. `useGetList`, `useGetOne`,
-`useGetMany`, `useGetManyAggregate`, `useGetManyReference`, `useCreate`,
-`useUpdate`, `useDelete`, `useUpdateMany`, `useDeleteMany` and the three live
-reads all take their names this way, in both adapters. `useRecordContext` and
-`useListContext` hand the same name back to a component.
+name the app never registered is rejected.
+
+In both adapters: `useGetList`, `useGetOne`, `useGetMany`,
+`useGetManyAggregate`, `useGetManyReference`, `useCreate`, `useUpdate`,
+`useDelete`, `useGetListLive`, `useGetOneLive` and `useGetManyLive`. In Vue
+only, since React has no bulk mutation hook yet: `useUpdateMany` and
+`useDeleteMany`.
+
+`useRecordContext` and `useListContext` are not named this way: each still takes
+the record type its caller writes.
 
 ## The name argument
 
