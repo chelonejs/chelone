@@ -92,9 +92,9 @@ type LooseArm = AnySourcePath;
 
 `AnySourcePath` is the loose arm named on its own: plain `string` until `Register`
 is augmented, then the union of every registered resource's paths. Passing a
-record to `SourceProp` skips it and takes that record's own paths.
-`AnySourcePathOf<TResources>` is the same union over a map you hand it instead of
-the registered one.
+record to `SourceProp` skips it and takes that record's own paths. Its twin over
+a resource map the caller hands in, `AnySourcePathOf`, is
+[When types widen](/docs/type-safety/when-types-widen)'s.
 
 ## Row paths
 
@@ -201,8 +201,8 @@ A filter key is a source path with an operator suffix, or the free-text `q`.
   `showFilter(name)` and `hideFilter(name)` write. The values are optional so a
   list does not have to list every filter it has in order to show one.
 - `AnyFilterSourceKey` is the registered union a loose `FilterPayload` takes, the
-  filter counterpart of `AnySourcePath`. `AnyFilterSourceKeyOf<TResources>` is the
-  same over a map you hand it.
+  filter counterpart of `AnySourcePath`. Its map-taking twin `AnyFilterSourceKeyOf`
+  is on [When types widen](/docs/type-safety/when-types-widen).
 
 ```tsx twoslash title="src/filters.ts"
 // @include: type-safety-post-record

@@ -201,5 +201,8 @@
     "@chelone/vue:useUpdate",
     "@chelone/vue:useUpdateMany"
   ],
-  "when-types-widen": []
+  "when-types-widen": [
+    "@chelone/core:AnyFilterSourceKeyOf",
+    "@chelone/core:AnySourcePathOf"
+  ]
 }

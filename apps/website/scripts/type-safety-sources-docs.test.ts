@@ -15,6 +15,9 @@ const dataProvidersPage = read(
 );
 const coreIndex = read("../../../packages/core/src/index.ts");
 
+/** `type-docs.json` and its baseline: a page slug to the rows it carries. */
+type RowsByPage = Record<string, string[]>;
+
 /**
  * Every source, filter and sort type the page documents, in the order its
  * sections reach them. Each one must also be a real export of core, so a type
@@ -136,6 +139,23 @@ it("every twoslash fence on the page names its errors with `// @errors:`", () =>
 
 it("the page documents what is on main, with no coming soon note", () => {
   expect(page).not.toMatch(/coming soon|not yet|will cover/i);
+});
+
+it("the two map-typed twins map to When types widen, not to this page", () => {
+  const docs: RowsByPage = JSON.parse(read("../../../type-docs.json"));
+  const baseline: RowsByPage = JSON.parse(
+    read("../../../type-docs-baseline.json"),
+  );
+
+  for (const name of ["AnySourcePathOf", "AnyFilterSourceKeyOf"]) {
+    const row = `@chelone/core:${name}`;
+    // #1908's page owns both rows, so this page names them and links there.
+    expect(docs["sources-filters-and-sort"]).not.toContain(row);
+    const pages = [...Object.entries(docs), ...Object.entries(baseline)]
+      .filter(([, rows]) => rows.includes(row))
+      .map(([slug]) => slug);
+    expect(pages).toEqual(["when-types-widen"]);
+  }
 });
 
 it("the data providers page names the loose sort payload the contract takes", () => {

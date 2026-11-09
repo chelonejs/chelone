@@ -8,9 +8,7 @@
   ],
   "sources-filters-and-sort": [
     "@chelone/core:AnyFilterSourceKey",
-    "@chelone/core:AnyFilterSourceKeyOf",
     "@chelone/core:AnySourcePath",
-    "@chelone/core:AnySourcePathOf",
     "@chelone/core:FilterSourceKey",
     "@chelone/core:RecordFilterKey",
     "@chelone/core:ReferenceTargetOf",
