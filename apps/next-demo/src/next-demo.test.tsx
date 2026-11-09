@@ -133,7 +133,7 @@ describe("the Next demo", () => {
     const state = await prefetchList("posts", "");
 
     render(
-      <AdminShell dataProvider={dataProvider}>
+      <AdminShell session={{ user: "Ada" }} dataProvider={dataProvider}>
         <Prefetched state={state}>
           <PostList />
         </Prefetched>
@@ -158,7 +158,7 @@ describe("the Next demo", () => {
     const state = await prefetchList("posts", "sort=title&order=ASC");
 
     render(
-      <AdminShell dataProvider={dataProvider}>
+      <AdminShell session={{ user: "Ada" }} dataProvider={dataProvider}>
         <Prefetched state={state}>
           <PostList />
         </Prefetched>
@@ -177,7 +177,7 @@ describe("the Next demo", () => {
     const state = await prefetchOne("posts", 1);
 
     render(
-      <AdminShell dataProvider={dataProvider}>
+      <AdminShell session={{ user: "Ada" }} dataProvider={dataProvider}>
         <Prefetched state={state}>
           <PostEdit id="1" />
         </Prefetched>
@@ -195,7 +195,7 @@ describe("the Next demo", () => {
     const state = await prefetchList("comments", "");
 
     render(
-      <AdminShell dataProvider={dataProvider}>
+      <AdminShell session={{ user: "Ada" }} dataProvider={dataProvider}>
         <Prefetched state={state}>
           <CommentList />
         </Prefetched>
@@ -214,7 +214,7 @@ describe("the Next demo", () => {
     const title = seeded(seedData().posts[0], "post").title;
 
     const { rerender } = render(
-      <AdminShell dataProvider={dataProvider}>
+      <AdminShell session={{ user: "Ada" }} dataProvider={dataProvider}>
         <Prefetched state={stale}>
           <PostEdit id="1" />
         </Prefetched>
@@ -230,7 +230,7 @@ describe("the Next demo", () => {
     next.reset("/admin/posts");
     const staleList = await prefetchList("posts", "");
     rerender(
-      <AdminShell dataProvider={dataProvider}>
+      <AdminShell session={{ user: "Ada" }} dataProvider={dataProvider}>
         <Prefetched state={staleList}>
           <PostList />
         </Prefetched>
