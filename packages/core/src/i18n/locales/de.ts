@@ -41,6 +41,7 @@ export const deMessages = {
     "Sie sind nicht berechtigt, auf diese Ressource zuzugreifen",
   "chelone.notification.updated": "Element aktualisiert",
   "chelone.validation.email": "Muss eine gültige E-Mail-Adresse sein",
+  "chelone.validation.invalid": "Ungültiger Wert",
   "chelone.validation.maxLength": "Darf höchstens {max} Zeichen lang sein",
   "chelone.validation.maxValue": "Darf höchstens {max} sein",
   "chelone.validation.minLength": "Muss mindestens {min} Zeichen lang sein",
