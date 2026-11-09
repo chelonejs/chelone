@@ -31,6 +31,20 @@ export type RegisteredMessages = Register extends {
   ? TMessages
   : MessageCatalog;
 
+/**
+ * Whether a register shape asks for literal message text: `literalMessages:
+ * true` makes `translate` return a key's text, rather than `string`. Off by
+ * default, because a literal union is not a `string` you can reassign.
+ */
+export type HasLiteralMessages<TRegister extends Register> = TRegister extends {
+  literalMessages: true;
+}
+  ? true
+  : false;
+
+/** Whether the app registered `literalMessages: true` (see {@link HasLiteralMessages}). */
+export type RegisteredLiteralMessages = HasLiteralMessages<Register>;
+
 /** The registered resource map, or {@link ResourceMap} when nothing is registered. */
 export type RegisteredResources = Register extends {
   resources: infer TResources extends ResourceMap;
