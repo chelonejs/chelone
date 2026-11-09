@@ -54,7 +54,7 @@ defineSlots<{
   /** Replaces the default value text of a cell. */
   value?(scope: {
     source: string;
-    // type-escape: a diffed value is whatever the record held at the source
+    // type-escape: server: a diffed value is whatever the record held at the source
     value: unknown;
     side: "before" | "after";
   }): VNode[];
@@ -72,7 +72,7 @@ const empty = computed(() =>
 );
 
 /** The default text of a value; a missing one reads as the empty text. */
-// type-escape: a diffed value is whatever the record held at the source
+// type-escape: server: a diffed value is whatever the record held at the source
 function text(value: unknown): string {
   return formatDiffValue(value) || empty.value;
 }

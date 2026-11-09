@@ -16,7 +16,7 @@ const props = defineProps<{ entry: DataProviderLogEntry }>();
 const translate = useTranslate();
 
 /** The value as indented JSON cut to `DEVTOOLS_MAX_VALUE_LENGTH`, or `undefined` when there is none to show. */
-// type-escape: params and results are whatever the provider's methods take and give
+// type-escape: server: params and results are whatever the provider's methods take and give
 function show(value: unknown): string | undefined {
   try {
     return JSON.stringify(value, null, 2)?.slice(0, DEVTOOLS_MAX_VALUE_LENGTH);
