@@ -8,7 +8,6 @@
 import { fakeDataProvider } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
 import {
-  act,
   cleanup,
   fireEvent,
   render,
