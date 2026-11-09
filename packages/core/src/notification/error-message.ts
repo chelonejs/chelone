@@ -1,5 +1,5 @@
 /** The text of a thrown value: a string, or the `message` of an object. */
-// type-escape: a thrown value has no type
+// type-escape: server: a thrown value has no type
 export function errorMessageOf(error: unknown): string | undefined {
   if (typeof error === "string") {
     return error === "" ? undefined : error;

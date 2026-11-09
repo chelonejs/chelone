@@ -372,7 +372,7 @@ function describeKind(node: Node): Described {
 /** For core's block editor helpers; not exported from the package index. */
 export function describeField<TSource extends string>(
   source: TSource,
-  // type-escape: a registered schema is any Standard Schema value, read structurally
+  // type-escape: schema: a registered schema is any Standard Schema value, read structurally
   schema: unknown,
   references: ResourceConfig["references"],
 ): FieldDescriptor<TSource> {
@@ -421,7 +421,7 @@ export function describeResource(
   const { shape } = node;
   return {
     resource,
-    // type-escape: the keys come from the registered schema's shape at runtime, which TypeScript cannot connect to the schema's type
+    // type-escape: schema: the keys come from the registered schema's shape at runtime, which TypeScript cannot connect to the schema's type
     fields: Object.keys(shape).map((source) =>
       describeField(source, shape[source], config.references),
     ) as FieldDescriptor[],

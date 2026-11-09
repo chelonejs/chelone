@@ -52,7 +52,7 @@ type Checked<T extends ResourceMap> = {
  * `RecordOf<RecordResources<TRecord>, string>` is `TRecord`.
  */
 export type RecordResources<TRecord> = {
-  // type-escape: the schema's input is whatever the caller's schema takes, which the map need not pin
+  // type-escape: schema: the schema's input is whatever the caller's schema takes, which the map need not pin
   [name: string]: { schema: StandardSchemaV1<unknown, TRecord> };
 };
 
