@@ -571,6 +571,7 @@ describe("@chelone/core barrel", () => {
     expect("sanitizeEmptyValues" in barrel).toBe(false);
     expect("toFormErrorMapValue" in barrel).toBe(false);
     expect("composeFormValidator" in barrel).toBe(false);
+    expect("createSchemaFormController" in barrel).toBe(false);
     expect("resolveHydrationAction" in barrel).toBe(false);
     expect("isPlainObject" in barrel).toBe(false);
     expect("isJsonObject" in barrel).toBe(false);
