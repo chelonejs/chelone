@@ -9,6 +9,7 @@ import { useTranslate } from "../../../i18n-hooks";
 import { useRecordContext } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
 import { sanitizeFieldRestProps } from "../../../util/sanitize-field-rest-props";
+import { ImageFieldImages } from "./image-field-images";
 
 interface ImageFieldProps<RecordType extends ResourceRecord = LooseRecord>
   extends SpanFieldProps<RecordType> {
@@ -61,31 +62,13 @@ function ImageField<RecordType extends ResourceRecord = LooseRecord>(
     );
   }
 
-  if (Array.isArray(value)) {
-    return (
-      <span
-        {...sanitizeFieldRestProps(rest)}
-        className={cn("image-list", rest.className)}
-      >
-        <ul>
-          {images.map((image, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: an unsafe `src` is dropped, so it cannot key the row.
-            <li key={index}>
-              <img alt={image.title} title={image.title} src={image.src} />
-            </li>
-          ))}
-        </ul>
-      </span>
-    );
-  }
-
-  const [image] = images;
+  const list = Array.isArray(value);
   return (
     <span
       {...sanitizeFieldRestProps(rest)}
-      className={cn("image-single", rest.className)}
+      className={cn(list ? "image-list" : "image-single", rest.className)}
     >
-      <img title={image?.title} alt={image?.title} src={image?.src} />
+      <ImageFieldImages images={images} list={list} />
     </span>
   );
 }

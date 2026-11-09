@@ -1455,6 +1455,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/image-field-images.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/image-field.tsx",
           "type": "registry:component"
         },
@@ -3314,6 +3318,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "image-field-images",
+      "type": "registry:component",
+      "title": "Image Field Images",
+      "files": [
+        {
+          "path": "src/components/admin/fields/image-field-images.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "image-field",
       "type": "registry:component",
       "title": "Image Field",
@@ -3324,6 +3342,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/image-field-images",
         "@chelone/lib-field-types",
         "@chelone/lib-utils"
       ],
@@ -4398,7 +4417,7 @@
         "@chelone/lib-utils",
         "@chelone/text-input"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -8252,6 +8271,7 @@
       "description": "The opt-in React Server Components add-on: the server text, number and date fields, and ServerList, which renders one loaded list page with sort and page links. Each reads a record or a page passed as a prop, with no hook or context, so it runs in a server component.",
       "registryDependencies": [
         "@chelone/button",
+        "@chelone/image-field-images",
         "@chelone/input",
         "@chelone/lib-utils",
         "@chelone/native-select",
@@ -8261,6 +8281,10 @@
       "files": [
         {
           "path": "src/components/rsc/read-field-value.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-link-fields.tsx",
           "type": "registry:component"
         },
         {
@@ -8299,6 +8323,26 @@
           "path": "src/components/rsc/read-field-value.ts",
           "type": "registry:component"
         }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-link-fields",
+      "type": "registry:component",
+      "title": "Server Link Fields",
+      "files": [
+        {
+          "path": "src/components/rsc/server-link-fields.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/image-field-images",
+        "@chelone/lib-utils",
+        "@chelone/read-field-value",
+        "@chelone/server-scalar-fields"
       ],
       "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],

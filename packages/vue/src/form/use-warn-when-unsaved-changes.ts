@@ -64,6 +64,7 @@ export function useWarnWhenUnsavedChanges(
   // one the server rejected with field errors, and form-core never clears it on
   // a later edit. So read it once, when it turns true: the save counts only if
   // the form was valid then, and only while the values are still the ones saved.
+  // type-escape: context: the ambient form names no record, so its values are record-free
   let savedValues: unknown;
   let wasSubmitSuccessful = false;
   const readFormState = () => {

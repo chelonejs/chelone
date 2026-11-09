@@ -187,11 +187,15 @@ describe("the rsc entry", () => {
     const entry = await import("./rsc");
     expect(Object.keys(entry).sort()).toEqual([
       "ServerDateField",
+      "ServerEmailField",
+      "ServerFileField",
+      "ServerImageField",
       "ServerList",
       "ServerListDeleteButton",
       "ServerListFilters",
       "ServerNumberField",
       "ServerTextField",
+      "ServerUrlField",
       "readFieldValue",
       "serverEmptyText",
     ]);
@@ -207,6 +211,7 @@ describe("the rsc entry", () => {
       expect.arrayContaining([
         "components/rsc/read-field-value.ts",
         "components/rsc/server-scalar-fields.tsx",
+        "components/rsc/server-link-fields.tsx",
         "components/rsc/server-list.tsx",
       ]),
     );

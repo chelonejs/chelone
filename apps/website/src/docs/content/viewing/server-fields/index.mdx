@@ -1,7 +1,7 @@
 ---
 title: "Server fields"
-description: "Text, number and date fields that render in a React Server Component, from a record passed as a prop."
-registry: "server-scalar-fields"
+description: "Text, number, date, url, email, file and image fields that render in a React Server Component, from a record passed as a prop."
+registry: "server-link-fields"
 ---
 
 A server field prints a record value the way its client twin does, with no
@@ -11,9 +11,14 @@ the `@chelone/react/rsc` entry:
 - `<ServerTextField>` prints what [TextField](/docs/viewing/text-field) prints.
 - `<ServerNumberField>` prints what [NumberField](/docs/viewing/number-field) prints.
 - `<ServerDateField>` prints what [DateField](/docs/viewing/date-field) prints.
+- `<ServerUrlField>` renders what [UrlField](/docs/viewing/url-field) renders.
+- `<ServerEmailField>` renders what [EmailField](/docs/viewing/email-field) renders.
+- `<ServerFileField>` renders what [FileField](/docs/viewing/file-field) renders.
+- `<ServerImageField>` renders what [ImageField](/docs/viewing/image-field) renders.
 
-Each renders the same `<span>` as its twin, and nothing when the value is
-empty and `empty` is unset.
+Each renders the same markup as its twin, and nothing when the value is empty
+and `empty` is unset. The install command below adds all seven: the link
+fields bring the text, number and date fields with them.
 
 ## When to use one
 
@@ -65,6 +70,30 @@ export const Route = createFileRoute("/posts/1")({
 `source` is checked against the record's type, so a misspelled path is a type
 error, as on the client fields.
 
+## Links and images
+
+The url, email, file and image fields put a stored value into an `href` or a
+`src`. Each passes it through the same check as its client twin, in core, so a
+stored `javascript:` url never becomes a live link on the server either:
+
+- `<ServerUrlField>` prints a url it refuses as text, with no `<a>`. A value
+  with no scheme must start with `/` or `#`, so `example.com` prints as text.
+- `<ServerEmailField>` always puts the value behind `mailto:`.
+- `<ServerFileField>` keeps the `<a>` of a url it refuses, with no `href`.
+- `<ServerImageField>` keeps the `<img>` of a `src` it refuses, with no `src`.
+  A raster `data:image` passes; an SVG one does not.
+
+`target="_blank"` with no `rel` gets `rel="noopener noreferrer"` on the url and
+file fields. For an array, `src` and `title` on the file and image fields name
+the path on each item:
+
+```tsx
+<ServerFileField record={product} source="attachments" src="url" title="name" />
+```
+
+None takes `onClick`. The client twins stop click bubbling so a `DataTable`
+row click does not fire, and a server list has no row click handler.
+
 ## Props
 
 ### ServerTextField
@@ -78,3 +107,19 @@ error, as on the client fields.
 ### ServerDateField
 
 <PropsTable name="ServerDateField" />
+
+### ServerUrlField
+
+<PropsTable name="ServerUrlField" />
+
+### ServerEmailField
+
+<PropsTable name="ServerEmailField" />
+
+### ServerFileField
+
+<PropsTable name="ServerFileField" />
+
+### ServerImageField
+
+<PropsTable name="ServerImageField" />

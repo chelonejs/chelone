@@ -1835,6 +1835,9 @@
       }
     }
   },
+  "image-field-images": {
+    "shownBy": "image-field"
+  },
   "image-input": {
     "react": {
       "docs": {
@@ -3522,6 +3525,16 @@
       "demo": {
         "path": "/vue-demo/orders/create",
         "see": "role=combobox[name=\"Status\"]"
+      }
+    }
+  },
+  "server-link-fields": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/server-fields"
+      },
+      "demo": {
+        "path": "/rsc/fields"
       }
     }
   },
