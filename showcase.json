@@ -3535,6 +3535,16 @@
       }
     }
   },
+  "server-show": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/server-show"
+      },
+      "demo": {
+        "path": "/rsc/posts/1"
+      }
+    }
+  },
   "set-password-form": {
     "shownBy": "set-password-page"
   },

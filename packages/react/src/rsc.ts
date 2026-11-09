@@ -13,3 +13,9 @@ export {
   ServerTextField,
   type ServerTextFieldProps,
 } from "./components/rsc/server-scalar-fields";
+export {
+  ServerRecordField,
+  type ServerRecordFieldProps,
+  ServerShow,
+  type ServerShowProps,
+} from "./components/rsc/server-show";

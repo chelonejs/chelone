@@ -76,6 +76,7 @@ export default [
       "record-timeline",
       "job-monitor",
       "tabbed-show-layout",
+      "server-show",
       "card-content-inner",
       "list-no-results",
     ],

@@ -1,0 +1,41 @@
+{
+  "name": "ServerShow",
+  "props": [
+    {
+      "name": "actions",
+      "type": "ReactNode",
+      "optional": true,
+      "comment": "Markup beside the heading, rendered as given — where an app puts a client island."
+    },
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The fields. Each takes `record` itself: there is no record context."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the header."
+    },
+    {
+      "name": "i18n",
+      "type": "ServerI18n",
+      "optional": true,
+      "comment": "Translates `title`."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": false,
+      "comment": "The record to show. Required: there is no record context to fall back on."
+    },
+    {
+      "name": "title",
+      "type": "string",
+      "optional": true,
+      "comment": "The heading, as a message key: translated through `i18n` when one is given,\nprinted as is otherwise. Defaults to `defaultRecordRepresentation(record)`."
+    }
+  ]
+}

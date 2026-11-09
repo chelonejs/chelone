@@ -1,0 +1,98 @@
+---
+title: "ServerShow"
+description: "A read-only record page rendered in a React Server Component, with no client fields."
+registry: "server-show"
+---
+
+`<ServerShow>` is the shell [Show](/docs/page-components/show) renders — the
+heading, the actions beside it, the body — for a page the server renders. It
+fetches nothing and calls no hook, so it runs in a React Server Component and
+ships no field code to the browser.
+
+It pairs with the [server fields](/docs/viewing/server-fields): each field takes
+the record as a prop, so there is no record context to mount.
+
+## When to use it
+
+Use `<ServerShow>` for a read-only page the server can render from data it
+already holds: a public record page, a mail preview, a page a crawler must see.
+Use `<Show>` inside the admin, where the record comes from the data provider and
+the page needs client actions.
+
+What it cannot do:
+
+- It fetches nothing. The app reads the record in its own server function and
+  passes it in.
+- It reads no context, so `record` is required and every field takes it too.
+- It renders no reference field, no tabs and no aside. A reference needs a
+  second fetch, which the app does before it renders.
+- `actions` is markup you pass in. An interactive action is a client island: a
+  link, or a `"use client"` component.
+
+## With TanStack Start
+
+The server function reads the record, renders the page and returns it. The route
+renders what its loader got.
+
+```tsx
+import {
+  ServerNumberField,
+  ServerRecordField,
+  ServerShow,
+  ServerTextField,
+} from "@chelone/react/rsc";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { renderServerComponent } from "@tanstack/react-start/rsc";
+
+const getPostPage = createServerFn().handler(async ({ data: id }) => {
+  // A provider with no row throws: catch it and answer notFound().
+  const post = await dataProvider
+    .getOne("posts", { id })
+    .then(({ data }) => data)
+    .catch(() => undefined);
+  if (post === undefined) throw notFound();
+  return renderServerComponent(
+    <ServerShow
+      record={post}
+      actions={<a href={`/admin/posts/${post.id}`}>Edit</a>}
+    >
+      <ServerRecordField label="post.title">
+        <ServerTextField record={post} source="title" />
+      </ServerRecordField>
+      <ServerRecordField label="post.views" variant="inline">
+        <ServerNumberField record={post} source="views" />
+      </ServerRecordField>
+      <ServerRecordField label="post.status" variant="inline">
+        <ServerTextField record={post} source="status" />
+      </ServerRecordField>
+    </ServerShow>,
+  );
+});
+
+export const Route = createFileRoute("/posts/$id")({
+  loader: ({ params }) => getPostPage({ data: Number(params.id) }),
+  component: () => Route.useLoaderData(),
+});
+```
+
+`notFound()` thrown inside a server function answers with a 404 the router turns
+into its not-found page.
+
+The heading defaults to `defaultRecordRepresentation(record)`: the first of
+`name`, `title`, `label`, `reference` that holds text or a number, else
+`#<id>`.
+
+A `title` and a `<ServerRecordField>` label are message keys. Pass `i18n` — the
+same `createI18n` instance the client half of the app uses — and each is
+translated with itself as the fallback; without it each prints as given.
+
+## Props
+
+### ServerShow
+
+<PropsTable name="ServerShow" />
+
+### ServerRecordField
+
+<PropsTable name="ServerRecordField" />

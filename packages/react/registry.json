@@ -8249,7 +8249,8 @@
       "type": "registry:block",
       "title": "Chelone Server Components",
       "categories": ["chelone", "fields"],
-      "description": "The opt-in React Server Components add-on: readFieldValue reads a typed value off a record passed as a prop, and serverEmptyText prints a field's empty text, with no hook or context, so they run in a server component.",
+      "description": "The opt-in React Server Components add-on: readFieldValue reads a typed value off a record passed as a prop, serverEmptyText prints a field's empty text, and ServerShow renders a read-only record page, all with no hook or context, so they run in a server component.",
+      "registryDependencies": ["@chelone/lib-utils"],
       "dependencies": ["@chelone/core"],
       "files": [
         {
@@ -8258,6 +8259,10 @@
         },
         {
           "path": "src/components/rsc/server-scalar-fields.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-show.tsx",
           "type": "registry:component"
         }
       ],
@@ -8288,6 +8293,24 @@
         }
       ],
       "registryDependencies": ["@chelone/read-field-value"],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-show",
+      "type": "registry:component",
+      "title": "Server Show",
+      "files": [
+        {
+          "path": "src/components/rsc/server-show.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/read-field-value"
+      ],
       "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"

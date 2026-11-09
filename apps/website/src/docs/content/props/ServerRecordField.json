@@ -1,0 +1,35 @@
+{
+  "name": "ServerRecordField",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The value, usually a server field over the same record."
+    },
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the field wrapper."
+    },
+    {
+      "name": "i18n",
+      "type": "ServerI18n",
+      "optional": true,
+      "comment": "Translates `label`."
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "optional": false,
+      "comment": "The label, as a message key: translated through `i18n` when one is given,\nprinted as is otherwise."
+    },
+    {
+      "name": "variant",
+      "type": "\"inline\" | \"stacked\"",
+      "optional": true,
+      "comment": "`stacked` puts the label above the value, `inline` beside it. Default `stacked`."
+    }
+  ]
+}
