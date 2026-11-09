@@ -219,7 +219,7 @@ const weekdays = computed(() =>
 const pathOf = (source: SourceProp<TRecord>): SourcePath<TRecord> => {
   // A source prop is `SourceProp`, which core reads with `getAtPath`, taking any
   // path string. `toCalendarEvents` names the record's exact path type instead.
-  // type-escape: a source prop for any record cannot carry that exact type.
+  // type-escape: context: a source prop for any record cannot carry that exact type.
   return source as SourcePath<TRecord>;
 };
 const pathOfOptional = (

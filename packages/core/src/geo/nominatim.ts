@@ -45,7 +45,7 @@ function toNumber(value: unknown): number {
   return Number.NaN;
 }
 
-// type-escape: the service's raw JSON, an object `isRecord` has already accepted.
+// type-escape: json: the service's raw hit, an object `isRecord` has already accepted.
 function toResult(hit: Record<string, unknown>): GeocodeResult | null {
   if (typeof hit.display_name !== "string") return null;
   const lat = toNumber(hit.lat);

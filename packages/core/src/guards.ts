@@ -18,7 +18,7 @@ export type JsonValue =
 /** An object whose every member is a JSON value. */
 export type JsonObject = { [key: string]: JsonValue };
 
-// type-escape: a guard on `unknown` learns the keys and not the values
+// type-escape: json: a guard on `unknown` learns the keys and not the values
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -29,7 +29,7 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
  * class instance do not.
  */
 export function isPlainObject(
-  value: unknown, // type-escape: a guard on `unknown` learns the keys and not the values
+  value: unknown, // type-escape: json: a guard on `unknown` learns the keys and not the values
 ): value is Record<string, unknown> {
   if (!isRecord(value)) return false;
   const proto = Object.getPrototypeOf(value);
@@ -43,7 +43,7 @@ export function isPlainObject(
 export function hasProperty<TKey extends string>(
   value: unknown,
   key: TKey,
-  // type-escape: a guard on `unknown` learns the key and not its value
+  // type-escape: json: a guard on `unknown` learns the key and not its value
 ): value is Record<TKey, unknown> {
   return isRecord(value) && key in value;
 }
@@ -52,7 +52,7 @@ export function hasProperty<TKey extends string>(
  * Could `await value` wait on it? A promise, or any object with a `then`
  * function. A bare function is refused even when it has no `then`.
  */
-// type-escape: a guard on `unknown` learns that `then` is callable, not what it resolves to
+// type-escape: server: a guard on `unknown` learns that `then` is callable, not what it resolves to
 export function isThenable(value: unknown): value is PromiseLike<unknown> {
   return hasProperty(value, "then") && typeof value.then === "function";
 }

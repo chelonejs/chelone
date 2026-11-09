@@ -15,7 +15,7 @@ export interface HttpAssistantTransportOptions {
 function parseChunk(line: string, lineNumber: number): AssistantChunk {
   const invalid = () =>
     new Error(`Invalid assistant chunk at line ${lineNumber}`);
-  // type-escape: JSON from the endpoint must be validated before it becomes a chunk.
+  // type-escape: json: the endpoint's line must be validated before it becomes a chunk.
   let chunk: unknown;
   try {
     chunk = JSON.parse(line);
