@@ -52,8 +52,13 @@ export const customerSchema = z.object({
   name: z.string({ error: "Name is required" }).min(1, "Name is required"),
   email: z.email({ error: "Enter a valid email address" }),
   city: z.string({ error: "City is required" }).min(1, "City is required"),
-  phone: z.string({ error: "Phone must be text" }).optional(),
-  joined_on: z.string({ error: "Customer since must be a date" }).optional(),
+  // Clearing an input stores `null`, so the two inputs the edit form lets you
+  // clear are nullable as well as optional.
+  phone: z.string({ error: "Phone must be text" }).nullable().optional(),
+  joined_on: z
+    .string({ error: "Customer since must be a date" })
+    .nullable()
+    .optional(),
   // The same ids `plans` and `segmentChoices` offer.
   plan: z
     .enum(["free", "pro", "team", "enterprise"], { error: "Pick a plan" })

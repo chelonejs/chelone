@@ -19,8 +19,8 @@ expectTypeOf<RecordOf<typeof resources, "customers">>().toEqualTypeOf<{
   name: string;
   email: string;
   city: string;
-  phone?: string;
-  joined_on?: string;
+  phone?: string | null;
+  joined_on?: string | null;
   plan?: "free" | "pro" | "team" | "enterprise";
   segment?: "new" | "active" | "at-risk" | "champion";
   usage?: number;

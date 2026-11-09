@@ -151,6 +151,24 @@ test("CustomerEdit blocks a save the customers schema rejects", async () => {
   expect(calls.update).not.toHaveBeenCalled();
 });
 
+test("CustomerEdit saves a customer whose optional phone and join date are cleared", async () => {
+  const calls = renderPage({
+    resource: "customers",
+    routes: { edit: <CustomerEdit /> },
+    path: "/1",
+  });
+
+  await waitFor(() => expect(input(/name/i).value).toBe("River Stone"));
+  fireEvent.change(input(/phone/i), { target: { value: "" } });
+  fireEvent.change(input(/customer since/i), { target: { value: "" } });
+  fireEvent.blur(input(/customer since/i));
+  fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+  await waitFor(() => expect(calls.update).toHaveBeenCalledTimes(1));
+  expect(screen.queryByText("Phone must be text")).toBeNull();
+  expect(screen.queryByText("Customer since must be a date")).toBeNull();
+});
+
 test("CustomerCreate blocks an empty save the customers schema rejects", async () => {
   const calls = renderPage({
     resource: "customers",
