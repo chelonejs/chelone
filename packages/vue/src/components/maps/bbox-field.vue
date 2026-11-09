@@ -1,7 +1,7 @@
 <script lang="ts" generic="TRecord">
 import type { GeoJsonFieldProps } from "./geo-json-field.vue";
 
-// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+// type-escape: context: without a `record` the paths are loose, as `SourceProp<unknown>` is
 export type BBoxFieldProps<TRecord = unknown> = GeoJsonFieldProps<TRecord>;
 </script>
 
@@ -32,7 +32,7 @@ const props = withDefaults(defineProps<BBoxFieldProps<TRecord>>(), {
   scrollZoom: false,
 });
 
-// type-escape: `source` is the loose `SourceProp`, so the read is untyped
+// type-escape: context: `source` is the loose `SourceProp`, so the read is untyped
 const value = useFieldValue<unknown>({
   source: props.source,
   get record() {

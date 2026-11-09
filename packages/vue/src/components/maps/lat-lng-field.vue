@@ -1,7 +1,7 @@
 <script lang="ts" generic="TRecord">
 import type { MapStyleInput, SourceProp } from "@chelone/core";
 
-// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+// type-escape: context: without a `record` the paths are loose, as `SourceProp<unknown>` is
 /** Props for {@link LatLngField}. */
 export interface LatLngFieldProps<TRecord = unknown> {
   /** The record property holding the latitude. */
