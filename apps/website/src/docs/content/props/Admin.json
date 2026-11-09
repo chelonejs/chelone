@@ -113,7 +113,7 @@
       "name": "registry",
       "type": "ResourceRegistry",
       "optional": true,
-      "comment": "An existing runtime resource registry. Omit to have the provider create one\n(the common case). Supply one to share a registry across trees / for SSR."
+      "comment": "An existing runtime resource registry. Omit to have the provider create one\n(the common case). Supply one to share a registry across trees / for SSR.\nThe first render of `<Admin>` registers its resources in it, so a listener\nalready subscribed to a supplied registry is notified during that render:\nsubscribe after `<Admin>` mounts, or register the resources up front."
     },
     {
       "name": "requireAuth",
@@ -132,6 +132,12 @@
       "type": "RouterAdapter",
       "optional": true,
       "comment": "The router adapter (defaults to `reactRouterAdapter`). Named `router` here\n(the app-facing name); mapped to `<AdminContext>`'s `adapter` prop."
+    },
+    {
+      "name": "routes",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Mount the admin's own route table (default `true`). Pass `false` when the\napp routes its own URLs: `<Admin>` then renders the layout around the\nrouter's outlet, and `<CustomRoutes>` and the `authCallback` slot do nothing.\n`<Resource>` children still register, so the menu and links work."
     },
     {
       "name": "store",

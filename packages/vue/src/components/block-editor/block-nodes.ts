@@ -2,6 +2,7 @@ import {
   type BlockAttrs,
   type BlockSpec,
   getBlockDefaultAttrs,
+  type TranslateParamValues,
   unknownBlockType,
 } from "@chelone/core";
 import { mergeAttributes, Node } from "@tiptap/core";
@@ -199,7 +200,12 @@ export const unknownBlockNode = Node.create<UnknownBlockOptions>({
   atom: true,
   selectable: true,
   addOptions() {
-    return { translate: (key, params) => params?._?.toString() ?? key };
+    // Typed as the catalog-erased shape: the registered key/param typing is the
+    // one `useTranslate` returns, and this default echo takes any key.
+    return {
+      translate: (key: string, params?: TranslateParamValues) =>
+        params?._?.toString() ?? key,
+    };
   },
   addAttributes() {
     return { payload: { default: null, rendered: false } };

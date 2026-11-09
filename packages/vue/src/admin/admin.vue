@@ -51,6 +51,15 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap> {
    * as before (parity with React's `<Admin requireAuth>`).
    */
   requireAuth?: boolean;
+  /**
+   * Add the admin's own routes (default `true`): one per resource view, each
+   * `customRoutes` entry and each page slot. Pass `false` when the app routes its
+   * own URLs: `<Admin>` then adds no route and renders the layout around the
+   * `<router-view>` the host's matched child route fills. `<Resource>` children
+   * still register, so the menu and links work, but their views are not mounted.
+   * `customRoutes` and `#authCallback` do nothing. Read once at setup.
+   */
+  routes?: boolean;
 }
 </script>
 
@@ -124,7 +133,10 @@ import {
   ResourceRegistryKey,
 } from "./resource-registry";
 
-const props = defineProps<AdminProps<TResources>>();
+const props = withDefaults(defineProps<AdminProps<TResources>>(), {
+  routes: true,
+});
+const routed = props.routes;
 const basename = (props.basename ?? "").replace(/\/+$/, "");
 provide(BasenameKey, basename);
 
@@ -166,7 +178,7 @@ if (props.resources) {
 // Provide whether a `#dashboard` slot was given so the sidebar `<Menu>` renders
 // a "Dashboard" entry ONLY when a dashboard exists (parity with React's
 // `HasDashboardContext`). Slot presence is stable per mount.
-provideHasDashboard(slots.dashboard != null);
+provideHasDashboard(routed && slots.dashboard != null);
 
 // --- Seam 3: the vue-query client -----------------------------------------
 const queryClient = props.queryClient ?? new QueryClient();
@@ -293,21 +305,22 @@ function resolveCurrentLocationAgain() {
 
 // Added before any resource route: vue-router ranks equal paths by insertion
 // order, so a custom route at a resource's path wins.
-for (const route of props.customRoutes ?? []) {
+for (const route of routed ? (props.customRoutes ?? []) : []) {
   onScopeDispose(router.addRoute(toRouteRecord(route, basename)));
 }
 // Page slots add a route only when given. `#catchAll` ranks after every other
 // route by specificity, and a host catch-all added earlier still wins. A slot
 // that appears or goes after mount adds or removes its route on the next update.
-const slotRoutes = createSlotRoutes(router, slots, basename);
+const slotRoutes = createSlotRoutes(router, routed ? slots : {}, basename);
 onScopeDispose(slotRoutes.dispose);
 const hasSlotRoutes = slotRoutes.sync();
 onBeforeUpdate(() => {
-  if (slotRoutes.sync()) resolveCurrentLocationAgain();
+  if (routed && slotRoutes.sync()) resolveCurrentLocationAgain();
 });
 // An admin with only custom or slot routes registers no resource, so nothing
 // else re-resolves a deep link to one.
-if (props.customRoutes?.length || hasSlotRoutes) void resolveWaitingLocation();
+if (routed && (props.customRoutes?.length || hasSlotRoutes))
+  void resolveWaitingLocation();
 
 // Reactively reconcile the vue-router table with the registry: reading
 // `Object.keys(definitions)` tracks the shallow-reactive key set, so this
@@ -331,8 +344,8 @@ watchEffect(() => {
     if (routeRemovers.has(name)) continue;
     const definition = definitions[name];
     if (!definition) continue;
-    routeRemovers.set(name, addResourceRoutes(name, definition));
-    added = true;
+    routeRemovers.set(name, routed ? addResourceRoutes(name, definition) : []);
+    added = routed;
   }
 
   if (added) void resolveWaitingLocation();
@@ -357,7 +370,8 @@ onScopeDispose(() => {
        when given, so the shell's own fallbacks apply otherwise). -->
   <AdminShell
     :require-auth="props.requireAuth ?? false"
-    :has-custom-routes="!!props.customRoutes?.length"
+    :has-custom-routes="routed && !!props.customRoutes?.length"
+    :routes="routed"
   >
     <template v-if="$slots.layout" #layout><slot name="layout" /></template>
     <template v-if="$slots.dashboard" #dashboard><slot name="dashboard" /></template>

@@ -28,6 +28,7 @@ export interface UrlFieldProps<RecordType extends ResourceRecord = LooseRecord> 
  */
 
 import { computed } from "vue";
+import { urlFieldHref } from "@chelone/core";
 import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -42,18 +43,14 @@ const value = useFieldValue<RecordType>({
 
 const translate = useTranslate();
 
-// Allowlist of safe URL schemes / prefixes — blocks `javascript:`, `data:`, and
-// other XSS-prone URLs from becoming live links.
-const SAFE_URL_PATTERN = /^(https?:|mailto:|tel:|\/|#)/i;
-
 const url = computed(() => {
   const raw = value.value;
   if (raw == null || raw === "") return null;
   return String(raw);
 });
 
-const isSafe = computed(
-  () => url.value != null && SAFE_URL_PATTERN.test(url.value.trim()),
+const href = computed(() =>
+  url.value == null ? undefined : urlFieldHref(url.value),
 );
 
 const emptyText = computed(() =>
@@ -72,14 +69,14 @@ const linkClass = computed(() => cn("underline hover:no-underline", props.class)
 
 <template>
   <a
-    v-if="url != null && isSafe"
+    v-if="href != null"
     data-slot="url-field"
     :class="linkClass"
-    :href="url"
+    :href="href"
     :target="target"
     :rel="safeRel"
     @click.stop
-    >{{ content ?? url }}</a
+    >{{ content ?? href }}</a
   >
   <span
     v-else-if="url != null"

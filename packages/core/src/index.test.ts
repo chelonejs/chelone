@@ -29,6 +29,12 @@ describe("@chelone/core barrel", () => {
     expect(barrel.isPermissionRowGranted).toBeTypeOf("function");
   });
 
+  it("exports the link field helpers", () => {
+    expect(barrel.urlFieldHref).toBeTypeOf("function");
+    expect(barrel.fileFieldLinks).toBeTypeOf("function");
+    expect(barrel.imageFieldSources).toBeTypeOf("function");
+  });
+
   it("exports the scalar field formatters", () => {
     expect(barrel.formatFieldText).toBeTypeOf("function");
     expect(barrel.defaultNumberTransform).toBeTypeOf("function");

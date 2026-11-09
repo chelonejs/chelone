@@ -191,3 +191,51 @@ const customRoutes: CustomRoute[] = [
   resource's path wins.
 
 See [Custom Routes](/docs/app-config/custom-routes) for the React form.
+
+## Route-less admin
+
+`<Admin>` adds routes to the host router by default. A file-routed app owns its
+URLs, so pass `:routes="false"`. `<Admin>` then adds no resource, custom or slot
+route, and the layout's `<router-view>` renders the host route that matched.
+
+```vue title="pages/admin.vue"
+<script setup lang="ts">
+import { Admin, Resource } from "@chelone/vue";
+import { dataProvider } from "../providers";
+import { PostEdit, PostList } from "../posts";
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider" basename="/admin" :routes="false">
+    <Resource name="posts" :list="PostList" :edit="PostEdit" />
+  </Admin>
+</template>
+```
+
+```vue title="pages/admin/posts.vue"
+<script setup lang="ts">
+import { DataTable, DataTableCol, List } from "@chelone/vue";
+</script>
+
+<template>
+  <List resource="posts">
+    <DataTable>
+      <DataTableCol source="title" />
+    </DataTable>
+  </List>
+</template>
+```
+
+- The host route for `/admin` renders `<Admin>`, and its child routes render the
+  pages in the layout. A custom `#layout` must include a `<router-view>`.
+- `<Resource>` children still register, so the menu and links work. Their views
+  are not mounted. Render `List`, `Create`, `Edit` and `Show` from your own
+  routes, each given its `resource`. `Edit` and `Show` read the route's `:id`
+  param when given no `id`.
+- Chelone builds links as `/posts`, `/posts/create`, `/posts/:id` and
+  `/posts/:id/show` under `basename`.
+- `customRoutes`, `#authCallback`, `#catchAll`, `#accessDenied` and
+  `#authenticationError` do nothing, since your app routes those paths. The
+  index no longer redirects to the first resource, and `#dashboard` does not
+  render, so the menu has no Dashboard entry.
+- `routes` is read once, at setup.

@@ -333,6 +333,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -397,6 +401,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -461,6 +469,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -529,6 +541,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -597,6 +613,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -665,6 +685,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -733,6 +757,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -801,6 +829,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -871,6 +903,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -940,6 +976,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1020,6 +1060,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1093,6 +1137,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1166,6 +1214,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1243,6 +1295,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1320,6 +1376,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1397,6 +1457,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1474,6 +1538,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1551,6 +1619,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1630,6 +1702,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1707,6 +1783,10 @@
                   {
                     "group": ["@chelone/test-utils"],
                     "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -1818,6 +1898,41 @@
                       "!.."
                     ],
                     "message": "@chelone/utils/osm imports only @chelone/core, geojson (import type only), @turf/buffer, @turf/difference, @turf/union, osm2geojson-lite, @tanstack/query-core, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/utils/src/i18next/**",
+        "!**/*.test.ts",
+        "!**/*.test.tsx",
+        "!**/*.test-d.ts",
+        "!**/*.test-d.tsx"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**",
+                      "!@chelone/core",
+                      "!i18next",
+                      "!node:*",
+                      "!./**",
+                      "!../**",
+                      "!.",
+                      "!.."
+                    ],
+                    "message": "@chelone/utils/i18next imports only @chelone/core, i18next, node:* and relative paths. Another subpath's libraries are that subpath's optional peers."
                   }
                 ]
               }

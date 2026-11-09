@@ -27,7 +27,7 @@ export interface ImageFieldProps<
  */
 
 import { computed } from "vue";
-import { getAtPath } from "@chelone/core";
+import { imageFieldSources } from "@chelone/core";
 import { cn } from "../../../lib/utils";
 import { useRecordContextRef } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -41,82 +41,53 @@ const value = useFieldValue<RecordType>({
   defaultValue: props.defaultValue,
 });
 
-// A `title` may be a record path OR a literal label, so it is read with
+// A `title` may be a record path OR a literal label, so core reads it with
 // `getAtPath` off the ambient record instead of `useFieldValue` (see
 // `<FileField>`).
 const ctxRecord = useRecordContextRef<RecordType>(() => props.record);
-const titleFromRecord = computed(() =>
-  props.title ? getAtPath(ctxRecord.value, props.title) : undefined,
-);
-
-const titleValue = computed(() =>
-  props.title
-    ? titleFromRecord.value == null
-      ? props.title
-      : String(titleFromRecord.value)
-    : undefined,
-);
 
 const translate = useTranslate();
 
-const isNull = computed(() => value.value == null);
+const images = computed(() =>
+  imageFieldSources(value.value, ctxRecord.value, {
+    src: props.src,
+    title: props.title,
+  }),
+);
 const isArray = computed(() => Array.isArray(value.value));
 
 const emptyText = computed(() =>
   props.empty ? translate(props.empty, { _: props.empty }) : null,
 );
-
-interface ImageItem {
-  src: string | undefined;
-  title: string | undefined;
-  key: string | number;
-}
-
-const items = computed<ImageItem[]>(() => {
-  if (!Array.isArray(value.value)) return [];
-  return value.value.map((file, index) => {
-    // Inside `props.title ?`, the fallback is never nullish.
-    const fileTitleValue = props.title
-      ? String(getAtPath(file, props.title) ?? props.title)
-      : props.title;
-    // `src` falls back to `props.title`, which may be absent: a miss stays
-    // `undefined` so the img gets no src, never the text "undefined".
-    const srcPath = props.src
-      ? (getAtPath(file, props.src) ?? props.title)
-      : props.title;
-    const srcValue = srcPath == null ? undefined : String(srcPath);
-    return { src: srcValue, title: fileTitleValue, key: srcValue ?? index };
-  });
-});
-
-const singleSrc = computed(() =>
-  value.value == null ? undefined : String(value.value),
-);
 </script>
 
 <template>
   <span
-    v-if="isNull && emptyText != null"
+    v-if="images === null && emptyText != null"
     :class="cn('image-empty', props.class)"
     data-slot="image-field"
     >{{ emptyText }}</span
   >
   <span
-    v-else-if="!isNull && isArray"
+    v-else-if="images !== null && isArray"
     :class="cn('image-list', props.class)"
     data-slot="image-field"
   >
     <ul>
-      <li v-for="item in items" :key="item.key">
+      <li v-for="(item, index) in images" :key="index">
         <img :alt="item.title" :title="item.title" :src="item.src" />
       </li>
     </ul>
   </span>
   <span
-    v-else-if="!isNull"
+    v-else-if="images !== null"
     :class="cn('image-single', props.class)"
     data-slot="image-field"
   >
-    <img :title="titleValue" :alt="titleValue" :src="singleSrc" />
+    <img
+      :title="images[0]?.title"
+      :alt="images[0]?.title"
+      :src="images[0]?.src"
+    />
   </span>
 </template>

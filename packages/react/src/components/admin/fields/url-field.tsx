@@ -1,4 +1,8 @@
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import {
+  type LooseRecord,
+  type ResourceRecord,
+  urlFieldHref,
+} from "@chelone/core";
 import type * as React from "react";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
@@ -62,7 +66,8 @@ const UrlFieldImpl = <RecordType extends ResourceRecord = LooseRecord>(
     );
   }
 
-  if (!isSafeUrl(value)) {
+  const href = typeof value === "string" ? urlFieldHref(value) : undefined;
+  if (href === undefined) {
     // Refuse to render a clickable anchor for potentially unsafe schemes
     // (e.g. `javascript:`), but still surface the value as plain text.
     return (
@@ -82,11 +87,11 @@ const UrlFieldImpl = <RecordType extends ResourceRecord = LooseRecord>(
       className={cn("underline hover:no-underline", className)}
       onClick={stopPropagation}
       {...sanitizeFieldRestProps(rest)}
-      href={value}
+      href={href}
       target={target}
       rel={safeRel}
     >
-      {content ?? value}
+      {content ?? href}
     </a>
   );
 };
@@ -108,12 +113,3 @@ export { UrlField, type UrlFieldProps };
 // useful to prevent click bubbling in a DataTable with rowClick
 const stopPropagation = (e: React.MouseEvent<HTMLAnchorElement>) =>
   e.stopPropagation();
-
-// Allowlist of safe URL schemes / prefixes. Prevents `javascript:`, `data:`
-// and other XSS-prone URLs from being rendered as live links.
-const SAFE_URL_PATTERN = /^(https?:|mailto:|tel:|\/|#)/i;
-
-const isSafeUrl = (value: unknown): value is string => {
-  if (typeof value !== "string") return false;
-  return SAFE_URL_PATTERN.test(value.trim());
-};
