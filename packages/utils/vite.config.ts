@@ -20,7 +20,12 @@ const isExternal = (id: string) =>
 export default defineConfig({
   build: {
     lib: {
-      entry: ["src/cron/index.ts", "src/geo/index.ts", "src/osm/index.ts"],
+      entry: [
+        "src/cron/index.ts",
+        "src/geo/index.ts",
+        "src/i18next/index.ts",
+        "src/osm/index.ts",
+      ],
       formats: ["es"],
     },
     outDir: "dist",
