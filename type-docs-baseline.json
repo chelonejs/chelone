@@ -89,7 +89,6 @@
     "@chelone/core:FormContextHandle",
     "@chelone/core:FormControllerContext",
     "@chelone/core:FormHandle",
-    "@chelone/core:ListControllerContext",
     "@chelone/core:RecordControllerContext",
     "@chelone/core:createChoicesController",
     "@chelone/core:createCreateController",
