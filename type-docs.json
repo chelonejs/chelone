@@ -51,10 +51,30 @@
     "@chelone/vue:createResourceComponentsOf"
   ],
   "typed-hooks": [
+    "@chelone/core:ResourceNameArg",
+    "@chelone/core:ResourceRecordArg",
+    "@chelone/core:undoableDeleteMutators",
+    "@chelone/core:undoableUpdateMutators",
+    "@chelone/react:createCheloneHooks",
+    "@chelone/react:useCreate",
+    "@chelone/react:useDelete",
     "@chelone/react:useGetList",
+    "@chelone/react:useGetMany",
+    "@chelone/react:useGetManyAggregate",
+    "@chelone/react:useGetManyReference",
     "@chelone/react:useGetOne",
+    "@chelone/react:useUpdate",
+    "@chelone/vue:createCheloneHooks",
+    "@chelone/vue:useCreate",
+    "@chelone/vue:useDelete",
+    "@chelone/vue:useDeleteMany",
     "@chelone/vue:useGetList",
-    "@chelone/vue:useGetOne"
+    "@chelone/vue:useGetMany",
+    "@chelone/vue:useGetManyAggregate",
+    "@chelone/vue:useGetManyReference",
+    "@chelone/vue:useGetOne",
+    "@chelone/vue:useUpdate",
+    "@chelone/vue:useUpdateMany"
   ],
   "when-types-widen": [
     "@chelone/core:AnyFilterSourceKeyOf",
