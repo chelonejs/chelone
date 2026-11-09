@@ -27,6 +27,21 @@ expectTypeOf<Place>().toMatchTypeOf<PlaceRecord>();
 /** The registry carries the schema itself, so the forms validate against it. */
 expectTypeOf(resources.places.schema).toEqualTypeOf(placeSchema);
 
+/**
+ * A shape field also holds `null`: `ShapeInput` writes it for a shape the user
+ * deletes, `OsmFeatureOperator` for one an add or subtract left nothing of, and
+ * `GeocodingInput` for a box an earlier pick no longer fits.
+ */
+expectTypeOf<PlaceRecord["zone"]>().toEqualTypeOf<
+  | { type: "Polygon"; coordinates: number[][][] }
+  | { type: "MultiPolygon"; coordinates: number[][][][] }
+  | null
+  | undefined
+>();
+expectTypeOf<PlaceRecord["bbox"]>().toEqualTypeOf<
+  [number, number, number, number] | null | undefined
+>();
+
 export function PlaceSourceProof() {
   return (
     <>

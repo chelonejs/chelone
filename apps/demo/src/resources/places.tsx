@@ -76,17 +76,27 @@ export const placeSchema = z.object({
     .number({ error: "Longitude is required" })
     .min(-180, "Longitude must be at least -180")
     .max(180, "Longitude must be at most 180"),
-  /** The shapes are optional: a place exists before any of them is drawn. */
-  area: areaSchema.optional(),
-  zone: areaSchema.optional(),
+  /**
+   * The shapes are optional and nullable. Optional because a place exists
+   * before any of them is drawn; nullable because the inputs write `null` for
+   * a shape that is no longer there: `ShapeInput` for one the user deletes,
+   * `OsmFeatureOperator` for one an add or subtract left nothing of, and
+   * `GeocodingInput` for a box an earlier pick no longer fits.
+   */
+  area: areaSchema.nullable().optional(),
+  zone: areaSchema.nullable().optional(),
   route: z
     .object({
       type: z.literal("LineString"),
       coordinates: z.array(z.array(z.number())),
     })
+    .nullable()
     .optional(),
   /** `[west, south, east, north]`. */
-  bbox: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
+  bbox: z
+    .tuple([z.number(), z.number(), z.number(), z.number()])
+    .nullable()
+    .optional(),
 });
 
 /** The place record every view here reads, which `./index.ts` registers for `places`. */
