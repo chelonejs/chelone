@@ -66,6 +66,6 @@ export function useRequiredResource<TName extends string = string>(
       `${composable}: no resource. Pass a \`resource\` option or render inside a <Resource>.`,
     );
   }
-  // type-escape: the name arrives through `inject`, which carries no evidence for `TName`.
+  // type-escape: context: `inject` carries no evidence for `TName`.
   return resource as TName;
 }

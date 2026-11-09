@@ -689,7 +689,7 @@ export function createResourceComponentsOf<
   TResources extends ResourceMap,
   TName extends keyof TResources & string,
 >(name: TName): ResourceComponents<TResources, TName> {
-  // type-escape: the members are the SFCs themselves; only their prop types are retyped
+  // type-escape: builder: the members are the SFCs themselves; only their prop types are retyped
   return build<TResources, TName>(name) as ResourceComponents<
     TResources,
     TName

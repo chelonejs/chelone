@@ -69,7 +69,7 @@ export function useRecordContextRef<RecordType = LooseRecord>(
   return computed(() => {
     const explicit = record?.();
     if (explicit !== undefined) return explicit;
-    // type-escape: the provider publishes the record at LooseRecord; the caller names the record type it expects, as in React's `useRecordContext<RecordType>()`
+    // type-escape: context: the provider publishes the record at LooseRecord; the caller names the record type it expects, as in React's `useRecordContext<RecordType>()`
     return injected?.value as RecordValue<RecordType>;
   });
 }

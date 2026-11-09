@@ -51,7 +51,7 @@ export function useListContext<
   if (!ctx) {
     throw new Error("useListContext: no <List> found above this component.");
   }
-  // type-escape: an injection key cannot carry the caller's record type, so the
+  // type-escape: context: an injection key cannot carry the caller's record type, so the
   // provided `LooseRecord` list is read back as the record type the caller names
   return ctx as ListContextValue<TRecord>;
 }
