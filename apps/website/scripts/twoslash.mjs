@@ -136,23 +136,39 @@ function asksForTwoslash(lang, meta) {
 }
 
 /**
+ * A fence the gate cannot run: `// @include:` pulls in another fence's code, and
+ * only the transformer holds that map. The same shape `@shikijs/twoslash` uses to
+ * name a reusable fence in its meta.
+ */
+const INCLUDE_META = /\binclude\s+[\w-]+\b/;
+const INCLUDE_MARKER = /\/\/ @include:/;
+
+/** Each fence the highlighter could not report, kept until its page's hast is done. */
+const swallowed = [];
+
+function pageOf(file) {
+  return path.relative(path.resolve(websiteDir, "..", ".."), path.resolve(file.path));
+}
+
+function messageOf(error) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+/**
  * The build gate: run every `twoslash` fence before it is highlighted, and throw
- * with the page and the snippet named.
+ * with the page and the snippet named. `rehypeTwoslashAssert` covers the fences
+ * this one skips.
  */
 export function remarkTwoslash() {
   return (tree, file) => {
     visit(tree, "code", (node) => {
       const lang = node.lang ?? "";
       if (!asksForTwoslash(lang, node.meta ?? "")) return;
-      // `// @include:` pulls in another fence's code, and only the transformer
-      // holds that map, so those fences are checked when they render.
-      if (node.meta?.includes("include") || node.value.includes("// @include:")) return;
+      if (INCLUDE_META.test(node.meta ?? "") || INCLUDE_MARKER.test(node.value)) return;
       try {
         runTwoslasher(node.value, LANGUAGE_ALIASES[lang] ?? lang, twoslashOptions);
       } catch (error) {
-        const page = path.relative(path.resolve(websiteDir, "..", ".."), file.path);
-        const message = error instanceof Error ? error.message : String(error);
-        throw new Error(`twoslash failed in ${page} (${lang} fence):\n${message}`, {
+        throw new Error(`twoslash failed in ${pageOf(file)} (${lang} fence):\n${messageOf(error)}`, {
           cause: error,
         });
       }
@@ -160,11 +176,37 @@ export function remarkTwoslash() {
   };
 }
 
-/** The rehype-pretty-code transformer: renders the fences the check already ran. */
+/**
+ * The rehype-pretty-code transformer: renders the fences the gate already ran.
+ *
+ * `onTwoslashError` is here because rehype-pretty-code wraps `codeToHtml` in a
+ * try/catch and re-highlights whatever a transformer throws as plaintext. A
+ * fence only the transformer can check would then ship with no types and no
+ * word about it, so the failure is kept for `rehypeTwoslashAssert` to raise.
+ */
 export const twoslashTransformer = transformerTwoslash({
   langs: TWOSLASH_LANGS,
   explicitTrigger: true,
   twoslasher: runTwoslasher,
   twoslashOptions,
   renderer: rendererRich(),
+  onTwoslashError: (error, code, lang) => {
+    swallowed.push({ error, code, lang });
+    return false;
+  },
 });
+
+/**
+ * The other half of the gate, placed after rehype-pretty-code: raise what the
+ * highlighter swallowed for this page.
+ */
+export function rehypeTwoslashAssert() {
+  return (_tree, file) => {
+    const failures = swallowed.splice(0, swallowed.length);
+    if (failures.length === 0) return;
+    const listed = failures
+      .map(({ error, code, lang }) => `${lang} fence:\n${messageOf(error)}\n\n${code}`)
+      .join("\n\n");
+    throw new Error(`twoslash failed in ${pageOf(file)}:\n${listed}`);
+  };
+}

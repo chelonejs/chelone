@@ -1,9 +1,15 @@
 // @vitest-environment node
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import type { Element, ElementContent, Root } from "hast";
 import { codeToHast } from "shiki";
 import { expect, it } from "vitest";
 import { SHIKI_THEME } from "../src/lib/shiki-theme";
-import { twoslashTransformer } from "./twoslash.mjs";
+import {
+  rehypeTwoslashAssert,
+  remarkTwoslash,
+  twoslashTransformer,
+} from "./twoslash.mjs";
 
 /**
  * The transformer as `vite.config.ts` hands it to rehype-pretty-code: a fence
@@ -17,6 +23,22 @@ function highlight(code: string, lang: string, meta?: string) {
     meta: { __raw: meta },
     transformers: [twoslashTransformer],
   });
+}
+
+/** The page the two plugins name in their error, as the build hands it over. */
+const pageFile = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../src/docs/content/type-safety/overview.mdx",
+);
+const page = "apps/website/src/docs/content/type-safety/overview.mdx";
+
+/**
+ * `highlight` stands for rehype-pretty-code, which swallows what the transformer
+ * throws. `assertPage` is the plugin `vite.config.ts` runs after it, which
+ * raises what was swallowed.
+ */
+function assertPage(): void {
+  rehypeTwoslashAssert()({ type: "root", children: [] }, { path: pageFile });
 }
 
 /**
@@ -130,20 +152,57 @@ it("renders the error a `// @errors` line names", async () => {
   expect(collect(tree, "twoslash-error").length).toBeGreaterThan(0);
 });
 
-it("throws when a snippet raises an error no `// @errors` line names", async () => {
-  await expect(
-    highlight(`${registeredApp}${badSource}\n`, "tsx", "twoslash"),
-  ).rejects.toThrow(/not included in an error tag/);
+it("fails the build when a snippet raises an error no `// @errors` line names", async () => {
+  await highlight(`${registeredApp}${badSource}\n`, "tsx", "twoslash");
+  expect(assertPage).toThrow(/not included in an error tag/);
 });
 
-it("throws when a `// @errors` line names an error the snippet never raises", async () => {
-  await expect(
-    highlight(
-      `${registeredApp}// @errors: 2322\nconst field = <TextField source="title" />;\n`,
-      "tsx",
-      "twoslash",
-    ),
-  ).rejects.toThrow(/@errors: 2322 names TS2322/);
+it("fails the build when a `// @errors` line names an error the snippet never raises", async () => {
+  await highlight(
+    `${registeredApp}// @errors: 2322\nconst field = <TextField source="title" />;\n`,
+    "tsx",
+    "twoslash",
+  );
+  expect(assertPage).toThrow(/@errors: 2322 names TS2322/);
+});
+
+it("names the page in the gate's own error", () => {
+  const fence = {
+    type: "code",
+    lang: "tsx",
+    meta: "twoslash",
+    value: `${registeredApp}${badSource}\n`,
+  };
+
+  expect(() =>
+    remarkTwoslash()({ type: "root", children: [fence] }, { path: pageFile }),
+  ).toThrow(`twoslash failed in ${page} (tsx fence)`);
+});
+
+it("fails the build for a `// @include:` fence the gate cannot run", async () => {
+  await highlight(
+    "const base = { id: 1 };\n",
+    "ts",
+    "twoslash include drifted",
+  );
+  await highlight(
+    "// @include: drifted\nconst wrong: string = base;\n",
+    "ts",
+    "twoslash",
+  );
+
+  expect(assertPage).toThrow(/not included in an error tag/);
+});
+
+it("leaves a clean `// @include:` pair alone", async () => {
+  await highlight("const base = { id: 1 };\n", "ts", "twoslash include clean");
+  await highlight(
+    "// @include: clean\nconst ok: number = base.id;\n",
+    "ts",
+    "twoslash",
+  );
+
+  expect(assertPage).not.toThrow();
 });
 
 it("renders the inferred type a `// ^?` asks for", async () => {

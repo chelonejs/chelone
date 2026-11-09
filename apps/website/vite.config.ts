@@ -13,7 +13,11 @@ import { cheloneSourcePlugin } from "./scripts/chelone-source-resolver.mjs";
 import { remarkCalloutDirective } from "./scripts/remark-callout-directive.mjs";
 import { remarkNeutralizeTextDirectives } from "./scripts/remark-neutralize-text-directives.mjs";
 import { remarkRelativeLinks } from "./scripts/remark-relative-links.mjs";
-import { remarkTwoslash, twoslashTransformer } from "./scripts/twoslash.mjs";
+import {
+  rehypeTwoslashAssert,
+  remarkTwoslash,
+  twoslashTransformer,
+} from "./scripts/twoslash.mjs";
 import { SHIKI_THEME } from "./src/lib/shiki-theme";
 
 // The `@chelone/react` package is workspace-linked to its SOURCE (main:
@@ -96,6 +100,9 @@ export default defineConfig({
               transformers: [twoslashTransformer],
             },
           ],
+          // rehype-pretty-code has already run, so this can raise what it
+          // swallowed: the `// @include:` fences `remarkTwoslash` cannot check.
+          rehypeTwoslashAssert,
         ],
       }),
     },
