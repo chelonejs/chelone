@@ -21,7 +21,7 @@
     },
     {
       "name": "schema",
-      "type": "StandardSchemaV1<TFormData, unknown>",
+      "type": "StandardSchemaV1<unknown, Partial<TFormData>>",
       "optional": true,
       "comment": "Explicit Standard Schema override (else the resource-registry schema)."
     },
