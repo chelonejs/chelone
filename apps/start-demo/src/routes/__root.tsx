@@ -5,7 +5,11 @@
  * (`ensureQueryData`) and by `<Admin>` below them.
  */
 
-import type { DataProvider } from "@chelone/core";
+import type {
+  AuthProvider,
+  DataProvider,
+  NotificationStore,
+} from "@chelone/core";
 import type { QueryClient } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
@@ -18,6 +22,10 @@ import type { StartDemoResources } from "../resources";
 export interface StartDemoContext {
   queryClient: QueryClient;
   dataProvider: DataProvider<StartDemoResources>;
+  /** Seeded with this request's session by `getRouter()`, so every guard and every page reads one session. */
+  authProvider: AuthProvider;
+  /** One store per request, so a sign-in error never surfaces on another visitor's page. */
+  notifications: NotificationStore;
 }
 
 export const Route = createRootRouteWithContext<StartDemoContext>()({

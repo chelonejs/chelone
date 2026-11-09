@@ -5,20 +5,35 @@
  * `fakeDataProvider` (which clones its seed) and the router context that carries
  * both into every loader.
  *
+ * The session is fresh per request too, which is why `getRouter()` is async and
+ * Start awaits it on both sides: the read goes through a server function, which
+ * answers from the request's own `start-demo-session` cookie. A test passes its
+ * own gateway instead and needs no server.
+ *
  * `wrapQueryClient: false` because `<Admin>` already mounts chelone's
  * `CheloneProvider`, which provides this same client to the tree.
  */
 
-import { fakeDataProvider } from "@chelone/core";
+import { createNotificationStore, fakeDataProvider } from "@chelone/core";
 import { seedData } from "@chelone/demo-data";
 import { QueryClient } from "@tanstack/react-query";
 import { createRouter } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
+import {
+  cookieSessionGateway,
+  makeSessionAuthProvider,
+  type SessionGateway,
+} from "./auth";
 import type { StartDemoResources } from "./resources";
 import type { StartDemoContext } from "./routes/__root";
 import { routeTree } from "./routeTree.gen";
 
-export function getRouter() {
+export interface StartRouterOptions {
+  /** Where the router's session comes from. Defaults to the cookie. */
+  sessionGateway?: SessionGateway;
+}
+
+export async function getRouter(options: StartRouterOptions = {}) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -30,9 +45,18 @@ export function getRouter() {
     },
   });
   const dataProvider = fakeDataProvider<StartDemoResources>(seedData());
+  const authProvider = await makeSessionAuthProvider(
+    queryClient,
+    options.sessionGateway ?? cookieSessionGateway,
+  );
   const router = createRouter({
     routeTree,
-    context: { queryClient, dataProvider } satisfies StartDemoContext,
+    context: {
+      queryClient,
+      dataProvider,
+      authProvider,
+      notifications: createNotificationStore(),
+    } satisfies StartDemoContext,
   });
   setupRouterSsrQueryIntegration({
     router,
@@ -44,6 +68,6 @@ export function getRouter() {
 
 declare module "@tanstack/react-router" {
   interface Register {
-    router: ReturnType<typeof getRouter>;
+    router: Awaited<ReturnType<typeof getRouter>>;
   }
 }
