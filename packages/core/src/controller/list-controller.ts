@@ -635,18 +635,34 @@ export function createListController<
     (selectionKey && kv ? kv.getItem<Identifier[]>(selectionKey) : undefined) ??
     [];
 
+  /**
+   * The settled result the first fetch would read, when the query is already in
+   * the cache — a route loader prefetched it, or an earlier mount left it.
+   * `acquire` syncs the same value on attach, so a client render never sees a
+   * difference; a SERVER render, which never subscribes, sees the rows instead
+   * of the loading skeleton.
+   */
+  const prefetched = ctx.queryClient.getQueryData<ListResult>(
+    getListOptions(ctx, resource, fetchParamsOf(initialParams, options.filter))
+      .queryKey,
+  );
+
   const store = createMicroStore<ListControllerState<TRecord>>(
     {
       ...initialParams,
       selectedIds: readSelection(),
-      data: undefined,
-      total: undefined,
-      pageInfo: undefined,
-      isPending: true,
+      data: prefetched?.data,
+      total: prefetched?.total,
+      pageInfo: prefetched?.pageInfo,
+      isPending: prefetched === undefined,
       isFetching: false,
       error: null,
-      hasNextPage: undefined,
-      hasPreviousPage: undefined,
+      ...pageFlags(
+        initialParams.page,
+        initialParams.perPage,
+        prefetched?.total,
+        prefetched?.pageInfo,
+      ),
     },
     // Acquisition is subscription-driven: nothing is fetched or subscribed
     // until the first subscriber attaches (see `acquire` below, hoisted).

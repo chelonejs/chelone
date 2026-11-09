@@ -2,10 +2,11 @@ import { QueryClient } from "@tanstack/query-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { fakeDataProvider } from "../data/fake-provider";
+import { getListOptions } from "../data/query-options";
 import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
 import { createStore } from "../store/store";
-import { createListController } from "./list-controller";
+import { createListController, listFetchParams } from "./list-controller";
 
 const resources = defineResources({
   posts: {
@@ -64,6 +65,26 @@ describe("createListController", () => {
     expect(s.data?.length).toBe(10);
     expect(s.total).toBe(25);
     expect(s.page).toBe(1);
+    expect(s.hasNextPage).toBe(true);
+    expect(s.hasPreviousPage).toBe(false);
+    c.destroy();
+  });
+
+  it("starts on the page the query cache already holds", async () => {
+    const ctx = makeCtx();
+    // What a route loader prefetches: the same params this controller starts on.
+    await ctx.queryClient.ensureQueryData(
+      getListOptions(ctx, "posts", listFetchParams(ctx, "posts", {})),
+    );
+
+    // Construction stays inert — no observer, no fetch — yet the first snapshot
+    // is the cached page, which is what a server render reads.
+    const c = createListController(ctx, "posts", {});
+    expect(observerCount(ctx.queryClient)).toBe(0);
+    const s = c.getSnapshot();
+    expect(s.isPending).toBe(false);
+    expect(s.data?.length).toBe(10);
+    expect(s.total).toBe(25);
     expect(s.hasNextPage).toBe(true);
     expect(s.hasPreviousPage).toBe(false);
     c.destroy();
