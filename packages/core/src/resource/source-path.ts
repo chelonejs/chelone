@@ -104,7 +104,7 @@ export type SourceValue<TRecord, TPath extends string> = unknown extends TRecord
 export type SourceTransformValue<TRecord, TPath extends string> = [
   SourceValue<TRecord, TPath>,
 ] extends [never]
-  ? unknown // type-escape: a row-relative or filter-key source names no value to walk
+  ? unknown // type-escape: context: a row-relative or filter-key source names no value to walk
   : SourceValue<TRecord, TPath>;
 
 /**
