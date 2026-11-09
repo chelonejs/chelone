@@ -13,9 +13,17 @@
  * component, and registering a couple of schemas would narrow every `source`
  * prop in them, which is the `source` side's business, not the hooks'.
  */
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  createProbeDir,
+  diagnosticsOf,
+  namesOnlyAugmentation,
+  type ProbeDir,
+  packageProgramOf,
+  probeCompilerOptions,
+  probeDiagnosticsOf,
+  schemaAugmentation,
+} from "@chelone/test-utils/compile-probe";
 import ts from "typescript";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -25,111 +33,30 @@ const packageRoot = fileURLToPath(new URL("..", import.meta.url));
 const hooks = "../../../src/hooks";
 const liveHooks = "../../../src/live-hooks";
 
-/** A registered app: two resources with schemas, so a name has a record. */
-const augmentation = `import { defineResources } from "@chelone/core";
-import { z } from "zod";
-
-export const resources = defineResources({
-  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
-  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
-});
-
-declare module "@chelone/core" {
-  interface Register {
-    resources: typeof resources;
-  }
-}
-`;
-
 /**
- * The same resources with no schema. Registering schemas would also narrow
- * every `source` prop, which is the `source` side's looseness and not this
- * test's: here only the resource names are registered.
+ * The probe options with `jsx` set. The hook modules reach `src/context.tsx`,
+ * and without it `tsc` refuses that import (TS6142) and the probe reads the
+ * unregistered `LooseRecord` fallback instead of the registered record.
  */
-const namesOnlyAugmentation = `import { defineResources } from "@chelone/core";
-
-export const resources = defineResources({
-  posts: {},
-  comments: {},
-  authors: {},
-});
-
-declare module "@chelone/core" {
-  interface Register {
-    resources: typeof resources;
-  }
-}
-`;
-
-const probeCompilerOptions: ts.CompilerOptions = {
-  target: ts.ScriptTarget.ES2022,
-  module: ts.ModuleKind.ESNext,
-  moduleResolution: ts.ModuleResolutionKind.Bundler,
+const reactProbeOptions: ts.CompilerOptions = {
+  ...probeCompilerOptions,
   jsx: ts.JsxEmit.ReactJSX,
-  strict: true,
-  noEmit: true,
-  skipLibCheck: true,
-  noUncheckedIndexedAccess: true,
-  verbatimModuleSyntax: true,
-  isolatedModules: true,
-  types: [],
-};
-
-const diagnosticsOf = (
-  fileNames: string[],
-  options: ts.CompilerOptions = probeCompilerOptions,
-) => {
-  const program = ts.createProgram(fileNames, options);
-  return ts
-    .getPreEmitDiagnostics(program)
-    .map((diagnostic) =>
-      ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
-    );
-};
-
-/**
- * One probe file's own diagnostics, not the whole program's. A probe drags in
- * the hook modules and everything they import, and checking all of that is the
- * sources case's job; here the question is only what the probe's own calls do.
- */
-const probeDiagnosticsOf = (
-  probe: string,
-  fileNames: string[],
-  options: ts.CompilerOptions = probeCompilerOptions,
-) => {
-  const program = ts.createProgram(fileNames, options);
-  const source = program.getSourceFile(probe);
-  if (!source) throw new Error(`The probe ${probe} is not in the program.`);
-  return [
-    ...program.getSyntacticDiagnostics(source),
-    ...program.getSemanticDiagnostics(source),
-  ].map((diagnostic) =>
-    ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
-  );
 };
 
 describe("the data hooks in a registered app", () => {
-  let dir: string;
+  let probeDir: ProbeDir;
 
   beforeAll(async () => {
-    const cache = join(packageRoot, "node_modules", ".cache");
-    await mkdir(cache, { recursive: true });
-    dir = await mkdtemp(join(cache, "registered-"));
+    probeDir = await createProbeDir(packageRoot);
   }, 60_000);
 
   afterAll(async () => {
-    await rm(dir, { recursive: true, force: true });
+    await probeDir.dispose();
   });
 
-  const write = async (name: string, text: string) => {
-    const path = join(dir, name);
-    await writeFile(path, text);
-    return path;
-  };
-
   it("a registered app types useGetList by name", async () => {
-    const register = await write("register.ts", augmentation);
-    const probe = await write(
+    const register = await probeDir.write("register.ts", schemaAugmentation);
+    const probe = await probeDir.write(
       "probe.ts",
       `import { useGetList } from "${hooks}";
 import "./register";
@@ -149,12 +76,22 @@ export const anyField: unknown = loose.data?.data[0]?.whatever;
 `,
     );
 
-    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
+    expect(
+      probeDiagnosticsOf(
+        probe,
+        [register, probe],
+        reactProbeOptions,
+        packageRoot,
+      ),
+    ).toEqual([]);
   }, 120_000);
 
   it("a registered app types the mutation records and the live reads", async () => {
-    const register = await write("register-mutate.ts", augmentation);
-    const probe = await write(
+    const register = await probeDir.write(
+      "register-mutate.ts",
+      schemaAugmentation,
+    );
+    const probe = await probeDir.write(
       "probe-mutate.ts",
       `import { useDelete, useUpdate } from "${hooks}";
 import { useGetOneLive } from "${liveHooks}";
@@ -177,12 +114,22 @@ export const liveBody: string | undefined = live.data?.body;
 `,
     );
 
-    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
+    expect(
+      probeDiagnosticsOf(
+        probe,
+        [register, probe],
+        reactProbeOptions,
+        packageRoot,
+      ),
+    ).toEqual([]);
   }, 120_000);
 
   it("a registered app rejects a name it never registered", async () => {
-    const register = await write("register-bad.ts", augmentation);
-    const probe = await write(
+    const register = await probeDir.write(
+      "register-bad.ts",
+      schemaAugmentation,
+    );
+    const probe = await probeDir.write(
       "probe-bad.ts",
       `import { useGetList } from "${hooks}";
 import "./register-bad";
@@ -191,38 +138,28 @@ export const list = useGetList("psots");
 `,
     );
 
-    const diagnostics = probeDiagnosticsOf(probe, [register, probe]);
+    const diagnostics = probeDiagnosticsOf(
+      probe,
+      [register, probe],
+      reactProbeOptions,
+      packageRoot,
+    );
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0]).toContain("psots");
   }, 120_000);
 
   it("every React source compiles in a registered app", async () => {
-    const register = await write("register-sources.ts", namesOnlyAugmentation);
-    const read = ts.readConfigFile(
-      join(packageRoot, "tsconfig.json"),
-      ts.sys.readFile,
+    const register = await probeDir.write(
+      "register-sources.ts",
+      namesOnlyAugmentation,
     );
-    expect(read.error).toBeUndefined();
-    const parsed = ts.parseJsonConfigFileContent(
-      read.config,
-      ts.sys,
-      packageRoot,
-    );
-    // The probe sits outside `src`, and the program emits nothing.
-    const options: ts.CompilerOptions = {
-      ...parsed.options,
-      rootDir: packageRoot,
-      noEmit: true,
-      declaration: false,
-    };
     // Test files and their fixtures mount fake resources on purpose, so they
     // name things no registered app would. The pin is the shipped source.
-    const sources = parsed.fileNames.filter(
-      (file) =>
-        !/\.test(-d)?\.tsx?$/.test(file) && !/\/__fixtures__\//.test(file),
-    );
+    const { options, sources } = packageProgramOf(packageRoot);
     expect(sources.length).toBeGreaterThan(100);
 
-    expect(diagnosticsOf([...sources, register], options)).toEqual([]);
+    expect(diagnosticsOf([...sources, register], options, packageRoot)).toEqual(
+      [],
+    );
   }, 300_000);
 });
