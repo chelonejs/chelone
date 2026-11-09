@@ -36,6 +36,7 @@ import { cn } from "../../../lib/utils";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
 import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
+import { targetOf } from "./event-target";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
@@ -97,7 +98,11 @@ function writeBack(nationalText: string, cc: CountryCode) {
   }
 }
 function onCountryChange(event: Event) {
-  const cc = (event.target as HTMLSelectElement).value as CountryCode;
+  const select = targetOf(event, HTMLSelectElement);
+  if (!select) return;
+  // The select renders exactly `countries`, so its value is one of them.
+  const cc = countries.value.find((c) => c === select.value);
+  if (!cc) return;
   country.value = cc;
   writeBack(display.value, cc);
 }

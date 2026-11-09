@@ -75,6 +75,7 @@ import { shallowEqual } from "../../../lib/shallow-equal";
 import { Field, FieldDescription, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
 import FileInputPreview from "./file-input-preview.vue";
+import { targetOf } from "./event-target";
 import { humanizeSource } from "./label-text";
 
 const props = withDefaults(
@@ -155,7 +156,8 @@ function commit(newFiles: File[]) {
 }
 
 function onFileChange(event: Event) {
-  const input = event.target as HTMLInputElement;
+  const input = targetOf(event, HTMLInputElement);
+  if (!input) return;
   const list = input.files ? Array.from(input.files) : [];
   commit(list);
   // Allow re-selecting the same file.

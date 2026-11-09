@@ -365,6 +365,41 @@ describe("<PhoneInput>", () => {
     expect(captured.values?.().phone).toBe("+14155552671");
   });
 
+  it("writes E.164 for the country the selector picks", async () => {
+    const { wrapper, captured } = mountInForm(
+      () =>
+        h(PhoneInput, {
+          source: "phone",
+          allowedCountries: ["US", "CA"],
+          defaultCountry: "US",
+        }),
+      { id: 1, phone: "" },
+    );
+    await flushPromises();
+    await wrapper.find('input[type="tel"]').setValue("4165550123");
+    await nextTick();
+    await wrapper.find("select[data-country-select]").setValue("CA");
+    await nextTick();
+    expect(
+      elementOf(
+        wrapper.find("select[data-country-select]").element,
+        HTMLSelectElement,
+      ).value,
+    ).toBe("CA");
+    expect(captured.values?.().phone).toBe("+14165550123");
+  });
+
+  it("writes nothing when the selector hands a value outside its countries", async () => {
+    const { wrapper, captured } = mountInForm(
+      () => h(PhoneInput, { source: "phone", allowedCountries: ["US", "CA"] }),
+      { id: 1, phone: "+14155552671" },
+    );
+    await flushPromises();
+    await wrapper.find("select[data-country-select]").setValue("");
+    await nextTick();
+    expect(captured.values?.().phone).toBe("+14155552671");
+  });
+
   it("limits the country selector to allowedCountries", async () => {
     const { wrapper } = mountInForm(
       () => h(PhoneInput, { source: "phone", allowedCountries: ["US", "CA"] }),
