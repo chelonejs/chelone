@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
+import type { JsonValue } from "../guards";
 import {
   type ListParamsQuery,
   parseListParams,
@@ -11,12 +12,12 @@ const filterJson = (value: unknown): string =>
   encodeURIComponent(JSON.stringify(value));
 
 /** The raw search object a router hands `validateSearch` before any parsing. */
-function rawSearch(search: string): Record<string, unknown> {
+function rawSearch(search: string): Record<string, string> {
   return Object.fromEntries(new URLSearchParams(search));
 }
 
 /** The same object after a router's own parser: numbers as numbers, JSON as objects. */
-function parsedSearch(search: string): Record<string, unknown> {
+function parsedSearch(search: string): Record<string, JsonValue> {
   return Object.fromEntries(
     [...new URLSearchParams(search)].map(([key, value]) => {
       try {

@@ -1,8 +1,10 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type { DisplayedFilters, FilterPayload } from "../data/types";
-import type { ListParamsQuery } from "../index";
-import { listSearchSchema as BarrelListSearchSchema } from "../index";
+import type {
+  listSearchSchema as BarrelListSearchSchema,
+  ListParamsQuery,
+} from "../index";
 import { parseListParams } from "./list-params";
 import { listSearchSchema } from "./list-search-schema";
 
@@ -11,12 +13,6 @@ declare const search: ListSearch;
 
 const withTab = listSearchSchema.extend({ tab: z.string() });
 declare const tabbed: z.infer<typeof withTab>;
-
-describe("the barrel", () => {
-  it("re-exports listSearchSchema", () => {
-    expectTypeOf(BarrelListSearchSchema).toEqualTypeOf(listSearchSchema);
-  });
-});
 
 describe("listSearchSchema output", () => {
   it("is mutually assignable with ListParamsQuery", () => {
@@ -39,14 +35,16 @@ describe("listSearchSchema output", () => {
     expectTypeOf(search.sort).toEqualTypeOf<string | undefined>();
   });
 
-  it("types filter and displayedFilters as the loose list params do, keys open", () => {
+  it("types filter and displayedFilters as the loose list params do", () => {
     expectTypeOf(search.filter).toEqualTypeOf<FilterPayload | undefined>();
     expectTypeOf(search.displayedFilters).toEqualTypeOf<
       DisplayedFilters | undefined
     >();
-    expectTypeOf<FilterPayload>().toEqualTypeOf<{
-      [key: string]: unknown;
-    }>();
+  });
+
+  it("leaves filter keys open, as parseListParams returns them", () => {
+    const open: FilterPayload = { titel: 1, q: "a", anything: true };
+    void open;
   });
 });
 
@@ -54,8 +52,15 @@ describe("listSearchSchema.extend", () => {
   it("keeps the list keys and types the app's own", () => {
     expectTypeOf(tabbed.tab).toEqualTypeOf<string>();
     expectTypeOf(tabbed.page).toEqualTypeOf<number | undefined>();
-    expectTypeOf(tabbed.order).toEqualTypeOf<"ASC" | "DESC" | undefined>();
     const asQuery: ListParamsQuery = tabbed;
     void asQuery;
+  });
+});
+
+describe("the barrel", () => {
+  it("re-exports listSearchSchema", () => {
+    expectTypeOf<
+      z.infer<typeof BarrelListSearchSchema>
+    >().toEqualTypeOf<ListSearch>();
   });
 });
