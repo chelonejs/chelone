@@ -11,7 +11,7 @@ export function deepEqual<T>(a: T, b: T): boolean {
   return a === b || sameContent(a, b);
 }
 
-// type-escape: the walk holds values whose type the caller's generic has erased
+// type-escape: context: the walk holds values whose type the caller's generic has erased
 function sameContent(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (Array.isArray(a)) return Array.isArray(b) && sameList(a, b);
@@ -24,7 +24,7 @@ function sameContent(a: unknown, b: unknown): boolean {
   );
 }
 
-// type-escape: an array's members are values the caller's generic has erased
+// type-escape: context: an array's members are values the caller's generic has erased
 function sameList(a: readonly unknown[], b: readonly unknown[]): boolean {
   return (
     a.length === b.length &&

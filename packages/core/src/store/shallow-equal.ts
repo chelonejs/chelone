@@ -9,7 +9,7 @@
  *   reference;
  * - a non-object, or `null`, that is not `Object.is`-equal is unequal.
  */
-// type-escape: it compares any two values, so both parameters are unknown.
+// type-escape: context: it compares any two values, so both parameters are unknown
 export function shallowEqual(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) {
     return true;
