@@ -206,6 +206,21 @@ interface FormSubscription {
 export function createFormController<TRecord>(
   options: FormControllerOptions<TRecord>,
 ): FormController<TRecord> {
+  return createSchemaFormController(options);
+}
+
+/**
+ * {@link createFormController} with a bare `schema` slot, so an edit or create
+ * form can hand over the registry schema it looked up by its own resource
+ * name. Validation reads only the schema's issues, never its output, and the
+ * lookup already ties the schema to this record. Internal: the public
+ * `schema` slot checks the output for every other caller.
+ */
+export function createSchemaFormController<TRecord>(
+  options: Omit<FormControllerOptions<TRecord>, "schema"> & {
+    schema?: StandardSchemaV1;
+  },
+): FormController<TRecord> {
   const userFormOptions = options.formOptions;
 
   /**

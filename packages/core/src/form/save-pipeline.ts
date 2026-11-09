@@ -49,9 +49,12 @@ export function sanitizeEmptyValues<TValues>(
 }
 
 export interface ComposeFormValidatorConfig<TFormData> {
-  /** Resource schema (zod or any Standard Schema) — the D6 default validator. */
-  // type-escape: schema: validation reads the raw values whatever the schema's input type
-  schema?: StandardSchemaV1<unknown, Partial<TFormData>>;
+  /**
+   * Resource schema (zod or any Standard Schema) — the D6 default validator.
+   * Only its issues are read, and the form controller's options checked its
+   * output before it got here.
+   */
+  schema?: StandardSchemaV1;
   /** Form-level validate fn (ra contract). Sync results merge here; async fns are the submit pipeline's job. */
   validate?: FormLevelValidate<TFormData>;
   /**

@@ -1,4 +1,4 @@
-import type { AnyFieldLikeMeta, StandardSchemaV1 } from "@tanstack/form-core";
+import type { AnyFieldLikeMeta } from "@tanstack/form-core";
 import {
   type CreateController,
   type CreateControllerState,
@@ -20,7 +20,7 @@ import { type FieldName, type FieldValue, toFieldName } from "./field-name";
 import {
   type CheloneFormApi,
   type CheloneFormState,
-  createFormController,
+  createSchemaFormController,
   type FormController,
   type FormControllerOptions,
 } from "./form-controller";
@@ -344,14 +344,9 @@ export function createEditFormController<
   let lastHydrated: TRecord | undefined;
 
   const submitOptions = createSubmitOptions<TRecord>();
-  const formController: FormController<TFormData> = createFormController({
+  const formController: FormController<TFormData> = createSchemaFormController({
     defaultValues: baseDefaults,
-    schema:
-      options.schema ??
-      // type-escape: schema: RecordOf reads TRecord from this schema's output, which TypeScript cannot follow through the generic map
-      (ctx.resources?.[resource]?.schema as
-        | StandardSchemaV1<unknown, TRecord>
-        | undefined),
+    schema: options.schema ?? ctx.resources?.[resource]?.schema,
     validate: options.validate,
     sanitizeEmptyValues: options.sanitizeEmptyValues,
     getRecord: () => recordController.getSnapshot().record,
@@ -476,14 +471,9 @@ export function createCreateFormController<
   const resetOnSuccess = options.resetOnSuccess !== false;
 
   const submitOptions = createSubmitOptions<TRecord>();
-  const formController: FormController<TFormData> = createFormController({
+  const formController: FormController<TFormData> = createSchemaFormController({
     defaultValues: deepMerge(baseDefaults, seed),
-    schema:
-      options.schema ??
-      // type-escape: schema: RecordOf reads TRecord from this schema's output, which TypeScript cannot follow through the generic map
-      (ctx.resources?.[resource]?.schema as
-        | StandardSchemaV1<unknown, TRecord>
-        | undefined),
+    schema: options.schema ?? ctx.resources?.[resource]?.schema,
     validate: options.validate,
     sanitizeEmptyValues: options.sanitizeEmptyValues,
     // ra parity: the create sanitize baseline is the seed record.
