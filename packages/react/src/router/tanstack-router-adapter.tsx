@@ -65,7 +65,6 @@ import type {
 import {
   matchPath as coreMatchPath,
   noop,
-  parseLocation,
   toLocationState,
 } from "@chelone/core";
 import type {
@@ -91,9 +90,7 @@ import {
 } from "@tanstack/react-router";
 import {
   createContext,
-  Fragment,
   forwardRef,
-  isValidElement,
   type ReactNode,
   useCallback,
   useContext,
@@ -105,14 +102,18 @@ import type {
   AdapterLinkProps,
   AdapterNavigate,
   AdapterNavigateProps,
-  AdapterRouteProps,
   AdapterRoutesProps,
   RouterAdapter,
   RouterBlocker,
   RouterWrapperProps,
   UseMatchArgs,
 } from "./adapter";
-import { useBasename } from "./context";
+import {
+  overridePathname,
+  Route,
+  renderFirstMatch,
+  useHostRoutes,
+} from "./host-routes";
 
 /**
  * A marker set by the adapter's `RouterWrapper` so `useInRouterContext` /
@@ -346,25 +347,9 @@ function Navigate({ to, replace, state }: AdapterNavigateProps) {
 }
 
 /**
- * A neutral `<Route>` marker. It renders nothing itself — `<Routes>` reads its
- * props to pick the first match. Kept as a component (not a plain object) so the
- * shell writes the same JSX it writes for the react-router adapter.
- */
-function Route(_props: AdapterRouteProps): ReactNode {
-  // The element is chosen by the enclosing <Routes>; a stray <Route> renders null.
-  return null;
-}
-
-/**
- * A self-contained declarative router over Chelone's `matchPath`. Walks its
- * `<Route>` children in order and renders the FIRST whose `path` matches the
- * current (or `location`-override) pathname — an index route matches the tree
- * base. First-match order is what lets the shell mount create → show → edit →
- * list so `:id/show` isn't swallowed by the `:id` edit splat (plan §0a-6).
- *
- * This is the reference-adapter substitute for react-router's nested `<Routes>`;
- * it handles the shell's flat-per-resource matching, not react-router's full
- * relative-nesting algorithm (bounded per §0b-6).
+ * A self-contained declarative router over Chelone's `matchPath` (see
+ * `./host-routes`): renders the first `<Route>` child matching the current (or
+ * `location`-override) pathname.
  */
 function Routes({ location, children }: AdapterRoutesProps): ReactNode {
   const current = useLocation();
@@ -374,79 +359,9 @@ function Routes({ location, children }: AdapterRoutesProps): ReactNode {
   );
 }
 
-/**
- * `Routes` for an app's own router: its pathname still carries the mount prefix
- * (an `/admin/$` splat route), which a created router strips through its
- * `basepath`. Remove the `useBasename()` prefix so the shell matches the same
- * pathnames under both adapters.
- */
-function HostRoutes({ location, children }: AdapterRoutesProps): ReactNode {
-  const current = useLocation();
-  const basename = useBasename();
-  return renderFirstMatch(
-    children,
-    withoutBasename(overridePathname(location) ?? current.pathname, basename),
-  );
-}
-
-function overridePathname(
-  location: AdapterRoutesProps["location"],
-): string | undefined {
-  return typeof location === "string"
-    ? parseLocation(location).pathname
-    : location?.pathname;
-}
-
-function withoutBasename(pathname: string, basename: string): string {
-  if (basename === "") return pathname;
-  if (pathname === basename) return "/";
-  return pathname.startsWith(`${basename}/`)
-    ? pathname.slice(basename.length)
-    : pathname;
-}
-
-function renderFirstMatch(children: ReactNode, pathname: string): ReactNode {
-  const routes: AdapterRouteProps[] = [];
-  const collect = (nodes: ReactNode) => {
-    for (const child of toChildArray(nodes)) {
-      if (!isValidElement(child)) continue;
-      if (child.type === Route) {
-        routes.push(child.props as AdapterRouteProps);
-      }
-    }
-  };
-  collect(children);
-
-  for (const route of routes) {
-    if (route.index) {
-      // An index route matches the tree base (`/` or the wrapper's mount point).
-      if (pathname === "/" || pathname === "") return route.element ?? null;
-      continue;
-    }
-    if (route.path == null) continue;
-    // Support a trailing `/*` in shell patterns by matching the base too.
-    const match = coreMatchPath(route.path, pathname);
-    if (match) return route.element ?? null;
-  }
-  return null;
-}
-
-/** Flatten a React children value into a stable array (handles fragments). */
-function toChildArray(children: ReactNode): ReactNode[] {
-  const out: ReactNode[] = [];
-  const walk = (node: ReactNode) => {
-    if (Array.isArray(node)) {
-      for (const n of node) walk(n);
-      return;
-    }
-    if (isValidElement(node) && node.type === Fragment) {
-      walk((node.props as { children?: ReactNode }).children);
-      return;
-    }
-    out.push(node);
-  };
-  walk(children);
-  return out;
+/** `Routes` for an app's own router, matching below the `useBasename()` mount. */
+function HostRoutes(props: AdapterRoutesProps): ReactNode {
+  return useHostRoutes(props, useLocation().pathname);
 }
 
 function Outlet(): ReactNode {

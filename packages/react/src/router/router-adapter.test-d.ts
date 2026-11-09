@@ -28,6 +28,7 @@ import {
   type useRedirect,
   useRevalidate,
 } from "./nav-hooks";
+import { nextRouterAdapter } from "./next-router-adapter";
 import { reactRouterAdapter } from "./react-router-adapter";
 
 declare const cp: ReturnType<typeof useCreatePath>;
@@ -36,6 +37,11 @@ declare const redirect: ReturnType<typeof useRedirect>;
 describe("RouterAdapter type contract", () => {
   it("the default adapter satisfies RouterAdapter exactly", () => {
     expectTypeOf(reactRouterAdapter).toMatchTypeOf<RouterAdapter>();
+  });
+
+  it("the Next.js adapter satisfies RouterAdapter", () => {
+    expectTypeOf(nextRouterAdapter).toEqualTypeOf<RouterAdapter>();
+    assertType<RouterAdapter>(nextRouterAdapter);
   });
 
   it("react-router's Route and Routes are assignable to the adapter's", () => {
