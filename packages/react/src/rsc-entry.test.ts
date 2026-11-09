@@ -183,9 +183,12 @@ function sourceFiles(folder: string): string[] {
 }
 
 describe("the rsc entry", () => {
-  it("exports readFieldValue and serverEmptyText", async () => {
+  it("exports the server fields and their helpers", async () => {
     const entry = await import("./rsc");
     expect(Object.keys(entry).sort()).toEqual([
+      "ServerDateField",
+      "ServerNumberField",
+      "ServerTextField",
       "readFieldValue",
       "serverEmptyText",
     ]);
@@ -196,6 +199,9 @@ describe("the rsc entry", () => {
     // Guards the walk: an empty list would pass vacuously.
     expect(files.map((file) => relative(src, file))).toContain(
       "components/rsc/read-field-value.ts",
+    );
+    expect(files.map((file) => relative(src, file))).toContain(
+      "components/rsc/server-scalar-fields.tsx",
     );
     expect(files.flatMap(serverOffences)).toEqual([]);
   });
