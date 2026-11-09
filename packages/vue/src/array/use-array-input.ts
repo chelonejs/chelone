@@ -81,7 +81,7 @@ export interface UseArrayInputResult<TItem = unknown> {
 
 function toBindingUpdate<TRecord, TPath extends SourcePath<TRecord>>(
   options: UseArrayInputOptions<TRecord, TPath>,
-  // type-escape: the ambient form names no record.
+  // type-escape: context: the ambient form names no record.
 ): ArrayBindingUpdateOptions<unknown> {
   return {
     defaultValue: options.defaultValue,
@@ -131,7 +131,7 @@ export function useArrayInput<
 
   // The array field's own state (min-length errors, touched/dirty) — a separate
   // subscription over the field binding, refcounting the SAME field mount.
-  // type-escape: the ambient form names no record.
+  // type-escape: context: the ambient form names no record.
   const fieldState = useSubscribable<CheloneFieldState<unknown>>(binding.field);
 
   // Render-freshness: re-apply non-source options every time a tracked option
