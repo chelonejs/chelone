@@ -6,66 +6,62 @@
  */
 
 import {
-  BadgeField,
+  createResourceComponents,
   DataTable,
-  Edit,
   EditButton,
-  List,
-  RecordField,
-  ReferenceField,
-  Show,
   TextField,
-  TextInput,
   Toolbar,
 } from "@chelone/react";
 import { MdxField, MdxInput } from "@chelone/react/mdx-editor";
 import { RichTextField, RichTextInput } from "@chelone/react/rich-text-input";
 import "@mdxeditor/editor/style.css";
 
+const pages = createResourceComponents("pages");
+
 export function PageList() {
   return (
-    <List>
+    <pages.List>
       <DataTable>
         <DataTable.Col source="title" />
         <DataTable.Col source="slug" />
         <DataTable.Col source="status">
-          <BadgeField source="status" />
+          <pages.BadgeField source="status" />
         </DataTable.Col>
         <DataTable.Col label="Author">
-          <ReferenceField source="author_id" reference="authors">
+          <pages.ReferenceField source="author_id" reference="authors">
             <TextField source="name" />
-          </ReferenceField>
+          </pages.ReferenceField>
         </DataTable.Col>
         <DataTable.Col>
           <EditButton />
         </DataTable.Col>
       </DataTable>
-    </List>
+    </pages.List>
   );
 }
 
 export function PageEdit() {
   return (
-    <Edit>
-      <TextInput source="title" />
-      <TextInput source="slug" />
+    <pages.Edit>
+      <pages.TextInput source="title" />
+      <pages.TextInput source="slug" />
       <RichTextInput source="body" label="Body" />
       <MdxInput source="release_notes" label="Release notes" />
       <Toolbar />
-    </Edit>
+    </pages.Edit>
   );
 }
 
 export function PageShow() {
   return (
-    <Show>
-      <RecordField source="title" />
-      <RecordField label="Body">
+    <pages.Show>
+      <pages.RecordField source="title" />
+      <pages.RecordField label="Body">
         <RichTextField source="body" empty="No content" />
-      </RecordField>
-      <RecordField label="Release notes">
+      </pages.RecordField>
+      <pages.RecordField label="Release notes">
         <MdxField source="release_notes" empty="No release notes" />
-      </RecordField>
-    </Show>
+      </pages.RecordField>
+    </pages.Show>
   );
 }

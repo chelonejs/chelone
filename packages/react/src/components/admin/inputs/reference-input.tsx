@@ -1,6 +1,8 @@
 import type {
   FilterPayload,
   LooseRecord,
+  RegisteredResources,
+  ResourceMap,
   ResourceRecord,
   SortPayload,
   SourceProp,
@@ -15,11 +17,15 @@ import { useWatch } from "../../../form";
 import { ResourceContextProvider } from "../../../resource";
 import { AutocompleteInput } from "./autocomplete-input";
 
-interface ReferenceInputProps<RecordType extends ResourceRecord = LooseRecord> {
+interface ReferenceInputProps<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+> {
   /** The FK field on the current record (e.g. `"company_id"`). */
   source: SourceProp<RecordType>;
-  /** The referenced resource choices are fetched from (e.g. `"companies"`). */
-  reference: string;
+  /** The referenced resource choices are fetched from (e.g. `"companies"`). A registered resource name. */
+  reference: TReference;
   /**
    * The field on the referenced record the value matches. `"id"` (default)
    * resolves the selected record via `getMany`; any other key resolves it via
@@ -72,9 +78,11 @@ interface ReferenceInputProps<RecordType extends ResourceRecord = LooseRecord> {
  *   </Edit>
  * );
  */
-function ReferenceInput<RecordType extends ResourceRecord = LooseRecord>(
-  props: ReferenceInputProps<RecordType>,
-): ReactNode {
+function ReferenceInput<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+>(props: ReferenceInputProps<RecordType, TResources, TReference>): ReactNode {
   const {
     children = defaultChildren,
     source,

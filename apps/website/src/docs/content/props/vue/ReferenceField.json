@@ -9,9 +9,9 @@
     },
     {
       "name": "reference",
-      "type": "string",
+      "type": "TReference",
       "optional": false,
-      "comment": ""
+      "comment": "A registered resource name."
     },
     {
       "name": "record",

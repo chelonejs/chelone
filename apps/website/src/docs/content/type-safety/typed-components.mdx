@@ -1,0 +1,328 @@
+---
+title: "Typed components"
+description: "How a component's source narrows to one resource's record, and createResourceComponents, the factory that binds a resource into every field, input and view."
+---
+
+A `source` is a path into a record. What the path may be depends on which
+record the component reads, and a plain component does not know. This page
+covers the two ways to tell it: leave it on the registered union, or bind one
+resource with `createResourceComponents`.
+
+It assumes the app has [registered its resources](/docs/type-safety/registering-your-app).
+Each example below hides that setup above a `---cut---` line and shows the call
+site.
+
+## Plain components
+
+A component you import from the package takes every registered resource's
+paths:
+
+<FrameworkCode>
+
+```tsx title="src/posts.tsx"
+import { TextInput } from "@chelone/react";
+
+export const title = <TextInput source="title" />;
+```
+
+```vue title="src/posts.vue"
+<script setup lang="ts">
+import { TextInput } from "@chelone/vue";
+</script>
+
+<template>
+  <TextInput source="title" />
+</template>
+```
+
+</FrameworkCode>
+
+Its `source` is `AnySourcePath`: the union of the paths of every registered
+resource. A path that no resource has is an error, and a path that any resource
+has compiles, even on a page about another one. `AnySourcePath` is `string`
+when nothing is registered, and also when any registered resource has no
+schema, since that resource's record names no paths.
+
+To check a `source` against one resource, bind it.
+
+## createResourceComponents("posts")
+
+`createResourceComponents` takes a resource name and hands back that resource's
+components. It takes no type arguments: the name is checked against the
+registry and the record is read from it. Call it at module scope.
+
+<FrameworkCode>
+
+```tsx title="src/posts.tsx"
+import { createResourceComponents } from "@chelone/react";
+
+const posts = createResourceComponents("posts");
+
+export const PostEdit = () => (
+  <posts.Edit id={1}>
+    <posts.TextInput source="title" />
+    <posts.NumberInput source="views" />
+  </posts.Edit>
+);
+```
+
+```vue title="src/PostEdit.vue"
+<script setup lang="ts">
+import { createResourceComponents } from "@chelone/vue";
+
+const posts = createResourceComponents("posts");
+</script>
+
+<template>
+  <posts.Edit :id="1">
+    <posts.TextInput source="title" />
+    <posts.NumberInput source="views" />
+  </posts.Edit>
+</template>
+```
+
+</FrameworkCode>
+
+In React a second call with the same name returns the same components, so a
+call inside a component body does not remount them. It is still wasted work, so
+keep it at module scope.
+
+## What it returns
+
+The type is `ResourceComponents`, and it has two parts:
+
+- The package's own fields and inputs, retyped and not wrapped. `posts.TextInput === TextInput` holds at runtime. Only the type of `source`, and of a few callbacks below, changes.
+- The four views `posts.Edit`, `posts.Create`, `posts.Show` and `posts.List`, bound to the name. They take no `resource` prop, because the factory passes `"posts"` down.
+
+The fields and inputs that are members include `posts.TextField`,
+`posts.NumberField`, `posts.DateField`, `posts.TextInput`, `posts.NumberInput`
+and `posts.SelectArrayInput`. The list is read from the source: React reads it
+from the `components` object in `create-resource-components.tsx`, and Vue from
+`sourceMembers` plus `TypedFieldMembers` and `TypedInputMembers`. A new field or
+input that takes a `source` joins the list in both adapters.
+
+## How source narrows
+
+Each member's `source` becomes `SourceProp` of that resource's record. Dot
+paths work, and so do bracket paths into an array, such as `tags[0].label`. The
+`^?` line shows what a post's `source` takes: its paths, the row paths of its
+`tags` (`label`), and filter keys such as `q`:
+
+```tsx twoslash title="src/posts.tsx"
+import { defineResources } from "@chelone/core";
+import { createResourceComponents } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({
+      id: z.number(),
+      title: z.string(),
+      views: z.number(),
+      tags: z.array(z.object({ label: z.string() })),
+    }),
+  },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+const posts = createResourceComponents("posts");
+
+type PostSource = Parameters<typeof posts.TextInput>[0]["source"];
+//    ^?
+```
+
+A misspelt path is an error:
+
+```tsx twoslash title="src/posts.tsx"
+import { defineResources } from "@chelone/core";
+import { createResourceComponents } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+const posts = createResourceComponents("posts");
+
+// @errors: 2820
+const field = <posts.TextInput source="titel" />;
+```
+
+So is a path that only another resource has. `body` is a path of `comments`,
+and a plain `<TextInput source="body" />` accepts it on a posts page. The bound
+`posts.TextInput` does not:
+
+```tsx twoslash title="src/posts.tsx"
+import { defineResources } from "@chelone/core";
+import { createResourceComponents } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+const posts = createResourceComponents("posts");
+
+// @errors: 2322
+const field = <posts.TextInput source="body" />;
+```
+
+A `source` that is optional on a component stays optional on the member. In
+React, `ReferenceManyCount` declares `source?`, so
+`<posts.ReferenceManyCount reference="comments" target="post_id" />` compiles,
+while `<posts.TextInput />` does not.
+
+## Value callbacks
+
+`format`, `parse`, `transform` and `defaultValue` take the value at that
+`source`, which is `SourceValue` of the record and the path. On a `views` source
+that is a `number`:
+
+```tsx twoslash title="src/posts.tsx"
+import { defineResources } from "@chelone/core";
+import { createResourceComponents } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), views: z.number() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+const posts = createResourceComponents("posts");
+
+export const views = (
+  <posts.NumberInput
+    source="views"
+    format={(value) => String(value)}
+    //       ^?
+  />
+);
+```
+
+A `parse` must return that value type, so `parse={(value) => Number(value)}` is
+an error on a `title` source. A member whose component has none of the four
+props keeps its own props.
+
+## Not members
+
+The add-on components, which are monaco, maps, mdx, supabase and csv-import,
+are not members. The import fence keeps them out of the main entry, so the
+factory cannot hand them back. Import them from their own entry. Their `source`
+keeps the registered `AnySourcePath`.
+
+## With no registration
+
+When `Register` is not augmented, any name compiles and every `source` is a
+`string`:
+
+```tsx twoslash title="src/posts.tsx"
+import { createResourceComponents } from "@chelone/react";
+
+const comments = createResourceComponents("comments");
+const field = <comments.TextInput source="anything" />;
+```
+
+The same code stays valid when the app registers later. What changes is that
+`"comments"` has to be a registered name.
+
+With `comments` missing from a registry that has `posts` only, the name is the
+error:
+
+```tsx twoslash title="src/posts.tsx"
+import { defineResources } from "@chelone/core";
+import { createResourceComponents } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+// @errors: 2345
+const comments = createResourceComponents("comments");
+```
+
+## createResourceComponentsOf
+
+`createResourceComponentsOf<typeof resources, "posts">("posts")` writes both
+type arguments, so it needs no `Register` augmentation. `Register` is global to
+a TypeScript program, so this suits a type test or a program that must not
+augment it. The returned type is the same `ResourceComponents`.
+
+```tsx twoslash title="src/posts.test-d.tsx"
+import { defineResources } from "@chelone/core";
+import { createResourceComponentsOf } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+const posts = createResourceComponentsOf<typeof resources, "posts">("posts");
+
+export const title = <posts.TextInput source="title" />;
+```
+
+## Vue differences
+
+`createResourceComponents` and `createResourceComponentsOf` take the same
+arguments in `@chelone/vue`, and `posts.TextInput` is the package's own
+component there too. Two things differ:
+
+- The views keep `resource` as `never`, so `<posts.Edit resource="users">` is a type error in a template under `vue-tsc`. React leaves the prop out.
+- A generic SFC that `TypedFieldMembers` and `TypedInputMembers` do not list is not a member. `RecordField` and `SelectInput` are such components. Import them directly. Their `source` is on the registered union, as for a plain component.
+
+```vue title="src/PostForm.vue"
+<script setup lang="ts">
+import { RecordField, SelectInput, createResourceComponents } from "@chelone/vue";
+
+const posts = createResourceComponents("posts");
+</script>
+
+<template>
+  <posts.Edit :id="1">
+    <!-- A member: source is checked against posts. -->
+    <posts.TextInput source="title" />
+    <!-- Not members: source is any registered path. -->
+    <SelectInput source="status" :choices="[]" />
+    <RecordField source="author" />
+    <!-- Error: the view is bound to posts. -->
+    <posts.Edit resource="users" />
+  </posts.Edit>
+</template>
+```

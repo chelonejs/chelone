@@ -28,8 +28,9 @@ function sourceFiles(dir: string): string[] {
 }
 
 it("the React section sits between Getting Started and Vue with setup and the quick start", () => {
-  expect(rootMeta.slice(0, 3)).toEqual([
+  expect(rootMeta.slice(0, 4)).toEqual([
     { dir: "getting-started", title: "Getting Started" },
+    { dir: "type-safety", title: "Type Safety" },
     { dir: "react", title: "React" },
     { dir: "vue", title: "Vue" },
   ]);

@@ -1,6 +1,8 @@
 import type {
   FilterPayload,
   LooseRecord,
+  RegisteredResources,
+  ResourceMap,
   ResourceRecord,
   SortPayload,
   SourceProp,
@@ -17,11 +19,13 @@ import { AutocompleteArrayInput } from "./autocomplete-array-input";
 
 interface ReferenceArrayInputProps<
   RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
 > {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
   source: SourceProp<RecordType>;
-  /** The referenced resource choices are fetched from (e.g. `"tags"`). */
-  reference: string;
+  /** The referenced resource choices are fetched from (e.g. `"tags"`). A registered resource name. */
+  reference: TReference;
   /**
    * The field on the referenced record the values match. `"id"` (default)
    * resolves the selected records via `getMany`; any other key resolves them
@@ -72,8 +76,12 @@ interface ReferenceArrayInputProps<
  *   </Edit>
  * );
  */
-function ReferenceArrayInput<RecordType extends ResourceRecord = LooseRecord>(
-  props: ReferenceArrayInputProps<RecordType>,
+function ReferenceArrayInput<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+>(
+  props: ReferenceArrayInputProps<RecordType, TResources, TReference>,
 ): ReactNode {
   const {
     children = defaultChildren,

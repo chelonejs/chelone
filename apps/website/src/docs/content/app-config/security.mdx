@@ -134,19 +134,11 @@ const { data: identity } = useGetIdentity(); // identity?.fullName
 ## Permissions
 
 Implement `getPermissions` to expose your application's permission data. Its
-shape is up to your provider: name it once on `Register`, and `getPermissions`,
-`usePermissions` and the `<Admin>` function child all use it. Without it,
-permissions are `unknown`. `usePermissions` returns them as `permissions`,
+shape is up to your provider, and `usePermissions` returns it as `permissions`,
 alongside `isPending`, `error`, and `refetch`:
 
 ```tsx
 import { usePermissions } from "@chelone/react";
-
-declare module "@chelone/core" {
-  interface Register {
-    permissions: string[];
-  }
-}
 
 const { permissions, isPending } = usePermissions();
 const isAdmin = !isPending && permissions?.includes("admin");
@@ -154,6 +146,10 @@ const isAdmin = !isPending && permissions?.includes("admin");
 
 Without an auth provider or `getPermissions`, `usePermissions` returns
 `permissions: undefined` and `isPending: false`. It does not throw.
+
+[Translations and permissions](/docs/type-safety/translations-and-permissions)
+covers naming that shape once on `Register` and what it types, and [Registering
+your app](/docs/type-safety/registering-your-app) is where you write it.
 
 Related hooks handle authentication and access failures:
 

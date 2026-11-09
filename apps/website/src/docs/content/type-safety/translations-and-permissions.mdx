@@ -1,0 +1,425 @@
+---
+title: "Translations and permissions"
+description: "What Register.messages and Register.permissions do to translate, useTranslate and usePermissions."
+---
+
+`Register` types more than resources. Its `messages` key types every `translate`
+call in the app, and its `permissions` key types what an auth provider hands
+back. [Registering your app](/docs/type-safety/registering-your-app) is where
+you write the two keys and what each one falls back to when you leave it off.
+This page is what they do to a call.
+
+## Typed keys and params
+
+A catalog is a `MessageCatalog`: keys mapped to a `MessageValue`, which is a
+string or a `PluralMessage` (the `{ one, other }` form keyed by
+`Intl.PluralRules` categories, `other` required). `MessageKey<TCatalog>` is a
+catalog's own keys, `ExtractParams<T>` reads the `{placeholders}` out of a
+template string, and `TranslateParams<MessageValue>` turns them into the params
+a call must pass. `TranslateParamValues` is the loose `Record<string, string |
+number>` an untyped call takes.
+
+`defineMessages` pins a catalog's literal keys and literal text, and `createI18n`
+over it returns `CheloneI18n<TCatalog>`. On that instance `translate` takes only
+the keys the catalog holds:
+
+```ts twoslash title="src/i18n.ts"
+import { createI18n, defineMessages } from "@chelone/core";
+
+const en = defineMessages({
+  "app.greeting": "Hello {name}",
+  "app.save": "Save",
+  "app.selected": {
+    one: "{count} item selected",
+    other: "{count} items selected",
+  },
+});
+
+const i18n = createI18n({ locale: "en", messages: { en } });
+
+const text = i18n.translate("app.greeting", { name: "Ann" });
+//    ^?
+```
+
+Hover `text` and it is `string`: a typed catalog buys you the call, not the
+return. These four fail:
+
+```ts twoslash title="src/i18n.ts"
+// @errors: 2554 2561 2345
+import { createI18n, defineMessages } from "@chelone/core";
+
+const en = defineMessages({
+  "app.greeting": "Hello {name}",
+  "app.save": "Save",
+  "app.selected": {
+    one: "{count} item selected",
+    other: "{count} items selected",
+  },
+});
+
+const i18n = createI18n({ locale: "en", messages: { en } });
+
+i18n.translate("app.greeting");
+i18n.translate("app.greeting", { nme: "Ann" });
+i18n.translate("app.helo");
+i18n.translate("app.selected");
+```
+
+- `translate("app.greeting")` leaves out `name`, which `Hello {name}` needs.
+- `{ nme: "Ann" }` is a misspelt placeholder, not a free-form param.
+- `"app.helo"` is a key no catalog holds.
+- `translate("app.selected")` leaves out the count a plural needs. A plural
+  takes a number under `count` or under `smart_count`, and whichever name
+  carries it also fills `{count}` and `{smart_count}` in the text.
+
+`_` is the default text for a key no catalog holds. `CheloneI18n` types a call's
+params as exactly the placeholders its entry names, so `_` joins them on the
+registered `translate` below, where a call may name a key the catalog lacks.
+[Translation](/docs/app-config/translation) pins what a provider owes all of
+this at runtime.
+
+## Registering the catalog
+
+`Register.messages` gives two types. `RegisteredMessages` is the registered
+catalog, and `RegisteredTranslate` is its `translate`. `useTranslate()` returns
+`RegisteredTranslate` in both adapters, so one augmentation types every call in
+the app. The block itself is in [Registering your
+app](/docs/type-safety/registering-your-app), and the hooks that read the
+registry are in [Typed hooks](/docs/type-safety/typed-hooks).
+
+```ts twoslash
+import { defineMessages, type RegisteredTranslate } from "@chelone/core";
+
+const en = defineMessages({ "app.greeting": "Hello {name}" });
+
+declare module "@chelone/core" {
+  interface Register {
+    messages: typeof en;
+  }
+}
+
+type Translate = RegisteredTranslate;
+//   ^?
+```
+
+`RegisteredTranslate` is lenient where `CheloneI18n` is strict, and that is
+deliberate. The components label themselves with keys such as
+`resources.posts.name` beside a `_` default, and the registry copies those calls
+into apps whose catalog holds only some of the `chelone.*` keys. A hook that
+rejected a key the registered catalog lacks would break every app that mounts a
+partial catalog, so any string stays a key and only the params a known entry
+names are checked:
+
+```ts twoslash
+// @errors: 2554 2769
+import { defineMessages, type RegisteredTranslate } from "@chelone/core";
+
+const en = defineMessages({ "app.greeting": "Hello {name}" });
+
+declare module "@chelone/core" {
+  interface Register {
+    messages: typeof en;
+  }
+}
+
+declare const translate: RegisteredTranslate;
+
+translate("app.greeting");
+translate("app.greeting", { nme: "Ann" });
+translate("app.helo", { _: "Hello {name}", name: "Ann" });
+```
+
+The third call compiles. Its key is one the catalog lacks, so the provider
+answers it with the `_` default, and a key the catalog does not name takes any
+`TranslateParamValues`.
+
+`TranslateFor<TCatalog>` is the same type over any catalog you name, with
+nothing registered. `asRegisteredTranslate` is the one place that bridges the
+erased instance: `<Admin i18n>` holds an `AnyCheloneI18n`, whose `translate`
+takes any key, and reading it as `RegisteredTranslate` narrows what a call may
+pass, which is how neither adapter writes a cast.
+
+Register the catalog you actually mount. The typing is a compile-time claim
+about the instance `<Admin>` holds, and a key that instance lacks still comes
+back as the key or its `_` default at runtime.
+
+## Literal text
+
+`translate` returns `string`. An app that needs the text itself, for a lookup
+table or a discriminated check, can ask for it instead. `literalMessages: true`
+beside `messages` on `Register` flips the return, `HasLiteralMessages` reads the
+flag off a register shape, and `RegisteredLiteralMessages` is the flag as core
+reads it for your app.
+
+Over two catalogs with nothing registered:
+
+```ts twoslash
+import { defineMessages, type TranslateFor } from "@chelone/core";
+
+const en = defineMessages({
+  "app.save": "Save",
+  "app.greeting": "Hello {name}",
+});
+const fr = defineMessages({
+  "app.save": "Enregistrer",
+  "app.greeting": "Bonjour {name}",
+});
+
+declare const translate: TranslateFor<
+  typeof en | typeof fr,
+  { literalMessages: true }
+>;
+
+const save = translate("app.save");
+//    ^?
+const greeting = translate("app.greeting", { name: "Ann" });
+//    ^?
+```
+
+- A `{placeholder}` is interpolated in the type from the param you pass.
+  `name: "Ann"` gives `"Hello Ann" | "Bonjour Ann"`, and `name: string` gives
+  `` `Hello ${string}` | `Bonjour ${string}` ``. Params keep their literal
+  types, so a call needs no `as const`.
+- A plural returns every form of every locale at once, whatever `count` is.
+  Which form a count picks depends on the locale's `Intl.PluralRules`, so the
+  type cannot name one.
+- A key no catalog holds returns `string`. Each member of a key union is asked
+  on its own, so
+  `translate(isPost ? "resources.posts.name" : "resources.comments.name")`
+  keeps `string` for the member no catalog holds.
+- A catalog imported from JSON returns `string`. TypeScript types a JSON
+  import's values as `string`, so no literal reaches the type.
+
+The flag is off by default because a literal union is not a `string` you can
+reassign:
+
+```ts twoslash
+// @errors: 2322
+import { defineMessages, type TranslateFor } from "@chelone/core";
+
+const en = defineMessages({
+  "app.save": "Save",
+  "app.cancel": "Cancel",
+  "app.selected": {
+    one: "{count} item selected",
+    other: "{count} items selected",
+  },
+});
+
+declare const translate: TranslateFor<typeof en, { literalMessages: true }>;
+
+let label = translate("app.save");
+label = translate("app.cancel");
+
+const many = translate("app.selected", { count: 3 });
+//    ^?
+```
+
+## Checking a locale
+
+`defineLocale<TBase>()` checks a locale catalog against a base catalog, usually
+`englishMessages`, and keeps the catalog's own literal type.
+`LocaleMessages<TBase>` is the checked shape, if you want to name it. A key
+English has and the locale missed fails:
+
+```ts twoslash
+// @errors: 2345
+import { defineLocale, defineMessages } from "@chelone/core";
+
+const en = defineMessages({
+  "app.save": "Save",
+  "app.greeting": "Hello {name}",
+  "app.delete": "Delete",
+});
+
+const fr = defineLocale<typeof en>()({
+  "app.save": "Enregistrer",
+  "app.greeting": "Bonjour {name}",
+});
+```
+
+So does a string that drops a placeholder English has:
+
+```ts twoslash
+// @errors: 2322
+import { defineLocale, defineMessages } from "@chelone/core";
+
+const en = defineMessages({
+  "app.save": "Save",
+  "app.greeting": "Hello {name}",
+});
+
+const fr = defineLocale<typeof en>()({
+  "app.save": "Enregistrer",
+  "app.greeting": "Bonjour",
+});
+```
+
+A key the locale invented fails, and so does a string where English has a
+plural, or the reverse. Placeholders may arrive in any order, and a plural may
+leave out a category English fills. `defineLocale` checks types only:
+`<I18nKeyEditor>` still lists what a mounted locale missed at runtime, as
+[Translation](/docs/app-config/translation) describes.
+
+## Any engine
+
+`<Admin i18n>` takes `AnyCheloneI18n`, an alias of `I18nProvider`, the
+catalog-erased contract. `createI18n` is one implementation of it and hands back
+the catalog-typed `CheloneI18n<TCatalog>`, which is structurally assignable to
+the contract. `createI18nextProvider` from `@chelone/utils/i18next` returns an
+`I18nProvider` as well.
+
+```ts title="src/i18n.ts"
+import {
+  createI18n,
+  englishMessages,
+  type I18nProvider,
+} from "@chelone/core";
+import {
+  createI18nextProvider,
+  toI18nextResource,
+} from "@chelone/utils/i18next";
+import i18next from "i18next";
+
+const instance = i18next.createInstance();
+await instance.init({
+  lng: "en",
+  resources: { en: { translation: toI18nextResource(englishMessages) } },
+});
+
+export const fromCore: I18nProvider = createI18n({
+  locale: "en",
+  messages: { en: englishMessages },
+});
+
+export const fromI18next: I18nProvider = createI18nextProvider(instance);
+```
+
+Either way the typing of a call comes from `Register.messages`, never from the
+engine. The instance `<Admin>` holds is erased, and `useTranslate()` reads it
+back as `RegisteredTranslate`, so an app that mounts i18next and registers
+`typeof englishMessages` checks the same keys and params as one that mounts
+`createI18n`.
+
+The runtime contract, what `translate` owes the components and how a provider
+passes `testI18nProviderContract`, stays in
+[Translation](/docs/app-config/translation).
+
+## Permissions
+
+`Register.permissions` gives `RegisteredPermissions`, which is `unknown` when
+nothing is registered. It is the type `getPermissions` resolves to and the type
+`usePermissions().permissions` carries.
+
+```ts twoslash
+// @errors: 2322
+import { type AuthProvider, type RegisteredPermissions } from "@chelone/core";
+
+declare module "@chelone/core" {
+  interface Register {
+    permissions: ("admin" | "editor")[];
+  }
+}
+
+type Permissions = RegisteredPermissions;
+//   ^?
+
+const authProvider: AuthProvider = {
+  login: async () => {},
+  logout: async () => {},
+  checkAuth: async () => {},
+  checkError: async () => {},
+  getPermissions: async () => "admin",
+};
+```
+
+`getPermissions` resolves `TPermissions | undefined`, and `AuthProvider`'s
+`TPermissions` defaults to `RegisteredPermissions`, so a provider that hands
+back a bare string fails where the app registered a list of names.
+
+What the registered type reaches:
+
+| Read by | Where it lands |
+| --- | --- |
+| `AuthProvider<TPermissions>` | `getPermissions` resolves it |
+| `usePermissions()` | `permissions` on `UsePermissionsResult` |
+| `<Admin permissions>` | the prop, in React |
+| `<Admin>` function child | `AdminChildren`, resolved by `useResolvedChildren` and `useAdminChildren` |
+| `<AdminUI permissions>` | `AdminUIProps`, in React |
+| `supabaseAuthProvider` | `SupabaseAuthProvider`, and `SupabaseAuthProviderOptions.getPermissions` |
+
+The function child is React's. Its parameter is the registered type, so a
+`(permissions) => node` child gates its resources on names your app registered:
+
+```tsx twoslash
+import { type AdminChildren } from "@chelone/react";
+
+declare module "@chelone/core" {
+  interface Register {
+    permissions: ("admin" | "editor")[];
+  }
+}
+
+type Children = AdminChildren;
+//   ^?
+```
+
+`usePermissions` reads it in both adapters:
+
+<FrameworkCode>
+
+```tsx twoslash title="src/permissions.tsx"
+import { usePermissions } from "@chelone/react";
+
+declare module "@chelone/core" {
+  interface Register {
+    permissions: ("admin" | "editor")[];
+  }
+}
+
+const { permissions, isPending } = usePermissions();
+//        ^?
+
+const isAdmin = !isPending && permissions?.includes("admin");
+```
+
+```vue twoslash title="src/permissions.ts"
+<script setup lang="ts">
+import { usePermissions } from "@chelone/vue";
+
+declare module "@chelone/core" {
+  interface Register {
+    permissions: ("admin" | "editor")[];
+  }
+}
+
+const { permissions } = usePermissions();
+//        ^?
+</script>
+
+<template>
+  <p v-if="permissions?.includes('admin')">Signed in as an admin</p>
+</template>
+```
+
+</FrameworkCode>
+
+`canAccess` and `useCanAccess` are not keyed by `Register`. `CanAccessParams`
+takes `resource: string` and `action: string`, and `useCanAccess` answers a
+boolean for that pair. Registering permissions types what `getPermissions`
+resolves to, never which actions a resource allows. The runtime side of all of
+it is in [Security](/docs/app-config/security).
+
+## Vue
+
+`useTranslate()` returns `RegisteredTranslate` in Vue exactly as it does in
+React, and `usePermissions()` reads the same `Register.permissions`. Two places
+differ:
+
+- `usePermissions().permissions` is a `ComputedRef<RegisteredPermissions |
+  undefined>`, beside `ComputedRef`s for `isPending` and `error`, so a template
+  reacts to it.
+- `<Admin>` has no `permissions` prop and no function child. React's
+  `<Admin permissions>` and its `(permissions) => node` child have no Vue
+  counterpart, so a Vue app reads permissions through `usePermissions()` where
+  it needs them.

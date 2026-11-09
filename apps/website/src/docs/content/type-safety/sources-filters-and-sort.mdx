@@ -1,0 +1,455 @@
+---
+title: "Sources, Filters & Sort"
+description: "The path grammar behind source, and the keys filters and sort buttons take."
+---
+
+A `source` is a path into a record. A filter key is such a path with an operator
+on the end. Both are plain strings while an app registers nothing, and both
+become compile errors after it. This page is the grammar: what a path may look
+like, what value sits at one, and which of these types each prop takes.
+
+The augmentation that turns them on is
+[Registering your app](/docs/type-safety/registering-your-app), the registry
+behind it is
+[Resource registry and codegen](/docs/type-safety/resource-registry-and-codegen),
+how a component reads them is [Typed components](/docs/type-safety/typed-components),
+and what a hook hands back for a registered resource is
+[Typed hooks](/docs/type-safety/typed-hooks). None of that is repeated here.
+
+## The record every snippet uses
+
+```tsx twoslash title="src/posts.ts" include type-safety-post-record
+import { z } from "zod";
+
+const postSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  views: z.number(),
+  author: z.object({ name: z.string(), country: z.string() }).optional(),
+  items: z.array(z.object({ sku: z.string(), qty: z.number() })),
+  tags: z.array(z.string()),
+});
+
+type Post = z.infer<typeof postSchema>;
+```
+
+Every fence below imports from `@chelone/core` only, so the same block holds in
+React and in Vue.
+
+## Source paths
+
+`SourcePath<TRecord>` is every legal path into a record: dotted object paths and
+bracket array indices. It is `dot.paths`' `Paths` with `arrays: "bracket"`.
+
+```tsx twoslash title="src/paths.ts"
+// @include: type-safety-post-record
+import { type SourcePath } from "@chelone/core";
+
+type PostPath = SourcePath<Post>;
+//    ^?
+
+const dotted: PostPath = "author.name";
+const bracket: PostPath = "items[0].sku";
+
+// @errors: 2322 2820
+const dotIndex: PostPath = "items.0.sku";
+const typo: PostPath = "titel";
+```
+
+What the fence settles:
+
+- A bracket index is the only index a path type accepts. `items.0.sku` still
+  resolves at runtime, because `composeSource` and TanStack form-core's
+  `DeepKeys` read the dot form, so a path that arrives from a URL or an
+  `ArrayInput` row keeps working. It is the prop type that rejects it.
+- Object levels are walked 8 deep, which is `dot.paths`' default depth, and array
+  nesting 3 deep. A record nested deeper than that has no path reaching its
+  bottom, and a recursive record type stops there instead of expanding forever.
+- `titel` is a typo for `title`, and the registry is what knows the difference.
+
+For a record with no schema behind it `SourcePath` is `string`. That fallback is
+one of the arms [When types widen](/docs/type-safety/when-types-widen) lists.
+
+## What a `source` prop takes
+
+`SourceProp<TRecord>` is what an input's `source` prop actually takes: the
+record's paths, its row paths, and its filter keys.
+
+```tsx twoslash title="src/source-prop.ts"
+// @include: type-safety-post-record
+import { type AnySourcePath, type SourceProp } from "@chelone/core";
+
+type PostSource = SourceProp<Post>;
+//    ^?
+
+// An app that registers nothing.
+type LooseSource = SourceProp;
+//    ^?
+
+type LooseArm = AnySourcePath;
+//    ^?
+```
+
+`AnySourcePath` is the loose arm named on its own: plain `string` until `Register`
+is augmented, then the union of every registered resource's paths. Passing a
+record to `SourceProp` skips it and takes that record's own paths. Its twin over
+a resource map the caller hands in, `AnySourcePathOf`, is
+[When types widen](/docs/type-safety/when-types-widen)'s.
+
+## Row paths
+
+`RowSourcePath<TRecord>` is the set of paths relative to an array item, for the
+children of an `ArrayInput`. A child binds relative to its row
+(`createRowSourceScope`), so `qty` is a legal source inside `items` even though
+`SourcePath<Post>` only reaches it as `items[0].qty`.
+
+```tsx twoslash title="src/rows.ts"
+// @include: type-safety-post-record
+import { type RowSourcePath } from "@chelone/core";
+
+type ItemPath = RowSourcePath<Post>;
+//    ^?
+
+const rowField: RowSourcePath<Post> = "sku";
+// @errors: 2322
+const fromTheRoot: RowSourcePath<Post> = "items[0].sku";
+```
+
+A row whose type names no keys contributes nothing to the union, and it is
+filtered out per member rather than per record. A `z.record` column, a jsonb
+member and a `z.any()` field each give a `string` there, and one `string` would
+swallow every other array's paths and let every typo through again. A record that
+wants its jsonb rows checked gives them a schema. The row binding itself is
+[Array Input](/docs/editing/array-input).
+
+## Values
+
+`SourceValue<TRecord, TPath>` is the value at a path, carrying the `null` and the
+`undefined` of every parent along it, which is what reading `record.author?.name`
+gives. `SourceTransformValue` is the same type except where a source walks to
+`never`.
+
+```tsx twoslash title="src/values.ts"
+// @include: type-safety-post-record
+import {
+  type SourceTransformValue,
+  type SourceValue,
+} from "@chelone/core";
+
+type AuthorName = SourceValue<Post, "author.name">;
+//    ^?
+
+type Title = SourceValue<Post, "title">;
+//    ^?
+
+type RowField = SourceValue<Post, "qty">;
+//    ^?
+
+type RowTransform = SourceTransformValue<Post, "qty">;
+//    ^?
+```
+
+`SourceValue` walks from the record root, so a row-relative source (`qty`) or a
+filter key (`published_at_gte`) walks to `never`. Both are legal `SourceProp`s,
+and a transform over one would then have to return a `never` no callback can
+return. `SourceTransformValue` turns exactly that `never` into `unknown` and
+leaves every other value typed.
+
+What each one types on an input:
+
+- `defaultValue` takes `SourceValue`, so a default has to be a value the field
+  can hold.
+- `format` and `parse` take `SourceTransformValue` in React's input props, so a
+  transform on a row-relative or filter-key source stays loose.
+- Vue's `useInput` types all three with `SourceValue`. See the Vue section.
+
+## Flat keys
+
+`SourceKey<TRecord>` is the record's top-level keys and nothing deeper, for a
+prop that names one flat key: a reference's `target` (`ReferenceTargetOf`),
+`KanbanBoard`'s `groupSource`, `CsvImport`'s `fields` and `mapping`, and the
+`references` map inside `defineResources`. A reference is filtered on one field,
+so `getManyReference` cannot take a dotted path.
+
+```tsx twoslash title="src/keys.ts"
+// @include: type-safety-post-record
+import { type SourceKey } from "@chelone/core";
+
+type PostKey = SourceKey<Post>;
+//    ^?
+
+const group: SourceKey<Post> = "author";
+// @errors: 2322
+const dotted: SourceKey<Post> = "author.name";
+```
+
+`SourceKey` is guarded against a loose record the way `SourceProp` is, so a
+generic field's sibling prop (`limitSource`) does not collapse to the single key
+every shared record type has.
+
+## Filters
+
+A filter key is a source path with an operator suffix, or the free-text `q`.
+
+- `FilterSourceKey<TRecord>` is `q` plus every path with a suffix
+  (`title_gte`, `items[0].qty_lte`).
+- `RecordFilterKey<TRecord>` is the record's paths plus those keys. A filter form
+  writes the key its input's `source` names, so the plain paths are load-bearing
+  and not a looseness. Only the range helpers write a suffix.
+- `FilterPayload<TRecord>` maps those keys to values.
+- `DisplayedFilters<TRecord>` maps them to optional booleans, which is what
+  `showFilter(name)` and `hideFilter(name)` write. The values are optional so a
+  list does not have to list every filter it has in order to show one.
+- `AnyFilterSourceKey` is the registered union a loose `FilterPayload` takes, the
+  filter counterpart of `AnySourcePath`. Its map-taking twin `AnyFilterSourceKeyOf`
+  is on [When types widen](/docs/type-safety/when-types-widen).
+
+```tsx twoslash title="src/filters.ts"
+// @include: type-safety-post-record
+import {
+  type DisplayedFilters,
+  type FilterPayload,
+  type RecordFilterKey,
+} from "@chelone/core";
+
+const filter: FilterPayload<Post> = {
+  q: "hello",
+  views_gte: 20,
+  title: "x",
+};
+
+// @errors: 2353
+const typo: FilterPayload<Post> = { titel_gte: "x" };
+
+const shown: DisplayedFilters<Post> = { title: true };
+
+type FilterKey = RecordFilterKey<Post>;
+//    ^?
+```
+
+Keys are checked and values stay `unknown` on purpose. An operator suffix makes a
+value's type ambiguous (`title_gte` wants a string, `views_gte` a number), and the
+data provider decides what a value means.
+
+`calendarRangeFilter` is the helper that writes the suffixes itself. It builds
+`${path}_gte` and `${path}_lte` keys, and its `startSource` and `endSource` are
+`SourcePath`s, so a range on a field the record does not have stops compiling.
+
+```tsx twoslash title="src/calendar.ts"
+import {
+  type CalendarRange,
+  calendarRangeFilter,
+  omitCalendarRangeFilter,
+  staleCalendarRangeKeys,
+} from "@chelone/core";
+import { z } from "zod";
+
+const eventSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  starts_at: z.string(),
+  ends_at: z.string(),
+});
+
+type Event = z.infer<typeof eventSchema>;
+
+const range: CalendarRange = { start: new Date(), end: new Date() };
+
+const filter = calendarRangeFilter<Event>("starts_at", range, "ends_at");
+//    ^?
+
+const stale = staleCalendarRangeKeys<Event>("starts_at", "ends_at");
+//    ^?
+
+// @errors: 2345
+const wrong = calendarRangeFilter<Event>("startz_at", range);
+```
+
+`omitCalendarRangeFilter` and `staleCalendarRangeKeys` take the same paths, for
+dropping a range a list URL still holds. The filter form that writes these keys is
+[Filter Form](/docs/editing/filter-form).
+
+## Sort
+
+`SortPayload<TRecord>` is one field and a direction, and `field` is a
+`SourcePath<TRecord>`. Multi-sort is an array of them, applied in order, the first
+being the primary key.
+
+```tsx twoslash title="src/sort.ts"
+// @include: type-safety-post-record
+import { type SortPayload } from "@chelone/core";
+
+const sort: SortPayload<Post> = { field: "author.name", order: "ASC" };
+
+const multi: SortPayload<Post>[] = [
+  { field: "author.country", order: "ASC" },
+  { field: "views", order: "DESC" },
+];
+
+// @errors: 2820
+const typo: SortPayload<Post> = { field: "titel", order: "DESC" };
+```
+
+A registered app gets the union across its resources, so one loose payload sorts
+on either record:
+
+```tsx twoslash title="src/sort-registered.ts"
+import { defineResources, type SortPayload } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({
+      id: z.number(),
+      title: z.string(),
+      author: z.object({ name: z.string() }).optional(),
+    }),
+  },
+  comments: {
+    schema: z.object({
+      id: z.number(),
+      body: z.string(),
+      post_id: z.number(),
+    }),
+  },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+type SortField = SortPayload["field"];
+//    ^?
+
+const byAuthor: SortPayload = { field: "author.name", order: "ASC" };
+const byBody: SortPayload = { field: "body", order: "DESC" };
+
+// @errors: 2820
+const typo: SortPayload = { field: "titel", order: "ASC" };
+```
+
+The buttons that write a sort are [Sort Button](/docs/viewing/sort-button) and
+[Data Table](/docs/viewing/data-table).
+
+## What stays loose on purpose
+
+`LooseSortPayload`, `LooseFilterPayload` and `LooseDisplayedFilters` are the same
+three shapes with the record erased: an open field name, an open key map, and an
+open map of optional booleans.
+
+```tsx twoslash title="src/loose.ts"
+// @include: type-safety-post-record
+import {
+  type LooseFilterPayload,
+  type LooseSortPayload,
+  type SortPayload,
+} from "@chelone/core";
+
+const typed: SortPayload<Post> = { field: "views", order: "ASC" };
+
+// A typed sort reaches the loose one.
+const loose: LooseSortPayload = typed;
+
+// Not the other way round.
+// @errors: 2322
+const back: SortPayload<Post> = loose;
+
+const filter: LooseFilterPayload = { anything_gte: 3 };
+```
+
+What a verb actually takes is narrower than the three names above:
+
+```tsx twoslash title="src/verb-params.ts"
+import {
+  defineResources,
+  type GetListParams,
+  type LooseFilterPayload,
+} from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({ id: z.number(), title: z.string(), views: z.number() }),
+  },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// `sort` is open, because a verb is not generic over the record.
+const sort: GetListParams["sort"] = { field: "anything", order: "ASC" };
+
+// `filter` is keyed by the registered union.
+type VerbFilter = GetListParams["filter"];
+//    ^?
+
+const inside: GetListParams["filter"] = { title_gte: 3, q: "x" };
+
+// @errors: 2353
+const outside: GetListParams["filter"] = { titel_gte: 3 };
+
+// The open map is the one a helper that walks keys names.
+const walked: LooseFilterPayload = { titel_gte: 3 };
+```
+
+`LooseSortPayload` is the only one of the three a verb takes: `GetListParams.sort`
+and `GetManyReferenceParams.sort` take it or an array of them, because a verb is
+not generic over the record and a controller's typed sort assigns to it with no
+cast. `filter` on both verbs is `FilterPayload`, whose key set for the loose
+record it defaults to is `AnyFilterSourceKey`: plain `string` while an app
+registers nothing, and the registered union once it does. A verb's filter is
+keyed, not an open map, and a key outside that union stops compiling at the verb.
+
+`LooseFilterPayload` and `LooseDisplayedFilters` are for code that walks one of
+those maps key by key with no record in scope: pruning a filter, stripping empty
+keys, a filter form reading `displayedFilters[source]`, and each adapter's list
+context, which cannot be generic and has to mount a controller typed to any
+record. What writes a context filter names no record either: a filter form's
+field names, a calendar's range keys, a URL query. The typed side is the list
+controller's own `setSort`, `setFilters`, `showFilter` and `hideFilter`, which
+[Typed hooks](/docs/type-safety/typed-hooks) covers.
+
+`LooseRecord` is the same idea for a record type, and it is why every one of
+these types has a loose arm. [When types widen](/docs/type-safety/when-types-widen)
+is the page for that arm and for `AnySourcePathOf` and `AnyFilterSourceKeyOf`.
+
+## Vue
+
+Vue's `useInput` takes a `SourcePath` for `source` and types `defaultValue`,
+`format` and `parse` with `SourceValue`. React's input props take a `SourceProp`,
+which is wider, and use `SourceTransformValue` for `format` and `parse`.
+
+```vue twoslash title="src/PostRow.vue"
+<script setup lang="ts">
+// @include: type-safety-post-record
+import { type SourceValue } from "@chelone/core";
+import { useInput } from "@chelone/vue";
+
+type Item = Post["items"][number];
+
+type QtyValue = SourceValue<Item, "qty">;
+//    ^?
+
+const { value, setValue } = useInput<Item, "qty">({ source: "qty" });
+
+// `parse` has to return the value at `source`.
+// @errors: 2322
+const wrong = useInput<Item, "qty">({
+  source: "qty",
+  parse: (input: unknown) => String(input),
+});
+</script>
+
+<template>
+  <input :value="value" @input="setValue" />
+</template>
+```
+
+Inside an `ArrayInput` the record is the row, which is why the fence types the
+input against `Item` and not against `Post`. The Vue input surface is
+[Vue Forms](/docs/vue/forms).
