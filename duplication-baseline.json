@@ -67,7 +67,6 @@
   "packages/react/src/components/admin/inputs/cron-input.tsx <-> packages/react/src/components/admin/inputs/date-input.tsx": 1,
   "packages/react/src/components/admin/inputs/cron-input.tsx <-> packages/react/src/components/admin/inputs/duration-input.tsx": 1,
   "packages/react/src/components/admin/inputs/cron-input.tsx <-> packages/react/src/components/admin/inputs/phone-input.tsx": 2,
-  "packages/react/src/components/admin/inputs/cron-input.tsx <-> packages/react/src/components/admin/inputs/webhook-endpoint-input.tsx": 1,
   "packages/react/src/components/admin/inputs/cron-input.tsx <-> packages/react/src/components/mdx-editor/mdx-input.tsx": 1,
   "packages/react/src/components/admin/inputs/cron-input.tsx <-> packages/react/src/components/monaco/monaco-json-input-lazy.tsx": 1,
   "packages/react/src/components/admin/inputs/currency-input.tsx <-> packages/react/src/components/admin/inputs/duration-input.tsx": 2,
