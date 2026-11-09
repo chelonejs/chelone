@@ -73,3 +73,36 @@ describe("articles.Create and articles.Edit", () => {
     >();
   });
 });
+
+describe("an articles bundle's reference components", () => {
+  it("reference is a name of the map and target a key of that resource's record", () => {
+    articles.ReferenceManyField({ reference: "notes", target: "text" });
+    articles.ReferenceOneField({ reference: "notes", target: "text" });
+    articles.ReferenceField({ source: "headline", reference: "notes" });
+    articles.ReferenceArrayField({ source: "headline", reference: "notes" });
+    articles.ReferenceInput({ source: "headline", reference: "notes" });
+    articles.ReferenceArrayInput({ source: "headline", reference: "notes" });
+  });
+
+  it("a reference name or target the map lacks does not compile", () => {
+    // @ts-expect-error `nope` is no resource
+    articles.ReferenceManyField({ reference: "nope", target: "text" });
+    // @ts-expect-error `headline` is a key of an article, not of a note
+    articles.ReferenceManyField({ reference: "notes", target: "headline" });
+    // @ts-expect-error `nope` is no key of a note
+    articles.ReferenceOneField({ reference: "notes", target: "nope" });
+    // @ts-expect-error `typo` is no resource
+    articles.ReferenceField({ source: "headline", reference: "typo" });
+    // @ts-expect-error `typo` is no resource
+    articles.ReferenceArrayField({ source: "headline", reference: "typo" });
+    // @ts-expect-error `typo` is no resource
+    articles.ReferenceInput({ source: "headline", reference: "typo" });
+    // @ts-expect-error `typo` is no resource
+    articles.ReferenceArrayInput({ source: "headline", reference: "typo" });
+  });
+
+  it("source stays typed by the articles record", () => {
+    // @ts-expect-error `titel` is no path of an article
+    articles.ReferenceField({ source: "titel", reference: "notes" });
+  });
+});

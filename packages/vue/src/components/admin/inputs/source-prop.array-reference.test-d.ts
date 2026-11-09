@@ -1,7 +1,8 @@
 /**
  * The array, reference, reference-array and search inputs take `source` as a
  * path of the record, which is `string` until an app registers its resources.
- * `ReferenceInput` and `ReferenceArrayInput` keep `reference` as `string`.
+ * `ReferenceInput` and `ReferenceArrayInput` take `reference` as a registered
+ * resource name, which is `string` until an app registers its resources.
  */
 
 import type { SourceProp } from "@chelone/core";
@@ -17,13 +18,14 @@ describe("array, reference and search input sources", () => {
   });
 
   it("the ReferenceInput source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ReferenceInput>["$props"];
+    // A generic SFC is a function whose first parameter is its props.
+    type Props = Parameters<typeof ReferenceInput>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
     expectTypeOf<Props["reference"]>().toEqualTypeOf<string>();
   });
 
   it("the ReferenceArrayInput source prop is SourceProp", () => {
-    type Props = InstanceType<typeof ReferenceArrayInput>["$props"];
+    type Props = Parameters<typeof ReferenceArrayInput>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
     expectTypeOf<Props["reference"]>().toEqualTypeOf<string>();
   });
