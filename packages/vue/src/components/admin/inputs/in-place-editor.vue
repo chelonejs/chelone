@@ -18,7 +18,7 @@ export interface InPlaceEditorProps<
   /** Default is `useUpdate`'s own. */
   mutationMode?: MutationMode;
   /** Sent with the update. */
-  // type-escape: an app's opaque bag, which only its data provider reads
+  // type-escape: server: an app's opaque bag, which only its data provider reads
   meta?: Record<string, unknown>;
   /** Cancel on a focus move out of the editor; when false, save instead. Default `true`. */
   cancelOnBlur?: boolean;
@@ -91,7 +91,7 @@ const props = withDefaults(defineProps<InPlaceEditorProps<TRecord>>(), {
 });
 const emit = defineEmits<{
   success: [record: TRecord];
-  // type-escape: a rejection can be anything the data provider threw
+  // type-escape: server: a rejection can be anything the data provider threw
   error: [error: unknown];
 }>();
 
