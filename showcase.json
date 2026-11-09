@@ -3391,6 +3391,9 @@
   "rich-text-url-form": {
     "shownBy": "rich-text-input"
   },
+  "rsc": {
+    "shownBy": "server-scalar-fields"
+  },
   "save-button": {
     "react": {
       "docs": {
@@ -3519,6 +3522,16 @@
       "demo": {
         "path": "/vue-demo/orders/create",
         "see": "role=combobox[name=\"Status\"]"
+      }
+    }
+  },
+  "server-scalar-fields": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/server-fields"
+      },
+      "demo": {
+        "path": "/rsc/fields"
       }
     }
   },
