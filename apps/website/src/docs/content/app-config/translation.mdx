@@ -74,6 +74,28 @@ entries. For another language, copy its keys and translate the values.
 `defaultMessages` alone holds the controller keys only. Use it when you want to
 write every component label yourself.
 
+## Other languages
+
+Each shipped catalog is its own export holding every `englishMessages` key, so
+an app bundles only the languages it imports:
+
+| locale | export |
+| --- | --- |
+| Mandarin Chinese, Simplified (`zh`) | `zhMessages` |
+
+```ts title="src/i18n.ts"
+import { createI18n, englishMessages, zhMessages } from "@chelone/core";
+
+export const i18n = createI18n({
+  locale: "zh",
+  messages: { en: englishMessages, zh: zhMessages },
+  fallbackLocale: "en",
+});
+```
+
+Spread one to override entries or add your own keys:
+`{ ...zhMessages, "chelone.page.dashboard": "首页" }`.
+
 The component labels are the keys the components pass to `translate`. Most call
 it with an English default, so a missing key still reads as English (see
 [Missing keys](#missing-keys-never-throw)). The keys, by group:
