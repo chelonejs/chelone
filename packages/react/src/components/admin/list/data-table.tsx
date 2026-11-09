@@ -105,7 +105,7 @@ const DataTableExpandContext =
 const useDataTableExpandContext = <
   TRecord extends ResourceRecord = LooseRecord,
 >() =>
-  // type-escape: the table published its expand context at its own record type, which the caller names
+  // type-escape: context: the table published its expand context at its own record type, which the caller names
   use(DataTableExpandContext) as DataTableExpandContextValue<TRecord> | null;
 
 /**
@@ -234,14 +234,14 @@ function DataTable<TRecord extends ResourceRecord = LooseRecord>(
     );
 
   const erasedExpandContext =
-    // type-escape: the context holds the value at `ResourceRecord`; the hooks read it back at this table's record
+    // type-escape: context: holds the value at `ResourceRecord`; the hooks read it back at this table's record
     expandContextValue as DataTableExpandContextValue<ResourceRecord> | null;
 
   const nbColumns = visibleChildren.length;
 
   return (
     <DataTableRowClickContext.Provider
-      // type-escape: the context holds `rowClick` at `ResourceRecord`; the row reads it back at this table's record
+      // type-escape: context: holds `rowClick` at `ResourceRecord`; the row reads it back at this table's record
       value={(rowClick ?? "edit") as DataTableProps<ResourceRecord>["rowClick"]}
     >
       <DataTableBulkContext.Provider value={hasBulkActions}>
@@ -294,7 +294,7 @@ const DataTableRowClickContext =
 const useDataTableRowClickContext = <
   TRecord extends ResourceRecord = LooseRecord,
 >() =>
-  // type-escape: the table published its `rowClick` at its own record type, which the caller names
+  // type-escape: context: the table published its `rowClick` at its own record type, which the caller names
   use(DataTableRowClickContext) as DataTableProps<TRecord>["rowClick"];
 
 DataTable.Col = DataTableColumn;

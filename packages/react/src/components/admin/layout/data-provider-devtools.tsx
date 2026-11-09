@@ -46,7 +46,7 @@ const PANEL_CLASSES =
   "fixed right-4 bottom-4 z-50 flex max-h-[70vh] w-96 max-w-[calc(100vw-2rem)] flex-col rounded-lg border bg-popover text-xs text-popover-foreground shadow-lg";
 
 /** The value as indented JSON cut to `DEVTOOLS_MAX_VALUE_LENGTH`, or `undefined` when there is none to show. */
-// type-escape: params and results are whatever the provider's methods take and give
+// type-escape: server: params and results are whatever the provider's methods take and give
 function show(value: unknown): string | undefined {
   try {
     return JSON.stringify(value, null, 2)?.slice(0, DEVTOOLS_MAX_VALUE_LENGTH);
@@ -55,7 +55,7 @@ function show(value: unknown): string | undefined {
   }
 }
 
-// type-escape: see show
+// type-escape: server: see show
 function Detail({ label, value }: { label: string; value: unknown }) {
   const text = show(value);
   if (text === undefined) return null;

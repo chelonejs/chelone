@@ -1,10 +1,10 @@
 {
   "core": {
-    "Instantiations": 678000,
+    "Instantiations": 685000,
     "Types": 208000
   },
   "utils": {
-    "Instantiations": 90000,
+    "Instantiations": 91000,
     "Types": 54000
   },
   "rest": {
