@@ -38,7 +38,7 @@ export interface AssistantSession extends MicroStore<AssistantSessionState> {
 
 type ToolMessage = Extract<AssistantMessage, { role: "tool" }>;
 
-// type-escape: a caught value is unknown until it is checked.
+// type-escape: server: a caught value is unknown until it is checked.
 const toError = (error: unknown): Error =>
   error instanceof Error ? error : new Error(String(error));
 

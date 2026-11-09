@@ -127,7 +127,7 @@ export interface CheckErrorOutcome {
 }
 
 function readProp<T>(source: unknown, key: string): T | undefined {
-  // type-escape: the caller names the prop's type
+  // type-escape: server: a reject payload is the provider's; the caller names the prop's type
   return isRecord(source) && key in source ? (source[key] as T) : undefined;
 }
 

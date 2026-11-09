@@ -84,7 +84,7 @@ export interface LooseSortPayload {
  * augmented.
  */
 export type FilterPayload<TRecord = LooseRecord> = {
-  // type-escape: filter values are unknown by design — an operator suffix makes a key's value type ambiguous (`title_gte` wants a string, `views_gte` a number), and the provider decides what a value means
+  // type-escape: filter-value: unknown by design — an operator suffix makes a key's value type ambiguous (`title_gte` wants a string, `views_gte` a number), and the provider decides what a value means
   [TKey in _FilterKeyOf<TRecord>]?: unknown;
 };
 
