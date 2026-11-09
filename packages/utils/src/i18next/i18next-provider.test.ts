@@ -72,6 +72,42 @@ describe("createI18nextProvider", () => {
       ).toBe("one");
     });
 
+    it("uses the active language's other form over a fallback language's matching form", () => {
+      const i18n = createI18nextProvider(
+        instanceWith({
+          locale: "pl",
+          fallbackLocale: "en",
+          messages: {
+            pl: {
+              "items.deleted": { one: "1 element", other: "{count} elementów" },
+            },
+            en: {
+              "items.deleted": {
+                one: "1 item deleted",
+                other: "{count} items deleted",
+              },
+            },
+          },
+        }),
+      );
+      expect(i18n.translate("items.deleted", { count: 5 })).toBe("5 elementów");
+      expect(i18n.translate("items.deleted")).toBe("{count} elementów");
+    });
+
+    it("still reads a fallback language for a key the active one lacks", () => {
+      const i18n = createI18nextProvider(
+        instanceWith({
+          locale: "pl",
+          fallbackLocale: "en",
+          messages: {
+            pl: {},
+            en: { "items.deleted": { one: "1 item", other: "{count} items" } },
+          },
+        }),
+      );
+      expect(i18n.translate("items.deleted", { count: 5 })).toBe("5 items");
+    });
+
     it("returns a plain message whole when a count is given", () => {
       expect(provider().translate("action.save", { count: 3 })).toBe("Save");
     });

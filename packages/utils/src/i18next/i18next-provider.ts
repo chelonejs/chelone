@@ -59,10 +59,14 @@ export function createI18nextProvider(i18n: I18next): I18nProvider {
         replace.smart_count = params.smart_count ?? raw;
       }
       // i18next never falls back to `other` for a plural category the message
-      // lacks, or when there is no count at all; the contract wants both.
+      // lacks, or when there is no count at all; the contract wants both. Look
+      // in the active language only: a fallback language's matching form would
+      // otherwise beat the active language's own `other`.
       const pluralOptions = count === undefined ? undefined : { count };
+      const activeOnly = { fallbackLng: false } as const;
       const lookup =
-        !i18n.exists(key, pluralOptions) && i18n.exists(`${key}_other`)
+        !i18n.exists(key, { ...pluralOptions, ...activeOnly }) &&
+        i18n.exists(`${key}_other`, activeOnly)
           ? `${key}_other`
           : key;
       return i18n.t(lookup, {
