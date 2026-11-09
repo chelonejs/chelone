@@ -49,7 +49,7 @@ const toLock = (row: LockRow): Lock => ({
   createdAt: row.created_at,
 });
 
-// type-escape: the parsed body of a response, which is raw JSON.
+// type-escape: json: the parsed body of a response.
 const toLocks = (json: unknown): Lock[] =>
   Array.isArray(json) ? json.filter(isLockRow).map(toLock) : [];
 

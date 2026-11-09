@@ -58,7 +58,7 @@ export interface BlockDefinition<A extends BlockAttrs = BlockAttrs>
 export function defineBlock<A extends BlockAttrs>(
   def: BlockDefinition<A>,
 ): BlockDefinition {
-  // type-escape: the components take `A` and the editor passes the node's attrs, which the schema produced
+  // type-escape: schema: the components take `A` and the editor passes the node's attrs, which the schema produced
   return def as BlockDefinition;
 }
 
