@@ -90,4 +90,29 @@ describe("the Start demo", () => {
     const html = renderToString(<RouterProvider router={router} />);
     expect(html).toContain(seeded(seedData().comments[0], "comment").body);
   });
+
+  it("a server render holds the rows of a URL with a query string", async () => {
+    // 12 seeded posts at 10 per page: page 2 holds only the last two titles.
+    const router = routerAt("/admin/posts?page=2");
+    await router.load();
+    const html = renderToString(<RouterProvider router={router} />);
+    expect(html).toContain(seeded(seedData().posts[10], "post").title);
+    expect(html).not.toContain(seeded(seedData().posts[4], "post").title);
+  });
+
+  it("a client move to a paged URL shows that page's rows", async () => {
+    const router = routerAt("/admin/posts");
+    await router.load();
+    render(<RouterProvider router={router} />);
+    const firstPage = seeded(seedData().posts[0], "post").title;
+    expect(await screen.findByText(firstPage)).toBeTruthy();
+
+    router.history.push("/admin/posts?page=2");
+
+    const secondPage = seeded(seedData().posts[10], "post").title;
+    expect(await screen.findByText(secondPage)).toBeTruthy();
+    expect(
+      screen.queryByText(seeded(seedData().posts[4], "post").title),
+    ).toBeNull();
+  });
 });
