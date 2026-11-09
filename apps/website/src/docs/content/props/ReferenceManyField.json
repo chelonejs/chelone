@@ -33,7 +33,7 @@
     },
     {
       "name": "reference",
-      "type": "string",
+      "type": "TReference",
       "optional": false,
       "comment": "The referenced resource holding the reverse FK (e.g. `\"books\"`)."
     },
@@ -57,9 +57,9 @@
     },
     {
       "name": "target",
-      "type": "string",
+      "type": "ReferenceTargetOf<TResources, TReference>",
       "optional": false,
-      "comment": "The FK field on the reference pointing back at this record (e.g. `\"author_id\"`)."
+      "comment": "The FK field on the reference pointing back at this record (e.g. `\"author_id\"`). A key of the referenced resource's record."
     }
   ]
 }

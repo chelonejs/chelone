@@ -1,18 +1,32 @@
-<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+<script
+  lang="ts"
+  generic="
+    RecordType extends ResourceRecord = LooseRecord,
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
 import type {
   FilterPayload,
   LooseRecord,
+  RegisteredResources,
+  ReferenceTargetOf,
+  ResourceMap,
   ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceManyField}. */
-export interface ReferenceManyFieldProps<RecordType extends ResourceRecord = LooseRecord> {
-  /** The referenced resource holding the reverse FK (e.g. `"books"`). */
-  reference: string;
-  /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
-  target: string;
+export interface ReferenceManyFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string
+> {
+  /** The referenced resource holding the reverse FK (e.g. `"books"`). A registered resource name. */
+  reference: TReference;
+  /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). A key of the referenced resource's record. */
+  target: ReferenceTargetOf<TResources, TReference>;
   /** The field on the current record the `target` matches. Default `"id"`. */
   source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
@@ -30,7 +44,15 @@ export interface ReferenceManyFieldProps<RecordType extends ResourceRecord = Loo
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+<script
+  setup
+  lang="ts"
+  generic="
+    RecordType extends ResourceRecord = LooseRecord,
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
 /**
  * `<ReferenceManyField>` — displays multiple related records that reference the
  * current record via a foreign key (a one-to-many / reverse relationship). The
@@ -53,13 +75,23 @@ import { provideResourceContext } from "../../../resource-context";
 
 // `storeKey` may be `false`, which makes Vue cast an absent prop to `false`
 // (keep in memory). The explicit `undefined` default keeps absent as absent.
-const props = withDefaults(defineProps<ReferenceManyFieldProps<RecordType>>(), {
-  storeKey: undefined,
-});
+const props = withDefaults(
+  defineProps<ReferenceManyFieldProps<RecordType, TResources, TReference>>(),
+  {
+    storeKey: undefined,
+  },
+);
 
 // A getter, so a `record` prop or an async ambient record lands live. The
 // composable falls back to the ambient record when the prop is absent.
-const listContext = useReferenceManyFieldController({
+// The composable is called at its loose binding: `reference` and `target` are
+// already checked against `TResources` by these props, and `sort`/`filter` stay
+// the loose payloads they are today.
+const listContext = useReferenceManyFieldController<
+  ResourceMap,
+  TReference,
+  RecordType
+>({
   reference: props.reference,
   target: props.target,
   source: props.source,

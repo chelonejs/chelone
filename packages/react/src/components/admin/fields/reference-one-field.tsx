@@ -1,6 +1,9 @@
 import type {
   FilterPayload,
   LooseRecord,
+  ReferenceTargetOf,
+  RegisteredResources,
+  ResourceMap,
   ResourceRecord,
   SortPayload,
   SourceProp,
@@ -14,11 +17,13 @@ import { ResourceContextProvider } from "../../../resource";
 
 interface ReferenceOneFieldProps<
   RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
 > {
   /** The referenced resource holding the one-to-one record (e.g. `"bios"`). */
-  reference: string;
-  /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
-  target: string;
+  reference: TReference;
+  /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). A key of the referenced resource's record. */
+  target: ReferenceTargetOf<TResources, TReference>;
   /** The field on the current record the `target` matches. Default `"id"`. */
   source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
@@ -69,9 +74,11 @@ interface ReferenceOneFieldProps<
  *   </Show>
  * );
  */
-function ReferenceOneField<RecordType extends ResourceRecord = LooseRecord>(
-  props: ReferenceOneFieldProps<RecordType>,
-) {
+function ReferenceOneField<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+>(props: ReferenceOneFieldProps<RecordType, TResources, TReference>) {
   const {
     reference,
     target,
@@ -89,7 +96,14 @@ function ReferenceOneField<RecordType extends ResourceRecord = LooseRecord>(
   const translate = useTranslate();
   const getRecordRepresentation = useGetRecordRepresentation(reference);
 
-  const { referenceRecord, isPending, error } = useReferenceOneFieldController({
+  // The controller is called at its loose binding: `reference` and `target` are
+  // already checked against `TResources` by these props, and `sort`/`filter`
+  // stay the loose payloads they are today.
+  const { referenceRecord, isPending, error } = useReferenceOneFieldController<
+    ResourceMap,
+    TReference,
+    RecordType
+  >({
     reference,
     target,
     source,

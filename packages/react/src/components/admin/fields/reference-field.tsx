@@ -1,6 +1,8 @@
 import {
   isIdentifier,
   type LooseRecord,
+  type RegisteredResources,
+  type ResourceMap,
   type ResourceRecord,
   type SourceProp,
 } from "@chelone/core";
@@ -14,11 +16,15 @@ import { useResourceDefinition } from "../../../resource";
 import { type LinkToType, useGetPathForRecord } from "../../../router";
 import { useRouterAdapter } from "../../../router/adapter";
 
-interface ReferenceFieldProps<RecordType extends ResourceRecord = LooseRecord> {
+interface ReferenceFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+> {
   /** The FK field on the current record (e.g. `"author_id"`). */
   source: SourceProp<RecordType>;
-  /** The referenced resource the FK points at (e.g. `"authors"`). */
-  reference: string;
+  /** The referenced resource the FK points at (e.g. `"authors"`). A registered resource name. */
+  reference: TReference;
   /** The record to read the FK off. Defaults to the ambient record. */
   record?: RecordType;
   /** Child field(s) rendered against the referenced record. */
@@ -75,9 +81,11 @@ const stopPropagation = (e: MouseEvent<HTMLAnchorElement>) =>
  *   </List>
  * );
  */
-function ReferenceField<RecordType extends ResourceRecord = LooseRecord>(
-  props: ReferenceFieldProps<RecordType>,
-) {
+function ReferenceField<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+>(props: ReferenceFieldProps<RecordType, TResources, TReference>) {
   const {
     source,
     reference,

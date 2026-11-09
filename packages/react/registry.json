@@ -3755,7 +3755,7 @@
         "@chelone/toolbar",
         "@chelone/use-guessed-resource"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },

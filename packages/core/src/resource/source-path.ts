@@ -224,3 +224,18 @@ export type AnyFilterSourceKey = AnyFilterSourceKeyOf<RegisteredResources>;
 export type SourceProp<TRecord = LooseRecord> = LooseRecord extends TRecord
   ? AnySourcePath
   : _RecordSourcePath<TRecord>;
+
+/**
+ * The `target` a reference to `TName` of `TResources` takes: a top-level key of
+ * that resource's record, since `getManyReference` filters on one flat field.
+ * `string` when the map is open (nothing registered) or the named resource has
+ * no schema, as {@link SourceKey} does for every loose record.
+ *
+ * `TName` is walked one name at a time: a name set left at its default is a
+ * union, and `RecordOf` over a union of names resolves to the record members
+ * those records share, which would reject every real target.
+ */
+export type ReferenceTargetOf<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+> = TName extends unknown ? SourceKey<RecordOf<TResources, TName>> : never;

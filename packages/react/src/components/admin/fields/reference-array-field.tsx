@@ -2,6 +2,8 @@ import {
   type FilterPayload,
   identifiersOf,
   type LooseRecord,
+  type RegisteredResources,
+  type ResourceMap,
   type ResourceRecord,
   type SortPayload,
   type SourceProp,
@@ -15,11 +17,13 @@ import { useList } from "../../../use-list";
 
 interface ReferenceArrayFieldProps<
   RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
 > {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
   source: SourceProp<RecordType>;
-  /** The referenced resource the ids point at (e.g. `"tags"`). */
-  reference: string;
+  /** The referenced resource the ids point at (e.g. `"tags"`). A registered resource name. */
+  reference: TReference;
   /** The record to read the FK array off. Defaults to the ambient record. */
   record?: RecordType;
   /** The list-rendering children (a `DataTable`, etc.). */
@@ -62,9 +66,11 @@ interface ReferenceArrayFieldProps<
  *   </List>
  * );
  */
-function ReferenceArrayField<RecordType extends ResourceRecord = LooseRecord>(
-  props: ReferenceArrayFieldProps<RecordType>,
-) {
+function ReferenceArrayField<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+>(props: ReferenceArrayFieldProps<RecordType, TResources, TReference>) {
   const { source, reference, record, children, sort, filter, perPage } = props;
 
   // The FK array read. A partially valid array (a nullable int[] reads as

@@ -35,6 +35,7 @@ import type {
   RegisteredResourceName,
   RegisteredResources,
   ResourceMap,
+  ResourceRecord,
   SourceProp,
   SourceValue,
 } from "@chelone/core";
@@ -94,11 +95,19 @@ import PhoneField, {
 } from "./components/admin/fields/phone-field.vue";
 import RatingField from "./components/admin/fields/rating-field.vue";
 import RecordField from "./components/admin/fields/record-field.vue";
-import ReferenceArrayField from "./components/admin/fields/reference-array-field.vue";
-import ReferenceField from "./components/admin/fields/reference-field.vue";
+import ReferenceArrayField, {
+  type ReferenceArrayFieldProps,
+} from "./components/admin/fields/reference-array-field.vue";
+import ReferenceField, {
+  type ReferenceFieldProps,
+} from "./components/admin/fields/reference-field.vue";
 import ReferenceManyCount from "./components/admin/fields/reference-many-count.vue";
-import ReferenceManyField from "./components/admin/fields/reference-many-field.vue";
-import ReferenceOneField from "./components/admin/fields/reference-one-field.vue";
+import ReferenceManyField, {
+  type ReferenceManyFieldProps,
+} from "./components/admin/fields/reference-many-field.vue";
+import ReferenceOneField, {
+  type ReferenceOneFieldProps,
+} from "./components/admin/fields/reference-one-field.vue";
 import SelectField from "./components/admin/fields/select-field.vue";
 import SubscriptionPlanField, {
   type SubscriptionPlanFieldProps,
@@ -164,8 +173,12 @@ import RadioButtonGroupInput from "./components/admin/inputs/radio-button-group-
 import RatingInput, {
   type RatingInputProps,
 } from "./components/admin/inputs/rating-input.vue";
-import ReferenceArrayInput from "./components/admin/inputs/reference-array-input.vue";
-import ReferenceInput from "./components/admin/inputs/reference-input.vue";
+import ReferenceArrayInput, {
+  type ReferenceArrayInputProps,
+} from "./components/admin/inputs/reference-array-input.vue";
+import ReferenceInput, {
+  type ReferenceInputProps,
+} from "./components/admin/inputs/reference-input.vue";
 import ResettableTextInput from "./components/admin/inputs/resettable-text-input.vue";
 import SearchInput from "./components/admin/inputs/search-input.vue";
 import SelectArrayInput, {
@@ -493,6 +506,75 @@ type TypedInputMembers<TRecord> = {
 };
 
 /**
+ * The reference components are generic over the referenced name too, so
+ * `reference` is a name of `TResources` and `target` a key of that resource's
+ * record. A generic SFC has no constructor for {@link Retyped} to read, so each
+ * is a function component like {@link ArrayInputMember}.
+ */
+type ReferenceMembers<
+  TRecord extends ResourceRecord,
+  TResources extends ResourceMap,
+> = {
+  ReferenceArrayField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceArrayFieldProps<TRecord, TResources, TReference> &
+      VNodeProps &
+      AllowedComponentProps,
+    ctx?: {
+      slots?: NonNullable<Parameters<typeof ReferenceArrayField>[1]>["slots"];
+    },
+  ) => VNode;
+  ReferenceArrayInput: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceArrayInputProps<TResources, TReference> &
+      VNodeProps &
+      AllowedComponentProps,
+    ctx?: {
+      slots?: NonNullable<Parameters<typeof ReferenceArrayInput>[1]>["slots"];
+    },
+  ) => VNode;
+  ReferenceField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceFieldProps<TRecord, TResources, TReference> &
+      VNodeProps &
+      AllowedComponentProps,
+    ctx?: {
+      slots?: NonNullable<Parameters<typeof ReferenceField>[1]>["slots"];
+    },
+  ) => VNode;
+  ReferenceInput: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceInputProps<TResources, TReference> &
+      VNodeProps &
+      AllowedComponentProps,
+  ) => VNode;
+  ReferenceManyField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceManyFieldProps<TRecord, TResources, TReference> &
+      VNodeProps &
+      AllowedComponentProps,
+    ctx?: {
+      slots?: NonNullable<Parameters<typeof ReferenceManyField>[1]>["slots"];
+    },
+  ) => VNode;
+  ReferenceOneField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceOneFieldProps<TRecord, TResources, TReference> &
+      VNodeProps &
+      AllowedComponentProps,
+    ctx?: {
+      slots?: NonNullable<Parameters<typeof ReferenceOneField>[1]>["slots"];
+    },
+  ) => VNode;
+};
+
+/**
  * A view with its `resource` prop removed. Templates are not strict about
  * undeclared attributes, so the prop stays as `never` to make
  * `<posts.Edit resource="users">` an error.
@@ -549,7 +631,8 @@ export type ResourceComponents<
     RecordOf<TResources, TName>
   >;
 } & TypedInputMembers<RecordOf<TResources, TName>> &
-  TypedFieldMembers<RecordOf<TResources, TName>> & {
+  TypedFieldMembers<RecordOf<TResources, TName>> &
+  ReferenceMembers<RecordOf<TResources, TName>, TResources> & {
     ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
     Edit: EditMember<RecordOf<TResources, TName>>;
     Create: CreateMember<RecordOf<TResources, TName>>;

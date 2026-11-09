@@ -1,3 +1,4 @@
+import type { LooseRecord, ResourceMap } from "@chelone/core";
 import { Fragment, useEffect, useRef } from "react";
 import { useResourceContext } from "../../../resource";
 import { Toolbar } from "../form/toolbar";
@@ -67,7 +68,9 @@ function EditGuesser({
         const label = field.label;
         if (field.input === "ReferenceInput") {
           return (
-            <ReferenceInput
+            // The guessed name comes from the schema at runtime, so this call is
+            // bound to an open map: `reference` stays a plain string.
+            <ReferenceInput<LooseRecord, ResourceMap>
               key={field.source}
               source={field.source}
               reference={field.reference ?? ""}
@@ -79,7 +82,7 @@ function EditGuesser({
         // The reference inputs take no `label`: it goes on the child input.
         if (field.input === "ReferenceArrayInput") {
           return (
-            <ReferenceArrayInput
+            <ReferenceArrayInput<LooseRecord, ResourceMap>
               key={field.source}
               source={field.source}
               reference={field.reference ?? ""}
