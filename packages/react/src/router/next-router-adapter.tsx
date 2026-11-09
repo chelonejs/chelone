@@ -67,18 +67,14 @@ function useNavigate(): AdapterNavigate {
   const routerRef = useRef(router);
   routerRef.current = router;
 
-  function navigate(to: string, opts?: NavigateOpts): void;
-  function navigate(delta: number): void;
-  function navigate(to: string | number, opts?: NavigateOpts): void {
-    if (typeof to === "number") {
-      window.history.go(to);
-      return;
-    }
-    if (opts?.replace) routerRef.current.replace(to);
-    else routerRef.current.push(to);
-  }
-
-  return useCallback(navigate, []);
+  return useCallback<AdapterNavigate>(
+    (to: string | number, opts?: NavigateOpts) => {
+      if (typeof to === "number") window.history.go(to);
+      else if (opts?.replace) routerRef.current.replace(to);
+      else routerRef.current.push(to);
+    },
+    [],
+  );
 }
 
 /** Next's params, with a catch-all segment's parts joined, also under `'*'`. */

@@ -36,9 +36,8 @@ export function renderFirstMatch(
 ): ReactNode {
   const routes: AdapterRouteProps[] = [];
   for (const child of toChildArray(children)) {
-    if (isValidElement(child) && child.type === Route) {
-      // type-escape: an element whose type is `Route` was created with its props.
-      routes.push(child.props as AdapterRouteProps);
+    if (isValidElement<AdapterRouteProps>(child) && child.type === Route) {
+      routes.push(child.props);
     }
   }
 
@@ -98,9 +97,11 @@ function toChildArray(children: ReactNode): ReactNode[] {
       for (const n of node) walk(n);
       return;
     }
-    if (isValidElement(node) && node.type === Fragment) {
-      // type-escape: a Fragment element's only prop is `children`.
-      walk((node.props as { children?: ReactNode }).children);
+    if (
+      isValidElement<{ children?: ReactNode }>(node) &&
+      node.type === Fragment
+    ) {
+      walk(node.props.children);
       return;
     }
     out.push(node);
