@@ -163,6 +163,20 @@ it("translation.mdx and security.mdx link to the page and no longer hold the Reg
   }
 });
 
+it("no page this pull request touches repeats a section heading", () => {
+  for (const [name, text] of [
+    ["translations-and-permissions", page],
+    ["translation", translationPage],
+    ["security", securityPage],
+  ]) {
+    const headings = [...text.matchAll(/^## (.+)$/gm)].map((match) => match[1]);
+    const repeated = headings.filter(
+      (heading, index) => headings.indexOf(heading) !== index,
+    );
+    expect(repeated, `${name}.mdx repeats a ## heading`).toEqual([]);
+  }
+});
+
 it("no link in translation.mdx or security.mdx points at a heading that is gone", () => {
   for (const [name, text] of [
     ["translation", translationPage],
