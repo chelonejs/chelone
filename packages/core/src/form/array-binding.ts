@@ -72,20 +72,24 @@ export type ArrayItemOf<
   TRecord,
   TPath extends string = SourcePath<TRecord>,
 > = string extends TPath
-  ? unknown
+  ? // type-escape: form-core: a composed `string` source (the ambient form) names no array form-core can type
+    unknown
   : [PathValue<TRecord, TPath>] extends [never]
-    ? unknown
-    : PathValue<TRecord, TPath> extends readonly unknown[]
+    ? // type-escape: form-core: a path form-core does not type has no row type to name
+      unknown
+    : // type-escape: form-core: only an array value has rows
+      PathValue<TRecord, TPath> extends readonly unknown[]
       ? PathValue<TRecord, TPath>[number]
-      : unknown;
+      : // type-escape: form-core: a scalar path has no rows
+        unknown;
 
 /**
  * What a new row may be seeded with: a partial of an object row, or any object
  * when the row type is unknown (a composed `string` source).
  */
-export type ItemDefaultsOf<TItem> = unknown extends TItem
-  ? object
-  : Partial<Extract<TItem, object>>;
+export type ItemDefaultsOf<TItem> =
+  // type-escape: form-core: an unknown row type seeds any object the caller names
+  unknown extends TItem ? object : Partial<Extract<TItem, object>>;
 
 export interface ArrayBindingOptions<
   TRecord = LooseRecord,
@@ -226,7 +230,7 @@ export function createArrayBinding<
 
   // A `SourcePath` is a path of the record by construction, and a binding is
   // only ever built on an array field.
-  // type-escape: TS cannot see either in form-core's `DeepKeysOfType`.
+  // type-escape: form-core: TS cannot see either in form-core's `DeepKeysOfType`.
   const name = source as ArrayFieldPath<TRecord>;
 
   /** A fresh copy of the seed rows — never the option's own array. */
@@ -237,7 +241,7 @@ export function createArrayBinding<
   const toFieldOptions = (): FieldBindingUpdateOptions<
     SourceValue<TRecord, TPath>
   > => ({
-    // type-escape: the rows of this path are its value, deferred while `TRecord` is open.
+    // type-escape: context: the rows of this path are its value, deferred while `TRecord` is open.
     defaultValue: seedRows() as SourceValue<TRecord, TPath>,
     validate: current.validate,
     schema: current.schema,
@@ -246,7 +250,7 @@ export function createArrayBinding<
 
   // INERT (4R): mount/seed/register happen on the first subscriber. An
   // iterator drives positional ops on the array, not one input value.
-  // type-escape: so the field binding's input type is `unknown`.
+  // type-escape: context: so the field binding's input type is `unknown`.
   const fieldBinding = createFieldBinding<TRecord, TPath, unknown>(form, {
     source,
     ...toFieldOptions(),
@@ -261,7 +265,7 @@ export function createArrayBinding<
   const ensureSeeded = (): void => {
     if (form.getFieldValue(name) !== undefined) return;
     // The seed IS the array form-core keeps at `name`.
-    // type-escape: its `FieldValue` stays deferred while `TRecord` is open.
+    // type-escape: form-core: its `FieldValue` stays deferred while `TRecord` is open.
     const seed = seedRows() as ArrayValue<TRecord>;
     form.setFieldValue(name, seed, HYDRATION_WRITE);
   };
@@ -300,13 +304,12 @@ export function createArrayBinding<
   };
 
   /** Object mode: the first row's keys, every one nulled. */
-  const emptyRowTemplate = (): Record<string, unknown> => {
-    const template: Record<string, unknown> = {};
+  const emptyRowTemplate = (): Record<string, null> => {
     const probe = firstRowProbe();
-    if (isRecord(probe)) {
-      for (const key of Object.keys(probe)) template[key] = null;
-    }
-    return template;
+    if (!isRecord(probe)) return {};
+    return Object.fromEntries(
+      Object.keys(probe).map((key) => [key, null] as const),
+    );
   };
 
   const newItem = (): ArrayItemOf<TRecord, TPath> => {
@@ -315,7 +318,7 @@ export function createArrayBinding<
       : { ...emptyRowTemplate(), ...current.itemDefaults };
     // The new row comes from the FIRST row's keys (or `''` when scalar mode is
     // declared), which a generic `TRecord` cannot predict.
-    // type-escape: the row is the shape the binding builds, not the record's.
+    // type-escape: builder: the row is the shape the binding builds, not the record's.
     return row as ArrayItemOf<TRecord, TPath>;
   };
 
@@ -326,7 +329,7 @@ export function createArrayBinding<
    * form-core types the item as `never`.
    */
   const formItem = (value: ArrayItemOf<TRecord, TPath>): ArrayItem<TRecord> =>
-    // type-escape: this path's row is one of form-core's union rows.
+    // type-escape: form-core: this path's row is one of form-core's union rows.
     value as ArrayItem<TRecord>;
 
   // --- ops (ids mutate FIRST, synchronously before the form op, so any

@@ -8,6 +8,7 @@ import {
   standardSchemaValidators,
 } from "@tanstack/form-core";
 import { isThenable } from "../guards";
+import { buildObject } from "./build-object";
 import type {
   AsyncValidator,
   CheloneFormOptions,
@@ -20,6 +21,10 @@ import {
   toFormErrorMapValue,
   type ValidationErrorMessage,
 } from "./form-errors";
+
+/** ra's empty values: `undefined`, `null` and `''`. `0`, `false`, `[]` and `{}` are not. */
+const isEmptyValue = (value: unknown): boolean =>
+  value === undefined || value === null || value === "";
 
 /**
  * ra parity (exact semantics, TOP-LEVEL keys only): `null`, `''` and
@@ -36,16 +41,15 @@ export function sanitizeEmptyValues<TValues>(
   record?: object,
 ): TValues {
   if (typeof values !== "object" || values === null) return values;
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(values)) {
-    if (value === undefined || value === null || value === "") {
-      if (record && key in record) result[key] = null;
-    } else {
-      result[key] = value;
-    }
-  }
-  // type-escape: omitted keys make the runtime value narrower than TValues (ra types it the same way)
-  return result as TValues;
+  return buildObject<TValues & object>(
+    Object.entries(values).flatMap(([key, value]) =>
+      isEmptyValue(value)
+        ? record && key in record
+          ? [[key, null] as const]
+          : []
+        : [[key, value] as const],
+    ),
+  );
 }
 
 export interface ComposeFormValidatorConfig<TFormData> {
