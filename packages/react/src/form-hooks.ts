@@ -407,6 +407,7 @@ export interface UseInputResult<TInput = unknown> {
 /** One binding per (form, final source) pair — the useInput identity key. */
 interface InputBindingHolder {
   form: AmbientForm;
+  // type-escape: context: the ambient form names no record, so its binding is record-free
   binding: FieldBinding<unknown>;
 }
 
@@ -416,8 +417,7 @@ interface InputBindingHolder {
  * validators can read them), with an explicit `validatorMeta` merged on top.
  */
 function toBindingUpdate(options: UseInputOptions): FieldBindingUpdateOptions {
-  const meta: Record<string, unknown> = {};
-  Object.assign(meta, options, options.validatorMeta);
+  const meta = { ...options, ...options.validatorMeta };
   return {
     defaultValue: options.defaultValue,
     format: options.format,
