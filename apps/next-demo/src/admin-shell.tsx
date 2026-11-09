@@ -11,11 +11,13 @@
  * renders, so a mount must not refetch it; a mutation still invalidates. After
  * a browser write the server's prefetch is stale, so `<Prefetched>` ignores it.
  *
- * The proxy has already kept a logged-out visit out, so `requireAuth` here is
- * for the session ending while the page is open. The layout reads the cookie
- * and hands the shell `session`, so the browser's provider agrees with the
- * server on the first render; signing out goes through the server action that
- * clears the cookie.
+ * The proxy keeps a logged-out visit out. The layout reads the cookie and
+ * hands the shell `session`, so the browser's provider agrees with the server
+ * on the first render. `requireAuth` covers this shell's own sign-out, which
+ * clears the cookie through a server action and falls to the login slot until
+ * the navigation lands. A session ended elsewhere, such as another tab, is
+ * not seen here: the browser's answer is set once from `session`, and the
+ * next navigation that reaches the proxy catches it.
  */
 
 import {
@@ -34,7 +36,6 @@ import { Admin, Resource } from "@chelone/react";
 import { NextOutletProvider, nextRouterAdapter } from "@chelone/react/next";
 import { QueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import type { Session } from "./auth";
 import { watchWrites } from "./prefetched";
@@ -67,7 +68,6 @@ export function AdminShell({
   session,
   dataProvider,
 }: AdminShellProps) {
-  const router = useRouter();
   const [queryClient] = useState(() => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -88,7 +88,9 @@ export function AdminShell({
       logout: async () => {
         await signOut();
         await demo.logout();
-        router.replace("/login");
+        // A hard navigation: Next's client router cache would restore a
+        // signed-in page on Back without a request, so the proxy never runs.
+        window.location.replace("/login");
       },
     };
   });

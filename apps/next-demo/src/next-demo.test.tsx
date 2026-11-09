@@ -12,6 +12,7 @@
 
 import { fakeDataProvider } from "@chelone/core";
 import { seedData } from "@chelone/demo-data";
+import { useLogout } from "@chelone/react";
 import {
   cleanup,
   fireEvent,
@@ -25,6 +26,7 @@ import { AdminShell } from "./admin-shell";
 import { Prefetched } from "./prefetched";
 import type { NextDemoResources } from "./resources";
 import { prefetchList, prefetchOne } from "./server-context";
+import { signOut } from "./session-actions";
 import { CommentList, PostEdit, PostList } from "./views";
 
 const next = vi.hoisted(() => {
@@ -105,6 +107,11 @@ vi.mock("next/link", async () => {
   return { default: Link };
 });
 
+vi.mock("./session-actions", () => ({
+  signIn: vi.fn(async () => {}),
+  signOut: vi.fn(async () => {}),
+}));
+
 beforeEach(() => {
   next.reset("/admin/posts");
 });
@@ -127,7 +134,41 @@ function browserProvider() {
   };
 }
 
+function SignOutButton() {
+  const logout = useLogout();
+  return (
+    <button type="button" onClick={() => logout.mutate(undefined)}>
+      Sign out
+    </button>
+  );
+}
+
 describe("the Next demo", () => {
+  it("signing out clears the cookie and leaves by a hard navigation", async () => {
+    const replace = vi.fn();
+    vi.stubGlobal("location", { replace });
+    // The login slot the shell falls to mounts a toaster, which reads this.
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener() {},
+      removeEventListener() {},
+    }));
+    render(
+      <AdminShell session={{ user: "Ada" }}>
+        <SignOutButton />
+      </AdminShell>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: "Sign out" }));
+
+    await waitFor(() => expect(replace).toHaveBeenCalledWith("/login"));
+    expect(signOut).toHaveBeenCalled();
+    // The client router would restore a cached signed-in page on Back.
+    expect(next.router.replace).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
   it("the posts prefetch is what the list reads", async () => {
     const { dataProvider, getList } = browserProvider();
     const state = await prefetchList("posts", "");
