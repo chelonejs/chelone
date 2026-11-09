@@ -28,7 +28,7 @@ export interface RichTextImageError {
   reason: RichTextImageErrorReason;
   file: File | null;
   /** What `uploadFn` threw, for an `upload` error. */
-  // type-escape: a catch binding is unknown
+  // type-escape: server: a catch binding is unknown
   cause?: unknown;
 }
 
