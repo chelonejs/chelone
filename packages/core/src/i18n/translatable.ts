@@ -123,7 +123,7 @@ export function getRecordForLocale<T extends object | null | undefined>(
   locale: string,
   locales?: readonly string[],
 ): T extends object ? RecordForLocale<T> : T {
-  // type-escape: pick is built key by key from a runtime walk the compiler cannot follow
+  // type-escape: builder: pick is built key by key from a runtime walk the compiler cannot follow
   return pick(record, locale, locales, true) as T extends object
     ? RecordForLocale<T>
     : T;
