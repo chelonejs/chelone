@@ -42,6 +42,7 @@ export interface FilterFormProps {
  * never submitted — its values are read live).
  */
 
+import type { FilterPayload } from "@chelone/core";
 import {
   filterFormReflectShape,
   getAtPath,
@@ -94,7 +95,7 @@ function isShown(entry: FilterFormEntry): boolean {
 
 // Seed the form from the current list filter; a no-op submit — the form is never
 // submitted, its live values drive `setFilters` instead.
-const { form, values, reset } = useForm<Record<string, unknown>>({
+const { form, values, reset } = useForm<FilterPayload>({
   resource,
   // The values are list filters, not the resource's record.
   recordForm: false,
