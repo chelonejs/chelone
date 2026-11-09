@@ -79,11 +79,14 @@ const DOCUMENTED: ["core" | "react" | "vue", string][] = [
   ["core", "RegisteredResources"],
   ["core", "ResourceNameArg"],
   ["core", "ResourceRecordArg"],
+  ["core", "deleteManyMutationOptions"],
+  ["core", "updateManyMutationOptions"],
   ["react", "RecordContextValue"],
   ["react", "createCheloneHooks"],
   ["react", "useCreate"],
   ["react", "useCreateContext"],
   ["react", "useDelete"],
+  ["react", "useDeleteMany"],
   ["react", "useEditContext"],
   ["react", "useFieldValue"],
   ["react", "useGetList"],
@@ -99,6 +102,7 @@ const DOCUMENTED: ["core" | "react" | "vue", string][] = [
   ["react", "useRecordContext"],
   ["react", "useShowContext"],
   ["react", "useUpdate"],
+  ["react", "useUpdateMany"],
   ["vue", "RecordValue"],
   ["vue", "createCheloneHooks"],
   ["vue", "useCreate"],
@@ -127,8 +131,6 @@ const ONE_SIDED: [string, "react", "vue"][] = [
   ["useShowContext", "react", "vue"],
   ["useCreateContext", "react", "vue"],
   ["useRecordContextRef", "vue", "react"],
-  ["useUpdateMany", "vue", "react"],
-  ["useDeleteMany", "vue", "react"],
 ];
 
 it("the page has frontmatter and sits in the Type Safety sidebar", () => {
@@ -149,11 +151,11 @@ it("the members the page lists for each adapter are the keys createCheloneHooks 
   expect(listed(1)).toEqual(factoryMembers(reactFactory).sort());
   expect(listed(2)).toEqual(factoryMembers(vueFactory).sort());
 
-  // The two bulk mutations are Vue's alone, and the table says so.
+  // The bulk mutations are members of both adapters.
   for (const name of ["useUpdateMany", "useDeleteMany"]) {
     const row = rows.find((each) => each[0] === name);
     expect(row, name).toBeDefined();
-    expect([row?.[1], row?.[2]], name).toEqual([false, true]);
+    expect([row?.[1], row?.[2]], name).toEqual([true, true]);
   }
 
   // `useInfiniteGetList` is exported by both adapters and is no member of either.
