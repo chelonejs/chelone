@@ -1,5 +1,19 @@
 # @chelone/supabase
 
+## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.11.0...@chelone/supabase@0.12.0) (2026-11-09)
+
+
+### Chores
+
+* **@chelone/supabase:** Synchronize chelone versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.12.0
+
 ## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/supabase@0.10.0...@chelone/supabase@0.11.0) (2026-11-08)
 
 

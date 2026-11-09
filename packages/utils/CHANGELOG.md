@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/utils@0.11.0...@chelone/utils@0.12.0) (2026-11-09)
+
+
+### Features
+
+* **utils:** add an i18next-backed I18nProvider at @chelone/utils/i18next ([d7312c3](https://github.com/chelonejs/chelone/commit/d7312c3afc08a436b47864da6c37c33183da6eb7))
+
+
+### Bug Fixes
+
+* **utils:** look for key_other in the active language only ([43721c1](https://github.com/chelonejs/chelone/commit/43721c171107b8f36924c9a04fc23d1131ca52c7))
+* **utils:** trim the i18next test's type cost and raise the utils budget ([117b7ba](https://github.com/chelonejs/chelone/commit/117b7bad5469f8709bf1afb51a943a5efa9c4c3d))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.12.0
+
 ## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/utils@0.10.0...@chelone/utils@0.11.0) (2026-11-08)
 
 

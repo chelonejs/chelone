@@ -1,5 +1,46 @@
 # @chelone/core
 
+## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.11.0...@chelone/core@0.12.0) (2026-11-09)
+
+
+### Features
+
+* **auth:** a route's beforeLoad sends a logged-out visit to login before render ([2eb3ae8](https://github.com/chelonejs/chelone/commit/2eb3ae8cec5962e907b5d76e5bf66d05c94c4c18))
+* **core,react,vue:** type reference and target against the resource registry ([8d2ae49](https://github.com/chelonejs/chelone/commit/8d2ae4934b1bd2e79b1356277b9d67ccb5fa3e22))
+* **core,react:** bulk mutation options and useUpdateMany, useDeleteMany ([e425885](https://github.com/chelonejs/chelone/commit/e4258858048d8f62c51b7c38ca2c8b67702d4005))
+* **core,react:** name and record helpers type the data hooks by registered name ([bef1ac3](https://github.com/chelonejs/chelone/commit/bef1ac324535f3bb26c915c450dc2e8e7ce5f63c))
+* **core:** listFetchParams builds the params a mounted list fetches with ([c32069c](https://github.com/chelonejs/chelone/commit/c32069ccb2879ae0f1371fbd3c226c09527ff334))
+* **core:** listSearchSchema reads a router's search params for validateSearch ([a938209](https://github.com/chelonejs/chelone/commit/a938209392fb4d2fd0c03db28bc4aba5474d7aae))
+* **i18n:** add Arabic (ar) locale catalog ([699d8b1](https://github.com/chelonejs/chelone/commit/699d8b11ad8035fcae7f96f11a7a9339322bb8f2))
+* **i18n:** add German (de) locale catalog ([29022ac](https://github.com/chelonejs/chelone/commit/29022acfa0fd30d5f9348dea6cd3ee93affdc7d6))
+* **i18n:** add Hindi (hi) locale catalog ([5646ad8](https://github.com/chelonejs/chelone/commit/5646ad87fe33bd0da8d53f6308d61cef2c3007fe))
+* **i18n:** add Japanese (ja) locale catalog ([64b511c](https://github.com/chelonejs/chelone/commit/64b511cf6e8dde3b6354f854a7b5c303958fdebb))
+* **i18n:** add Mandarin Chinese (zh) locale catalog ([15ba63e](https://github.com/chelonejs/chelone/commit/15ba63e3571882f836af3ceafa04d663ceeb8cc9))
+* **i18n:** add Polish (pl) locale catalog ([39d5363](https://github.com/chelonejs/chelone/commit/39d53634db44b9f928ebf8a6a55eb6b70ea8937d))
+* **i18n:** add Portuguese (pt) locale catalog ([0710aa4](https://github.com/chelonejs/chelone/commit/0710aa4a1032ba3b2c6e983641905ebfa0d4301d))
+* **i18n:** add Spanish (es) locale catalog ([c2167c6](https://github.com/chelonejs/chelone/commit/c2167c609af113593c28c65beb7e1ad877ae1a92))
+* **i18n:** translate returns the union of a key's text across registered locales ([8c7162e](https://github.com/chelonejs/chelone/commit/8c7162e078212cce958ba144a695393e201cfa58))
+* **i18n:** type translate keys and params from a registered catalog ([102c60f](https://github.com/chelonejs/chelone/commit/102c60f9a345e00123be75c31b8bb9b08d5c693c))
+
+
+### Bug Fixes
+
+* **auth:** let a logged-out visit to the login path through ([be869e4](https://github.com/chelonejs/chelone/commit/be869e4e74cd7a677ba0d69f6efb0f630f15d352))
+* **core:** keep a sort name a router read as a JSON scalar ([b6c8389](https://github.com/chelonejs/chelone/commit/b6c838938733fca14f45c9690cd4e13f2ce09779))
+* **core:** seed a list controller from the URL it mounts on ([22a8e56](https://github.com/chelonejs/chelone/commit/22a8e56ad1638bd95cf399fe8aba387b944d4185))
+* **core:** seed a list controller's first snapshot from the cached query ([5c4893a](https://github.com/chelonejs/chelone/commit/5c4893a154b2d6b83edd4e96acc30a4b760c5107))
+* **i18n:** keep string for a key union with an unknown member ([32e866a](https://github.com/chelonejs/chelone/commit/32e866a21444196601f1f00962f9072624401c86))
+
+
+### Refactors
+
+* **core:** boolean, rating and email fields and the default record representation come from core ([d201918](https://github.com/chelonejs/chelone/commit/d20191815e760ddd4e1f15ec303a233457520548))
+* **core:** format text, number, date and currency fields through core helpers ([783e747](https://github.com/chelonejs/chelone/commit/783e7479f3b0fa3d86e49ee5b37056b8c98ec4e2))
+* **core:** the name intersection and the undoable pair live in core ([c509e99](https://github.com/chelonejs/chelone/commit/c509e997fb84e6b38fd3eeac5f234cd94db52912))
+* **core:** trim the link helpers' type cost so utils stays in budget ([24c53d2](https://github.com/chelonejs/chelone/commit/24c53d2821d32ab8e590738fe7785e9641a7c0c9))
+* **core:** url, file and image fields take their href and src from core ([c91a3bb](https://github.com/chelonejs/chelone/commit/c91a3bb1d7d7c80fa15d2056350cbaf766a31a24))
+* **i18n:** drop the cast from asRegisteredTranslate ([caeebb8](https://github.com/chelonejs/chelone/commit/caeebb8c1fb20923106326c698bbbc8d440f48b5))
+
 ## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.10.0...@chelone/core@0.11.0) (2026-11-08)
 
 
