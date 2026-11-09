@@ -22,10 +22,14 @@ const baselinePath = path.join(root, "type-docs-baseline.json");
 const SOURCE_PATH = "@chelone/core:SourcePath";
 const ADMIN = "@chelone/react:Admin";
 const USE_GET_LIST = "@chelone/react:useGetList";
+const NEW_BASELINE_ROW = `${SOURCE_PATH} is a new baseline row: the baseline only shrinks, so a new registry-dependent export names its page in type-docs.json`;
 
 /**
  * The tree is the two files' rows unless a test says otherwise, and each page
  * names its mapped rows by default, which is what a mapped row needs.
+ *
+ * A `baseBaseline` of null is the base having no baseline file at all, so it is
+ * passed through as null rather than defaulted to the current one.
  *
  * @param {RowsByPage} docs
  * @param {RowsByPage} baseline
@@ -36,7 +40,7 @@ const check = (docs, baseline, over = {}) =>
     found: over.found ?? [...Object.values(docs).flat(), ...Object.values(baseline).flat()],
     docs,
     baseline,
-    baseBaseline: over.baseBaseline ?? baseline,
+    baseBaseline: "baseBaseline" in over ? over.baseBaseline : baseline,
     pageText: (slug) => pagesOf(docs, over)[slug] ?? null,
   });
 
@@ -108,14 +112,20 @@ describe("problems", () => {
   });
 
   it("names a baseline row the base commit's baseline does not hold", () => {
-    assert.deepEqual(
-      check({}, { "typed-hooks": [SOURCE_PATH] }, { baseBaseline: { "typed-hooks": [] } }),
-      [`${SOURCE_PATH} is a new baseline row: the baseline only shrinks, so a new registry-dependent export names its page in type-docs.json`],
-    );
+    assert.deepEqual(check({}, { "typed-hooks": [SOURCE_PATH] }, { baseBaseline: { "typed-hooks": [] } }), [
+      NEW_BASELINE_ROW,
+    ]);
   });
 
   it("lets every baseline row through when the base has no baseline file", () => {
-    assert.deepEqual(check({}, { "typed-hooks": [SOURCE_PATH] }, { baseBaseline: null }), []);
+    // Called on `problems` directly, so the base baseline is exactly what this
+    // test passes: no file at all, an empty one, and one that holds the row.
+    const owed = { "typed-hooks": [SOURCE_PATH] };
+    const against = (/** @type {RowsByPage | null} */ baseBaseline) =>
+      problems({ found: [SOURCE_PATH], docs: {}, baseline: owed, baseBaseline, pageText: () => null });
+    assert.deepEqual(against(null), []);
+    assert.deepEqual(against({ "typed-hooks": [] }), [NEW_BASELINE_ROW]);
+    assert.deepEqual(against(owed), []);
   });
 
   it("lets a row the base baseline held move to type-docs.json", () => {
@@ -214,6 +224,10 @@ import type { Register, RegisteredResources, RegisteredResourceName } from "./re
 export type { Register, RegisteredResources, RegisteredResourceName };
 export declare function coreHook<TName extends RegisteredResourceName>(name: TName): TName;
 export declare const looseHandle: { name: string };
+export const arrowHook = <TName extends RegisteredResourceName>(name: TName): TName => name;
+export const arrowPlain = (name: string): string => name;
+declare function makeHook<T>(value?: T): T;
+export const madeByCall = makeHook<RegisteredResourceName>();
 export function bodyOnly(name: string): string {
   type Local = RegisteredResourceName;
   const value: Local = name;
@@ -228,6 +242,7 @@ export { looseHandle } from "../../core/src/index";
 export interface AdminProps<TName extends RegisteredResourceName> {
   resource: TName;
 }
+export const arrowRef = (name: RegisteredResourceName): RegisteredResourceName => name;
 export function bodyOnlyReact(name: string): string {
   const value: RegisteredResourceName = name;
   return value;
@@ -260,6 +275,16 @@ describe("entryRows", () => {
 
   it("leaves out an export whose signature names nothing from the registry", () => {
     assert.ok(!coreRows.includes("@chelone/core:looseHandle"));
+  });
+
+  it("counts a const whose signature is its arrow initializer", () => {
+    assert.ok(coreRows.includes("@chelone/core:arrowHook"));
+    assert.ok(reactRows.includes("@chelone/react:arrowRef"));
+    assert.ok(!coreRows.includes("@chelone/core:arrowPlain"));
+  });
+
+  it("counts a const whose value call writes a root type as a type argument", () => {
+    assert.ok(coreRows.includes("@chelone/core:madeByCall"));
   });
 
   it("counts a core export once, not again for the adapter that re-exports it", () => {

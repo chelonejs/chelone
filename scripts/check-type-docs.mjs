@@ -116,7 +116,7 @@ const SIGNATURE = new Set([
   ts.SyntaxKind.ConstructorType,
 ]);
 
-/** Nodes read through their annotation, constraint or default. */
+/** Nodes read through their annotation, constraint, default or initializer. */
 const ANNOTATED = new Set([
   ts.SyntaxKind.Parameter,
   ts.SyntaxKind.TypeParameter,
@@ -144,8 +144,10 @@ let typeChecker;
 
 /**
  * The types a declaration's signature names: its type parameters, parameters,
- * return type, members, heritage clauses and annotations. A function body is
- * never walked, so a type used only inside one does not count.
+ * return type, members, heritage clauses, annotations, the initializer of a
+ * const whose value is a function (where that function's signature lives), and
+ * the type arguments written on a call in one. A function body is never walked,
+ * so a type used only inside one does not count.
  */
 function signatureNames(declaration) {
   const sourceFile = declaration.getSourceFile();
@@ -163,6 +165,9 @@ function signatureNames(declaration) {
       visit(node.type);
       visit(node.constraint);
       visit(node.default);
+      // `export const useFoo = <T extends RegisteredResourceName>(r: T) => r`
+      // carries its signature in the initializer, with no annotation to read.
+      visit(node.initializer);
       return;
     }
     if (DECLARATIONS.has(node.kind)) {
@@ -171,6 +176,10 @@ function signatureNames(declaration) {
       for (const member of node.members ?? []) visit(member);
       visit(node.type);
       if (node.declarationList) visit(node.declarationList);
+      return;
+    }
+    if (node.kind === ts.SyntaxKind.CallExpression || node.kind === ts.SyntaxKind.NewExpression) {
+      for (const type of node.typeArguments ?? []) collectNames(type, sourceFile, out);
       return;
     }
     if (node.kind === ts.SyntaxKind.HeritageClause) {
