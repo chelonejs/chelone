@@ -1,8 +1,20 @@
-<script lang="ts">
+<script
+  lang="ts"
+  generic="
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
+import type { RegisteredResources, ResourceMap } from "@chelone/core";
+
 /** Props for {@link ReferenceInput}. */
-export interface ReferenceInputProps {
+export interface ReferenceInputProps<
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string
+> {
   source: SourceProp;
-  reference: string;
+  /** A registered resource name. */
+  reference: TReference;
   label?: string | false;
   perPage?: number;
   validate?: Validator | readonly Validator[];
@@ -10,7 +22,14 @@ export interface ReferenceInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
 /**
  * `<ReferenceInput>` — edits a to-one foreign key, the Vue analog of
  * `@chelone/react`'s `inputs/reference-input.tsx`. The React twin drives a full
@@ -35,9 +54,12 @@ import NativeSelect from "../../ui/native-select.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<ReferenceInputProps>(), {
-  label: undefined,
-});
+const props = withDefaults(
+  defineProps<ReferenceInputProps<TResources, TReference>>(),
+  {
+    label: undefined,
+  },
+);
 
 const { id, value, setValue, error, touched, isRequired } = useInput({
   source: props.source,

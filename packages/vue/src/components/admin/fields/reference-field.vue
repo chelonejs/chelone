@@ -1,11 +1,29 @@
-<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
-import type { LooseRecord, ResourceRecord, SourceProp } from "@chelone/core";
+<script
+  lang="ts"
+  generic="
+    RecordType extends ResourceRecord = LooseRecord,
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
+import type {
+  LooseRecord,
+  RegisteredResources,
+  ResourceMap,
+  ResourceRecord,
+  SourceProp,
+} from "@chelone/core";
 import type { LinkToType } from "../../../router";
 
 /** Props for {@link ReferenceField}. */
-export interface ReferenceFieldProps<RecordType extends ResourceRecord = LooseRecord> {
+export interface ReferenceFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string
+> {
   source: SourceProp<RecordType>;
-  reference: string;
+  /** A registered resource name. */
+  reference: TReference;
   record?: RecordType;
   empty?: string;
   /**
@@ -16,7 +34,15 @@ export interface ReferenceFieldProps<RecordType extends ResourceRecord = LooseRe
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+<script
+  setup
+  lang="ts"
+  generic="
+    RecordType extends ResourceRecord = LooseRecord,
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
 /**
  * `<ReferenceField>` — follows a foreign key to a related record and displays
  * it. The Vue analog of `@chelone/react`'s `fields/reference-field.tsx`. Reads
