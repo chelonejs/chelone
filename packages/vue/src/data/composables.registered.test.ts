@@ -77,16 +77,26 @@ const probeCompilerOptions: ts.CompilerOptions = {
   types: [],
 };
 
-const diagnosticsOf = (
+/**
+ * One probe file's own diagnostics, not the whole program's. A probe drags in
+ * the composable modules and everything they import, and checking all of that
+ * is the sources case's job; here the question is only what the probe's own
+ * calls do.
+ */
+const probeDiagnosticsOf = (
+  probe: string,
   fileNames: string[],
   options: ts.CompilerOptions = probeCompilerOptions,
 ) => {
   const program = ts.createProgram(fileNames, options);
-  return ts
-    .getPreEmitDiagnostics(program)
-    .map((diagnostic) =>
-      ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
-    );
+  const source = program.getSourceFile(probe);
+  if (!source) throw new Error(`The probe ${probe} is not in the program.`);
+  return [
+    ...program.getSyntacticDiagnostics(source),
+    ...program.getSemanticDiagnostics(source),
+  ].map((diagnostic) =>
+    ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+  );
 };
 
 /** Each diagnostic as `file:line TScode message`, so two runs can be compared. */
@@ -151,7 +161,7 @@ export const reactiveTitle: string | undefined =
 `,
     );
 
-    expect(diagnosticsOf([register, probe])).toEqual([]);
+    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
   }, 120_000);
 
   it("a registered app types the mutation records and the live reads", async () => {
@@ -180,7 +190,7 @@ export const oneTitle: string | undefined = one.data.value?.title;
 `,
     );
 
-    expect(diagnosticsOf([register, probe])).toEqual([]);
+    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
   }, 120_000);
 
   it("a registered app rejects a name it never registered", async () => {
@@ -200,7 +210,7 @@ export const liveList = useGetListLive("psots");
 
     // One diagnostic per call. `useGetList` names the widened `string` rather
     // than the literal, so the pin is the count plus the name appearing.
-    const diagnostics = diagnosticsOf([register, probe]);
+    const diagnostics = probeDiagnosticsOf(probe, [register, probe]);
     expect(diagnostics).toHaveLength(3);
     expect(diagnostics.join("\n")).toContain("psots");
   }, 120_000);

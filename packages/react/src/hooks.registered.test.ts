@@ -87,6 +87,27 @@ const diagnosticsOf = (
     );
 };
 
+/**
+ * One probe file's own diagnostics, not the whole program's. A probe drags in
+ * the hook modules and everything they import, and checking all of that is the
+ * sources case's job; here the question is only what the probe's own calls do.
+ */
+const probeDiagnosticsOf = (
+  probe: string,
+  fileNames: string[],
+  options: ts.CompilerOptions = probeCompilerOptions,
+) => {
+  const program = ts.createProgram(fileNames, options);
+  const source = program.getSourceFile(probe);
+  if (!source) throw new Error(`The probe ${probe} is not in the program.`);
+  return [
+    ...program.getSyntacticDiagnostics(source),
+    ...program.getSemanticDiagnostics(source),
+  ].map((diagnostic) =>
+    ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+  );
+};
+
 describe("the data hooks in a registered app", () => {
   let dir: string;
 
@@ -128,7 +149,7 @@ export const anyField: unknown = loose.data?.data[0]?.whatever;
 `,
     );
 
-    expect(diagnosticsOf([register, probe])).toEqual([]);
+    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
   }, 120_000);
 
   it("a registered app types the mutation records and the live reads", async () => {
@@ -156,7 +177,7 @@ export const liveBody: string | undefined = live.data?.body;
 `,
     );
 
-    expect(diagnosticsOf([register, probe])).toEqual([]);
+    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
   }, 120_000);
 
   it("a registered app rejects a name it never registered", async () => {
@@ -170,7 +191,7 @@ export const list = useGetList("psots");
 `,
     );
 
-    const diagnostics = diagnosticsOf([register, probe]);
+    const diagnostics = probeDiagnosticsOf(probe, [register, probe]);
     expect(diagnostics).toHaveLength(1);
     expect(diagnostics[0]).toContain("psots");
   }, 120_000);
