@@ -389,15 +389,17 @@ describe("<PhoneInput>", () => {
     expect(captured.values?.().phone).toBe("+14165550123");
   });
 
-  it("writes nothing when the selector hands a value outside its countries", async () => {
+  it("keeps the stored number and its country showing when the selector hands a value outside its countries", async () => {
     const { wrapper, captured } = mountInForm(
       () => h(PhoneInput, { source: "phone", allowedCountries: ["US", "CA"] }),
       { id: 1, phone: "+14155552671" },
     );
     await flushPromises();
-    await wrapper.find("select[data-country-select]").setValue("");
+    const select = wrapper.find("select[data-country-select]");
+    await select.setValue("");
     await nextTick();
     expect(captured.values?.().phone).toBe("+14155552671");
+    expect(elementOf(select.element, HTMLSelectElement).value).toBe("US");
   });
 
   it("limits the country selector to allowedCountries", async () => {

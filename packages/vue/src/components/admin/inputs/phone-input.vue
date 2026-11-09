@@ -100,9 +100,14 @@ function writeBack(nationalText: string, cc: CountryCode) {
 function onCountryChange(event: Event) {
   const select = targetOf(event, HTMLSelectElement);
   if (!select) return;
-  // The select renders exactly `countries`, so its value is one of them.
   const cc = countries.value.find((c) => c === select.value);
-  if (!cc) return;
+  if (!cc) {
+    // A cleared select hands a value that is none of `countries`. Nothing is
+    // written, and Vue will not re-patch `:value` because `country` never
+    // changed, so put the select back to the country being formatted with.
+    select.value = country.value;
+    return;
+  }
   country.value = cc;
   writeBack(display.value, cc);
 }
