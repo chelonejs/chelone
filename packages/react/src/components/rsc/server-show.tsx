@@ -24,7 +24,10 @@ interface ServerShowProps<RecordType extends ResourceRecord = LooseRecord> {
   record: RecordType;
   /**
    * The heading, as a message key: translated through `i18n` when one is given,
-   * printed as is otherwise. Defaults to `defaultRecordRepresentation(record)`.
+   * printed as is otherwise. Unlike `<Show>`, a server component can call no
+   * `useTranslate` hook, so pass `i18n` or a string you translated yourself.
+   * Defaults to `defaultRecordRepresentation(record)`, which is never
+   * translated.
    */
   title?: string;
   /** Translates `title`. */

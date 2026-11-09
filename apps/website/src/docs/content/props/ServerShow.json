@@ -35,7 +35,7 @@
       "name": "title",
       "type": "string",
       "optional": true,
-      "comment": "The heading, as a message key: translated through `i18n` when one is given,\nprinted as is otherwise. Defaults to `defaultRecordRepresentation(record)`."
+      "comment": "The heading, as a message key: translated through `i18n` when one is given,\nprinted as is otherwise. Unlike `<Show>`, a server component can call no\n`useTranslate` hook, so pass `i18n` or a string you translated yourself.\nDefaults to `defaultRecordRepresentation(record)`, which is never\ntranslated."
     }
   ]
 }
