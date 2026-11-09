@@ -138,11 +138,11 @@ it("ResourceNameArg takes a listed name and a wide string, and rejects an unlist
   expectTypeOf<ResourceNameArg<typeof typed, string>>().toEqualTypeOf<string>();
   expectTypeOf<ResourceNameArg<typeof typed, "psots">>().toEqualTypeOf<never>();
 
-  // the hook shape: `TName & ResourceNameArg<TResources, TName>`
-  const listed: "posts" & ResourceNameArg<typeof typed, "posts"> = "posts";
-  const wide: string & ResourceNameArg<typeof typed, string> = "anything";
+  // the hook shape: `resource: ResourceNameArg<TResources, TName>`
+  const listed: ResourceNameArg<typeof typed, "posts"> = "posts";
+  const wide: ResourceNameArg<typeof typed, string> = "anything";
   // @ts-expect-error psots is not a registered resource name
-  const unlisted: "psots" & ResourceNameArg<typeof typed, "psots"> = "psots";
+  const unlisted: ResourceNameArg<typeof typed, "psots"> = "psots";
   void [listed, wide, unlisted];
 });
 
