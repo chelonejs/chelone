@@ -14,21 +14,12 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { renderServerComponent } from "@tanstack/react-start/rsc";
 import { z } from "zod";
-import { serverDataProvider } from "../../../server-data";
-
-/** The post, or undefined when the provider has no row for `id`. */
-async function findPost(id: number) {
-  try {
-    return (await serverDataProvider.getOne("posts", { id })).data;
-  } catch {
-    return undefined;
-  }
-}
+import { findPost } from "../../../server-data";
 
 const getPostPage = createServerFn({ method: "GET" })
-  .validator(z.number())
-  .handler(async ({ data: id }) => {
-    const post = await findPost(id);
+  .validator(z.string())
+  .handler(async ({ data: rawId }) => {
+    const post = await findPost(rawId);
     if (post === undefined) throw notFound();
     return renderServerComponent(
       <ServerShow
@@ -49,7 +40,7 @@ const getPostPage = createServerFn({ method: "GET" })
   });
 
 export const Route = createFileRoute("/rsc/posts/$id")({
-  loader: ({ params }) => getPostPage({ data: Number(params.id) }),
+  loader: ({ params }) => getPostPage({ data: params.id }),
   component: PostPage,
 });
 

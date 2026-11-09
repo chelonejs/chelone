@@ -47,40 +47,46 @@ import {
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { renderServerComponent } from "@tanstack/react-start/rsc";
+import { z } from "zod";
 
-const getPostPage = createServerFn().handler(async ({ data: id }) => {
-  // A provider with no row throws: catch it and answer notFound().
-  const post = await dataProvider
-    .getOne("posts", { id })
-    .then(({ data }) => data)
-    .catch(() => undefined);
-  if (post === undefined) throw notFound();
-  return renderServerComponent(
-    <ServerShow
-      record={post}
-      actions={<a href={`/admin/posts/${post.id}`}>Edit</a>}
-    >
-      <ServerRecordField label="post.title">
-        <ServerTextField record={post} source="title" />
-      </ServerRecordField>
-      <ServerRecordField label="post.views" variant="inline">
-        <ServerNumberField record={post} source="views" />
-      </ServerRecordField>
-      <ServerRecordField label="post.status" variant="inline">
-        <ServerTextField record={post} source="status" />
-      </ServerRecordField>
-    </ServerShow>,
-  );
-});
+const getPostPage = createServerFn({ method: "GET" })
+  .validator(z.string())
+  .handler(async ({ data: rawId }) => {
+    // A provider with no row throws: catch it and answer notFound().
+    const post = await dataProvider
+      .getOne("posts", { id: Number(rawId) })
+      .then(({ data }) => data)
+      .catch(() => undefined);
+    if (post === undefined) throw notFound();
+    return renderServerComponent(
+      <ServerShow
+        record={post}
+        actions={<a href={`/admin/posts/${post.id}`}>Edit</a>}
+      >
+        <ServerRecordField label="post.title">
+          <ServerTextField record={post} source="title" />
+        </ServerRecordField>
+        <ServerRecordField label="post.views" variant="inline">
+          <ServerNumberField record={post} source="views" />
+        </ServerRecordField>
+        <ServerRecordField label="post.status" variant="inline">
+          <ServerTextField record={post} source="status" />
+        </ServerRecordField>
+      </ServerShow>,
+    );
+  });
 
 export const Route = createFileRoute("/posts/$id")({
-  loader: ({ params }) => getPostPage({ data: Number(params.id) }),
+  loader: ({ params }) => getPostPage({ data: params.id }),
   component: () => Route.useLoaderData(),
 });
 ```
 
 `notFound()` thrown inside a server function answers with a 404 the router turns
-into its not-found page.
+into its not-found page. The id arrives as a path string, so validate it as a
+string and answer `notFound()` in the handler: a `z.number()` validator rejects
+`/posts/abc` before the handler runs, and the visitor gets an error page instead
+of the 404.
 
 The heading defaults to `defaultRecordRepresentation(record)`: the first of
 `name`, `title`, `label`, `reference` that holds text or a number, else
