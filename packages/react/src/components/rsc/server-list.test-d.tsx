@@ -21,9 +21,11 @@ interface User {
   name: string;
 }
 
+const posts: Post[] = [];
+
 const page = {
   params: {},
-  data: [] as Post[],
+  data: posts,
   references: { author_id: new Map<Identifier, User>() },
 };
 
