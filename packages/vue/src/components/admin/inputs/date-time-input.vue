@@ -10,7 +10,7 @@ export interface DateTimeInputProps<
   /** Read transform (form value → display string). Default {@link formatDateTime}. */
   format?: (value: DateInputValue) => string;
   /** Write transform (display string → stored value). Default {@link parseDateTimeToISO}. */
-  parse?: (input: string) => SourceValue<RecordType, TPath>;
+  parse?: (input: string) => NoInfer<SourceValue<RecordType, TPath>>;
   helperText?: string;
   disabled?: boolean;
   readonly?: boolean;

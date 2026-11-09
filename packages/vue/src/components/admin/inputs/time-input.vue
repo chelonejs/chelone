@@ -14,7 +14,7 @@ export interface TimeInputProps<
   /** Read transform (form value → display string). Default {@link formatTime}. */
   format?: (value: DateInputValue) => string;
   /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
-  parse?: (input: string) => SourceValue<RecordType, TPath>;
+  parse?: (input: string) => NoInfer<SourceValue<RecordType, TPath>>;
   class?: string;
 }
 </script>
