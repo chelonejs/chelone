@@ -9,7 +9,7 @@
   },
   "rest": {
     "Instantiations": 78000,
-    "Types": 41000
+    "Types": 42000
   },
   "supabase": {
     "Instantiations": 172000,
