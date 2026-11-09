@@ -12,8 +12,10 @@
   "sources-filters-and-sort": [],
   "translations-and-permissions": [],
   "typed-components": [
+    "@chelone/react:ResourceComponents",
     "@chelone/react:createResourceComponents",
     "@chelone/react:createResourceComponentsOf",
+    "@chelone/vue:ResourceComponents",
     "@chelone/vue:createResourceComponents",
     "@chelone/vue:createResourceComponentsOf"
   ],
