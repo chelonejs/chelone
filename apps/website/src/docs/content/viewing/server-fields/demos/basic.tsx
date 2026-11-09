@@ -1,9 +1,13 @@
 import {
+  ServerBooleanField,
+  ServerCurrencyField,
   ServerDateField,
   ServerEmailField,
   ServerFileField,
   ServerImageField,
   ServerNumberField,
+  ServerRatingField,
+  ServerSelectField,
   ServerTextField,
   ServerUrlField,
 } from "@chelone/react/rsc";
@@ -18,7 +22,18 @@ const post = {
   contact: "editor@example.com",
   logo: "/chelone-mark.svg",
   logo_name: "Chelone logo",
+  price: 1234.5,
+  published: true,
+  status: "in_review",
+  rating: 3.5,
+  votes: 128,
 };
+
+const statuses = [
+  { id: "draft", name: "Draft" },
+  { id: "in_review", name: "In review" },
+  { id: "published", name: "Published" },
+];
 
 /** The server fields over a post passed as a prop. */
 export default function ServerFieldsDemo() {
@@ -39,6 +54,32 @@ export default function ServerFieldsDemo() {
           source="published_at"
           locales="en-US"
           options={{ dateStyle: "long", timeZone: "UTC" }}
+        />
+      </dd>
+      <dt>Price</dt>
+      <dd>
+        <ServerCurrencyField
+          record={post}
+          source="price"
+          currency="USD"
+          displayLocale="en-US"
+        />
+      </dd>
+      <dt>Public</dt>
+      <dd>
+        <ServerBooleanField record={post} source="published" />
+      </dd>
+      <dt>Status</dt>
+      <dd>
+        <ServerSelectField record={post} source="status" choices={statuses} />
+      </dd>
+      <dt>Rating</dt>
+      <dd>
+        <ServerRatingField
+          record={post}
+          source="rating"
+          allowHalf
+          countSource="votes"
         />
       </dd>
       <dt>Summary</dt>

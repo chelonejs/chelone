@@ -32,3 +32,13 @@ export {
   ServerTextField,
   type ServerTextFieldProps,
 } from "./components/rsc/server-scalar-fields";
+export {
+  ServerBooleanField,
+  type ServerBooleanFieldProps,
+  ServerCurrencyField,
+  type ServerCurrencyFieldProps,
+  ServerRatingField,
+  type ServerRatingFieldProps,
+  ServerSelectField,
+  type ServerSelectFieldProps,
+} from "./components/rsc/server-value-fields";

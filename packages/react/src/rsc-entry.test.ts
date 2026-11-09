@@ -186,12 +186,16 @@ describe("the rsc entry", () => {
   it("exports the server fields, the server list and their helpers", async () => {
     const entry = await import("./rsc");
     expect(Object.keys(entry).sort()).toEqual([
+      "ServerBooleanField",
+      "ServerCurrencyField",
       "ServerDateField",
       "ServerEmailField",
       "ServerFileField",
       "ServerImageField",
       "ServerList",
       "ServerNumberField",
+      "ServerRatingField",
+      "ServerSelectField",
       "ServerTextField",
       "ServerUrlField",
       "readFieldValue",
@@ -211,6 +215,7 @@ describe("the rsc entry", () => {
         "components/rsc/server-scalar-fields.tsx",
         "components/rsc/server-link-fields.tsx",
         "components/rsc/server-list.tsx",
+        "components/rsc/server-value-fields.tsx",
       ]),
     );
     expect(files.map((file) => relative(src, file))).not.toContain(

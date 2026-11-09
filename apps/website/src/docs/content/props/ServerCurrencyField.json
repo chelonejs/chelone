@@ -1,0 +1,65 @@
+{
+  "name": "ServerCurrencyField",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the `<span>`."
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "optional": true,
+      "comment": "ISO-4217 currency code (e.g. 'USD'). Required when value is a plain number."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": "The value shown when the one at `source` is `undefined`."
+    },
+    {
+      "name": "displayLocale",
+      "type": "string",
+      "optional": true,
+      "comment": "The locale to format in. Defaults to the `i18n` locale, then the runtime's."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": "The text shown when the value is empty. Translated through `i18n` when one\nis given, printed as is otherwise. With none, the field renders nothing."
+    },
+    {
+      "name": "i18n",
+      "type": "ServerI18n",
+      "optional": true,
+      "comment": "Translates `empty`."
+    },
+    {
+      "name": "options",
+      "type": "NumberFormatOptions",
+      "optional": true,
+      "comment": "Extra options forwarded to `Intl.NumberFormat`."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": false,
+      "comment": "The record to read. Required: there is no record context to fall back on."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": "Name of the property to display (dot/bracket path)."
+    },
+    {
+      "name": "storeAsMinorUnits",
+      "type": "boolean",
+      "optional": true,
+      "comment": "Treat the stored value as minor units (cents) and divide by 100."
+    }
+  ]
+}
