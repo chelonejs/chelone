@@ -31,7 +31,7 @@ export interface Inspector<TEditor> {
   release(key: string): void;
 }
 
-// type-escape: the default editor type when the adapter does not pick one
+// type-escape: context: the default editor type when the adapter does not pick one
 export function createInspector<TEditor = unknown>(): Inspector<TEditor> {
   const store = createMicroStore<InspectorState<TEditor>>({
     enabled: false,
@@ -122,7 +122,7 @@ export function defaultConfigurableInputsStoreKey(resource: string): string {
 }
 
 export function configurableInputColumns(
-  // type-escape: inputs are arbitrary element props, so source and label are checked at runtime
+  // type-escape: server: inputs are arbitrary element props, so source and label are checked at runtime
   inputs: readonly { source?: unknown; label?: unknown }[],
 ): DataTableColumnInfo[] {
   return inputs.map(({ source, label }, index) => {
