@@ -47,9 +47,9 @@ const value = useFieldValue<RecordType>({
 });
 
 const endpoint = computed<WebhookEndpoint | null>(() => {
-  // type-escape: a stored endpoint is JSON of an unchecked shape, as in the React twin
+  // type-escape: json: a stored endpoint is of an unchecked shape, as in the React twin
   const raw: unknown = value.value;
-  // type-escape: the object is trusted to be a WebhookEndpoint, as in the React twin
+  // type-escape: json: the object is trusted to be a WebhookEndpoint, as in the React twin
   return raw && typeof raw === "object" ? (raw as WebhookEndpoint) : null;
 });
 
