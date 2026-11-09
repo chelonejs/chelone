@@ -45,7 +45,7 @@ import {
   type EditContextValue,
   useEditContext,
 } from "../../../record-view-context";
-import { useResourceContext } from "../../../resource";
+import { ResourceContextProvider, useResourceContext } from "../../../resource";
 import { useParams } from "../../../router";
 import {
   SaveContextProvider,
@@ -170,15 +170,21 @@ function Edit<TRecord = LooseRecord>(props: EditProps<TRecord>) {
   );
 
   return (
-    <EditContextProvider value={editValue}>
-      <SaveContextProvider value={saveValue}>
-        <RecordContextProvider value={record}>
-          <CheloneFormProvider form={form} resource={resource} submit={submit}>
-            <EditView {...viewProps}>{children}</EditView>
-          </CheloneFormProvider>
-        </RecordContextProvider>
-      </SaveContextProvider>
-    </EditContextProvider>
+    <ResourceContextProvider value={resource}>
+      <EditContextProvider value={editValue}>
+        <SaveContextProvider value={saveValue}>
+          <RecordContextProvider value={record}>
+            <CheloneFormProvider
+              form={form}
+              resource={resource}
+              submit={submit}
+            >
+              <EditView {...viewProps}>{children}</EditView>
+            </CheloneFormProvider>
+          </RecordContextProvider>
+        </SaveContextProvider>
+      </EditContextProvider>
+    </ResourceContextProvider>
   );
 }
 

@@ -44,7 +44,7 @@ import {
   type CreateContextValue,
   useCreateContext,
 } from "../../../record-view-context";
-import { useResourceContext } from "../../../resource";
+import { ResourceContextProvider, useResourceContext } from "../../../resource";
 import { RouterAdapterContext } from "../../../router/adapter";
 import {
   SaveContextProvider,
@@ -180,15 +180,21 @@ function Create<TRecord = LooseRecord>(props: CreateProps<TRecord>) {
   );
 
   return (
-    <CreateContextProvider value={createValue}>
-      <SaveContextProvider value={saveValue}>
-        <RecordContextProvider value={controller.record}>
-          <CheloneFormProvider form={form} resource={resource} submit={submit}>
-            <CreateView {...viewProps}>{children}</CreateView>
-          </CheloneFormProvider>
-        </RecordContextProvider>
-      </SaveContextProvider>
-    </CreateContextProvider>
+    <ResourceContextProvider value={resource}>
+      <CreateContextProvider value={createValue}>
+        <SaveContextProvider value={saveValue}>
+          <RecordContextProvider value={controller.record}>
+            <CheloneFormProvider
+              form={form}
+              resource={resource}
+              submit={submit}
+            >
+              <CreateView {...viewProps}>{children}</CreateView>
+            </CheloneFormProvider>
+          </RecordContextProvider>
+        </SaveContextProvider>
+      </CreateContextProvider>
+    </ResourceContextProvider>
   );
 }
 
