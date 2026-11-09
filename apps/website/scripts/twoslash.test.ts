@@ -104,27 +104,44 @@ const badSource = 'const field = <TextField source="name" />;';
 const registeredSnippet = `${registeredApp}// @errors: 2322\n${badSource}\n`;
 
 /**
+ * CPU the process spent since `started`, in ms.
+ *
+ * The clock bills a fence for every moment it was not running, so it measures
+ * the machine and not the work: CI runs every package's suite at once, and a
+ * fence that costs 0.2s of CPU there took 2.7s on the clock. `process.cpuUsage`
+ * counts only the CPU the process actually spent, so waiting for a core is not
+ * charged to the fence.
+ */
+function cpuMsOf(started: NodeJS.CpuUsage): number {
+  const { user, system } = process.cpuUsage(started);
+  return (user + system) / 1000;
+}
+
+/**
  * What a snippet costs, against the 2 second budget the issue assumes.
  *
  * The process's first snippet pays for more than itself: the language service
  * boot, TypeScript's lib files, shiki's grammars, and the first bind of the
- * `@chelone/react` source graph. That is one-time per build, and it is
- * machine-sensitive — the same run measured 0.9s alone, 3.4s with 16 processes
- * competing for the CPU, and 4.1s on a CI runner — so it gets a ceiling rather
- * than the 2 second bound.
+ * `@chelone/react` source graph. That is one-time per build, so it gets a
+ * ceiling rather than the 2 second bound.
  *
  * The bound belongs on a fence's own cost, which is what a build pays once per
  * fence, and on the cached run, which proves the gate and the render share one
- * type-check.
+ * type-check. Both are read in CPU for the same reason the boot gets a ceiling:
+ * the number that moves with the machine is the clock, and the number that says
+ * something about a fence is the CPU it burned.
  */
 it("type-checks a snippet once and reuses that run", async () => {
   const timings: string[] = [];
   const timed = async (label: string, code: string, lang: string) => {
-    const started = performance.now();
+    const started = process.cpuUsage();
+    const clock = performance.now();
     await highlight(code, lang, "twoslash");
-    const ms = performance.now() - started;
-    timings.push(`${label} ${lang}: ${ms.toFixed(0)}ms`);
-    return ms;
+    const cpu = cpuMsOf(started);
+    timings.push(
+      `${label} ${lang}: cpu ${cpu.toFixed(0)}ms, clock ${(performance.now() - clock).toFixed(0)}ms`,
+    );
+    return cpu;
   };
 
   const first = await timed("first fence", registeredSnippet, "tsx");

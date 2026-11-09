@@ -2,7 +2,9 @@ import {
   type GetListParams,
   type GetManyParams,
   type GetOneParams,
+  type RegisteredResources,
   type ResourceMap,
+  type ResourceNameArg,
   subscribeLiveRecord,
   subscribeLiveRecords,
   subscribeLiveResource,
@@ -15,9 +17,13 @@ type LiveReadOptions = { enabled?: boolean; staleTime?: number };
 
 /** `useGetList` that refetches when the resource changes or the connection returns. */
 export function useGetListLive<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
->(resource: TName, params: GetListParams = {}, options: LiveReadOptions = {}) {
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
+>(
+  resource: ResourceNameArg<TResources, TName>,
+  params: GetListParams = {},
+  options: LiveReadOptions = {},
+) {
   const { dataProvider, queryClient } = useCheloneContext<TResources>();
   const result = useGetList<TResources, TName>(resource, params, options);
   const live = options.enabled !== false;
@@ -36,9 +42,13 @@ export function useGetListLive<
 
 /** `useGetOne` that refetches when its record changes or the connection returns. */
 export function useGetOneLive<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
->(resource: TName, params: GetOneParams, options: LiveReadOptions = {}) {
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
+>(
+  resource: ResourceNameArg<TResources, TName>,
+  params: GetOneParams,
+  options: LiveReadOptions = {},
+) {
   const { dataProvider, queryClient } = useCheloneContext<TResources>();
   const result = useGetOne<TResources, TName>(resource, params, options);
   const live = options.enabled !== false;
@@ -59,9 +69,13 @@ export function useGetOneLive<
 
 /** `useGetMany` that refetches when any listed record changes or the connection returns. */
 export function useGetManyLive<
-  TResources extends ResourceMap = ResourceMap,
-  TName extends keyof TResources & string = keyof TResources & string,
->(resource: TName, params: GetManyParams, options: LiveReadOptions = {}) {
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
+>(
+  resource: ResourceNameArg<TResources, TName>,
+  params: GetManyParams,
+  options: LiveReadOptions = {},
+) {
   const { dataProvider, queryClient } = useCheloneContext<TResources>();
   const result = useGetMany<TResources, TName>(resource, params, options);
   const live = options.enabled !== false;

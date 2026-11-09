@@ -71,3 +71,34 @@ export type RegisteredRecord<TName extends RegisteredResourceName> = RecordOf<
   RegisteredResources,
   TName
 >;
+
+/**
+ * The resource name a data hook takes, with `TName` inferred from the argument:
+ * a name of `TResources` for a literal, and any `string` for a name the caller
+ * cannot pin — one read from context or props. A literal the map does not have
+ * resolves to `never`, so its call site rejects.
+ *
+ * The intersection with `TName` is what keeps the inference: a bare conditional
+ * over an unresolved `TName` is deferred, and the hook's own generic would not
+ * see the name.
+ */
+export type ResourceNameArg<
+  TResources extends ResourceMap,
+  TName extends string,
+> = TName &
+  (TName extends keyof TResources
+    ? TName
+    : string extends TName
+      ? string
+      : never);
+
+/**
+ * The record a data hook reads for a name: {@link RecordOf} for a name the map
+ * has, {@link LooseRecord} for a name it does not. A map keyed by `string` —
+ * nothing registered, or a `RecordResources` view over one record — keeps
+ * {@link RecordOf}'s own answer, so a view generic over its record stays typed.
+ */
+export type ResourceRecordArg<
+  TResources extends ResourceMap,
+  TName extends string,
+> = TName extends keyof TResources ? RecordOf<TResources, TName> : LooseRecord;

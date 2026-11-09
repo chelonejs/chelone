@@ -475,6 +475,7 @@ export type {
   UndoableDeleteCallbacks,
   UndoableHandle,
   UndoableMutationConfig,
+  UndoableMutators,
   UndoableSettler,
   UndoableSnapshot,
   UndoableUpdateCallbacks,
@@ -486,7 +487,9 @@ export {
   patchedRecord,
   startUndoableMutation,
   undoableCallbacks,
+  undoableDeleteMutators,
   undoableDeleteOptions,
+  undoableUpdateMutators,
   undoableUpdateOptions,
 } from "./data/undoable";
 export type {
@@ -1071,6 +1074,8 @@ export type {
   RegisteredRecord,
   RegisteredResourceName,
   RegisteredResources,
+  ResourceNameArg,
+  ResourceRecordArg,
 } from "./resource/register";
 export type {
   RecordOf,

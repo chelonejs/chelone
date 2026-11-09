@@ -186,7 +186,7 @@
   "packages/vue/src/controllers/use-list-controller.ts <-> packages/vue/src/controllers/use-reference-many-field-controller.ts": 1,
   "packages/vue/src/controllers/use-reference-many-field-controller.ts <-> packages/vue/src/controllers/use-reference-one-field-controller.ts": 2,
   "packages/vue/src/controllers/use-reference-many-field-controller.ts <-> packages/vue/src/list/use-list.ts": 1,
-  "packages/vue/src/data/mutations.ts <-> packages/vue/src/data/mutations.ts": 5,
+  "packages/vue/src/data/mutations.ts <-> packages/vue/src/data/mutations.ts": 2,
   "packages/vue/src/data/queries.ts <-> packages/vue/src/data/queries.ts": 1,
   "packages/vue/src/realtime/locks.ts <-> packages/vue/src/realtime/locks.ts": 2
 }

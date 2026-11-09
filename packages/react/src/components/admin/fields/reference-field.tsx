@@ -109,8 +109,12 @@ function ReferenceField<
   const { Link } = useRouterAdapter();
 
   // Fetch only when a FK is present, batching with other reference fields.
+  // The field's `TReference` is its own open type parameter, so the read takes
+  // the hook's loose arm: the record is the loose one, as it was before the
+  // hooks read the registry.
+  const name: string = reference;
   const { data, isPending, error } = useGetManyAggregate(
-    reference,
+    name,
     { ids: id != null ? [id] : [] },
     { enabled: id != null },
   );

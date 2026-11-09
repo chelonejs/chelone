@@ -76,8 +76,12 @@ const value = useFieldValue({ source: props.source, record: props.record });
 // `[1, null, 2]`) keeps the ids it has, as it did before the guard.
 const ids = computed(() => identifiersOf(value.value));
 
+// As `<ReferenceField>`: the field's `TReference` is its own open type
+// parameter, so the read takes the composable's loose arm.
+const name: string = props.reference;
+
 const query = useGetManyAggregate(
-  props.reference,
+  name,
   () => ({ ids: ids.value }),
   { enabled: () => ids.value.length > 0 },
 );

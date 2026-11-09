@@ -78,8 +78,11 @@ function ReferenceArrayField<
   const value = useFieldValue({ source, record });
   const ids = identifiersOf(value);
 
+  // As `<ReferenceField>`: the field's `TReference` is its own open type
+  // parameter, so the read takes the hook's loose arm.
+  const name: string = reference;
   const { data, isPending, isFetching, error } = useGetManyAggregate(
-    reference,
+    name,
     { ids },
     { enabled: ids.length > 0 },
   );

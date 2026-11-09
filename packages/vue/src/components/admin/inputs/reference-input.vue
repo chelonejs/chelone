@@ -66,7 +66,11 @@ const { id, value, setValue, error, touched, isRequired } = useInput({
   validate: props.validate,
 });
 
-const query = useGetList(props.reference, () => ({
+// The input's `TReference` is its own open type parameter, so the read takes the
+// composable's loose arm.
+const name: string = props.reference;
+
+const query = useGetList(name, () => ({
   pagination: { page: 1, perPage: props.perPage ?? DEFAULT_REFERENCE_PER_PAGE },
 }));
 const getRepresentation = useGetRecordRepresentation(props.reference);

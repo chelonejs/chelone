@@ -4,10 +4,18 @@ import {
   type QueryKey,
 } from "@tanstack/query-core";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
+import type { LooseRecord, ResourceRecord } from "../resource/record";
+import type { ResourceNameArg, ResourceRecordArg } from "../resource/register";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { removeRecordsFromCache, updateRecordsInCache } from "./cache-ops";
-import type { DeleteParams, UpdateManyParams, UpdateParams } from "./types";
+import type { DataContext } from "./query-options";
+import type {
+  DeleteParams,
+  DeleteResult,
+  UpdateManyParams,
+  UpdateParams,
+  UpdateResult,
+} from "./types";
 
 /**
  * A snapshot of the query cache taken BEFORE an optimistic apply: an array of
@@ -377,6 +385,108 @@ export function undoableDeleteOptions(
     applyOptimistic: () => removeRecordsFromCache(queryClient, resource, ids),
     message: "chelone.notification.deleted",
     messageArgs: { smart_count: ids.length },
+  };
+}
+
+/**
+ * The `mutate` / `mutateAsync` pair an undoable mutation swaps into its
+ * mutation object. `mutate` is fire-and-forget and `mutateAsync` resolves once
+ * the undoable is enqueued, not on the deferred server response — the same
+ * shape in both adapters, so both take it from here.
+ */
+export interface UndoableMutators<TData, TParams> {
+  mutate: (
+    params: TParams,
+    callbacks?: UndoableCallbacks<TData, TParams>,
+  ) => void;
+  mutateAsync: (params: TParams) => Promise<void>;
+}
+
+/**
+ * What an undoable mutator hands the adapter's `runUndoable`: the cache options
+ * plus the deferred provider call. Each adapter's own runner takes a wider
+ * `commit`, so it drops in here.
+ */
+type UndoableRunner<TResult> = (
+  options: UndoableCacheOptions & { commit: () => Promise<TResult> },
+) => void;
+
+/**
+ * The pair an undoable `useUpdate` swaps in: patch the caches now, defer the
+ * provider call to the commit, and bind `mutate`'s callbacks to its params.
+ *
+ * The deferred call runs on a loose {@link DataContext}: the name the hook was
+ * handed may be a `string` its own map cannot pin.
+ */
+export function undoableUpdateMutators<
+  TResources extends ResourceMap,
+  TName extends string,
+>(
+  ctx: DataContext<TResources>,
+  resource: ResourceNameArg<TResources, TName>,
+  run: UndoableRunner<UpdateResult<LooseRecord>>,
+): UndoableMutators<
+  ResourceRecordArg<TResources, TName>,
+  UpdateParams<ResourceRecordArg<TResources, TName>>
+> {
+  const mutate = (
+    params: UpdateParams<ResourceRecordArg<TResources, TName>>,
+    callbacks?: UndoableUpdateCallbacks<ResourceRecordArg<TResources, TName>>,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
+    const dataContext: DataContext = ctx;
+    run({
+      ...undoableUpdateOptions(
+        ctx.queryClient,
+        resource,
+        [params.id],
+        params.data,
+      ),
+      commit: settle.commit(() =>
+        dataContext.dataProvider.update(resource, params),
+      ),
+    });
+    settle.success(patchedRecord(params));
+  };
+  return {
+    mutate,
+    mutateAsync: async (params) => {
+      mutate(params);
+    },
+  };
+}
+
+/** The pair an undoable `useDelete` swaps in: remove the row now, defer the provider call to the commit. */
+export function undoableDeleteMutators<
+  TResources extends ResourceMap,
+  TName extends string,
+>(
+  ctx: DataContext<TResources>,
+  resource: ResourceNameArg<TResources, TName>,
+  run: UndoableRunner<DeleteResult<LooseRecord>>,
+): UndoableMutators<
+  ResourceRecordArg<TResources, TName> | undefined,
+  DeleteParams<ResourceRecordArg<TResources, TName>>
+> {
+  const mutate = (
+    params: DeleteParams<ResourceRecordArg<TResources, TName>>,
+    callbacks?: UndoableDeleteCallbacks<ResourceRecordArg<TResources, TName>>,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
+    const dataContext: DataContext = ctx;
+    run({
+      ...undoableDeleteOptions(ctx.queryClient, resource, [params.id]),
+      commit: settle.commit(() =>
+        dataContext.dataProvider.delete(resource, params),
+      ),
+    });
+    settle.success(params.previousData);
+  };
+  return {
+    mutate,
+    mutateAsync: async (params) => {
+      mutate(params);
+    },
   };
 }
 
