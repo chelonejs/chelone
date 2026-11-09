@@ -10,7 +10,11 @@ export type { AdminProps } from "./admin";
 export { Admin } from "./admin";
 export type { AdminContextProps } from "./admin-context";
 export { AdminContext } from "./admin-context";
-export { AdminRoutes, NavigateToFirstResource } from "./admin-routes";
+export {
+  AdminOutlet,
+  AdminRoutes,
+  NavigateToFirstResource,
+} from "./admin-routes";
 export type {
   AdminSlotProps,
   AdminUIContent,

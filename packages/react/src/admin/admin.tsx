@@ -34,7 +34,7 @@ import {
 import { type ReactNode, useRef } from "react";
 import type { RouterAdapter } from "../router/adapter";
 import { AdminContext, type AdminContextProps } from "./admin-context";
-import { AdminRoutes } from "./admin-routes";
+import { AdminOutlet, AdminRoutes } from "./admin-routes";
 import { type AdminSlotProps, AdminUI } from "./admin-ui";
 import { type AdminChildren, useResolvedChildren } from "./partition";
 import {
@@ -67,6 +67,13 @@ export interface AdminProps<TResources extends ResourceMap = ResourceMap>
   router?: RouterAdapter;
   /** Gate the shell on auth (the no-flash gate — consumed by W1-T7). */
   requireAuth?: boolean;
+  /**
+   * Mount the admin's own route table (default `true`). Pass `false` when the
+   * app routes its own URLs: `<Admin>` then renders the layout around the
+   * router's outlet, and `<CustomRoutes>` and the `authCallback` slot do nothing.
+   * `<Resource>` children still register, so the menu and links work.
+   */
+  routes?: boolean;
   /** The app's permissions, passed to the function-child + registration. */
   permissions?: RegisteredPermissions;
   /**
@@ -100,11 +107,13 @@ interface AdminStatics {
  */
 function AdminInner({
   requireAuth,
+  routes,
   permissions,
   slotProps,
   adminChildren,
 }: {
   requireAuth: boolean;
+  routes: boolean;
   permissions: RegisteredPermissions | undefined;
   slotProps: AdminSlotProps;
   adminChildren: AdminChildren;
@@ -115,7 +124,7 @@ function AdminInner({
       requireAuth={requireAuth}
       permissions={permissions}
       childrenStatus={status}
-      render={AdminRoutes}
+      render={routes ? AdminRoutes : AdminOutlet}
       {...slotProps}
     >
       {node}
@@ -138,6 +147,7 @@ function AdminComponent<TResources extends ResourceMap = ResourceMap>({
   router,
   basename,
   requireAuth = false,
+  routes = true,
   permissions,
   children,
   // The remaining props are the page-slot overrides.
@@ -189,6 +199,7 @@ function AdminComponent<TResources extends ResourceMap = ResourceMap>({
     >
       <AdminInner
         requireAuth={requireAuth}
+        routes={routes}
         permissions={permissions}
         slotProps={slotProps}
         adminChildren={children}
