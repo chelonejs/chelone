@@ -111,7 +111,7 @@ function ColorInput(props: ColorInputProps) {
 }
 
 interface ColorInputProps<
-  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  // type-escape: context: the no-record sentinel `SourcePath` and `SourceValue` test for
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
 > extends InputProps<TRecord, TPath>,

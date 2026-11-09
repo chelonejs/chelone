@@ -15,7 +15,7 @@ import { sanitizeInputRestProps } from "../../../util/sanitize-input-rest-props"
 import type { InputProps } from "../input-props";
 
 type TextInputProps<
-  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  // type-escape: context: the no-record sentinel `SourcePath` and `SourceValue` test for
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
 > = InputProps<TRecord, TPath> & {
