@@ -2,10 +2,11 @@ import { QueryClient } from "@tanstack/query-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { fakeDataProvider } from "../data/fake-provider";
+import { getListOptions } from "../data/query-options";
 import { createNotificationStore } from "../notification/notification-store";
 import { defineResources } from "../resource/registry";
 import { createStore } from "../store/store";
-import { createListController } from "./list-controller";
+import { createListController, listFetchParams } from "./list-controller";
 
 const resources = defineResources({
   posts: {
@@ -66,6 +67,102 @@ describe("createListController", () => {
     expect(s.page).toBe(1);
     expect(s.hasNextPage).toBe(true);
     expect(s.hasPreviousPage).toBe(false);
+    c.destroy();
+  });
+
+  it("starts on the page the query cache already holds", async () => {
+    const ctx = makeCtx();
+    // What a route loader prefetches: the same params this controller starts on.
+    await ctx.queryClient.ensureQueryData(
+      getListOptions(ctx, "posts", listFetchParams(ctx, "posts", {})),
+    );
+
+    // Construction stays inert — no observer, no fetch — yet the first snapshot
+    // is the cached page, which is what a server render reads.
+    const c = createListController(ctx, "posts", {});
+    expect(observerCount(ctx.queryClient)).toBe(0);
+    const s = c.getSnapshot();
+    expect(s.isPending).toBe(false);
+    expect(s.data?.length).toBe(10);
+    expect(s.total).toBe(25);
+    expect(s.hasNextPage).toBe(true);
+    expect(s.hasPreviousPage).toBe(false);
+    c.destroy();
+  });
+
+  it("starts on the page the URL asks for when a loader prefetched it", async () => {
+    const ctx = makeCtx();
+    const search = "?page=2&perPage=5";
+    // The loader and the mount read the same search, so they hit one key.
+    await ctx.queryClient.ensureQueryData(
+      getListOptions(ctx, "posts", listFetchParams(ctx, "posts", {}, search)),
+    );
+
+    const c = createListController(ctx, "posts", {}, search);
+    expect(observerCount(ctx.queryClient)).toBe(0);
+    const s = c.getSnapshot();
+    expect(s.page).toBe(2);
+    expect(s.perPage).toBe(5);
+    expect(s.data?.map((r) => r.id)).toEqual([6, 7, 8, 9, 10]);
+    expect(s.isPending).toBe(false);
+    expect(s.hasNextPage).toBe(true);
+    expect(s.hasPreviousPage).toBe(true);
+    c.destroy();
+  });
+
+  it("stays pending for a URL page the cache does not hold", async () => {
+    const ctx = makeCtx();
+    // Page 1 is cached; the URL asks for page 2, which nothing has fetched.
+    await ctx.queryClient.ensureQueryData(
+      getListOptions(ctx, "posts", listFetchParams(ctx, "posts", {})),
+    );
+
+    const c = createListController(ctx, "posts", {}, "?page=2");
+    const s = c.getSnapshot();
+    expect(s.page).toBe(2);
+    expect(s.isPending).toBe(true);
+    expect(s.data).toBeUndefined();
+    expect(s.total).toBeUndefined();
+    c.destroy();
+  });
+
+  it("drops a seeded page when detached params move off it", async () => {
+    const ctx = makeCtx();
+    await ctx.queryClient.ensureQueryData(
+      getListOptions(ctx, "posts", listFetchParams(ctx, "posts", {})),
+    );
+
+    const c = createListController(ctx, "posts", {});
+    expect(c.getSnapshot().data?.length).toBe(10);
+
+    // Still detached: the state must describe page 2, and page 2 is not cached,
+    // so page 1's rows cannot stay under it.
+    c.setPage(2);
+    const s = c.getSnapshot();
+    expect(s.page).toBe(2);
+    expect(s.data).toBeUndefined();
+    expect(s.total).toBeUndefined();
+    expect(s.isPending).toBe(true);
+    expect(observerCount(ctx.queryClient)).toBe(0);
+    c.destroy();
+  });
+
+  it("keeps a seeded page when detached params move onto a cached one", async () => {
+    const ctx = makeCtx();
+    // Both pages are cached, as after a visit to each.
+    for (const search of ["", "?page=2"]) {
+      await ctx.queryClient.ensureQueryData(
+        getListOptions(ctx, "posts", listFetchParams(ctx, "posts", {}, search)),
+      );
+    }
+
+    const c = createListController(ctx, "posts", {});
+    expect(c.getSnapshot().data?.map((r) => r.id)[0]).toBe(1);
+    c.setPage(2);
+    const s = c.getSnapshot();
+    expect(s.data?.map((r) => r.id)[0]).toBe(11);
+    expect(s.isPending).toBe(false);
+    expect(observerCount(ctx.queryClient)).toBe(0);
     c.destroy();
   });
 
