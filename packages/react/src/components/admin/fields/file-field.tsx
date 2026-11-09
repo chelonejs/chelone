@@ -1,6 +1,6 @@
 import {
-  getAtPath,
-  isSafeFileUrl,
+  type FileFieldLink,
+  fileFieldLinks,
   type LooseRecord,
   type ResourceRecord,
 } from "@chelone/core";
@@ -66,25 +66,14 @@ function FileField<RecordType extends ResourceRecord = LooseRecord>(
     source,
     record,
   });
-  // A `title` may be a record path OR a literal label, so it is read with
+  // A `title` may be a record path OR a literal label, so core reads it with
   // `getAtPath` off the record rather than `useFieldValue`: that hook wants a
   // `SourceProp<RecordType>`, and a literal label is no record's path.
   const ctxRecord = useRecordContext<RecordType>({ record });
-  const titleFromRecord = title ? getAtPath(ctxRecord, title) : undefined;
-  // Only derive a title when `title` is set: a real path resolves via the read,
-  // a literal-but-missing path falls back to the literal, and no `title` prop
-  // yields `undefined` (never the whole-record `"[object Object]"` leak).
-  const titleValue = title
-    ? titleFromRecord == null
-      ? title
-      : String(titleFromRecord)
-    : undefined;
+  const links = fileFieldLinks(sourceValue, ctxRecord, { src, title });
   const translate = useTranslate();
 
-  if (
-    sourceValue == null ||
-    (Array.isArray(sourceValue) && sourceValue.length === 0)
-  ) {
+  if (links === null) {
     if (!empty) {
       return null;
     }
@@ -99,67 +88,41 @@ function FileField<RecordType extends ResourceRecord = LooseRecord>(
     );
   }
 
+  const anchorFor = ({ href, title: linkTitle }: FileFieldLink) => (
+    <a
+      href={href}
+      title={linkTitle}
+      target={target}
+      download={download}
+      ping={ping}
+      rel={rel}
+      // stop bubbling so a DataTable rowClick doesn't fire.
+      onClick={(e) => e.stopPropagation()}
+    >
+      {linkTitle}
+    </a>
+  );
+
   if (Array.isArray(sourceValue)) {
     return (
       <ul
         className={cn("inline-block", className)}
         {...sanitizeFieldRestProps(rest)}
       >
-        {sourceValue.map((file, index) => {
-          // Inside `title ?`, `title` is a string, so the fallback is never nullish.
-          const fileTitleValue = title
-            ? String(getAtPath(file, title) ?? title)
-            : title;
-          // `src` falls back to `title`, which may be absent: a miss stays
-          // `undefined` so the link gets no href, never the text "undefined".
-          const srcPath = src ? (getAtPath(file, src) ?? title) : title;
-          const srcValue = srcPath == null ? undefined : String(srcPath);
-          // A stored url reaches `href` only when its scheme is safe. An unsafe
-          // value renders the anchor with no href, as a missing `src` does.
-          const href =
-            srcValue != null && isSafeFileUrl(srcValue) ? srcValue : undefined;
-
-          return (
-            <li key={srcValue ?? index}>
-              <a
-                href={href}
-                title={fileTitleValue}
-                target={target}
-                download={download}
-                ping={ping}
-                rel={rel}
-                // stop bubbling so a DataTable rowClick doesn't fire.
-                onClick={(e) => e.stopPropagation()}
-              >
-                {fileTitleValue}
-              </a>
-            </li>
-          );
-        })}
+        {links.map((link, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: an unsafe url is dropped, so it cannot key the row.
+          <li key={index}>{anchorFor(link)}</li>
+        ))}
       </ul>
     );
   }
 
-  const singleValue = sourceValue?.toString();
-  const href =
-    singleValue != null && isSafeFileUrl(singleValue) ? singleValue : undefined;
   return (
     <div
       className={cn("inline-block", className)}
       {...sanitizeFieldRestProps(rest)}
     >
-      <a
-        href={href}
-        title={titleValue}
-        target={target}
-        download={download}
-        ping={ping}
-        rel={rel}
-        // stop bubbling so a DataTable rowClick doesn't fire.
-        onClick={(e) => e.stopPropagation()}
-      >
-        {titleValue}
-      </a>
+      {links[0] && anchorFor(links[0])}
     </div>
   );
 }
