@@ -21,6 +21,15 @@
   },
   "overrides": [
     {
+      "includes": ["packages/react/**"],
+      "linter": {
+        "domains": {
+          "next": "none",
+          "react": "recommended"
+        }
+      }
+    },
+    {
       "includes": ["type-docs.json", "type-docs-baseline.json"],
       "formatter": {
         "enabled": false
@@ -343,6 +352,81 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/react/src/router/next-router-adapter.tsx",
+        "packages/react/src/next.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "maplibre-gl",
+                      "terra-draw",
+                      "terra-draw-*",
+                      "@turf/*",
+                      "osm2geojson-lite",
+                      "@chelone/utils/geo",
+                      "@chelone/utils/osm"
+                    ],
+                    "message": "maps peers import only inside the maps add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": [
+                      "monaco-editor",
+                      "@monaco-editor/*",
+                      "@guolao/vue-monaco-editor"
+                    ],
+                    "message": "monaco peers import only inside the monaco add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@mdxeditor/*", "@milkdown/*"],
+                    "message": "mdx-editor peers import only inside the mdx-editor add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@tiptap/*", "dompurify"],
+                    "message": "rich-text-input peers import only inside the rich-text-input add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@chelone/supabase", "@supabase/*"],
+                    "message": "supabase peers import only inside the supabase add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["papaparse"],
+                    "message": "csv-import peers import only inside the csv-import add-on (its components folder and entry file); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["@dnd-kit/*"],
+                    "message": "dnd-kit peers import only inside the kanban and inspector add-ons (their components folders and entry files); elsewhere they force every @chelone/react user to install them."
+                  },
+                  {
+                    "group": ["recharts"],
+                    "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
+                  },
+                  {
+                    "group": ["@chelone/test-utils"],
+                    "message": "@chelone/test-utils is a private workspace package of test helpers; importing it from shipped adapter source ships test code to every app."
+                  },
+                  {
+                    "group": ["i18next", "@chelone/utils/i18next"],
+                    "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
                   }
                 ]
               }
@@ -411,6 +495,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -479,6 +567,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -551,6 +643,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -623,6 +719,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -695,6 +795,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -767,6 +871,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -839,6 +947,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -913,6 +1025,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -986,6 +1102,10 @@
                   {
                     "group": ["i18next", "@chelone/utils/i18next"],
                     "message": "i18next is an engine the app picks: an adapter must not import it or @chelone/utils/i18next, since <Admin i18n> takes any I18nProvider and the default engine is core's own."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }
@@ -2002,6 +2122,10 @@
                   {
                     "group": ["recharts"],
                     "message": "recharts imports only inside the charts add-on (its components folder, entry file and ui/chart.tsx); elsewhere it forces every @chelone/react user to install it."
+                  },
+                  {
+                    "group": ["next", "next/*"],
+                    "message": "next imports only inside the Next.js router adapter (src/router/next-router-adapter.tsx and its entry file src/next.ts); elsewhere it forces every @chelone/react user to install it."
                   }
                 ]
               }

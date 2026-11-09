@@ -1,0 +1,17 @@
+{
+  "name": "NextOutletProvider",
+  "props": [
+    {
+      "name": "children",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The `<Admin router={nextRouterAdapter} routes={false}>` element."
+    },
+    {
+      "name": "outlet",
+      "type": "ReactNode",
+      "optional": false,
+      "comment": "The page Next hands the layout: the layout's own `children`."
+    }
+  ]
+}

@@ -80,6 +80,7 @@ export default defineConfig({
       entry: [
         "src/index.ts",
         "src/tanstack-router.ts",
+        "src/next.ts",
         "src/monaco.ts",
         "src/charts.ts",
         "src/kanban.ts",

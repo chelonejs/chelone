@@ -69,7 +69,7 @@ export interface KanbanBoardProps<
   className?: string;
 }
 
-// type-escape: getAtPath reads a record by a runtime path and returns unknown
+// type-escape: server: a field of a provider record, read by a runtime path, so its type is unknown
 const isEmpty = (value: unknown) => value == null || value === "";
 
 // Enter and Space select a card, so the keyboard sensor stays off: the "Move to"
