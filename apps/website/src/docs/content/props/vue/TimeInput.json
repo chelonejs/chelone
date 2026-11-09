@@ -33,7 +33,7 @@
     },
     {
       "name": "parse",
-      "type": "((input: string) => unknown)",
+      "type": "((input: string) => NoInfer<SourceValue<RecordType, TPath>>)",
       "optional": true,
       "comment": "Write transform (display string → stored value). Default {@link parseTimeToDate}."
     },

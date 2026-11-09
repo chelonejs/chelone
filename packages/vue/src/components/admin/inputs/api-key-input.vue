@@ -62,7 +62,7 @@ async function handleRotate() {
     } else if (rec && resource) {
       await update.mutateAsync({
         id: rec.id,
-        // type-escape: `source` is a path of TRecord, so a null written there is a patch of it; the compiler cannot see through a computed key
+        // type-escape: builder: `source` is a path of TRecord, so a null written there is a patch of it; the compiler cannot see through a computed key
         data: { [props.source]: null } as Partial<TRecord>,
         previousData: rec,
       });
