@@ -23,7 +23,7 @@ export function isIdentifierArray(value: unknown): value is Identifier[] {
  * nullable `int[]` reads as nulls between real ids and dropping the whole array
  * would hide records the record has. Anything that is not an array is no ids.
  */
-// type-escape: the value a `source` read hands over, which no record type pins
+// type-escape: context: the value a `source` read hands over, which no record type pins
 export function identifiersOf(value: unknown): Identifier[] {
   if (isIdentifierArray(value)) return value;
   return Array.isArray(value) ? value.filter(isIdentifier) : [];

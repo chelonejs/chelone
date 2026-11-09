@@ -60,7 +60,7 @@ export type RegisteredPermissions = Register extends {
   permissions: infer TPermissions;
 }
   ? TPermissions
-  : // type-escape: the fallback for an app that registers no permissions type
+  : // type-escape: server: the fallback for an app that registers no permissions type
     unknown;
 
 /** The registered resource names, or `string` when nothing is registered. */

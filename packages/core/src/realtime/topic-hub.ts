@@ -73,7 +73,7 @@ export function createTopicHub({ onError }: TopicHubOptions = {}): TopicHub {
   return {
     subscribe(topic, callback) {
       const subscription: Subscription = {
-        // type-escape: the hub stores callbacks for any payload; dispatch passes the event on unchanged.
+        // type-escape: server: the hub stores callbacks for any payload; dispatch passes the event on unchanged.
         callback: callback as SubscriptionCallback,
       };
       const set = subscribers.get(topic) ?? new Set();

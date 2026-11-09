@@ -245,7 +245,7 @@ export type RegisteredTranslate = TranslateFor<RegisteredMessages>;
 export function asRegisteredTranslate(
   translate: AnyCheloneI18n["translate"],
 ): RegisteredTranslate {
-  // type-escape: the app registered this catalog, so every key the typed signature names is one the instance answers, and its literal text is the registered catalog's own
+  // type-escape: context: the app registered this catalog, so every key the typed signature names is one the instance answers, and its literal text is the registered catalog's own
   return translate as RegisteredTranslate;
 }
 
