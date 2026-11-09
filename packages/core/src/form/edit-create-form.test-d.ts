@@ -8,6 +8,7 @@ import {
   createCreateFormController,
   createEditFormController,
   type EditFormController,
+  type FormControllerContext,
   resolveHydrationAction,
 } from "./edit-create-form";
 import type { CheloneFormApi } from "./form-controller";
@@ -22,6 +23,14 @@ const ctx = {
   dataProvider: fakeDataProvider<typeof resources>({ posts: [] }),
   queryClient: new QueryClient(),
 };
+
+const transforming = defineResources({
+  posts: {
+    schema: z.object({ id: z.string().transform(Number), title: z.string() }),
+  },
+});
+
+declare const transformingCtx: FormControllerContext<typeof transforming>;
 
 it("createEditFormController infers the record type from the registry — no any leaks", () => {
   const controller = createEditFormController(ctx, "posts", { id: 1 });
@@ -59,6 +68,15 @@ it("createCreateFormController without defaultValues still gives FormController<
   expectTypeOf(controller.form).toEqualTypeOf<CheloneFormApi<Partial<Post>>>();
   expectTypeOf(controller.getSnapshot().form.values).toEqualTypeOf<
     Partial<Post>
+  >();
+});
+
+it("an edit form over a transforming registry schema infers its record from the schema output", () => {
+  const controller = createEditFormController(transformingCtx, "posts", {
+    id: 1,
+  });
+  expectTypeOf(controller).toEqualTypeOf<
+    EditFormController<{ id: number; title: string }>
   >();
 });
 

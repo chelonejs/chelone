@@ -1,4 +1,4 @@
-import type { AnyFieldLikeMeta, StandardSchemaV1 } from "@tanstack/form-core";
+import type { AnyFieldLikeMeta } from "@tanstack/form-core";
 import {
   type CreateController,
   type CreateControllerState,
@@ -14,13 +14,13 @@ import {
 import type { MutationMode } from "../data/mutation-options";
 import { isPlainObject } from "../guards";
 import type { Identifier } from "../resource/identifier";
-import type { ResourceRecord } from "../resource/record";
+import { isResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
 import { type FieldName, type FieldValue, toFieldName } from "./field-name";
 import {
   type CheloneFormApi,
   type CheloneFormState,
-  createFormController,
+  createSchemaFormController,
   type FormController,
   type FormControllerOptions,
 } from "./form-controller";
@@ -35,18 +35,6 @@ export interface FormControllerContext<
   TResources extends ResourceMap = ResourceMap,
 > extends RecordControllerContext<TResources> {
   resources?: TResources;
-}
-
-/** The registry schema for `resource`, widened to the form's Partial data type. */
-function registrySchema<TResources extends ResourceMap, TFormData>(
-  ctx: FormControllerContext<TResources>,
-  resource: keyof TResources & string,
-): StandardSchemaV1<TFormData, unknown> | undefined {
-  // The registry types schemas as a bare StandardSchemaV1, so the widening to
-  // the form data type is a cast.
-  return ctx.resources?.[resource]?.schema as
-    | StandardSchemaV1<TFormData, unknown>
-    | undefined;
 }
 
 /**
@@ -67,6 +55,11 @@ function deepMerge<T>(base: T, override: T | Partial<T> | undefined): T {
   }
   // type-escape: the merged object has `base`'s keys plus `override`'s, each a `T` member or a `Partial<T>` one
   return result as T;
+}
+
+/** A record's id, or `undefined` for one whose schema output has no `id`. */
+function idOf<TRecord>(record: TRecord | undefined): Identifier | undefined {
+  return isResourceRecord(record) ? record.id : undefined;
 }
 
 export type HydrationAction =
@@ -351,10 +344,9 @@ export function createEditFormController<
   let lastHydrated: TRecord | undefined;
 
   const submitOptions = createSubmitOptions<TRecord>();
-  const formController: FormController<TFormData> = createFormController({
+  const formController: FormController<TFormData> = createSchemaFormController({
     defaultValues: baseDefaults,
-    schema:
-      options.schema ?? registrySchema<TResources, TFormData>(ctx, resource),
+    schema: options.schema ?? ctx.resources?.[resource]?.schema,
     validate: options.validate,
     sanitizeEmptyValues: options.sanitizeEmptyValues,
     getRecord: () => recordController.getSnapshot().record,
@@ -378,10 +370,8 @@ export function createEditFormController<
     if (record === undefined || record === lastHydrated) return;
     const form = formController.form;
     const action = resolveHydrationAction(
-      lastHydrated === undefined
-        ? undefined
-        : (lastHydrated as ResourceRecord).id,
-      (record as ResourceRecord).id,
+      idOf(lastHydrated),
+      idOf(record),
       form.state.isTouched,
     );
     lastHydrated = record;
@@ -477,14 +467,13 @@ export function createCreateFormController<
   );
 
   const seed: TFormData = options.record ?? {};
-  const baseDefaults = options.defaultValues ?? {};
+  const baseDefaults: TFormData = options.defaultValues ?? {};
   const resetOnSuccess = options.resetOnSuccess !== false;
 
   const submitOptions = createSubmitOptions<TRecord>();
-  const formController: FormController<TFormData> = createFormController({
+  const formController: FormController<TFormData> = createSchemaFormController({
     defaultValues: deepMerge(baseDefaults, seed),
-    schema:
-      options.schema ?? registrySchema<TResources, TFormData>(ctx, resource),
+    schema: options.schema ?? ctx.resources?.[resource]?.schema,
     validate: options.validate,
     sanitizeEmptyValues: options.sanitizeEmptyValues,
     // ra parity: the create sanitize baseline is the seed record.
