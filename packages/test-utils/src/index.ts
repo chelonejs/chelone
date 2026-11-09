@@ -2,6 +2,9 @@
  * Narrowing helpers for tests. Private to this workspace: nothing test-only
  * ships to an app. Imports no Chelone package, so any package can depend on it,
  * core included.
+ *
+ * The registered tests' compile probe lives in its own subpath,
+ * `@chelone/test-utils/compile-probe`, so `typescript` stays out of this entry.
  */
 
 /** Returns the value, throwing at the line that produced the missing one. */

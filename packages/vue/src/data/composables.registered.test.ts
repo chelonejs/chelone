@@ -12,10 +12,18 @@
  * read (that set is `vue-tsc`'s job in `pnpm typecheck`), and registering a
  * couple of schemas would narrow every `source` prop in them besides.
  */
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
-import ts from "typescript";
+import {
+  createProbeDir,
+  locatedDiagnosticsOf,
+  locatedText,
+  namesOnlyAugmentation,
+  type ProbeDir,
+  packageProgramOf,
+  probeCompilerOptions,
+  probeDiagnosticsOf,
+  schemaAugmentation,
+} from "@chelone/test-utils/compile-probe";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 const packageRoot = fileURLToPath(new URL("../..", import.meta.url));
@@ -28,115 +36,20 @@ const queries = "../../../src/data/queries";
 const mutations = "../../../src/data/mutations";
 const live = "../../../src/realtime/live";
 
-/** A registered app: two resources with schemas, so a name has a record. */
-const augmentation = `import { defineResources } from "@chelone/core";
-import { z } from "zod";
-
-export const resources = defineResources({
-  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
-  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
-});
-
-declare module "@chelone/core" {
-  interface Register {
-    resources: typeof resources;
-  }
-}
-`;
-
-/**
- * The same resources with no schema. Registering schemas would also narrow
- * every `source` prop, which is the `source` side's looseness and not this
- * test's: here only the resource names are registered.
- */
-const namesOnlyAugmentation = `import { defineResources } from "@chelone/core";
-
-export const resources = defineResources({
-  posts: {},
-  comments: {},
-  authors: {},
-});
-
-declare module "@chelone/core" {
-  interface Register {
-    resources: typeof resources;
-  }
-}
-`;
-
-const probeCompilerOptions: ts.CompilerOptions = {
-  target: ts.ScriptTarget.ES2022,
-  module: ts.ModuleKind.ESNext,
-  moduleResolution: ts.ModuleResolutionKind.Bundler,
-  strict: true,
-  noEmit: true,
-  skipLibCheck: true,
-  noUncheckedIndexedAccess: true,
-  verbatimModuleSyntax: true,
-  isolatedModules: true,
-  types: [],
-};
-
-/**
- * One probe file's own diagnostics, not the whole program's. A probe drags in
- * the composable modules and everything they import, and checking all of that
- * is the sources case's job; here the question is only what the probe's own
- * calls do.
- */
-const probeDiagnosticsOf = (
-  probe: string,
-  fileNames: string[],
-  options: ts.CompilerOptions = probeCompilerOptions,
-) => {
-  const program = ts.createProgram(fileNames, options);
-  const source = program.getSourceFile(probe);
-  if (!source) throw new Error(`The probe ${probe} is not in the program.`);
-  return [
-    ...program.getSyntacticDiagnostics(source),
-    ...program.getSemanticDiagnostics(source),
-  ].map((diagnostic) =>
-    ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
-  );
-};
-
-/** Each diagnostic as `file:line TScode message`, so two runs can be compared. */
-const locatedOf = (fileNames: string[], options: ts.CompilerOptions) => {
-  const program = ts.createProgram(fileNames, options);
-  return ts.getPreEmitDiagnostics(program).map((diagnostic) => {
-    const file = diagnostic.file
-      ? relative(packageRoot, diagnostic.file.fileName)
-      : "<none>";
-    const line =
-      diagnostic.file && diagnostic.start !== undefined
-        ? diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start).line +
-          1
-        : 0;
-    return `${file}:${line} TS${diagnostic.code} ${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`;
-  });
-};
-
 describe("the data composables in a registered app", () => {
-  let dir: string;
+  let probeDir: ProbeDir;
 
   beforeAll(async () => {
-    const cache = join(packageRoot, "node_modules", ".cache");
-    await mkdir(cache, { recursive: true });
-    dir = await mkdtemp(join(cache, "registered-"));
+    probeDir = await createProbeDir(packageRoot);
   }, 60_000);
 
   afterAll(async () => {
-    await rm(dir, { recursive: true, force: true });
+    await probeDir.dispose();
   });
 
-  const write = async (name: string, text: string) => {
-    const path = join(dir, name);
-    await writeFile(path, text);
-    return path;
-  };
-
   it("a registered app types useGetList by name", async () => {
-    const register = await write("register.ts", augmentation);
-    const probe = await write(
+    const register = await probeDir.write("register.ts", schemaAugmentation);
+    const probe = await probeDir.write(
       "probe.ts",
       `import { useGetList } from "${queries}";
 import { computed } from "vue";
@@ -161,12 +74,22 @@ export const reactiveTitle: string | undefined =
 `,
     );
 
-    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
+    expect(
+      probeDiagnosticsOf(
+        probe,
+        [register, probe],
+        probeCompilerOptions,
+        packageRoot,
+      ),
+    ).toEqual([]);
   }, 120_000);
 
   it("a registered app types the mutation records and the live reads", async () => {
-    const register = await write("register-mutate.ts", augmentation);
-    const probe = await write(
+    const register = await probeDir.write(
+      "register-mutate.ts",
+      schemaAugmentation,
+    );
+    const probe = await probeDir.write(
       "probe-mutate.ts",
       `import { useDelete, useUpdate } from "${mutations}";
 import { useGetListLive, useGetOneLive } from "${live}";
@@ -190,12 +113,22 @@ export const oneTitle: string | undefined = one.data.value?.title;
 `,
     );
 
-    expect(probeDiagnosticsOf(probe, [register, probe])).toEqual([]);
+    expect(
+      probeDiagnosticsOf(
+        probe,
+        [register, probe],
+        probeCompilerOptions,
+        packageRoot,
+      ),
+    ).toEqual([]);
   }, 120_000);
 
   it("a registered app rejects a name it never registered", async () => {
-    const register = await write("register-bad.ts", augmentation);
-    const probe = await write(
+    const register = await probeDir.write(
+      "register-bad.ts",
+      schemaAugmentation,
+    );
+    const probe = await probeDir.write(
       "probe-bad.ts",
       `import { useGetList } from "${queries}";
 import { useUpdate } from "${mutations}";
@@ -210,17 +143,25 @@ export const liveList = useGetListLive("psots");
 
     // One diagnostic per call. `useGetList` names the widened `string` rather
     // than the literal, so the pin is the count plus the name appearing.
-    const diagnostics = probeDiagnosticsOf(probe, [register, probe]);
+    const diagnostics = probeDiagnosticsOf(
+      probe,
+      [register, probe],
+      probeCompilerOptions,
+      packageRoot,
+    );
     expect(diagnostics).toHaveLength(3);
     expect(diagnostics.join("\n")).toContain("psots");
   }, 120_000);
 
   it("every Vue source module compiles in a registered app", async () => {
-    const register = await write("register-sources.ts", namesOnlyAugmentation);
+    const register = await probeDir.write(
+      "register-sources.ts",
+      namesOnlyAugmentation,
+    );
     // A probe that only passes while the augmentation is live: an inert
     // `Register` would leave the `@ts-expect-error` unused, and TS2578 would
     // land in the diff below.
-    const probe = await write(
+    const probe = await probeDir.write(
       "probe-sources.ts",
       `import { useGetList } from "${queries}";
 import "./register-sources";
@@ -229,44 +170,27 @@ import "./register-sources";
 export const bad = useGetList("psots");
 `,
     );
-    const read = ts.readConfigFile(
-      join(packageRoot, "tsconfig.json"),
-      ts.sys.readFile,
-    );
-    expect(read.error).toBeUndefined();
-    const parsed = ts.parseJsonConfigFileContent(
-      read.config,
-      ts.sys,
-      packageRoot,
-    );
-    // The probe sits outside `src`, and the program emits nothing.
-    const options: ts.CompilerOptions = {
-      ...parsed.options,
-      rootDir: packageRoot,
-      noEmit: true,
-      declaration: false,
-    };
     // Plain `tsc` cannot read a `.vue` file, so this pin covers the `.ts`
     // modules; `vue-tsc` reads the components, and `apps/vue-demo` reads them
     // under that app's own `Register` augmentation. Test files and their
     // fixtures mount fake resources on purpose, so they name things no
     // registered app would.
-    const sources = parsed.fileNames.filter(
-      (file) =>
-        file.endsWith(".ts") &&
-        !file.endsWith(".d.ts") &&
-        !/\.test(-d)?\.ts$/.test(file) &&
-        !/\/__fixtures__\//.test(file),
-    );
+    const { options, sources } = packageProgramOf(packageRoot);
     expect(sources.length).toBeGreaterThan(100);
 
     // The `.ts` set carries noise plain `tsc` cannot clear: a `.vue` import it
     // cannot read, and the tiptap chain methods a component file brings in.
     // The pin is that the augmentation adds nothing to it.
-    const bare = new Set(locatedOf(sources, options));
-    const added = locatedOf([register, probe, ...sources], options).filter(
-      (diagnostic) => !bare.has(diagnostic),
+    const bare = new Set(
+      locatedDiagnosticsOf(sources, options, packageRoot).map(locatedText),
     );
+    const added = locatedDiagnosticsOf(
+      [register, probe, ...sources],
+      options,
+      packageRoot,
+    )
+      .map(locatedText)
+      .filter((diagnostic) => !bare.has(diagnostic));
     expect(added).toEqual([]);
   }, 300_000);
 });
