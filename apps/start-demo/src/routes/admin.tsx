@@ -4,10 +4,17 @@
  * out and registers the resources, and renders the matched child route where
  * its own route table would sit. A bare `/admin` has no child to render, so it
  * redirects to the first resource.
+ *
+ * `requireAuthBeforeLoad` runs before any of that: a logged-out visit throws a
+ * redirect to `/login` before this route renders, so no page loader runs and no
+ * data is fetched for a visitor who never sees the page.
  */
 
 import { Admin, Resource } from "@chelone/react";
-import { tanstackHostRouterAdapter } from "@chelone/react/tanstack-router";
+import {
+  requireAuthBeforeLoad,
+  tanstackHostRouterAdapter,
+} from "@chelone/react/tanstack-router";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import { resources } from "../resources";
@@ -16,7 +23,12 @@ export const Route = createFileRoute("/admin")({
   // Parent `beforeLoad` runs for a descendant match too, so the redirect is
   // gated on the pathname actually being the shell's own — `/admin/posts`
   // reaches this file without redirecting.
-  beforeLoad: ({ location }) => {
+  beforeLoad: async ({ context, location }) => {
+    await requireAuthBeforeLoad({
+      location,
+      authProvider: context.authProvider,
+      queryClient: context.queryClient,
+    });
     if (location.pathname === "/admin" || location.pathname === "/admin/") {
       throw redirect({ to: "/admin/posts", replace: true });
     }
@@ -37,13 +49,17 @@ function AdminLayout({ children }: { children?: ReactNode }) {
 }
 
 function AdminShell() {
-  const { dataProvider, queryClient } = Route.useRouteContext();
+  const { authProvider, dataProvider, notifications, queryClient } =
+    Route.useRouteContext();
   return (
     <Admin
       router={tanstackHostRouterAdapter}
       routes={false}
       basename="/admin"
+      authProvider={authProvider}
+      requireAuth
       dataProvider={dataProvider}
+      notifications={notifications}
       queryClient={queryClient}
       resources={resources}
     >
