@@ -11,7 +11,7 @@
       "name": "reference",
       "type": "string",
       "optional": false,
-      "comment": ""
+      "comment": "A registered resource name."
     },
     {
       "name": "record",
