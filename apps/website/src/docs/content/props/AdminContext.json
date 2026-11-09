@@ -53,7 +53,7 @@
       "name": "registry",
       "type": "ResourceRegistry",
       "optional": true,
-      "comment": "An existing runtime resource registry. Omit to have the provider create one\n(the common case). Supply one to share a registry across trees / for SSR."
+      "comment": "An existing runtime resource registry. Omit to have the provider create one\n(the common case). Supply one to share a registry across trees / for SSR.\nThe first render of `<Admin>` registers its resources in it, so a listener\nalready subscribed to a supplied registry is notified during that render:\nsubscribe after `<Admin>` mounts, or register the resources up front."
     },
     {
       "name": "resources",
