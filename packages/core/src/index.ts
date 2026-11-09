@@ -253,6 +253,7 @@ export {
   serializeListParams,
   serializeListState,
 } from "./controller/list-params";
+export { listSearchSchema } from "./controller/list-search-schema";
 export type {
   PivotAggregator,
   PivotOptions,

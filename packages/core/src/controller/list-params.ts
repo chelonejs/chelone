@@ -80,24 +80,45 @@ export function serializeListParams<TRecord = LooseRecord>(
 
 /**
  * Parse a JSON-encoded object param; returns `undefined` on absence, bad JSON,
- * or JSON that is not a plain object (`null`, an array, a primitive).
+ * or a value that is not an object (`null`, an array, a primitive). It takes
+ * the wire string and the object a router's own parser hands over alike, so
+ * `parseListParams` and `listSearchSchema` share one rule.
  */
-function parseJsonObjectParam<T>(raw: string | null): T | undefined {
-  if (raw === null) return undefined;
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!isRecord(parsed)) return undefined;
-    return parsed as T;
-  } catch {
-    return undefined;
+export function parseJsonObjectParam<T>(
+  raw: string | object | null,
+): T | undefined {
+  let value: unknown = raw;
+  if (typeof raw === "string") {
+    try {
+      value = JSON.parse(raw);
+    } catch {
+      return undefined;
+    }
   }
+  if (!isRecord(value)) return undefined;
+  return value as T;
 }
 
-/** Parse a positive integer param; returns `undefined` on absence, non-numeric input, or a value below 1. */
-function parsePositiveIntParam(raw: string | null): number | undefined {
+/**
+ * Parse a positive integer param; returns `undefined` on absence, non-numeric
+ * input, or a value below 1. Takes the wire string and the number a router's
+ * own parser hands over alike, and truncates a fraction the same in both.
+ */
+export function parsePositiveIntParam(
+  raw: string | number | null,
+): number | undefined {
   if (raw === null) return undefined;
-  const parsed = Number.parseInt(raw, 10);
-  return parsed >= 1 ? parsed : undefined;
+  const parsed = Math.trunc(
+    typeof raw === "number" ? raw : Number.parseInt(raw, 10),
+  );
+  return Number.isFinite(parsed) && parsed >= 1 ? parsed : undefined;
+}
+
+/** Parse an `order` param: upper-cased first, then only `ASC` or `DESC` survives. */
+export function parseSortOrderParam(raw: string | null): SortOrder | undefined {
+  if (raw === null) return undefined;
+  const order = raw.toUpperCase();
+  return isSortOrder(order) ? order : undefined;
 }
 
 /**
@@ -129,11 +150,8 @@ export function parseListParams<TRecord = LooseRecord>(
   const sort = params.get("sort");
   if (sort !== null) result.sort = sort;
 
-  const rawOrder = params.get("order");
-  if (rawOrder !== null) {
-    const order = rawOrder.toUpperCase();
-    if (isSortOrder(order)) result.order = order;
-  }
+  const order = parseSortOrderParam(params.get("order"));
+  if (order !== undefined) result.order = order;
 
   const page = parsePositiveIntParam(params.get("page"));
   if (page !== undefined) result.page = page;
