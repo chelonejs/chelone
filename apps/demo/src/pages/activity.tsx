@@ -7,7 +7,7 @@
 
 import type { Activity, Customer } from "@chelone/demo-data";
 import {
-  BadgeField,
+  createResourceComponents,
   DateField,
   InfiniteList,
   InfinitePagination,
@@ -17,8 +17,10 @@ import {
   ResourceContextProvider,
   SimpleList,
   SingleFieldList,
-  TextField,
 } from "@chelone/react";
+
+const authors = createResourceComponents("authors");
+const orders = createResourceComponents("orders");
 
 export const title = "Activity";
 export const group = "Shop";
@@ -40,7 +42,7 @@ export default function ActivityPage() {
                   reference="authors"
                   link={false}
                 >
-                  <TextField source="name" />
+                  <authors.TextField source="name" />
                 </ReferenceField>
               )}
               rightIcon={() => (
@@ -67,7 +69,7 @@ export default function ActivityPage() {
                   perPage={3}
                 >
                   <SingleFieldList>
-                    <BadgeField source="reference" />
+                    <orders.BadgeField source="reference" />
                   </SingleFieldList>
                 </ReferenceManyField>
               )}

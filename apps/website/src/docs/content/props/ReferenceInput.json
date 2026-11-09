@@ -39,9 +39,9 @@
     },
     {
       "name": "reference",
-      "type": "string",
+      "type": "TReference",
       "optional": false,
-      "comment": "The referenced resource choices are fetched from (e.g. `\"companies\"`)."
+      "comment": "The referenced resource choices are fetched from (e.g. `\"companies\"`). A registered resource name."
     },
     {
       "name": "sort",

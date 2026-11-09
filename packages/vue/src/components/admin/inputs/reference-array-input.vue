@@ -1,12 +1,27 @@
-<script lang="ts">
-import type { FilterPayload, SortPayload, SourceProp } from "@chelone/core";
+<script
+  lang="ts"
+  generic="
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
+import type {
+  FilterPayload,
+  RegisteredResources,
+  ResourceMap,
+  SortPayload,
+  SourceProp,
+} from "@chelone/core";
 
 /** Props for {@link ReferenceArrayInput}. */
-export interface ReferenceArrayInputProps {
+export interface ReferenceArrayInputProps<
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string
+> {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
   source: SourceProp;
-  /** The referenced resource choices are fetched from (e.g. `"tags"`). */
-  reference: string;
+  /** The referenced resource choices are fetched from (e.g. `"tags"`). A registered resource name. */
+  reference: TReference;
   /**
    * The field on the referenced record the values match. `"id"` (default)
    * resolves the selected records via `getMany`; any other key resolves them
@@ -26,7 +41,14 @@ export interface ReferenceArrayInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
 /**
  * `<ReferenceArrayInput>` — edits a to-many foreign-key relationship with
  * autocompletion, the Vue analog of `@chelone/react`'s
@@ -54,7 +76,9 @@ import { subscribeStore, useSubscribable } from "../../../form/subscribe-ref";
 import { provideResourceContext } from "../../../resource-context";
 import AutocompleteArrayInput from "./autocomplete-array-input.vue";
 
-const props = defineProps<ReferenceArrayInputProps>();
+const props = defineProps<
+  ReferenceArrayInputProps<TResources, TReference>
+>();
 
 // Publish the reference resource so the child's record-representation /
 // label-key resolution targets it.

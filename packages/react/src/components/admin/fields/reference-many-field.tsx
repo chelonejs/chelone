@@ -1,6 +1,9 @@
 import type {
   FilterPayload,
   LooseRecord,
+  ReferenceTargetOf,
+  RegisteredResources,
+  ResourceMap,
   ResourceRecord,
   SortPayload,
   SourceProp,
@@ -12,11 +15,13 @@ import { ResourceContextProvider } from "../../../resource";
 
 interface ReferenceManyFieldProps<
   RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
 > {
   /** The referenced resource holding the reverse FK (e.g. `"books"`). */
-  reference: string;
-  /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). */
-  target: string;
+  reference: TReference;
+  /** The FK field on the reference pointing back at this record (e.g. `"author_id"`). A key of the referenced resource's record. */
+  target: ReferenceTargetOf<TResources, TReference>;
   /** The field on the current record the `target` matches. Default `"id"`. */
   source?: SourceProp<RecordType>;
   /** The record whose id is matched. Defaults to the ambient record. */
@@ -65,9 +70,11 @@ interface ReferenceManyFieldProps<
  *   </Show>
  * );
  */
-function ReferenceManyField<RecordType extends ResourceRecord = LooseRecord>(
-  props: ReferenceManyFieldProps<RecordType>,
-) {
+function ReferenceManyField<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string,
+>(props: ReferenceManyFieldProps<RecordType, TResources, TReference>) {
   const {
     reference,
     target,
@@ -81,7 +88,14 @@ function ReferenceManyField<RecordType extends ResourceRecord = LooseRecord>(
     debounce,
   } = props;
 
-  const listContext = useReferenceManyFieldController({
+  // The controller is called at its loose binding: `reference` and `target` are
+  // already checked against `TResources` by these props, and `sort`/`filter`
+  // stay the loose payloads they are today.
+  const listContext = useReferenceManyFieldController<
+    ResourceMap,
+    TReference,
+    RecordType
+  >({
     reference,
     target,
     source,
