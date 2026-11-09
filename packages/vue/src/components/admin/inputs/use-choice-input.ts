@@ -25,6 +25,7 @@
 import {
   type ChoiceRecord,
   type ChoiceValueOf,
+  type FilterPayload,
   isResourceRecord,
   type SourcePath,
   type SourceProp,
@@ -80,7 +81,7 @@ export interface UseChoiceInputResult<
   /** The disabled flag for a choice. */
   getDisableValue(choice: TChoice): boolean;
   /** Push a filter onto a reference context (inert for inline choices). */
-  setFilters(filter: Record<string, unknown>, debounce?: boolean): void;
+  setFilters(filter: FilterPayload<TChoice>, debounce?: boolean): void;
 }
 
 export function useChoiceInput<TChoice extends ChoiceRecord = ChoiceRecord>(
@@ -123,7 +124,7 @@ export function useChoiceInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     // so the list stays live; for an inline context they read static fields.
     // Inline `choices` are `TChoice` records, and under a reference the choices
     // come from the context.
-    // type-escape: a provided context cannot carry `TChoice`.
+    // type-escape: context: a provided context cannot carry `TChoice`.
     allChoices: computed(() => (ctx.allChoices ?? []) as TChoice[]),
     isPending: computed(() => ctx.isPending),
     fetchError: computed(() => ctx.error),
