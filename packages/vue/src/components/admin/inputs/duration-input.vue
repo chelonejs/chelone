@@ -34,6 +34,7 @@ import { cn } from "../../../lib/utils";
 import { Field, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
 import { parseIsoDuration } from "./duration-utils";
+import { targetOf } from "./event-target";
 import { humanizeSource } from "./label-text";
 
 const UNIT_LABEL: Record<Unit, string> = {
@@ -95,7 +96,9 @@ function writeBack(next: Record<Unit, string>) {
   setValue(out || null);
 }
 function onUnitInput(u: Unit, event: Event) {
-  const next = { ...values.value, [u]: (event.target as HTMLInputElement).value };
+  const input = targetOf(event, HTMLInputElement);
+  if (!input) return;
+  const next = { ...values.value, [u]: input.value };
   values.value = next;
   writeBack(next);
 }

@@ -65,8 +65,8 @@ const { source, allChoices, getChoiceText, getChoiceValue } = useChoiceInput({
   source: props.source,
   // The React twin defaults `optionText` to `"name"` in its own destructuring,
   // so a `<DatagridInput>` under a reference wrapper labels the `name` field
-  // rather than the record representation. The literal has to be cast: a
-  // `SourcePath<TChoice>` is deferred while `TChoice` is open.
+  // rather than the record representation.
+  // type-escape: context: the literal has to be cast because a `SourcePath<TChoice>` is deferred while `TChoice` is open.
   optionText: props.optionText ?? ("name" as SourcePath<TChoice>),
   optionValue: props.optionValue,
   disableValue: props.disableValue,
