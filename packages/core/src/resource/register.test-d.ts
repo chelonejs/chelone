@@ -6,8 +6,14 @@ import type {
   RegisteredRecord,
   RegisteredResourceName,
   RegisteredResources,
+  ResourceNameArg,
+  ResourceRecordArg,
 } from "./register";
-import { defineResources, type ResourceMap } from "./registry";
+import {
+  defineResources,
+  type RecordResources,
+  type ResourceMap,
+} from "./registry";
 import type {
   AnyFilterSourceKey,
   AnyFilterSourceKeyOf,
@@ -119,4 +125,48 @@ it("AnySourcePathOf is string when a resource has no schema", () => {
   expectTypeOf<
     AnySourcePathOf<typeof withSchemaless>
   >().toEqualTypeOf<string>();
+});
+
+/**
+ * The name and record helpers the data hooks read, over an explicit map:
+ * `Register` is not augmented here either, so the map is passed by hand.
+ */
+it("ResourceNameArg takes a listed name and a wide string, and rejects an unlisted name", () => {
+  expectTypeOf<
+    ResourceNameArg<typeof typed, "posts">
+  >().toEqualTypeOf<"posts">();
+  expectTypeOf<ResourceNameArg<typeof typed, string>>().toEqualTypeOf<string>();
+  expectTypeOf<ResourceNameArg<typeof typed, "psots">>().toEqualTypeOf<never>();
+
+  // the hook shape: `TName & ResourceNameArg<TResources, TName>`
+  const listed: "posts" & ResourceNameArg<typeof typed, "posts"> = "posts";
+  const wide: string & ResourceNameArg<typeof typed, string> = "anything";
+  // @ts-expect-error psots is not a registered resource name
+  const unlisted: "psots" & ResourceNameArg<typeof typed, "psots"> = "psots";
+  void [listed, wide, unlisted];
+});
+
+it("ResourceRecordArg gives the resource's record for a name and LooseRecord for a wide string", () => {
+  expectTypeOf<ResourceRecordArg<typeof typed, "posts">>().toEqualTypeOf<{
+    id: number;
+    title: string;
+    items: { sku: string }[];
+  }>();
+  expectTypeOf<ResourceRecordArg<typeof typed, "users">>().toEqualTypeOf<{
+    id: string;
+    name: string;
+  }>();
+  expectTypeOf<
+    ResourceRecordArg<typeof typed, string>
+  >().toEqualTypeOf<LooseRecord>();
+  expectTypeOf<
+    ResourceRecordArg<typeof typed, "psots">
+  >().toEqualTypeOf<LooseRecord>();
+});
+
+it("ResourceRecordArg keeps the record of a RecordResources view keyed by string", () => {
+  type Post = { id: number; title: string };
+  expectTypeOf<
+    ResourceRecordArg<RecordResources<Post>, string>
+  >().toEqualTypeOf<Post>();
 });

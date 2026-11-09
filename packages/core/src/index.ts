@@ -1071,6 +1071,8 @@ export type {
   RegisteredRecord,
   RegisteredResourceName,
   RegisteredResources,
+  ResourceNameArg,
+  ResourceRecordArg,
 } from "./resource/register";
 export type {
   RecordOf,
