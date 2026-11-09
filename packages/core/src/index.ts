@@ -885,6 +885,7 @@ export type {
 } from "./i18n/i18n";
 export { asRegisteredTranslate, createI18n } from "./i18n/i18n";
 export { humanize, humanizeField, pluralize } from "./i18n/inflection";
+export { ptMessages } from "./i18n/locales/pt";
 export { zhMessages } from "./i18n/locales/zh";
 export type {
   ExtractParams,
