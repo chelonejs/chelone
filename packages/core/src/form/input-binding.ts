@@ -30,7 +30,7 @@ import {
  * controlled; every other value (including `0`/`false`) passes through.
  */
 export function defaultFormat<TValue>(value: TValue): FormattedValue<TValue> {
-  // type-escape: TS cannot follow that dropping null/undefined lands on it.
+  // type-escape: form-core: TS cannot follow that dropping null/undefined lands on it.
   return (value == null ? "" : value) as FormattedValue<TValue>;
 }
 
@@ -48,7 +48,7 @@ export type FormattedValue<TValue> = Exclude<TValue, null | undefined> | "";
 export function defaultParse<TInput>(
   input: TInput,
 ): Exclude<TInput, ""> | null {
-  // type-escape: TS cannot follow that turning `''` into null lands on it.
+  // type-escape: form-core: TS cannot follow that turning `''` into null lands on it.
   return (input === "" ? null : input) as Exclude<TInput, ""> | null;
 }
 
@@ -160,6 +160,7 @@ export interface FieldBindingBaseOptions<TValue, TInput> {
    */
   schema?: StandardSchemaV1;
   /** Extra context merged into the validators' meta argument. */
+  // type-escape: server: an app's opaque bag of any values.
   validatorMeta?: Record<string, unknown>;
 }
 
@@ -382,7 +383,7 @@ export function createFieldBinding<
   const toFieldData = (
     value: SourceValue<TRecord, TPath> | Exclude<TInput, ""> | null,
   ): FieldData<TRecord> =>
-    // type-escape: the mirror of the read in `formatValue`.
+    // type-escape: form-core: the mirror of the read in `formatValue`.
     value as FieldData<TRecord>;
 
   /**
@@ -423,14 +424,14 @@ export function createFieldBinding<
   /** The binding's `format`, or the ra default, applied to the stored value. */
   const formatValue = (): TInput => {
     // `field-name.test-d.ts` pins that form-core and chelone read one value here.
-    // type-escape: a deferred `TRecord` keeps TS from seeing it.
+    // type-escape: form-core: the value form-core reads is `SourceValue` by `field-name.test-d.ts`, but a deferred `TRecord` keeps TS from seeing it.
     const value = field.store.state.value as
       | SourceValue<TRecord, TPath>
       | null
       | undefined;
     const { format } = current;
     if (format !== undefined) return format(value);
-    // type-escape: with no `format`, `TInput` defaults to this result's type.
+    // type-escape: form-core: with no `format`, `TInput` defaults to this result's type.
     return defaultFormat(value) as TInput;
   };
 

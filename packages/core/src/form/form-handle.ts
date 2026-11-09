@@ -32,7 +32,7 @@ type FormStore<TRecord> = CheloneFormApi<TRecord>["store"];
  * The field-meta map of a form whose record type is erased: a form context
  * spans every record below it and names none of them.
  */
-// type-escape: `unknown` is the record a form context does not name.
+// type-escape: context: `unknown` is the record a form context does not name.
 export type AmbientFieldMeta = CheloneFormState<unknown>["fieldMeta"];
 
 /**
@@ -52,13 +52,13 @@ export interface FormSnapshot<TRecord> {
   canSubmit: boolean;
 }
 
-// type-escape: the erased record leaves a bound field's value, input and rows unchecked.
+// type-escape: context: the erased record leaves a bound field's value, input and rows unchecked.
 type AmbientFieldOptions = FieldBindingOptions<unknown, string, unknown>;
-// type-escape: see `AmbientFieldOptions`.
+// type-escape: context: see `AmbientFieldOptions`.
 type AmbientFieldBinding = FieldBinding<unknown, string, unknown>;
-// type-escape: see `AmbientFieldOptions`.
+// type-escape: context: see `AmbientFieldOptions`.
 type AmbientArrayOptions = ArrayBindingOptions<unknown, string>;
-// type-escape: see `AmbientFieldOptions`.
+// type-escape: context: see `AmbientFieldOptions`.
 type AmbientArrayBinding = ArrayBinding<unknown, string>;
 
 /**
@@ -72,13 +72,13 @@ export interface AmbientForm {
    * form-core's derived store of the record-free state: `values`, `fieldMeta`,
    * `errorMap` and the form flags.
    */
-  // type-escape: the form's own store, read through its erased record.
+  // type-escape: context: the form's own store, read through its erased record.
   readonly store: FormStore<unknown>;
   /** The value at a path. */
-  // type-escape: the record is erased, so a value read here is unchecked.
+  // type-escape: context: the record is erased, so a value read here is unchecked.
   getFieldValue(path: string): unknown;
   /** Writes a value at a path, marking the field touched and dirty. */
-  // type-escape: the write is unchecked for the same reason.
+  // type-escape: context: the write is unchecked for the same reason.
   setFieldValue(path: string, value: unknown): void;
   /** The field's meta (touched/dirty/errors/validators) at a path. */
   getFieldMeta(path: string): AmbientFieldMeta[string];
@@ -87,7 +87,7 @@ export interface AmbientForm {
   /** Runs the form's own submit: validate, then the save the form was built with. */
   handleSubmit(): Promise<void>;
   /** Rebaselines the form from `values`, or from its current defaults when omitted. */
-  // type-escape: the record is erased, so the values are unchecked.
+  // type-escape: context: the record is erased, so the values are unchecked.
   reset(values?: unknown): void;
   /**
    * Binds one field of this form. Inert until the binding is subscribed to
@@ -104,7 +104,7 @@ export interface AmbientForm {
  * walking `Get` over the whole `Paths` union.
  */
 type HandleValue<TRecord, TPath extends string> = string extends TPath
-  ? unknown // type-escape: no record to read a path of: the erased case
+  ? unknown // type-escape: context: no record to read a path of: the erased case
   : SourceValue<TRecord, TPath>;
 
 /**
@@ -141,14 +141,14 @@ export interface FormHandle<TRecord> {
  */
 export interface ResourceFormHandle<
   TName extends string,
-  // type-escape: a tagged handle whose form data the caller does not name.
+  // type-escape: context: a tagged handle whose form data the caller does not name.
   TFormData = unknown,
 > extends FormHandle<TFormData> {
   readonly resource: TName;
 }
 
 /** A handle the registry types no record for — the ambient form as a context member. */
-// type-escape: `unknown` is the record this handle was never given.
+// type-escape: context: `unknown` is the record this handle was never given.
 export interface UnboundFormHandle extends FormHandle<unknown> {
   readonly resource: undefined;
 }
@@ -187,16 +187,16 @@ export function createFormHandle<TRecord>(
   // The handle erases the record type once, here, so every member below reads
   // and writes `string` paths — the same `DeepKeys`/`DeepValue` widening
   // `input-binding.ts` documents per call.
-  // type-escape: the form read through its erased record type.
+  // type-escape: context: the form read through its erased record type.
   const loose = form as CheloneFormApi<unknown>;
 
   // The explicit type arguments keep the compiler from walking the record's
   // paths: inferring them through the erased record overflows its depth.
   const bindField: AmbientForm["bindField"] = (options) =>
-    // type-escape: the erased record, as above.
+    // type-escape: context: the erased record, as above.
     createFieldBinding<unknown, string, unknown>(loose, options);
   const bindArray: AmbientForm["bindArray"] = (options) =>
-    // type-escape: the erased record, as above.
+    // type-escape: context: the erased record, as above.
     createArrayBinding<unknown, string>(loose, options);
 
   const ambient: AmbientForm = {
@@ -215,12 +215,12 @@ export function createFormHandle<TRecord>(
 
   // The members are written loose and read typed: the `TPath` typing lives in
   // the {@link FormHandle} signature, and the form underneath is erased.
-  // type-escape: the one widening between the two spellings of the same form.
+  // type-escape: context: the one widening between the two spellings of the same form.
   return {
     ambient,
     getSnapshot: () => form.state,
     getFieldValue: (path: string) => loose.getFieldValue(path),
-    // type-escape: the members are loose; the typing is the interface's.
+    // type-escape: context: the members are loose; the typing is the interface's.
     setFieldValue: (path: string, value: unknown) =>
       loose.setFieldValue(path, value),
   } as FormHandle<TRecord>;
@@ -250,14 +250,14 @@ export function toFormContextHandle<TName extends string, TFormData>(
   handle: FormHandle<TFormData>,
   resource: TName | undefined,
 ): FormContextHandle {
-  // type-escape: the tagged handle carries no record; the union spells one.
+  // type-escape: context: the tagged handle carries no record; the union spells one.
   const tagged: FormHandle<unknown> & { resource: TName | undefined } = {
     ...handle,
     resource,
   };
   // The context union is spelled from the registry, which this generic body
   // cannot see.
-  // type-escape: the tagged handle is the same object, widened.
+  // type-escape: context: the tagged handle is the same object, widened.
   return tagged as FormContextHandle;
 }
 
