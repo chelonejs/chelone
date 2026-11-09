@@ -130,7 +130,7 @@ export type ListContextSurface<TRecord = ResourceRecord> = Omit<
     debounced?: boolean,
   ): void;
   setParams(patch: LooseListParamsPatch): void;
-  // type-escape: the erased showFilter seeds a value into a filter, and a filter value is unknown by design (see FilterPayload). The keyed ListController.showFilter above carries the same site.
+  // type-escape: filter-value: the erased showFilter seeds a value into a filter (see FilterPayload). The keyed ListController.showFilter above carries the same site.
   showFilter(name: string, defaultValue?: unknown): void;
   hideFilter(name: string): void;
 };
@@ -206,7 +206,7 @@ export const DEFAULT_SELECT_ALL_LIMIT = 250;
 function defaultSort<TRecord>(): SortPayload<TRecord>[] {
   return [
     {
-      // type-escape: `id` is the primary key a data provider orders by when no sort is given; a deferred `TRecord` cannot prove `SourcePath<TRecord>` holds it
+      // type-escape: context: `id` is the primary key a data provider orders by when no sort is given; a deferred `TRecord` cannot prove `SourcePath<TRecord>` holds it
       field: "id" as SortPayload<TRecord>["field"],
       order: "ASC",
     },

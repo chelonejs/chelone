@@ -188,7 +188,7 @@ export function calendarRangeFilter<R = LooseRecord>(
         [`${startSource}_gte`]: range.start.toISOString(),
         [`${startSource}_lte`]: range.end.toISOString(),
       };
-  // type-escape: a computed template key is typed `string`; each is `${path}_gte` or `${path}_lte`, the filter-key grammar
+  // type-escape: filter-value: a computed template key is typed `string`; each is `${path}_gte` or `${path}_lte`, the filter-key grammar
   return filter as FilterPayload<R>;
 }
 
@@ -213,6 +213,6 @@ export function omitCalendarRangeFilter<R = LooseRecord>(
   delete rest[`${startSource}_gte`];
   delete rest[`${startSource}_lte`];
   if (endSource) delete rest[`${endSource}_gte`];
-  // type-escape: only keys of `filter` were copied, so `rest` holds a subset of its keys
+  // type-escape: filter-value: only keys of `filter` were copied, so `rest` holds a subset of its keys
   return rest as FilterPayload<R>;
 }
