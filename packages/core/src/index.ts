@@ -501,6 +501,15 @@ export { createApplicationUpdateStore } from "./environment/application-update-s
 export type { OfflineSnapshot } from "./environment/offline-store";
 export { createOfflineStore } from "./environment/offline-store";
 export type {
+  FileFieldLink,
+  ImageFieldSource,
+} from "./field-display/links";
+export {
+  fileFieldLinks,
+  imageFieldSources,
+  urlFieldHref,
+} from "./field-display/links";
+export type {
   FormatFieldCurrencyOptions,
   FormatFieldDateOptions,
   FormatFieldNumberOptions,

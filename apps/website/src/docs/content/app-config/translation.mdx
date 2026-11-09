@@ -436,6 +436,50 @@ It pins plain lookup, interpolation, the key echo, the `_` default, `count` and
 `getLocales`, `setLocale` and the subscribers. A provider that ignores the `_`
 default, or that notifies for a locale already active, fails it.
 
+### With i18next
+
+A team that already runs i18next, with its backends and tooling, can wrap that
+instance instead. `i18next` is an optional peer of `@chelone/utils/i18next`:
+
+```bash
+pnpm add @chelone/utils i18next
+```
+
+```ts title="src/i18n.ts"
+import { englishMessages } from "@chelone/core";
+import {
+  createI18nextProvider,
+  toI18nextResource,
+} from "@chelone/utils/i18next";
+import i18next from "i18next";
+
+const instance = i18next.createInstance();
+await instance.init({
+  lng: "en",
+  resources: {
+    en: { translation: toI18nextResource(englishMessages) },
+  },
+});
+
+export const i18n = createI18nextProvider(instance);
+```
+
+```tsx
+<Admin i18n={i18n} />
+```
+
+- `toI18nextResource` turns a Chelone catalog into an i18next bundle: a string
+  entry is copied, and a `{ one, other }` entry becomes `key_one` and
+  `key_other`, with a suffix for every other `Intl.PluralRules` category.
+- `{name}` placeholders are set per call, so the instance keeps its own
+  `{{name}}` interpolation for the rest of your app. Values are not
+  HTML-escaped, as in `createI18n`.
+- `setLocale` calls `changeLanguage` and expects it to settle at once, which it
+  does for resources already in memory. With a lazy backend, load the language
+  through i18next first, then call `setLocale`.
+- A missing key returns the key, and a string `_` param is the default text, as
+  the contract says.
+
 ## Right to left
 
 `<Admin>` sets `dir` on `<html>` from the active locale, in both adapters, so a

@@ -1,5 +1,5 @@
 import {
-  getAtPath,
+  imageFieldSources,
   type LooseRecord,
   type ResourceRecord,
 } from "@chelone/core";
@@ -40,22 +40,14 @@ function ImageField<RecordType extends ResourceRecord = LooseRecord>(
 ) {
   const { src, defaultValue, source, record, empty, title, ...rest } = props;
   const value = useFieldValue({ defaultValue, source, record });
-  // A `title` may be a record path OR a literal label, so it is read with
+  // A `title` may be a record path OR a literal label, so core reads it with
   // `getAtPath` off the record rather than `useFieldValue`: that hook wants a
   // `SourceProp<RecordType>`, and a literal label is no record's path.
   const ctxRecord = useRecordContext<RecordType>({ record });
-  const titleFromRecord = title ? getAtPath(ctxRecord, title) : undefined;
-  // Only derive a title when `title` is set: a real path resolves via the read,
-  // a literal-but-missing path falls back to the literal, and no `title` prop
-  // yields `undefined` (never the whole-record `"[object Object]"` leak).
-  const titleValue = title
-    ? titleFromRecord == null
-      ? title
-      : String(titleFromRecord)
-    : undefined;
+  const images = imageFieldSources(value, ctxRecord, { src, title });
   const translate = useTranslate();
 
-  if (value == null) {
+  if (images === null) {
     if (!empty) {
       return null;
     }
@@ -76,37 +68,24 @@ function ImageField<RecordType extends ResourceRecord = LooseRecord>(
         className={cn("image-list", rest.className)}
       >
         <ul>
-          {value.map((file, index) => {
-            // Inside `title ?`, `title` is a string, so the fallback is never nullish.
-            const fileTitleValue = title
-              ? String(getAtPath(file, title) ?? title)
-              : title;
-            // `src` falls back to `title`, which may be absent: a miss stays
-            // `undefined` so the img gets no src, never the text "undefined".
-            const srcPath = src ? (getAtPath(file, src) ?? title) : title;
-            const srcValue = srcPath == null ? undefined : String(srcPath);
-
-            return (
-              <li key={srcValue ?? index}>
-                <img
-                  alt={fileTitleValue}
-                  title={fileTitleValue}
-                  src={srcValue}
-                />
-              </li>
-            );
-          })}
+          {images.map((image, index) => (
+            // biome-ignore lint/suspicious/noArrayIndexKey: an unsafe `src` is dropped, so it cannot key the row.
+            <li key={index}>
+              <img alt={image.title} title={image.title} src={image.src} />
+            </li>
+          ))}
         </ul>
       </span>
     );
   }
 
+  const [image] = images;
   return (
     <span
       {...sanitizeFieldRestProps(rest)}
       className={cn("image-single", rest.className)}
     >
-      <img title={titleValue} alt={titleValue} src={value?.toString()} />
+      <img title={image?.title} alt={image?.title} src={image?.src} />
     </span>
   );
 }

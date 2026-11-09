@@ -5,7 +5,7 @@
   },
   "utils": {
     "Instantiations": 90000,
-    "Types": 47000
+    "Types": 48000
   },
   "rest": {
     "Instantiations": 88000,
