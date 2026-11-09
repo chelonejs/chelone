@@ -49,9 +49,10 @@ export const tagSchema = z.object({
  * `createResourceComponents("<name>")`, so every `source` in those demos is
  * checked against the schema.
  *
- * The other resources omit a schema — they fall back to the loose record type
- * and only validate what their inputs declare. Add a `schema` to any of them to
- * opt into the same auto-validation.
+ * The schema-less entries - `api_keys`, `webhooks`, `integration_settings`,
+ * `activity`, `jobs` and `roles` - are `{}` entries. They fall back to the loose
+ * record type and only validate what their inputs declare. Add a `schema` to any
+ * of them to opt into the same auto-validation.
  */
 export const resources = defineResources({
   posts: { schema: postSchema },
@@ -63,6 +64,12 @@ export const resources = defineResources({
   pages: { schema: pageSchema },
   categories: { schema: categorySchema },
   tags: { schema: tagSchema },
+  api_keys: {},
+  webhooks: {},
+  integration_settings: {},
+  activity: {},
+  jobs: {},
+  roles: {},
 });
 
 /**
