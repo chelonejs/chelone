@@ -15,6 +15,7 @@
   "exports": {
     "./cron": "./src/cron/index.ts",
     "./geo": "./src/geo/index.ts",
+    "./i18next": "./src/i18next/index.ts",
     "./osm": "./src/osm/index.ts",
     "./package.json": "./package.json"
   },
@@ -28,6 +29,10 @@
       "./geo": {
         "types": "./dist/geo/index.d.ts",
         "default": "./dist/geo/index.js"
+      },
+      "./i18next": {
+        "types": "./dist/i18next/index.d.ts",
+        "default": "./dist/i18next/index.js"
       },
       "./osm": {
         "types": "./dist/osm/index.d.ts",
@@ -53,6 +58,7 @@
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
     "cronstrue": "^3.24.0",
+    "i18next": "^27.0.0",
     "osm2geojson-lite": "^2.0.1"
   },
   "peerDependenciesMeta": {
@@ -71,18 +77,23 @@
     "cronstrue": {
       "optional": true
     },
+    "i18next": {
+      "optional": true
+    },
     "osm2geojson-lite": {
       "optional": true
     }
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@chelone/test-utils": "workspace:*",
     "@tanstack/query-core": "^5.106.1",
     "@turf/buffer": "^7.4.0",
     "@turf/difference": "^7.4.0",
     "@turf/simplify": "^7.4.0",
     "@turf/union": "^7.4.0",
     "cronstrue": "^3.38.0",
+    "i18next": "^27.0.1",
     "osm2geojson-lite": "^2.0.1",
     "publint": "^0.3.25",
     "vite": "^8.3.6",
