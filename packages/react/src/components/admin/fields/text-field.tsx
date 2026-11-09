@@ -1,4 +1,8 @@
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import {
+  formatFieldText,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -47,9 +51,7 @@ function TextField<RecordType extends ResourceRecord = LooseRecord>({
   }
 
   return (
-    <span {...sanitizeFieldRestProps(rest)}>
-      {typeof value !== "string" ? String(value) : value}
-    </span>
+    <span {...sanitizeFieldRestProps(rest)}>{formatFieldText(value)}</span>
   );
 }
 

@@ -28,6 +28,7 @@ export interface NumberFieldProps<RecordType extends ResourceRecord = LooseRecor
  * fraction digits). A nullish value renders the `empty` fallback (or nothing).
  */
 
+import { formatFieldNumber } from "@chelone/core";
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -42,37 +43,17 @@ const value = useFieldValue<RecordType>({
 
 const translate = useTranslate();
 
-/**
- * The default `transform`: a numeric string becomes a number so `options` can
- * format it; every other value arrives as text the `<span>` can render.
- */
-function defaultTransform(
-  v: unknown,
-): number | string | null | undefined {
-  if (typeof v === "string") {
-    const num = Number(v);
-    return v !== "" && !Number.isNaN(num) ? num : v;
-  }
-  if (typeof v === "number" || v == null) {
-    return v;
-  }
-  return String(v);
-}
-
 const emptyText = computed(() =>
   props.empty ? translate(props.empty, { _: props.empty }) : null,
 );
 
-const formatted = computed<string | null>(() => {
-  const raw = value.value;
-  if (raw == null) return null;
-  const transform = props.transform ?? defaultTransform;
-  const transformed = transform(raw);
-  if (transformed == null) return null;
-  return typeof transformed === "number"
-    ? transformed.toLocaleString(props.locales, props.options)
-    : transformed;
-});
+const formatted = computed<string | null>(() =>
+  formatFieldNumber(value.value, {
+    locales: props.locales,
+    options: props.options,
+    transform: props.transform,
+  }),
+);
 </script>
 
 <template>
