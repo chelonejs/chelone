@@ -49,7 +49,7 @@ function AmbientFormScope({
 }: {
   ambient: AmbientForm;
   submit: (() => Promise<void>) | undefined;
-  children: FormScopeProps<unknown>["children"];
+  children: (submit: () => Promise<void>) => ReactNode;
 }) {
   const fallback = useCallback(() => ambient.handleSubmit(), [ambient]);
   return <>{children(submit ?? fallback)}</>;
