@@ -27,7 +27,7 @@ import { useListController } from "../../../controller-hooks";
 import { ListContextProvider, useListContext } from "../../../form";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetResourceLabel } from "../../../label";
-import { useResourceContext } from "../../../resource";
+import { ResourceContextProvider, useResourceContext } from "../../../resource";
 
 export interface ListProps {
   /** Override the ambient resource (defaults to the `<Resource>` context). */
@@ -73,9 +73,11 @@ function List(props: ListProps) {
   const controller = useListController(resource, { perPage });
 
   return (
-    <ListContextProvider value={controller}>
-      <ListView {...viewProps}>{children}</ListView>
-    </ListContextProvider>
+    <ResourceContextProvider value={resource}>
+      <ListContextProvider value={controller}>
+        <ListView {...viewProps}>{children}</ListView>
+      </ListContextProvider>
+    </ResourceContextProvider>
   );
 }
 

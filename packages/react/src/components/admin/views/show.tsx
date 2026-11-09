@@ -28,7 +28,7 @@ import {
   type ShowContextValue,
   useShowContext,
 } from "../../../record-view-context";
-import { useResourceContext } from "../../../resource";
+import { ResourceContextProvider, useResourceContext } from "../../../resource";
 import { useParams } from "../../../router";
 
 export interface ShowProps {
@@ -87,11 +87,13 @@ function Show(props: ShowProps) {
   };
 
   return (
-    <ShowContextProvider value={value}>
-      <RecordContextProvider value={controller.record}>
-        <ShowView {...viewProps}>{children}</ShowView>
-      </RecordContextProvider>
-    </ShowContextProvider>
+    <ResourceContextProvider value={resource}>
+      <ShowContextProvider value={value}>
+        <RecordContextProvider value={controller.record}>
+          <ShowView {...viewProps}>{children}</ShowView>
+        </RecordContextProvider>
+      </ShowContextProvider>
+    </ResourceContextProvider>
   );
 }
 

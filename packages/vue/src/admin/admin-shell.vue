@@ -38,6 +38,8 @@ import ShellErrorBoundary from "./shell-error-boundary.vue";
 const props = defineProps<{
   requireAuth: boolean;
   hasCustomRoutes: boolean;
+  /** `false` when the host app routes its own URLs, so nothing redirects the index. */
+  routes: boolean;
 }>();
 
 defineSlots<{
@@ -141,12 +143,12 @@ watchEffect((onCleanup) => {
   <template v-else>
     <!-- Beside the #layout slot, not inside it, so a custom layout still
          redirects. A dashboard owns the index instead. -->
-    <NavigateToFirstResource v-if="isIndex && !slots.dashboard" />
+    <NavigateToFirstResource v-if="routes && isIndex && !slots.dashboard" />
     <ShellErrorBoundary>
       <slot name="layout">
         <ThemeProvider>
           <Layout>
-            <slot v-if="isIndex" name="dashboard" />
+            <slot v-if="routes && isIndex" name="dashboard" />
             <router-view />
           </Layout>
         </ThemeProvider>
