@@ -2,7 +2,7 @@ import { bboxToPolygon } from "@chelone/core";
 import { useFieldValue } from "../../record/use-field-value";
 import { GeoJsonFieldBody, type GeoJsonFieldProps } from "./geo-json-field";
 
-// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+// type-escape: context: without a `record` the paths are loose, as `SourceProp<unknown>` is
 export type BBoxFieldProps<RecordType = unknown> =
   GeoJsonFieldProps<RecordType>;
 
