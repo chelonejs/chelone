@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
-import { expect, it } from "vitest";
+import { afterAll, expect, it } from "vitest";
 import { unresolvedDocLinks } from "./docs-links";
 import { remarkTwoslash } from "./twoslash.mjs";
 
@@ -238,15 +238,77 @@ it("the page says an undoable mutateAsync settles at once, not on the response",
   );
 });
 
-it("every twoslash fence on the page type-checks", () => {
-  const fences = twoslashFences();
+/**
+ * The gate, one test per fence.
+ *
+ * Each fence is a type-check. The first pays the language service boot,
+ * TypeScript's lib files and the first bind of the `@chelone/react` graph; each
+ * one after it pays its own snippet. Gating them all in one test put the whole
+ * cost inside the config's 20s `testTimeout`, and CI, which runs every package's
+ * suite at once, timed that test out on the clock while the fences burned the
+ * CPU they burn here. One test per fence gives each its own budget and names the
+ * fence that drifted.
+ *
+ * `twoslash.test.ts` measured 0.2s of fence CPU taking 2.7s of CI's clock, about
+ * 13x. This page's fences cost 0.06s to 2.2s of CPU each, so one of them can
+ * take 30s of CI's clock, and each states its own budget instead of inheriting
+ * the 20s.
+ */
+const FENCES = twoslashFences();
+
+/** The clock one fence test may take, in ms. */
+const CLOCK_BUDGET = 60_000;
+
+/**
+ * The CPU bound on one fence, in ms. `twoslash.test.ts` prices a fence at 2s and
+ * its first fence at 10s; this one is looser, because a CI core is slower than
+ * this machine's, and it is here to catch a fence that drags in a whole graph
+ * before it shows up as a timeout.
+ */
+const CPU_BOUND = 8_000;
+
+/** The fence's `title` meta, so a failure names the snippet and not an index. */
+function fenceTitle(meta: string): string {
+  return /title="([^"]+)"/.exec(meta)?.[1] ?? "untitled";
+}
+
+/** Each fence's CPU, printed so a change in cost shows up in the test log. */
+const timings: string[] = [];
+
+it("every code fence on the page asks for the twoslash gate", () => {
+  const fences = [...page.matchAll(/^```(\w+)([^\n]*)$/gm)];
   expect(fences.length).toBeGreaterThanOrEqual(5);
-  expect(() =>
-    remarkTwoslash()(
-      { type: "root", children: fences },
-      { path: pageUrl.pathname },
-    ),
-  ).not.toThrow();
+  for (const [, , meta] of fences) {
+    expect(meta).toMatch(/\btwoslash\b/);
+  }
+  expect(FENCES.length).toBe(fences.length);
+});
+
+for (const [index, fence] of FENCES.entries()) {
+  const title = fenceTitle(fence.meta);
+  it(
+    `fence ${index + 1}, ${fence.lang} ${title}, type-checks`,
+    () => {
+      const started = process.cpuUsage();
+      expect(() =>
+        remarkTwoslash()(
+          { type: "root", children: [fence] },
+          { path: pageUrl.pathname },
+        ),
+      ).not.toThrow();
+      const { user, system } = process.cpuUsage(started);
+      const cpu = (user + system) / 1000;
+      timings.push(
+        `fence ${index + 1} ${fence.lang} ${title}: cpu ${cpu.toFixed(0)}ms`,
+      );
+      expect(cpu).toBeLessThan(CPU_BOUND);
+    },
+    CLOCK_BUDGET,
+  );
+}
+
+afterAll(() => {
+  process.stdout.write(`typed hooks fence gate\n${timings.join("\n")}\n`);
 });
 
 it("the page says the context hooks read no registry, and marks the read-back", () => {
