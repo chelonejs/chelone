@@ -9,8 +9,9 @@ import type { LooseRecord } from "../resource/record";
  * live once.
  */
 
+// type-escape: filter-value: a resolved filter value is whatever the form or filter held
 const resolveFilterValue = (
-  formValues: Record<string, unknown>,
+  formValues: LooseFilterPayload,
   key: string,
   filter: LooseFilterPayload,
 ): unknown => {
@@ -29,6 +30,7 @@ const resolveFilterValue = (
   if (isRecord(formValue)) {
     const heldFilter = filter[key];
     const nestedFilter = isRecord(heldFilter) ? heldFilter : {};
+    // type-escape: filter-value: the inner keys of a nested filter value are open
     const rebuilt: Record<string, unknown> = {};
     for (const innerKey of Object.keys(formValue)) {
       rebuilt[innerKey] = resolveFilterValue(formValue, innerKey, nestedFilter);
@@ -49,12 +51,16 @@ const resolveFilterValue = (
  * `undefined`/`null` for a present form key.
  */
 export function getFilterFormValues<TRecord = LooseRecord>(
-  formValues: Record<string, unknown>,
+  formValues: FilterPayload<TRecord>,
   filter: FilterPayload<TRecord>,
-): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const key of Object.keys(formValues)) {
-    result[key] = resolveFilterValue(formValues, key, filter);
+): FilterPayload<TRecord> {
+  const result: FilterPayload<TRecord> = {};
+  // Key-wise reads and writes use the open shape of these same filter maps.
+  const incoming: LooseFilterPayload = formValues;
+  const incomingFilter: LooseFilterPayload = filter;
+  const target: LooseFilterPayload = result;
+  for (const key of Object.keys(incoming)) {
+    target[key] = resolveFilterValue(incoming, key, incomingFilter);
   }
   return result;
 }
@@ -67,11 +73,14 @@ export function getFilterFormValues<TRecord = LooseRecord>(
  * so {@link getFilterFormValues} resolves them from the filter (fallback `''`).
  */
 export function filterFormReflectShape<TRecord = LooseRecord>(
-  values: Record<string, unknown>,
+  values: FilterPayload<TRecord>,
+  // type-escape: form-core: only the keys of form-core's `fieldMeta` are read
   fieldMeta: Record<string, unknown>,
   filter: FilterPayload<TRecord>,
-): Record<string, unknown> {
-  const shape: Record<string, unknown> = { ...values };
+): FilterPayload<TRecord> {
+  const result: FilterPayload<TRecord> = { ...values };
+  // Key-wise reads and writes use the open shape of these same filter maps.
+  const shape: LooseFilterPayload = result;
   for (const key of Object.keys(fieldMeta)) {
     // fieldMeta keys are full field paths (e.g. `a.b`); only the TOP-LEVEL
     // segment is a form-values key. Nested paths are covered by their parent.
@@ -81,7 +90,7 @@ export function filterFormReflectShape<TRecord = LooseRecord>(
   for (const key of Object.keys(filter)) {
     if (!(key in shape)) shape[key] = undefined;
   }
-  return shape;
+  return result;
 }
 
 /**
