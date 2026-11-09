@@ -46,7 +46,7 @@ export const SearchInput = <RecordType extends ResourceRecord = LooseRecord>(
 
   return (
     <div className="relative mt-auto flex grow">
-      <TextInput
+      <TextInput<RecordType>
         source={source}
         label={false}
         helperText={false}
@@ -75,7 +75,7 @@ export const SearchInput = <RecordType extends ResourceRecord = LooseRecord>(
 };
 
 export type SearchInputProps<RecordType extends ResourceRecord = LooseRecord> =
-  Omit<TextInputProps, "source"> & {
+  Omit<TextInputProps<RecordType>, "source"> & {
     /** Full-text search source. Defaults to `"q"`. */
     source?: SourceProp<RecordType>;
     disableClearable?: boolean;
