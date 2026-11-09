@@ -3,10 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { defineResources } from "../resource/registry";
 import { fakeDataProvider } from "./fake-provider";
-import { listKey, manyKey, oneKey } from "./keys";
+import { listKey, manyKey, oneKey, resourceKey } from "./keys";
 import {
   createMutationOptions,
+  deleteManyMutationOptions,
   deleteMutationOptions,
+  updateManyMutationOptions,
   updateMutationOptions,
 } from "./mutation-options";
 import { getOneOptions } from "./query-options";
@@ -511,5 +513,73 @@ describe("mutation option factories", () => {
     ).toMatchObject({ title: "a" });
     held.open();
     await done;
+  });
+  it("deleteManyMutationOptions calls deleteMany and invalidates the resource", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const verb = vi.spyOn(c.dataProvider, "deleteMany");
+    const invalidate = vi.spyOn(c.queryClient, "invalidateQueries");
+    const observer = new MutationObserver(
+      c.queryClient,
+      deleteManyMutationOptions(c, "posts"),
+    );
+    const ids = await observer.mutate({ ids: [1, 2] });
+    expect(ids).toEqual([1, 2]);
+    expect(verb).toHaveBeenCalledWith("posts", { ids: [1, 2] });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: resourceKey("posts") });
+    expect(
+      c.queryClient.getQueryState(listKey("posts", listParams))?.isInvalidated,
+    ).toBe(true);
+  });
+
+  it("deleteManyMutationOptions still invalidates the resource when deleteMany rejects", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    vi.spyOn(c.dataProvider, "deleteMany").mockRejectedValue(new Error("no"));
+    const observer = new MutationObserver(
+      c.queryClient,
+      deleteManyMutationOptions(c, "posts"),
+    );
+    await expect(observer.mutate({ ids: [1] })).rejects.toThrow("no");
+    expect(
+      c.queryClient.getQueryState(listKey("posts", listParams))?.isInvalidated,
+    ).toBe(true);
+  });
+
+  it("updateManyMutationOptions calls updateMany and invalidates the resource", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    const verb = vi.spyOn(c.dataProvider, "updateMany");
+    const invalidate = vi.spyOn(c.queryClient, "invalidateQueries");
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateManyMutationOptions(c, "posts"),
+    );
+    const ids = await observer.mutate({ ids: [1, 2], data: { title: "x" } });
+    expect(ids).toEqual([1, 2]);
+    expect(verb).toHaveBeenCalledWith("posts", {
+      ids: [1, 2],
+      data: { title: "x" },
+    });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: resourceKey("posts") });
+    expect(
+      c.queryClient.getQueryState(listKey("posts", listParams))?.isInvalidated,
+    ).toBe(true);
+  });
+
+  it("updateManyMutationOptions still invalidates the resource when updateMany rejects", async () => {
+    const c = seed();
+    seedPostsList(c.queryClient);
+    vi.spyOn(c.dataProvider, "updateMany").mockRejectedValue(new Error("no"));
+    const observer = new MutationObserver(
+      c.queryClient,
+      updateManyMutationOptions(c, "posts"),
+    );
+    await expect(
+      observer.mutate({ ids: [1], data: { title: "x" } }),
+    ).rejects.toThrow("no");
+    expect(
+      c.queryClient.getQueryState(listKey("posts", listParams))?.isInvalidated,
+    ).toBe(true);
   });
 });

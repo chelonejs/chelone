@@ -8,7 +8,13 @@ import {
 } from "./cache-ops";
 import { manyKeyPrefix, oneKey, resourceKey } from "./keys";
 import type { DataContext } from "./query-options";
-import type { CreateParams, DeleteParams, UpdateParams } from "./types";
+import type {
+  CreateParams,
+  DeleteManyParams,
+  DeleteParams,
+  UpdateManyParams,
+  UpdateParams,
+} from "./types";
 
 /**
  * Default: pessimistic (least surprise). `undoable` = optimistic-with-Undo:
@@ -216,6 +222,34 @@ export function deleteMutationOptions<
         ctx.queryClient.setQueryData(context.key, context.previous);
       }
       restoreManyEntries(ctx, context?.manySnapshot);
+    },
+    onSettled: () => invalidateResource(ctx, resource),
+  };
+}
+
+export function updateManyMutationOptions<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(ctx: DataContext<TResources>, resource: TName) {
+  return {
+    mutationFn: async (
+      params: UpdateManyParams<RecordOf<TResources, TName>>,
+    ) => {
+      const result = await ctx.dataProvider.updateMany(resource, params);
+      return result.data;
+    },
+    onSettled: () => invalidateResource(ctx, resource),
+  };
+}
+
+export function deleteManyMutationOptions<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(ctx: DataContext<TResources>, resource: TName) {
+  return {
+    mutationFn: async (params: DeleteManyParams) => {
+      const result = await ctx.dataProvider.deleteMany(resource, params);
+      return result.data;
     },
     onSettled: () => invalidateResource(ctx, resource),
   };

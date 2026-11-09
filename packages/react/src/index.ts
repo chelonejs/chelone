@@ -1159,12 +1159,14 @@ export {
   createCheloneHooks,
   useCreate,
   useDelete,
+  useDeleteMany,
   useGetList,
   useGetMany,
   useGetManyAggregate,
   useGetManyReference,
   useGetOne,
   useUpdate,
+  useUpdateMany,
 } from "./hooks";
 export { useLocale, useSetLocale, useTranslate } from "./i18n-hooks";
 export type { UseInfiniteListControllerResult } from "./infinite-hooks";
