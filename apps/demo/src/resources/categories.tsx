@@ -7,17 +7,14 @@
  */
 
 import {
-  Edit,
-  List,
-  RecordField,
-  Show,
-  TextField,
-  TextInput,
+  createResourceComponents,
   Toolbar,
   TranslatableFields,
   TranslatableInputs,
   TreeList,
 } from "@chelone/react";
+
+const categories = createResourceComponents("categories");
 
 // The seed names carry pt too, and a map with a locale outside `locales` is not
 // read as a translation map, so all three are listed.
@@ -26,35 +23,35 @@ const locales = ["en", "pt", "fr"];
 export function CategoryList() {
   // The tree is the whole list, so one page has to hold every category.
   return (
-    <List perPage={100}>
+    <categories.List perPage={100}>
       <TreeList
         parentSource="parent_id"
         titleSource="name.en"
         defaultExpanded
       />
-    </List>
+    </categories.List>
   );
 }
 
 export function CategoryEdit() {
   return (
-    <Edit>
+    <categories.Edit>
       <TranslatableInputs locales={locales}>
-        <TextInput source="name" />
+        <categories.TextInput source="name" />
       </TranslatableInputs>
       <Toolbar />
-    </Edit>
+    </categories.Edit>
   );
 }
 
 export function CategoryShow() {
   return (
-    <Show>
-      <RecordField label="Name">
+    <categories.Show>
+      <categories.RecordField label="Name">
         <TranslatableFields locales={locales}>
-          <TextField source="name" />
+          <categories.TextField source="name" />
         </TranslatableFields>
-      </RecordField>
-    </Show>
+      </categories.RecordField>
+    </categories.Show>
   );
 }

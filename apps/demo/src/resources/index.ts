@@ -3,6 +3,7 @@ import { z } from "zod";
 import { authorSchema } from "./authors";
 import { customerSchema } from "./customers";
 import { postSchema } from "./posts";
+import { productSchema } from "./products";
 
 /**
  * The schemas behind the views of `pages` and the guessed views of `categories`
@@ -41,8 +42,8 @@ export const tagSchema = z.object({
  * forms automatic validation (the D6 default validator reads the registry
  * schema and validates the form against it, no per-input `validate` props).
  * `defineResources` keeps the `"posts"` key + `typeof postSchema` literal for
- * end-to-end record-type inference. `authors` and `customers` carry their
- * schema the same way and build their views from
+ * end-to-end record-type inference. `authors`, `products` and `customers` carry
+ * their schema the same way and build their views from
  * `createResourceComponents(...)`, so every `source` in those demos is checked
  * against the schema.
  *
@@ -53,7 +54,7 @@ export const tagSchema = z.object({
 export const resources = defineResources({
   posts: { schema: postSchema },
   authors: { schema: authorSchema },
-  products: {},
+  products: { schema: productSchema },
   customers: { schema: customerSchema },
   orders: {},
   places: {},

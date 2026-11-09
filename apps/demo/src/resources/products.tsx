@@ -1,82 +1,99 @@
-import type { FileSelection } from "@chelone/core";
+/**
+ * The products demo, built from `createResourceComponents("products")`: every
+ * `source` here is checked against `productSchema`, so a typo is a compile
+ * error and not a blank column at runtime. `productSchema` is registered in
+ * `./index.ts`, which is also what gives the Edit/Create forms their validation
+ * for free.
+ *
+ * Plain imports stay for what the factory does not return (`DataTable`, the
+ * filter, sort, toolbar, layout and button components), and for `FileField`
+ * inside `FileInput` (it reads the picked file, not the product).
+ *
+ * The stock line is a small component and not a `FunctionField`: that field is
+ * generic over its record, so the factory reads it at the loose record and its
+ * `render` would get no `stock`.
+ */
+import type { FileSelection, RegisteredRecord } from "@chelone/core";
 import {
   categoryChoices,
   channelChoices,
-  type Product,
   shippingClassChoices,
   tagChoices,
 } from "@chelone/demo-data";
 import {
   CardContentInner,
-  CheckboxGroupInput,
-  ChipField,
   CloneButton,
-  ColorField,
-  ColorInput,
-  Create,
   CreateButton,
-  CurrencyField,
-  CurrencyInput,
+  createResourceComponents,
   DataTable,
   DeleteButton,
-  Edit,
   FileField,
-  FileInput,
   FilterList,
   FilterListItem,
   FilterListSection,
   FilterLiveSearch,
-  FunctionField,
-  ImageField,
-  ImageInput,
-  JsonField,
   Labeled,
-  List,
   ListButton,
   ListPagination,
   ListToolbar,
-  NullableBooleanInput,
-  NumberField,
-  NumberInput,
   PrevNextButtons,
-  RadioButtonGroupInput,
-  RatingField,
-  RatingInput,
-  ResettableTextInput,
   SaveButton,
   SavedQueriesList,
-  SearchInput,
-  SelectArrayInput,
-  SelectField,
-  SelectInput,
-  Show,
   ShowButton,
   SortButton,
   TabbedShowLayout,
-  TextArrayField,
-  TextArrayInput,
-  TextInput,
   ToggleFilterButton,
   Toolbar,
   TopToolbar,
-  UrlField,
-  WrapperField,
+  useRecordContext,
 } from "@chelone/react";
+import { z } from "zod";
 import { Card } from "@/components/ui/card";
+
+/** A file input's value: the stored URL or `{ src, title }`, or a picked file. */
+const fileSchema = z
+  .union([z.string(), z.looseObject({ src: z.string().optional() })])
+  .nullish();
+
+/** The record the views read and the forms validate against. */
+export const productSchema = z.object({
+  id: z.number().optional(),
+  name: z.string({ error: "Name is required" }).min(1, "Name is required"),
+  sku: z.string({ error: "SKU is required" }).min(1, "SKU is required"),
+  price: z.number({ error: "Price is required" }).min(0),
+  stock: z.number({ error: "Stock is required" }).min(0),
+  category: z.string().nullish(),
+  category_id: z.number().optional(),
+  rating: z.number().nullish(),
+  color: z.string().nullish(),
+  image: fileSchema,
+  spec_sheet: fileSchema,
+  channels: z.array(z.string()).nullish(),
+  shipping_class: z.string().nullish(),
+  tags: z.array(z.number()).nullish(),
+  featured: z.boolean().nullish(),
+  keywords: z.array(z.string()).nullish(),
+  url: z.string().optional(),
+  variants: z
+    .array(z.object({ sku: z.string(), option: z.string(), stock: z.number() }))
+    .optional(),
+});
+
+const products = createResourceComponents("products");
 
 /**
  * The toolbar's filters: a SKU lookup that is always on, and a shipping class
  * the Add filter menu can bring in.
  */
 const toolbarFilters = [
-  <SearchInput
+  <products.SearchInput
     key="sku"
     source="sku"
     placeholder="Find by SKU"
     alwaysOn
     className="w-56"
   />,
-  <SelectInput
+  <products.SelectInput
     key="shipping_class"
     source="shipping_class"
     label="Shipping class"
@@ -137,7 +154,7 @@ function ProductSidebar() {
 
 export function ProductList() {
   return (
-    <List actions={<ProductListActions />} perPage={10}>
+    <products.List actions={<ProductListActions />} perPage={10}>
       <div className="flex items-start gap-6">
         <ProductSidebar />
         <div className="min-w-0 flex-1">
@@ -160,12 +177,13 @@ export function ProductList() {
           <ListPagination />
         </div>
       </div>
-    </List>
+    </products.List>
   );
 }
 
 /** The seed stores a spec sheet as its URL; the preview reads `{ src, title }`. */
-function specSheetEntry(value: FileSelection): FileSelection {
+function specSheetEntry(value: FileSelection | undefined): FileSelection {
+  if (value === undefined) return null;
   if (typeof value !== "string") return value;
   return { src: value, title: value.split("/").pop() };
 }
@@ -174,30 +192,30 @@ function specSheetEntry(value: FileSelection): FileSelection {
 function ProductInputs() {
   return (
     <div className="flex max-w-xl flex-col gap-4">
-      <TextInput source="name" />
-      <ResettableTextInput source="sku" />
-      <SelectInput source="category" choices={categoryChoices} />
-      <CurrencyInput source="price" currency="USD" defaultValue={0} />
-      <NumberInput source="stock" min={0} defaultValue={0} />
-      <RatingInput source="rating" allowHalf />
-      <ColorInput source="color" />
-      <ImageInput source="image" />
-      <FileInput
+      <products.TextInput source="name" />
+      <products.ResettableTextInput source="sku" />
+      <products.SelectInput source="category" choices={categoryChoices} />
+      <products.CurrencyInput source="price" currency="USD" defaultValue={0} />
+      <products.NumberInput source="stock" min={0} defaultValue={0} />
+      <products.RatingInput source="rating" allowHalf />
+      <products.ColorInput source="color" />
+      <products.ImageInput source="image" />
+      <products.FileInput
         source="spec_sheet"
         accept={{ "application/pdf": [] }}
         format={specSheetEntry}
       >
         <FileField source="src" title="title" />
-      </FileInput>
-      <CheckboxGroupInput source="channels" choices={channelChoices} />
-      <RadioButtonGroupInput
+      </products.FileInput>
+      <products.CheckboxGroupInput source="channels" choices={channelChoices} />
+      <products.RadioButtonGroupInput
         source="shipping_class"
         choices={shippingClassChoices}
         row
       />
-      <SelectArrayInput source="tags" choices={tagChoices} />
-      <TextArrayInput source="keywords" />
-      <NullableBooleanInput source="featured" label="Featured" />
+      <products.SelectArrayInput source="tags" choices={tagChoices} />
+      <products.TextArrayInput source="keywords" />
+      <products.NullableBooleanInput source="featured" label="Featured" />
     </div>
   );
 }
@@ -220,82 +238,92 @@ function availability(stock: number): string {
   return stock < 10 ? `Low stock: ${stock} left` : "In stock";
 }
 
+/** What a shopper is told about the record's `stock`, read as the registered product. */
+function StockLine() {
+  const record = useRecordContext<RegisteredRecord<"products">>();
+  if (!record) return null;
+  return (
+    <span className="text-sm text-muted-foreground">
+      {availability(record.stock)}
+    </span>
+  );
+}
+
 export function ProductEdit() {
   return (
-    <Edit actions={<ShowButton />}>
+    <products.Edit actions={<ShowButton />}>
       <ProductInputs />
       <Toolbar />
-    </Edit>
+    </products.Edit>
   );
 }
 
 export function ProductCreate() {
   return (
-    <Create>
+    <products.Create>
       <ProductInputs />
       <Toolbar>
         <SaveButton />
       </Toolbar>
-    </Create>
+    </products.Create>
   );
 }
 
 export function ProductShow() {
   return (
-    <Show actions={<ProductShowActions />}>
+    <products.Show actions={<ProductShowActions />}>
       <Card className="max-w-3xl">
         <CardContentInner className="flex flex-wrap items-end gap-x-6 gap-y-2">
           <Labeled>
-            <CurrencyField
+            <products.CurrencyField
               source="price"
               currency="USD"
               className="text-2xl font-semibold"
             />
           </Labeled>
           <Labeled>
-            <RatingField source="rating" allowHalf />
+            <products.RatingField source="rating" allowHalf />
           </Labeled>
-          <ChipField source="sku" />
-          <FunctionField<Product>
-            source="stock"
-            render={(record) => availability(record.stock)}
-            className="text-sm text-muted-foreground"
-          />
+          <products.ChipField source="sku" />
+          <StockLine />
         </CardContentInner>
         <CardContentInner>
           <TabbedShowLayout>
             <TabbedShowLayout.Tab label="Overview">
-              <SelectField source="category" choices={categoryChoices} />
-              <NumberField source="stock" />
-              <WrapperField label="Fulfilment">
+              <products.SelectField
+                source="category"
+                choices={categoryChoices}
+              />
+              <products.NumberField source="stock" />
+              <products.WrapperField label="Fulfilment">
                 <div className="flex flex-wrap items-center gap-2">
-                  <SelectField
+                  <products.SelectField
                     source="shipping_class"
                     choices={shippingClassChoices}
                   />
-                  <TextArrayField source="channels" />
+                  <products.TextArrayField source="channels" />
                 </div>
-              </WrapperField>
-              <TextArrayField source="keywords" />
+              </products.WrapperField>
+              <products.TextArrayField source="keywords" />
             </TabbedShowLayout.Tab>
             <TabbedShowLayout.Tab label="Media">
-              <ImageField
+              <products.ImageField
                 title="Product photo"
                 source="image"
                 className="[&_img]:max-w-xs [&_img]:rounded-md"
               />
-              <ColorField source="color" />
-              <FileField source="spec_sheet" title="Download PDF" />
+              <products.ColorField source="color" />
+              <products.FileField source="spec_sheet" title="Download PDF" />
               <Labeled label="URL">
-                <UrlField source="url" />
+                <products.UrlField source="url" />
               </Labeled>
             </TabbedShowLayout.Tab>
             <TabbedShowLayout.Tab label="Raw data">
-              <JsonField source="variants" />
+              <products.JsonField source="variants" />
             </TabbedShowLayout.Tab>
           </TabbedShowLayout>
         </CardContentInner>
       </Card>
-    </Show>
+    </products.Show>
   );
 }
