@@ -888,6 +888,7 @@ export { humanize, humanizeField, pluralize } from "./i18n/inflection";
 export { arMessages } from "./i18n/locales/ar";
 export { esMessages } from "./i18n/locales/es";
 export { hiMessages } from "./i18n/locales/hi";
+export { jaMessages } from "./i18n/locales/ja";
 export { ptMessages } from "./i18n/locales/pt";
 export { zhMessages } from "./i18n/locales/zh";
 export type {
