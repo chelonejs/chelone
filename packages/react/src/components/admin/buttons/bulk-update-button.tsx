@@ -3,32 +3,26 @@
  * Ported from shadmin `buttons/bulk-update-button.tsx` and rebridged like
  * {@link BulkDeleteButton}: `mutationMode="pessimistic"` (default) is
  * confirm-gated; `mutationMode="undoable"` patches the cache optimistically
- * with an Undo notification and no confirm. The update fires against the raw
- * `dataProvider.updateMany(resource, { ids, data })`; the pessimistic path
- * invalidates queries (`useRefresh`), clears the selection (`unselectAll`), and
- * notifies `chelone.notification.updated`, while the undoable path defers the
- * server call until commit. `useCanAccess` → the no-throw `useMenuAccess`.
+ * with an Undo notification and no confirm. The update runs through
+ * `useUpdateMany(resource, { mutationMode })`; the pessimistic path refreshes
+ * (`useRefresh`), clears the selection (`unselectAll`), and notifies
+ * `chelone.notification.updated`, while the undoable path defers the server
+ * call until commit. `useCanAccess` → the no-throw `useMenuAccess`.
  */
 
-import {
-  type LooseRecord,
-  type MutationMode,
-  type ResourceRecord,
-  updateRecordsInCache,
-} from "@chelone/core";
-import { useQueryClient } from "@tanstack/react-query";
+import type { LooseRecord, MutationMode, ResourceRecord } from "@chelone/core";
 import { RefreshCw } from "lucide-react";
 import type { ReactNode, Ref } from "react";
 import { Fragment, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useDataProvider, useRefresh } from "../../../compat-hooks";
+import { useRefresh } from "../../../compat-hooks";
 import { useListContext } from "../../../form";
+import { useUpdateMany } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useResourceTranslation } from "../../../label";
 import { humanize, pluralize } from "../../../label/inflection";
 import { useNotify } from "../../../notification-hooks";
 import { useResourceContext } from "../../../resource";
-import { useUndoable } from "../../../undoable-hooks";
 import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
@@ -89,7 +83,6 @@ function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
   } = props;
   const data: Partial<NoInfer<TRecord>> = props.data ?? {};
   const [isOpen, setOpen] = useState(false);
-  const [isPending, setPending] = useState(false);
   const { selectedIds, unselectAll } = useListContext();
   const resource = useResourceContext(props);
   const { canAccess, isPending: isAccessPending } = useMenuAccess({
@@ -97,11 +90,11 @@ function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
     resource: resource ?? "",
   });
   const translate = useTranslate();
-  const dataProvider = useDataProvider();
   const refresh = useRefresh();
   const notify = useNotify();
-  const queryClient = useQueryClient();
-  const runUndoable = useUndoable();
+  const { mutate, mutateAsync, isPending } = useUpdateMany(resource ?? "", {
+    mutationMode,
+  });
 
   const label = useResourceTranslation({
     resourceI18nKey: resource
@@ -129,19 +122,7 @@ function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
     e.stopPropagation();
     if (mutationMode === "undoable") {
       if (!resource) return;
-      runUndoable({
-        queryKeys: [[resource]],
-        applyOptimistic: () =>
-          updateRecordsInCache(queryClient, resource, selectedIds, data),
-        commit: () =>
-          dataProvider.updateMany(resource, { ids: selectedIds, data }),
-        message: "chelone.notification.updated",
-        messageArgs: { smart_count: selectedIds.length },
-        onCommitError: () => {
-          notify("chelone.notification.http_error", { type: "error" });
-          refresh();
-        },
-      });
+      mutate({ ids: selectedIds, data }, { onError: () => refresh() });
       unselectAll();
       onClick?.(e);
       return;
@@ -156,9 +137,8 @@ function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
   const handleConfirm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!resource) return;
-    setPending(true);
     try {
-      await dataProvider.updateMany(resource, { ids: selectedIds, data });
+      await mutateAsync({ ids: selectedIds, data });
       notify("chelone.notification.updated", {
         type: "info",
         messageArgs: { smart_count: selectedIds.length },
@@ -169,7 +149,6 @@ function BulkUpdateButton<TRecord extends ResourceRecord = LooseRecord>(
       console.error(error);
       notify("chelone.notification.http_error", { type: "error" });
     } finally {
-      setPending(false);
       setOpen(false);
     }
     if (typeof onClick === "function") {

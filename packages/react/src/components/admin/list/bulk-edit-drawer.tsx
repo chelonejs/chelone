@@ -10,8 +10,8 @@
  * with an error, since the empty form would send a partial object that
  * overwrites the stored one on every row.
  *
- * The apply path mirrors `<BulkUpdateButton>` pessimistic mode against the raw
- * `dataProvider.updateMany(resource, { ids, data })`: notify
+ * The apply path mirrors `<BulkUpdateButton>` pessimistic mode through
+ * `useUpdateMany(resource)`: notify
  * `chelone.notification.updated`, `unselectAll`, `useRefresh`.
  */
 
@@ -27,7 +27,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useDataProvider, useRefresh } from "../../../compat-hooks";
+import { useRefresh } from "../../../compat-hooks";
 import { FormGroupsProvider, useListContext } from "../../../form";
 import {
   CheloneFormProvider,
@@ -35,6 +35,7 @@ import {
   useResourceSourceScope,
 } from "../../../form-context";
 import { useForm } from "../../../form-hooks";
+import { useUpdateMany } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useNotify } from "../../../notification-hooks";
 import { useResourceContext } from "../../../resource";
@@ -98,9 +99,9 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
   const { selectedIds, unselectAll } = useListContext();
   const resource = useResourceContext();
   const translate = useTranslate();
-  const dataProvider = useDataProvider();
   const refresh = useRefresh();
   const notify = useNotify();
+  const { mutateAsync } = useUpdateMany(resource ?? "");
 
   // `useForm` captures its options on first render, so `save` reads the
   // latest props through this ref.
@@ -140,10 +141,7 @@ function BulkEditDrawer(props: BulkEditDrawerProps) {
         return undefined;
       }
       try {
-        await dataProvider.updateMany(name, {
-          ids,
-          data: diff,
-        });
+        await mutateAsync({ ids, data: diff });
       } catch (error) {
         console.error(error);
         notify("chelone.notification.http_error", { type: "error" });
