@@ -118,7 +118,7 @@ export async function loadServerListPage<
     data: page.data,
     total: page.total,
     pageInfo: page.pageInfo,
-    // type-escape: each key maps to the map of its resource's records, which `Object.fromEntries` widens to a string index
+    // type-escape: builder: each key maps to the map of its resource's records, which `Object.fromEntries` widens to a string index
     references: loaded as ServerListPage<
       TResources,
       TName,
