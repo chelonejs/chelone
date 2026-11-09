@@ -36,9 +36,7 @@
   ],
   "sources-filters-and-sort": [
     "@chelone/core:AnyFilterSourceKey",
-    "@chelone/core:AnyFilterSourceKeyOf",
     "@chelone/core:AnySourcePath",
-    "@chelone/core:AnySourcePathOf",
     "@chelone/core:ArrayBinding",
     "@chelone/core:ArrayBindingOptions",
     "@chelone/core:ArrayBindingUpdateOptions",

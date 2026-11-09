@@ -27,5 +27,8 @@
     "@chelone/vue:useGetList",
     "@chelone/vue:useGetOne"
   ],
-  "when-types-widen": []
+  "when-types-widen": [
+    "@chelone/core:AnyFilterSourceKeyOf",
+    "@chelone/core:AnySourcePathOf"
+  ]
 }
