@@ -3,9 +3,12 @@ import { describe, expect, it } from "vitest";
 import { arMessages } from "../../index";
 import { getLocaleDirection } from "../direction";
 import { englishMessages } from "../english-messages";
-import { createI18n } from "../i18n";
+import { type AnyCheloneI18n, createI18n } from "../i18n";
+import type { MessageCatalog } from "../messages";
 
-const i18n = createI18n({
+// The checks here are runtime text: an erased catalog spares the compiler the
+// typed union of two 440-key catalogs, which put core over its type cost budget.
+const i18n: AnyCheloneI18n = createI18n<MessageCatalog>({
   locale: "ar",
   messages: { en: englishMessages, ar: arMessages },
 });
