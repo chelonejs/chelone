@@ -66,6 +66,7 @@
     "@chelone/react:useGetManyReference",
     "@chelone/react:useGetOne",
     "@chelone/react:useGetOneLive",
+    "@chelone/react:useInfiniteGetList",
     "@chelone/react:useUpdate",
     "@chelone/vue:createCheloneHooks",
     "@chelone/vue:useCreate",
@@ -79,6 +80,7 @@
     "@chelone/vue:useGetManyReference",
     "@chelone/vue:useGetOne",
     "@chelone/vue:useGetOneLive",
+    "@chelone/vue:useInfiniteGetList",
     "@chelone/vue:useUpdate",
     "@chelone/vue:useUpdateMany"
   ],

@@ -1,11 +1,16 @@
 ---
-title: "Typed Hooks"
-description: "What a record type arrives as, and what the hooks return for a registered resource."
+title: "Typed hooks"
+description: "How a data hook or composable gets its record type, what createCheloneHooks binds, and which hooks the registry never reaches."
 ---
 
 The data hooks read the app's registered resources directly, so
 `useGetList("posts")` is typed with no factory: the name picks the record, and a
-name the app never registered is rejected.
+name the app never registered is rejected at the call site. `createCheloneHooks`
+is the other route, for an app that would rather hold the map itself. The
+context hooks take neither: they read no `Register` and no resource name, and
+their caller writes the record type.
+
+## The plain hooks
 
 In both adapters: `useGetList`, `useGetOne`, `useGetMany`,
 `useGetManyAggregate`, `useGetManyReference`, `useCreate`, `useUpdate`,
@@ -13,17 +18,17 @@ In both adapters: `useGetList`, `useGetOne`, `useGetMany`,
 only, since React has no bulk mutation hook yet: `useUpdateMany` and
 `useDeleteMany`.
 
-`useRecordContext` and `useListContext` are not named this way: each still takes
-the record type its caller writes.
+Each takes `TResources` and `TName`. `TResources` defaults to
+`RegisteredResources`, which is what the `Register` augmentation fills
+([Registering your app](/docs/type-safety/registering-your-app)), and `TName`
+defaults to `keyof TResources & string`. The resource argument is core's
+`ResourceNameArg<TResources, TName>`: a name of the map for a literal, plain
+`string` for a name the caller cannot pin, and `never` for a literal the map
+lacks.
 
-## The name argument
+The two hovers below are the whole difference between a literal and a `string`.
 
-`ResourceNameArg<TResources, TName>` is the resource argument every data hook
-takes. `TResources` defaults to `RegisteredResources`, so an app that augments
-`Register` needs nothing at the call site; `createCheloneHooks` is for binding a
-different map.
-
-```ts twoslash title="src/hooks.ts"
+```tsx twoslash title="src/posts.tsx"
 import { defineResources } from "@chelone/core";
 import { useGetList } from "@chelone/react";
 import { z } from "zod";
@@ -41,24 +46,131 @@ declare module "@chelone/core" {
 
 // ---cut---
 const list = useGetList("posts");
-//    ^?
-
 const row = list.data?.data[0];
-//    ^?
-
-// A name the caller holds as a `string`, read from context or props, keeps the
-// loose arm.
-declare const fromContext: string;
-const loose = useGetList(fromContext);
 //    ^?
 ```
 
-A literal the map does not have resolves to `never`, so the call site rejects:
-
-```ts twoslash title="src/hooks.ts"
-// @errors: 2345
+```tsx twoslash title="src/posts.tsx"
 import { defineResources } from "@chelone/core";
 import { useGetList } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+// A name read from context or props arrives as a `string`.
+declare const fromContext: string;
+const loose = useGetList(fromContext);
+const looseRow = loose.data?.data[0];
+//    ^?
+```
+
+`row` is the post or `undefined`; `looseRow` is a `LooseRecord`, whose every
+field is `unknown`. [When types widen](/docs/type-safety/when-types-widen)
+covers what the loose arm costs.
+
+## Binding a map by hand
+
+Every data hook still takes its map as a type argument, so a call can name one
+that is not the registered one:
+
+```tsx twoslash title="src/posts.tsx"
+import { defineResources } from "@chelone/core";
+import { useGetList } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+// ---cut---
+const typed = useGetList<typeof resources, "posts">("posts");
+const row = typed.data?.data[0];
+//    ^?
+```
+
+This works, and it is clumsy: two type arguments at every call site, the map
+imported into every file that calls, and a call that forgets them silently falls
+back to `RegisteredResources`. Writing it once per hook is what the factory is
+for.
+
+## createCheloneHooks
+
+`createCheloneHooks` is called once, in a module of the app, and returns the
+data hooks with `TResources` already written: the name is checked at each call
+site and the record is inferred from it.
+
+```tsx twoslash title="src/hooks.ts"
+import { defineResources } from "@chelone/core";
+import { createCheloneHooks } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+export const hooks = createCheloneHooks<typeof resources>();
+
+const bound = hooks.useGetList("posts");
+const row = bound.data?.data[0];
+//    ^?
+```
+
+`createCheloneHooks<typeof resources>()` binds the map the module holds.
+`createCheloneHooks<RegisteredResources>()` is the form that follows
+`Register`, for an app that registers once and wants the bound hooks to read
+whatever that augmentation holds. A bound call site is no looser than a plain
+one: a name held as a `string` still reaches the loose arm.
+
+### What the factory returns
+
+| Member | React | Vue |
+| --- | --- | --- |
+| `useGetList` | yes | yes |
+| `useGetOne` | yes | yes |
+| `useGetMany` | yes | yes |
+| `useGetManyAggregate` | yes | yes |
+| `useGetManyReference` | yes | yes |
+| `useCreate` | yes | yes |
+| `useUpdate` | yes | yes |
+| `useUpdateMany` | no | yes |
+| `useDelete` | yes | yes |
+| `useDeleteMany` | no | yes |
+
+`useInfiniteGetList` is exported by both adapters and is no member of either:
+its result is the infinite query shape, which the bound members do not model.
+`useFieldValue` and the context hooks below are not members either; they take no
+resource name.
+
+## Vue composables
+
+Each Vue member forwards the composable's own signature rather than a fixed
+one, so params stay `MaybeRefOrGetter`: a ref or a getter is a legal argument,
+and a param that changes re-keys the query. `data` is a ref, so the read is
+`list.data.value`.
+
+```vue twoslash title="src/posts.vue"
+<script setup lang="ts">
+import { defineResources } from "@chelone/core";
+import { createCheloneHooks } from "@chelone/vue";
+import { ref } from "vue";
 import { z } from "zod";
 
 const resources = defineResources({
@@ -72,23 +184,59 @@ declare module "@chelone/core" {
 }
 
 // ---cut---
-useGetList("psots");
+const hooks = createCheloneHooks<typeof resources>();
+const page = ref(1);
+
+// The getter is read on every re-key, so the pagination follows `page`.
+const list = hooks.useGetList("posts", () => ({
+  pagination: { page: page.value, perPage: 10 },
+}));
+
+const row = list.data.value?.data[0];
+//    ^?
+</script>
+
+<template>
+  <div>{{ row?.title }}</div>
+</template>
 ```
 
-## The record argument
+## Mutations
 
-`ResourceRecordArg<TResources, TName>` is what a mutation's `params` carry:
-`RecordOf` for a registered name, `LooseRecord` for a wide `string`. An undoable
-`useUpdate` patches the cache with it, and `undoableUpdateMutators` and
-`undoableDeleteMutators` build the `mutate` / `mutateAsync` pair each adapter
-swaps in, so the deferred provider call is written once, in core.
+`useUpdate` and `useDelete` write the record core resolves for the name:
+`RecordOf<TResources, TName>` for a name the map has, `LooseRecord` for a wide
+`string`, which is what `ResourceRecordArg<TResources, TName>` spells out.
+`mutate` takes `{ id, data, previousData }`, where `data` is a `Partial` of that
+record.
 
-```ts twoslash title="src/hooks.ts"
-import {
-  defineResources,
-  type RegisteredResources,
-  type ResourceRecordArg,
-} from "@chelone/core";
+```tsx twoslash title="src/hooks.ts"
+// @errors: 2322
+import { defineResources } from "@chelone/core";
+import { createCheloneHooks } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+export const hooks = createCheloneHooks<typeof resources>();
+hooks.useUpdate("posts").mutate({ id: 1, data: { title: 1 } });
+```
+
+With `mutationMode: "undoable"` the adapter swaps in the pair core builds
+(`undoableUpdateMutators` and `undoableDeleteMutators`), which patches the cache
+now and defers the provider call. `mutateAsync` then resolves to the record or
+to nothing, because an undo cancels the call before it lands:
+
+```tsx twoslash title="src/hooks.ts"
+import { defineResources } from "@chelone/core";
 import { useUpdate } from "@chelone/react";
 import { z } from "zod";
 
@@ -103,12 +251,135 @@ declare module "@chelone/core" {
 }
 
 // ---cut---
-type PostPatch = ResourceRecordArg<RegisteredResources, "posts">;
-//    ^?
-
 const update = useUpdate("posts", { mutationMode: "undoable" });
-update.mutate({ id: 1, data: { title: "new" } });
+const done = update.mutateAsync({ id: 1, data: { title: "new" } });
+//    ^?
 ```
 
-Vue names the same way, wrapped in `MaybeRefOrGetter` so a resource ref or
-getter stays reactive.
+Both arms are pinned in `packages/react/src/hooks.test-d.ts`, which asserts
+`mutateAsync` equals `Post | void` and that assigning it to a `Post` is an
+error.
+
+## The record context hooks
+
+`useRecordContext<RecordType = LooseRecord>` in both adapters,
+`useRecordContextRef` in Vue (a `ComputedRef`, since the ambient record can
+resolve after `setup`), and `useListContext` in both. React adds
+`useEditContext`, `useShowContext` and `useCreateContext`; Vue has no view
+contexts yet.
+
+None of them reads `Register`, and none takes a resource name. The caller names
+the record:
+
+```tsx twoslash title="src/record-title.tsx"
+import { defineResources, type RegisteredRecord } from "@chelone/core";
+import { useRecordContext } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+const record = useRecordContext<RegisteredRecord<"posts">>();
+//    ^?
+
+const title = record?.title;
+//    ^?
+```
+
+`RecordContextValue<RecordType>` is `RecordType | undefined`, and Vue's
+`RecordValue<RecordType>` is the same union behind a `Ref`.
+
+The type is a claim about the provider above it, not a fact read off it: a
+context value cannot carry a type argument, so the provider publishes the record
+at `LooseRecord` and the hook reads it back at whatever the caller wrote. Each
+adapter marks that read-back with a `type-escape` comment where the cast sits:
+`useRecordContextRef` and `useListContext` in Vue, `useListContext` and the edit
+and create context providers in React. A wrong `RecordType` here is a wrong
+claim, and nothing in the type system argues with it.
+
+## useFieldValue
+
+`useFieldValue<RecordType, TPath>` reads the value at a `source` path off the
+ambient record. A typed `record` and a literal `source` give the value's type;
+with no record the path is loose and the value is `unknown`.
+
+```tsx twoslash title="src/author.tsx"
+import { defineResources, type RegisteredRecord } from "@chelone/core";
+import { useFieldValue, useRecordContext } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+const post = useRecordContext<RegisteredRecord<"posts">>();
+const title = useFieldValue({ source: "title", record: post });
+//    ^?
+
+const looseTitle = useFieldValue({ source: "title" });
+//    ^?
+```
+
+The type does not include `undefined` for a record that has not loaded. Before
+the ambient record resolves the read is `undefined`, so a view that renders
+while loading guards it. In Vue the same read returns a `ComputedRef`, which
+re-renders when the record arrives.
+
+## A name the registry lacks
+
+```tsx twoslash title="src/hooks.ts"
+// @errors: 2345
+import { defineResources } from "@chelone/core";
+import { createCheloneHooks, useGetList } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+export const hooks = createCheloneHooks<typeof resources>();
+hooks.useGetList("nope");
+
+// The plain hook rejects it too, at `never`.
+useGetList("psots");
+```
+
+The bound calls are pinned in `packages/vue/src/data/create-chelone-hooks.test-d.ts`
+and `packages/react/src/hooks.test.tsx`. The plain hooks rest on
+`ResourceNameArg`, whose own arms are pinned in
+`packages/core/src/resource/register.test-d.ts`.
+
+## Where to read next
+
+- [Registering your app](/docs/type-safety/registering-your-app) for
+  `defineResources` and the `Register` augmentation the hooks read.
+- [Typed components](/docs/type-safety/typed-components) for the same registry
+  behind a component's props, and `createResourceComponents`.
+- [Sources, filters and sort](/docs/type-safety/sources-filters-and-sort) for
+  the path grammar a `source` takes and the operator keys a filter writes.
+- [Translations and permissions](/docs/type-safety/translations-and-permissions)
+  for `useTranslate` and `usePermissions`, which register the same way.
+- [When types widen](/docs/type-safety/when-types-widen) for `LooseRecord` and
+  every other fallback.
