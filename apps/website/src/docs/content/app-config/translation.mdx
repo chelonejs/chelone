@@ -282,6 +282,112 @@ const locale = useLocale();         // "en"
 const setLocale = useSetLocale();   // setLocale("fr")
 ```
 
+## Bring your own engine
+
+`<Admin i18n>` takes any object that satisfies `I18nProvider`, exported from
+`@chelone/core`. `createI18n` is one implementation of it; an adapter over
+i18next, Lingui or your own engine works as long as it honours the same
+conventions. The adapters type their `i18n` prop as `AnyCheloneI18n`, an alias of
+`I18nProvider`, so the props tables show `I18nProvider`.
+
+| member | what it must do |
+| --- | --- |
+| `translate(key, params?)` | the message for `key`, interpolated and pluralized; never throws |
+| `getLocale()` | the active locale, as a BCP 47 tag |
+| `setLocale(locale)` | make `locale` active and notify each subscriber once |
+| `getLocales()` | every locale the provider can translate |
+| `subscribe(callback)` | register a locale-change callback and return its unsubscribe |
+
+What `translate` owes the components:
+
+- Placeholders are single-brace `{name}`, filled from `params`. A placeholder
+  with no matching param is left as written.
+- A key no catalog holds comes back as the key itself, and `translate` never
+  throws.
+- A string `_` param is the default text for a missing key, and only for one: a
+  key the catalog holds ignores it. The default is interpolated with the same
+  params.
+- The plural count is `count`, or `smart_count` when `count` is absent; `count`
+  wins when both are given. Whichever one is used also fills `{count}` and
+  `{smart_count}` in the text.
+- Plurals are `{ one, other }` objects keyed by `Intl.PluralRules` categories
+  for the active locale, so a locale with more than two forms gets its own
+  (`few` in Polish). `other` is required, and stands for a category the message
+  lacks and for a message with no count.
+
+`onMissingKey` and the throw on an unregistered locale are `createI18n` options,
+not part of the contract: an engine such as i18next has its own answers to both.
+
+A provider of your own, in full:
+
+```ts title="src/i18n.ts"
+import type { I18nProvider } from "@chelone/core";
+
+type Message = string | ({ other: string } & Record<string, string>);
+
+const catalogs: Record<string, Record<string, Message>> = {
+  en: { "chelone.action.save": "Save", "app.greeting": "Hello {name}" },
+  fr: { "chelone.action.save": "Enregistrer", "app.greeting": "Bonjour {name}" },
+};
+
+let locale = "en";
+const subscribers = new Set<() => void>();
+
+function fill(text: string, params?: Record<string, string | number>): string {
+  return text.replace(/\{(\w+)\}/g, (match, name: string) =>
+    params && name in params ? String(params[name]) : match,
+  );
+}
+
+export const i18n: I18nProvider = {
+  translate(key, params) {
+    const message = catalogs[locale]?.[key];
+    if (message === undefined) {
+      return typeof params?._ === "string" ? fill(params._, params) : key;
+    }
+    if (typeof message === "string") return fill(message, params);
+    const raw = params?.count ?? params?.smart_count;
+    const count = Number(raw);
+    if (Number.isNaN(count)) return fill(message.other, params);
+    const form =
+      message[new Intl.PluralRules(locale).select(count)] ?? message.other;
+    // Whichever name carried the count fills both {count} and {smart_count}.
+    return fill(form, {
+      ...params,
+      count: params?.count ?? raw,
+      smart_count: params?.smart_count ?? raw,
+    });
+  },
+  getLocale: () => locale,
+  setLocale(next) {
+    if (next === locale) return;
+    locale = next;
+    for (const notify of subscribers) notify();
+  },
+  getLocales: () => Object.keys(catalogs),
+  subscribe(notify) {
+    subscribers.add(notify);
+    return () => void subscribers.delete(notify);
+  },
+};
+```
+
+The repo runs the list above as a suite, `testI18nProviderContract`, and runs it
+against `createI18n` itself. It lives in `@chelone/test-utils`, a private
+workspace package that is not published and imports nothing from Chelone, so
+copy it into your repo and hand it your factory:
+
+```ts
+import { testI18nProviderContract } from "./test/i18n-provider-contract";
+
+testI18nProviderContract((options) => myI18n(options));
+```
+
+It pins plain lookup, interpolation, the key echo, the `_` default, `count` and
+`smart_count`, a locale with more than `one` and `other`, `getLocale`,
+`getLocales`, `setLocale` and the subscribers. A provider that ignores the `_`
+default, or that notifies for a locale already active, fails it.
+
 ## Right to left
 
 `<Admin>` sets `dir` on `<html>` from the active locale, in both adapters, so a

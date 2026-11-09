@@ -4,6 +4,7 @@ import { removeEmpty } from "../data/remove-empty";
 import type {
   DisplayedFilters,
   FilterPayload,
+  GetListParams,
   GetListResult,
   LooseDisplayedFilters,
   LooseFilterPayload,
@@ -19,6 +20,7 @@ import type { RecordOf, ResourceMap } from "../resource/registry";
 import type { RecordFilterKey } from "../resource/source-path";
 import { createMicroStore, type MicroStore } from "../store/micro-store";
 import type { CheloneStore } from "../store/store";
+import { listPatchFromSearch } from "./list-params";
 
 export interface ListControllerState<TRecord = LooseRecord> {
   page: number;
@@ -348,6 +350,103 @@ export function listParamsFromPatch<TRecord>(
   return next;
 }
 
+/** The KV namespace a list persists under, or `null` when `storeKey` is `false`. */
+function listStoreKey<TRecord>(
+  resource: string,
+  options: ListControllerOptions<TRecord>,
+): string | null {
+  return options.storeKey === false ? null : (options.storeKey ?? resource);
+}
+
+function listParamsKey<TRecord>(
+  resource: string,
+  options: ListControllerOptions<TRecord>,
+): string | null {
+  const storeKey = listStoreKey(resource, options);
+  return storeKey ? `${storeKey}.listParams` : null;
+}
+
+/** The params a list starts on when nothing is persisted or in the URL. */
+function listDefaults<TRecord>(
+  options: ListControllerOptions<TRecord>,
+): PersistedListParams<TRecord> {
+  return {
+    page: 1,
+    perPage: options.perPage ?? DEFAULT_PER_PAGE,
+    sort: normalizeSort(options.sort, defaultSort<TRecord>()),
+    filter: { ...(options.filterDefaultValues ?? {}) },
+    displayedFilters: {},
+  };
+}
+
+/** `defaults` with the params persisted under `paramsKey` laid over them; `defaults` itself when there is no store, key or entry. */
+function withPersistedParams<TRecord>(
+  defaults: PersistedListParams<TRecord>,
+  paramsKey: string | null,
+  kv: CheloneStore | undefined,
+): PersistedListParams<TRecord> {
+  const persisted =
+    paramsKey && kv
+      ? kv.getItem<Partial<PersistedListParams<TRecord>>>(paramsKey)
+      : undefined;
+  if (!persisted) return defaults;
+  return {
+    page: persisted.page ?? defaults.page,
+    perPage: persisted.perPage ?? defaults.perPage,
+    sort: normalizeSort(persisted.sort, defaults.sort),
+    filter: { ...(persisted.filter ?? defaults.filter) },
+    displayedFilters: { ...(persisted.displayedFilters ?? {}) },
+  };
+}
+
+/**
+ * The `getList` params a list state fetches with: one `sort` object when there
+ * is exactly one key (adapter compat), and the permanent `filter` merged over
+ * the user filter.
+ */
+function fetchParamsOf<TRecord>(
+  state: Pick<
+    ListControllerState<TRecord>,
+    "page" | "perPage" | "sort" | "filter"
+  >,
+  permanentFilter: FilterPayload<TRecord> | undefined,
+): GetListParams {
+  return {
+    pagination: { page: state.page, perPage: state.perPage },
+    sort: state.sort.length === 1 ? state.sort[0] : state.sort,
+    filter: { ...state.filter, ...(permanentFilter ?? {}) },
+  };
+}
+
+/**
+ * The exact `getList` params a mounted list fetches with on first render, for a
+ * route loader to prefetch under the same query key: option defaults, then the
+ * params persisted in `ctx.store`, then the URL `search` (with or without `?`).
+ * A `ctx` without a store, or `storeKey: false`, skips the persisted layer.
+ */
+export function listFetchParams<
+  TResources extends ResourceMap,
+  TName extends keyof TResources & string,
+>(
+  ctx: ListControllerContext<TResources>,
+  resource: TName,
+  options: ListControllerOptions<RecordOf<TResources, TName>> = {},
+  search = "",
+): GetListParams {
+  type TRecord = RecordOf<TResources, TName>;
+  const initial: PersistedListParams<TRecord> = withPersistedParams(
+    listDefaults(options),
+    listParamsKey(resource, options),
+    ctx.store,
+  );
+  const patch = listPatchFromSearch<TRecord>(search);
+  const seeded: PersistedListParams<TRecord> = {
+    ...initial,
+    ...(patch ? listParamsFromPatch(patch) : {}),
+  };
+  return fetchParamsOf(seeded, options.filter);
+}
+
 /** The notification key for a failed fetch: the error's own message, else `chelone.notification.http_error`. */
 export function errorMessageKey(error: unknown): string {
   const message = error instanceof Error ? error.message : "";
@@ -523,33 +622,14 @@ export function createListController<
   type TRecord = RecordOf<TResources, TName>;
   type ListResult = GetListResult<TRecord>;
 
-  const storeKey =
-    options.storeKey === false ? null : (options.storeKey ?? resource);
-  const paramsKey = storeKey ? `${storeKey}.listParams` : null;
+  const storeKey = listStoreKey(resource, options);
   const selectionKey = storeKey ? `${storeKey}.selectedIds` : null;
   const kv = ctx.store;
 
   // --- initial params: persisted (when available) over option defaults ---
-  const defaults: PersistedListParams<TRecord> = {
-    page: 1,
-    perPage: options.perPage ?? DEFAULT_PER_PAGE,
-    sort: normalizeSort(options.sort, defaultSort<TRecord>()),
-    filter: { ...(options.filterDefaultValues ?? {}) },
-    displayedFilters: {},
-  };
-  const persisted =
-    paramsKey && kv
-      ? kv.getItem<Partial<PersistedListParams<TRecord>>>(paramsKey)
-      : undefined;
-  const initialParams: PersistedListParams<TRecord> = persisted
-    ? {
-        page: persisted.page ?? defaults.page,
-        perPage: persisted.perPage ?? defaults.perPage,
-        sort: normalizeSort(persisted.sort, defaults.sort),
-        filter: { ...(persisted.filter ?? defaults.filter) },
-        displayedFilters: { ...(persisted.displayedFilters ?? {}) },
-      }
-    : defaults;
+  const defaults = listDefaults<TRecord>(options);
+  const paramsKey = listParamsKey(resource, options);
+  const initialParams = withPersistedParams(defaults, paramsKey, kv);
 
   const readSelection = (): Identifier[] =>
     (selectionKey && kv ? kv.getItem<Identifier[]>(selectionKey) : undefined) ??
@@ -583,14 +663,12 @@ export function createListController<
 
   // --- query wiring: ONE observer, options rebuilt on every param change ---
   const buildOptions = () => {
-    const s = store.getSnapshot();
     return {
-      ...getListOptions(ctx, resource, {
-        pagination: { page: s.page, perPage: s.perPage },
-        // Pass a single object when there is exactly one key (adapter compat).
-        sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-        filter: { ...s.filter, ...(options.filter ?? {}) },
-      }),
+      ...getListOptions(
+        ctx,
+        resource,
+        fetchParamsOf(store.getSnapshot(), options.filter),
+      ),
       placeholderData: (prev: ListResult | undefined) => prev,
       retry: false,
       enabled: options.enabled ?? true,
@@ -783,12 +861,10 @@ export function createListController<
     runSelectAll(
       ctx.notifications,
       async (limit) => {
-        const s = store.getSnapshot();
         const result = await ctx.queryClient.fetchQuery({
           ...getListOptions(ctx, resource, {
+            ...fetchParamsOf(store.getSnapshot(), options.filter),
             pagination: { page: 1, perPage: limit },
-            sort: s.sort.length === 1 ? s.sort[0] : s.sort,
-            filter: { ...s.filter, ...(options.filter ?? {}) },
           }),
           retry: false,
         });

@@ -18,8 +18,22 @@
  * test artifact.
  */
 
-import { matchPath as coreMatchPath } from "@chelone/core";
+import {
+  matchPath as coreMatchPath,
+  createNotificationStore,
+  fakeDataProvider,
+} from "@chelone/core";
 import { elementOf } from "@chelone/test-utils";
+import { QueryClient } from "@tanstack/react-query";
+import {
+  createMemoryHistory,
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+  RouterProvider,
+  useRouter,
+} from "@tanstack/react-router";
 import {
   act,
   cleanup,
@@ -29,6 +43,11 @@ import {
 } from "@testing-library/react";
 import { type ReactNode, useRef } from "react";
 import { afterEach, describe, expect, it } from "vitest";
+import { Admin } from "../admin/admin";
+import { DataTable } from "../components/admin/list/data-table";
+import { ListActions } from "../components/admin/list/list-actions";
+import { List as ListView } from "../components/admin/views/list";
+import { Resource } from "../resource/resource";
 import { RouterAdapterProvider } from "./adapter";
 import { BasenameProvider } from "./context";
 import {
@@ -39,7 +58,10 @@ import {
   useParams,
   useRedirect,
 } from "./nav-hooks";
-import { tanstackRouterAdapter } from "./tanstack-router-adapter";
+import {
+  tanstackHostRouterAdapter,
+  tanstackRouterAdapter,
+} from "./tanstack-router-adapter";
 
 const adapter = tanstackRouterAdapter;
 
@@ -617,5 +639,169 @@ describe("tanstackRouterAdapter — nav hooks bridge onto it (createPath / redir
     redirect.current?.("edit", "posts", 3);
     await settle();
     expect(screen.getByTestId("loc").textContent).toBe("/posts/3");
+  });
+});
+
+/**
+ * An app-built TanStack router: `routes` are children of the root route and the
+ * history starts at `initial`. Mounted by the app's own `RouterProvider`, with
+ * no Chelone adapter involved, as a TanStack Start app would.
+ */
+function buildAppRouter(
+  paths: Record<string, () => ReactNode>,
+  initial: string,
+) {
+  const rootRoute = createRootRoute({ component: Outlet });
+  const routes = Object.entries(paths).map(([path, component]) =>
+    createRoute({ getParentRoute: () => rootRoute, path, component }),
+  );
+  return createRouter({
+    routeTree: rootRoute.addChildren(routes),
+    history: createMemoryHistory({ initialEntries: [initial] }),
+  });
+}
+
+type AppRouter = ReturnType<typeof buildAppRouter>;
+
+async function renderApp(router: AppRouter) {
+  await act(async () => {
+    render(<RouterProvider router={router} />);
+    await new Promise((r) => setTimeout(r, 40));
+  });
+}
+
+/** Mount `children` under the host adapter, inside an app router at `initial`. */
+async function renderHost(
+  children: ReactNode,
+  initial: string,
+  path = "/admin/posts/$id",
+) {
+  const router = buildAppRouter(
+    {
+      [path]: () => (
+        <RouterAdapterProvider adapter={tanstackHostRouterAdapter}>
+          <tanstackHostRouterAdapter.RouterWrapper>
+            {children}
+          </tanstackHostRouterAdapter.RouterWrapper>
+        </RouterAdapterProvider>
+      ),
+    },
+    initial,
+  );
+  await renderApp(router);
+  return router;
+}
+
+describe("tanstackHostRouterAdapter joins the app's router", () => {
+  it("reads the app router's location and params, and renders under its instance", async () => {
+    const seen = {
+      pathname: ref<string>(),
+      id: ref<string | undefined>(),
+      router: ref<ReturnType<typeof useRouter>>(),
+    };
+    function Probe() {
+      seen.pathname.current = tanstackHostRouterAdapter.useLocation().pathname;
+      seen.id.current = tanstackHostRouterAdapter.useParams().id ?? null;
+      seen.router.current = useRouter();
+      return null;
+    }
+    const router = await renderHost(<Probe />, "/admin/posts/7");
+    expect(seen.pathname.current).toBe("/admin/posts/7");
+    expect(seen.id.current).toBe("7");
+    expect(seen.router.current).toBe(router);
+  });
+
+  it("declares router presence and block capability without a marker", async () => {
+    const seen = ref<[boolean, boolean]>();
+    function Probe() {
+      seen.current = [
+        tanstackHostRouterAdapter.useInRouterContext(),
+        tanstackHostRouterAdapter.useCanBlock(),
+      ];
+      return null;
+    }
+    await renderHost(<Probe />, "/admin/posts/7");
+    expect(seen.current).toEqual([true, true]);
+  });
+});
+
+describe("tanstackHostRouterAdapter navigates the app's router", () => {
+  it("moves the app router on a string navigate and a -1 delta", async () => {
+    const navFn = ref<(to: string | number) => void>();
+    function Driver() {
+      const nav = tanstackHostRouterAdapter.useNavigate();
+      navFn.current = (to) => (typeof to === "number" ? nav(to) : nav(to));
+      return null;
+    }
+    const router = await renderHost(<Driver />, "/admin/posts/7");
+    navFn.current?.("/admin/posts/8");
+    await settle();
+    expect(router.state.location.pathname).toBe("/admin/posts/8");
+    navFn.current?.(-1);
+    await settle();
+    expect(router.state.location.pathname).toBe("/admin/posts/7");
+  });
+});
+
+describe("tanstackHostRouterAdapter blocks the app's navigation", () => {
+  it("holds the app router's navigation at blocked, and proceed lets it through", async () => {
+    const blockerRef = ref<ReturnType<typeof useBlocker>>();
+    function Probe() {
+      blockerRef.current = tanstackHostRouterAdapter.useBlocker(true);
+      return null;
+    }
+    const router = await renderHost(<Probe />, "/admin/posts/7");
+    await act(async () => {
+      void router.navigate({ to: "/admin/posts/8" });
+      await new Promise((r) => setTimeout(r, 40));
+    });
+    const blocker = requireCaptured(blockerRef, "blocker");
+    expect(blocker.state).toBe("blocked");
+    expect(router.state.location.pathname).toBe("/admin/posts/7");
+    await act(async () => {
+      blocker.proceed();
+      await new Promise((r) => setTimeout(r, 40));
+    });
+    expect(router.state.location.pathname).toBe("/admin/posts/8");
+  });
+});
+
+describe("an Admin under an app splat route renders its resource", () => {
+  const PostList = () => (
+    <ListView actions={<ListActions />}>
+      <DataTable>
+        <DataTable.Col source="title" />
+      </DataTable>
+    </ListView>
+  );
+
+  it("lists posts at /admin/posts with a create button linking to /admin/posts/create", async () => {
+    const router = buildAppRouter(
+      {
+        "/admin/$": () => (
+          <Admin
+            router={tanstackHostRouterAdapter}
+            basename="/admin"
+            notifications={createNotificationStore()}
+            dataProvider={fakeDataProvider({
+              posts: [{ id: 1, title: "Alpha" }],
+            })}
+            queryClient={
+              new QueryClient({
+                defaultOptions: { queries: { retry: false } },
+              })
+            }
+          >
+            <Resource name="posts" list={PostList} create={() => <p>new</p>} />
+          </Admin>
+        ),
+      },
+      "/admin/posts",
+    );
+    await renderApp(router);
+
+    expect(await screen.findByText("Alpha")).toBeTruthy();
+    const create = await screen.findByRole("link", { name: /create/i });
+    expect(create.getAttribute("href")).toBe("/admin/posts/create");
   });
 });
