@@ -9,9 +9,9 @@ name the app never registered is rejected.
 
 In both adapters: `useGetList`, `useGetOne`, `useGetMany`,
 `useGetManyAggregate`, `useGetManyReference`, `useCreate`, `useUpdate`,
-`useDelete`, `useGetListLive`, `useGetOneLive` and `useGetManyLive`. In Vue
-only, since React has no bulk mutation hook yet: `useUpdateMany` and
-`useDeleteMany`.
+`useDelete`, `useUpdateMany`, `useDeleteMany`, `useGetListLive`,
+`useGetOneLive` and `useGetManyLive`. Both bulk hooks build on core's
+`updateManyMutationOptions` and `deleteManyMutationOptions`.
 
 `useRecordContext` and `useListContext` are not named this way: each still takes
 the record type its caller writes.
