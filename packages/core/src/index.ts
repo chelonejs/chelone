@@ -1082,8 +1082,10 @@ export {
 export type { LooseRecord, ResourceRecord } from "./resource/record";
 export { isLooseRecord, isResourceRecord } from "./resource/record";
 export type {
+  AnyRecordOf,
   HasLiteralMessages,
   Register,
+  RegisteredAnyRecord,
   RegisteredLiteralMessages,
   RegisteredMessages,
   RegisteredPermissions,

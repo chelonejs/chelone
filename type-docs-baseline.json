@@ -63,8 +63,6 @@
   "typed-components": [
     "@chelone/react:CalendarListProps",
     "@chelone/react:DatagridInputProps",
-    "@chelone/react:DualApprovalButton",
-    "@chelone/react:DualApprovalButtonProps",
     "@chelone/react:OptionText",
     "@chelone/react:ReferenceArrayField",
     "@chelone/react:ReferenceArrayFieldProps",
@@ -79,8 +77,6 @@
     "@chelone/react:ReferenceOneField",
     "@chelone/react:ReferenceOneFieldProps",
     "@chelone/react:SelectFieldProps",
-    "@chelone/react:StatusTransitionButton",
-    "@chelone/react:StatusTransitionButtonProps",
     "@chelone/vue:ChoiceInputBaseProps",
     "@chelone/vue:OptionText"
   ],
