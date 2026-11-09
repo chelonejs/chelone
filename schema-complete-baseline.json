@@ -36,7 +36,6 @@
     "src/components/admin/fields/reference-many-count.vue": 1,
     "src/components/admin/inputs/datagrid-input.vue": 1,
     "src/components/admin/inputs/in-place-editor.vue": 1,
-    "src/components/admin/list/approval-queue-row.vue": 2,
     "src/components/admin/list/data-table-col.vue": 2,
     "src/components/admin/list/saved-queries-list.vue": 1,
     "src/components/admin/supabase/forgot-password-form.vue": 1,
