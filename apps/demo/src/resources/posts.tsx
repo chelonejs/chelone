@@ -15,10 +15,8 @@
 
 import { isLooseRecord, type LooseRecord } from "@chelone/core";
 import {
-  BooleanField,
-  BooleanInput,
   CommentsThread,
-  Create,
+  createResourceComponents,
   DataTable,
   DiffViewer,
   DualApprovalButton,
@@ -30,18 +28,11 @@ import {
   ListPagination,
   LockOnMount,
   LockStatus,
-  NumberField,
-  NumberInput,
   PresenceBar,
-  RecordField,
   RecordTimeline,
-  ReferenceField,
-  ReferenceInput,
   SaveButton,
-  SelectInput,
   ShowLive,
   TextField,
-  TextInput,
   Title,
   Toolbar,
   useGetList,
@@ -57,6 +48,8 @@ import {
 import { type ReactNode, useMemo, useState } from "react";
 import { z } from "zod";
 import { SimulatedViewer, SimulateOtherUser } from "../realtime-sim";
+
+const posts = createResourceComponents("posts");
 
 /** The record shape + the form validator, in one place. */
 export const postSchema = z.object({
@@ -87,13 +80,13 @@ export function PostList() {
         <DataTable>
           <DataTable.Col source="title" />
           <DataTable.Col label="Author">
-            <ReferenceField source="author_id" reference="authors">
+            <posts.ReferenceField source="author_id" reference="authors">
               <TextField source="name" />
-            </ReferenceField>
+            </posts.ReferenceField>
           </DataTable.Col>
           <DataTable.NumberCol source="views" />
           <DataTable.Col source="published">
-            <BooleanField source="published" />
+            <posts.BooleanField source="published" />
           </DataTable.Col>
           <DataTable.Col>
             <EditButton />
@@ -115,13 +108,13 @@ export function PostEdit() {
         {/* The user hides the inputs they never fill from the inspector. A
             hidden input keeps its loaded value, so the schema still passes. */}
         <ConfigurableInputs className="flex flex-col gap-4">
-          <TextInput source="title" />
-          <TextInput source="body" multiline />
-          <ReferenceInput source="author_id" reference="authors">
-            <SelectInput optionText="name" />
-          </ReferenceInput>
-          <NumberInput source="views" min={0} />
-          <BooleanInput source="published" />
+          <posts.TextInput source="title" />
+          <posts.TextInput source="body" multiline />
+          <posts.ReferenceInput source="author_id" reference="authors">
+            <posts.SelectInput optionText="name" />
+          </posts.ReferenceInput>
+          <posts.NumberInput source="views" min={0} />
+          <posts.BooleanInput source="published" />
         </ConfigurableInputs>
         <Toolbar />
       </LockOnMount>
@@ -131,16 +124,16 @@ export function PostEdit() {
 
 export function PostCreate() {
   return (
-    <Create>
-      <TextInput source="title" />
-      <TextInput source="body" multiline />
-      <ReferenceInput source="author_id" reference="authors">
-        <SelectInput optionText="name" />
-      </ReferenceInput>
-      <NumberInput source="views" min={0} defaultValue={0} />
-      <BooleanInput source="published" defaultValue={false} />
+    <posts.Create>
+      <posts.TextInput source="title" />
+      <posts.TextInput source="body" multiline />
+      <posts.ReferenceInput source="author_id" reference="authors">
+        <posts.SelectInput optionText="name" />
+      </posts.ReferenceInput>
+      <posts.NumberInput source="views" min={0} defaultValue={0} />
+      <posts.BooleanInput source="published" defaultValue={false} />
       <SaveButton />
-    </Create>
+    </posts.Create>
   );
 }
 
@@ -233,22 +226,22 @@ export function PostShow() {
           />
         </div>
         {id ? <SimulatedViewer postId={id} /> : null}
-        <RecordField label="Title">
+        <posts.RecordField label="Title">
           <InPlaceEditor source="title" notifyOnSuccess />
-        </RecordField>
-        <RecordField source="status" />
-        <RecordField source="body" />
-        <RecordField label="Author">
-          <ReferenceField source="author_id" reference="authors">
+        </posts.RecordField>
+        <posts.RecordField source="status" />
+        <posts.RecordField source="body" />
+        <posts.RecordField label="Author">
+          <posts.ReferenceField source="author_id" reference="authors">
             <TextField source="name" />
-          </ReferenceField>
-        </RecordField>
-        <RecordField label="Views">
-          <NumberField source="views" />
-        </RecordField>
-        <RecordField label="Published">
-          <BooleanField source="published" />
-        </RecordField>
+          </posts.ReferenceField>
+        </posts.RecordField>
+        <posts.RecordField label="Views">
+          <posts.NumberField source="views" />
+        </posts.RecordField>
+        <posts.RecordField label="Published">
+          <posts.BooleanField source="published" />
+        </posts.RecordField>
         <Section title="Changes since you opened this page">
           <PostChanges />
         </Section>
