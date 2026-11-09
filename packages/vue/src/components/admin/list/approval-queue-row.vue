@@ -164,6 +164,7 @@ async function confirm(): Promise<void> {
         class="m-0 flex min-w-0 items-center gap-2 border-0 p-0"
       >
         <DualApprovalButton
+          :record="record"
           :required="required"
           :approver-source="approverSource"
           :status-source="statusSource"

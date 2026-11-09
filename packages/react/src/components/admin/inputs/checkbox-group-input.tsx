@@ -110,7 +110,10 @@ function CheckboxGroupInput<
     resource,
     source,
     isFromReference,
-  } = useChoicesContext<TChoice>({ choices: choicesProp, source: sourceProp });
+  } = useChoicesContext<TChoice, TPath>({
+    choices: choicesProp,
+    source: sourceProp,
+  });
 
   if (source === undefined) {
     throw new Error(
@@ -119,7 +122,7 @@ function CheckboxGroupInput<
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  const { id, field, fieldState, isRequired } = useInput({
+  const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>({
     ...rest,
     onBlur,
     onChange,

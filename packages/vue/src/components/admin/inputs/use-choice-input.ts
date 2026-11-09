@@ -40,13 +40,14 @@ import { useGetRecordRepresentation } from "../../../label/use-get-record-repres
 /** Options for {@link useChoiceInput}. */
 export interface UseChoiceInputOptions<
   TChoice extends ChoiceRecord = ChoiceRecord,
+  TSource extends string = SourceProp,
 > {
   /** Component name used in the "must provide the source prop" error. */
   componentName: string;
   /** Inline choices — synthesized into a static context, ignoring any ambient one. */
   choices?: readonly (string | TChoice)[];
   /** The FK/field path (falls back to the ambient reference context's source). */
-  source?: SourceProp | undefined;
+  source?: TSource | undefined;
   /** The display path or a formatter. */
   optionText?: OptionText<TChoice>;
   /** The value path. Default `id` (via `useChoices`). */
@@ -60,9 +61,10 @@ export interface UseChoiceInputOptions<
 /** The resolved choice-input surface — accessors + reactive context fields. */
 export interface UseChoiceInputResult<
   TChoice extends ChoiceRecord = ChoiceRecord,
+  TSource extends string = SourceProp,
 > {
   /** The resolved `source` (guaranteed defined — the composable throws otherwise). */
-  source: string;
+  source: TSource;
   /** `true` for a reference context, `false` for inline choices. */
   isFromReference: boolean;
   /** The referenced resource name (inline: `undefined`). */
@@ -83,10 +85,13 @@ export interface UseChoiceInputResult<
   setFilters(filter: Record<string, unknown>, debounce?: boolean): void;
 }
 
-export function useChoiceInput<TChoice extends ChoiceRecord = ChoiceRecord>(
-  options: UseChoiceInputOptions<TChoice>,
-): UseChoiceInputResult<TChoice> {
-  const ctx: ChoicesContextValue = useChoicesContext({
+export function useChoiceInput<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+  TSource extends string = SourceProp,
+>(
+  options: UseChoiceInputOptions<TChoice, TSource>,
+): UseChoiceInputResult<TChoice, TSource> {
+  const ctx: ChoicesContextValue<ChoiceRecord, TSource> = useChoicesContext({
     choices: options.choices,
     source: options.source,
   });

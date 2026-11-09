@@ -96,7 +96,7 @@ function AutocompleteInput<
     resource,
     isFromReference,
     setFilters,
-  } = useChoicesContext<TChoice>({
+  } = useChoicesContext<TChoice, TPath>({
     choices: props.choices,
     source: props.source,
   });
@@ -108,7 +108,10 @@ function AutocompleteInput<
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  const { id, field, fieldState, isRequired } = useInput({ ...props, source });
+  const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>({
+    ...props,
+    source,
+  });
   const fieldValue = toChoiceValue<TChoice>(field.value);
   const translate = useTranslate();
   const {
