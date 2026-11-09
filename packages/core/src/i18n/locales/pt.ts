@@ -41,6 +41,7 @@ export const ptMessages = {
     "Você não tem autorização para acessar este recurso",
   "chelone.notification.updated": "Elemento atualizado",
   "chelone.validation.email": "Deve ser um e-mail válido",
+  "chelone.validation.invalid": "Valor inválido",
   "chelone.validation.maxLength": "Deve ter no máximo {max} caracteres",
   "chelone.validation.maxValue": "Deve ser {max} ou menos",
   "chelone.validation.minLength": "Deve ter pelo menos {min} caracteres",

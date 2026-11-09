@@ -1,6 +1,6 @@
 import type { AnyFieldMeta, ValidationErrorMap } from "@tanstack/form-core";
 import { assertType, describe, expectTypeOf, it } from "vitest";
-import type { TranslatableMessage } from "./form-controller";
+import type { TranslatableMessage } from "./form-errors";
 import {
   createFormGroups,
   type FormGroups,

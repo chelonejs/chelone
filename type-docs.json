@@ -15,6 +15,7 @@
     "@chelone/core:AnyFilterSourceKey",
     "@chelone/core:AnySourcePath",
     "@chelone/core:FilterSourceKey",
+    "@chelone/core:FormErrors",
     "@chelone/core:RecordFilterKey",
     "@chelone/core:ReferenceTargetOf",
     "@chelone/core:SourcePath",

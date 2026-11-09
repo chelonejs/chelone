@@ -14,6 +14,7 @@ import type {
   CheloneFormApi,
   SyncValidator,
 } from "./form-controller";
+import { type ValidationErrorMessage, writeFormError } from "./form-errors";
 import {
   composeValidators,
   type FieldValidatorMeta,
@@ -259,10 +260,11 @@ interface FieldSubscription {
   off: () => void;
 }
 
-/** What a validator slot resolves to: form-core reads `undefined` as valid. */
-type FieldValidationResult =
-  | Exclude<FieldValidatorStackResult, null>
-  | undefined;
+/**
+ * What a validator slot resolves to: the stack's error as a message, which
+ * form-core keeps in the error map. `undefined` reads as valid.
+ */
+type FieldValidationResult = ValidationErrorMessage | undefined;
 
 /** The mutable validator slots the binding wires into its FieldApi options. */
 interface BindingValidators<TRecord> {
@@ -354,7 +356,7 @@ export function createFieldBinding<
     pendingRun = undefined;
     const result =
       held && Object.is(held.value, value) ? held.result : runValidators(value);
-    return (await result) ?? undefined;
+    return writeFormError(await result);
   };
 
   const bindingValidators: BindingValidators<TRecord> = {
@@ -372,7 +374,7 @@ export function createFieldBinding<
         bindingValidators.onDynamicAsync = onDynamicAsync;
         return undefined;
       }
-      return result ?? undefined;
+      return writeFormError(result);
     },
   };
 
