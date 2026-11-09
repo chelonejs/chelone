@@ -18,6 +18,7 @@ export interface TextFieldProps<RecordType extends ResourceRecord = LooseRecord>
  * `<span>`. A nullish value renders the `empty` fallback (or nothing).
  */
 
+import { formatFieldText } from "@chelone/core";
 import { computed } from "vue";
 import { useFieldValue } from "../../../record/use-field-value";
 
@@ -29,11 +30,7 @@ const value = useFieldValue<RecordType>({
   defaultValue: props.defaultValue,
 });
 
-const text = computed(() => {
-  const raw = value.value;
-  if (raw == null) return null;
-  return typeof raw === "string" ? raw : String(raw);
-});
+const text = computed(() => formatFieldText(value.value));
 </script>
 
 <template>

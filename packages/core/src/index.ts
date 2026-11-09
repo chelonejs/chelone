@@ -500,6 +500,18 @@ export { createApplicationUpdateStore } from "./environment/application-update-s
 export type { OfflineSnapshot } from "./environment/offline-store";
 export { createOfflineStore } from "./environment/offline-store";
 export type {
+  FormatFieldCurrencyOptions,
+  FormatFieldDateOptions,
+  FormatFieldNumberOptions,
+} from "./field-display/scalar";
+export {
+  defaultNumberTransform,
+  formatFieldCurrency,
+  formatFieldDate,
+  formatFieldNumber,
+  formatFieldText,
+} from "./field-display/scalar";
+export type {
   ArrayBinding,
   ArrayBindingOptions,
   ArrayBindingUpdateOptions,
