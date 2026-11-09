@@ -97,7 +97,7 @@ export function pickDataBlockFields(
   return limit === undefined ? picked : picked.slice(0, limit);
 }
 
-// type-escape: a record value is whatever the data provider returned
+// type-escape: server: a record value is whatever the data provider returned
 export function formatDataBlockValue(value: unknown): string {
   if (value === null || value === undefined) return "";
   if (typeof value !== "object" && typeof value !== "function") {
@@ -122,7 +122,7 @@ export interface ChartAggregatePoint {
 }
 
 /** A record's own value for a key. A key the record does not own reads as absent. */
-// type-escape: the key is a runtime string, so the value is not knowable
+// type-escape: server: the key is a runtime string, so the value is not knowable
 export const readDataBlockValue = (row: object, key: string): unknown =>
   Object.getOwnPropertyDescriptor(row, key)?.value;
 
