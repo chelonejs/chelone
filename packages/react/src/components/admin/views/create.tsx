@@ -129,7 +129,7 @@ function Create<TRecord = LooseRecord>(props: CreateProps<TRecord>) {
   const latest = useRef({ validate, onSuccess });
   latest.current = { validate, onSuccess };
   const merged = { ...record, ...recordFromLocation };
-  // type-escape: the location's `?source=` JSON is untyped, and the form seeds from it as it does from `record`
+  // type-escape: json: the location's `?source=` is untyped, and the form seeds from it as it does from `record`
   const seed = recordFromLocation ? (merged as Partial<TRecord>) : record;
   const controller = useCreateForm<RecordResources<TRecord>, string>(resource, {
     record: seed,
