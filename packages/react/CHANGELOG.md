@@ -1,5 +1,54 @@
 # @chelone/react
 
+## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.11.0...@chelone/react@0.12.0) (2026-11-09)
+
+
+### Features
+
+* **auth:** a route's beforeLoad sends a logged-out visit to login before render ([2eb3ae8](https://github.com/chelonejs/chelone/commit/2eb3ae8cec5962e907b5d76e5bf66d05c94c4c18))
+* **core,react,vue:** type reference and target against the resource registry ([8d2ae49](https://github.com/chelonejs/chelone/commit/8d2ae4934b1bd2e79b1356277b9d67ccb5fa3e22))
+* **core,react:** bulk mutation options and useUpdateMany, useDeleteMany ([e425885](https://github.com/chelonejs/chelone/commit/e4258858048d8f62c51b7c38ca2c8b67702d4005))
+* **core,react:** name and record helpers type the data hooks by registered name ([bef1ac3](https://github.com/chelonejs/chelone/commit/bef1ac324535f3bb26c915c450dc2e8e7ce5f63c))
+* **i18n:** type translate keys and params from a registered catalog ([102c60f](https://github.com/chelonejs/chelone/commit/102c60f9a345e00123be75c31b8bb9b08d5c693c))
+* **react:** a route-less Admin leaves the URLs to the app's routes ([4c0a6cf](https://github.com/chelonejs/chelone/commit/4c0a6cf4609055a820e8dd06f2a14726ece15c25))
+* **react:** ship "use client" on modules that call a client API ([58ffd69](https://github.com/chelonejs/chelone/commit/58ffd6979b1e6cd90aee78d1cb3c511840afc440))
+* **router:** tanstackHostRouterAdapter joins an app's own TanStack router ([082cb03](https://github.com/chelonejs/chelone/commit/082cb03edd50f1eb765aa59384efd2f9a68a9ade))
+
+
+### Bug Fixes
+
+* **admin:** a route-less Admin adds no Dashboard menu entry ([4f8bec8](https://github.com/chelonejs/chelone/commit/4f8bec8432defec831b75534f5308c72595e4db7))
+* **auth:** let a logged-out visit to the login path through ([be869e4](https://github.com/chelonejs/chelone/commit/be869e4e74cd7a677ba0d69f6efb0f630f15d352))
+* **core:** seed a list controller from the URL it mounts on ([22a8e56](https://github.com/chelonejs/chelone/commit/22a8e56ad1638bd95cf399fe8aba387b944d4185))
+* **react,vue:** reference components read through the loose name arm ([28e52dd](https://github.com/chelonejs/chelone/commit/28e52dd6a86d9fe5a70ca0ca645d068bc81abc20))
+* **react:** bind the guesser's reference inputs to an open map ([659f247](https://github.com/chelonejs/chelone/commit/659f2471e75738413c8fe0d69c34e4f59cfc93fd))
+* **react:** drop unused imports from the registry SSR test ([ae9b158](https://github.com/chelonejs/chelone/commit/ae9b1586a0606b0328288401f82224d03c2785c1))
+* **react:** rename the use-client plugin so lint does not read it as a hook ([e2f7ccf](https://github.com/chelonejs/chelone/commit/e2f7ccfb29eabe91ed46ffd2e875c28b455887b5))
+* **react:** seed the resource registry in the first render ([028273b](https://github.com/chelonejs/chelone/commit/028273bcec65b304efd680e400c765efb9649422))
+* **react:** type the reference components on a resource bundle ([39b39a2](https://github.com/chelonejs/chelone/commit/39b39a2e3fc02f31e738c92fea5d0cecdd0dfd34))
+* **vue:** bind ReferenceField's props to its generics, and pin every reference component ([d3d13ca](https://github.com/chelonejs/chelone/commit/d3d13ca7e44b7d19763ded696d8adec3c9283e7a))
+
+
+### Refactors
+
+* **core:** boolean, rating and email fields and the default record representation come from core ([d201918](https://github.com/chelonejs/chelone/commit/d20191815e760ddd4e1f15ec303a233457520548))
+* **core:** format text, number, date and currency fields through core helpers ([783e747](https://github.com/chelonejs/chelone/commit/783e7479f3b0fa3d86e49ee5b37056b8c98ec4e2))
+* **core:** url, file and image fields take their href and src from core ([c91a3bb](https://github.com/chelonejs/chelone/commit/c91a3bb1d7d7c80fa15d2056350cbaf766a31a24))
+* **react,vue:** bulk buttons and drawer call the hooks; Vue builds on core options ([040a6d1](https://github.com/chelonejs/chelone/commit/040a6d11b29c8c6e4baa6624ab11cfb5ac18b691))
+* **react,vue:** the data hooks name their resource with one core type ([8d13cb4](https://github.com/chelonejs/chelone/commit/8d13cb4d94313e899ec7bc750ac271211d6e68a1))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.12.0
+    * @chelone/utils bumped to 0.12.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.12.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.12.0
+
 ## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.10.0...@chelone/react@0.11.0) (2026-11-08)
 
 

@@ -1,5 +1,46 @@
 # @chelone/vue
 
+## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.11.0...@chelone/vue@0.12.0) (2026-11-09)
+
+
+### Features
+
+* **core,react,vue:** type reference and target against the resource registry ([8d2ae49](https://github.com/chelonejs/chelone/commit/8d2ae4934b1bd2e79b1356277b9d67ccb5fa3e22))
+* **i18n:** type translate keys and params from a registered catalog ([102c60f](https://github.com/chelonejs/chelone/commit/102c60f9a345e00123be75c31b8bb9b08d5c693c))
+* **vue:** a route-less Admin leaves the URLs to the app's routes ([0a656ac](https://github.com/chelonejs/chelone/commit/0a656ac857d3d036b3f72df325a3c727f9e25946))
+* **vue:** data composables read the registered resources too ([b4f51af](https://github.com/chelonejs/chelone/commit/b4f51af7df3225feefaf881b6484f38027ba1bbc))
+
+
+### Bug Fixes
+
+* **admin:** a route-less Admin adds no Dashboard menu entry ([4f8bec8](https://github.com/chelonejs/chelone/commit/4f8bec8432defec831b75534f5308c72595e4db7))
+* **core:** seed a list controller from the URL it mounts on ([22a8e56](https://github.com/chelonejs/chelone/commit/22a8e56ad1638bd95cf399fe8aba387b944d4185))
+* **react,vue:** reference components read through the loose name arm ([28e52dd](https://github.com/chelonejs/chelone/commit/28e52dd6a86d9fe5a70ca0ca645d068bc81abc20))
+* **vue:** bind ReferenceField's props to its generics, and pin every reference component ([d3d13ca](https://github.com/chelonejs/chelone/commit/d3d13ca7e44b7d19763ded696d8adec3c9283e7a))
+* **vue:** type the reference components on a resource bundle ([e67f4c1](https://github.com/chelonejs/chelone/commit/e67f4c1cd83e65ad5acd7588a5cb4532dc0149c0))
+
+
+### Refactors
+
+* **core:** boolean, rating and email fields and the default record representation come from core ([d201918](https://github.com/chelonejs/chelone/commit/d20191815e760ddd4e1f15ec303a233457520548))
+* **core:** format text, number, date and currency fields through core helpers ([783e747](https://github.com/chelonejs/chelone/commit/783e7479f3b0fa3d86e49ee5b37056b8c98ec4e2))
+* **core:** url, file and image fields take their href and src from core ([c91a3bb](https://github.com/chelonejs/chelone/commit/c91a3bb1d7d7c80fa15d2056350cbaf766a31a24))
+* **i18n:** drop the cast from asRegisteredTranslate ([caeebb8](https://github.com/chelonejs/chelone/commit/caeebb8c1fb20923106326c698bbbc8d440f48b5))
+* **react,vue:** bulk buttons and drawer call the hooks; Vue builds on core options ([040a6d1](https://github.com/chelonejs/chelone/commit/040a6d11b29c8c6e4baa6624ab11cfb5ac18b691))
+* **react,vue:** the data hooks name their resource with one core type ([8d13cb4](https://github.com/chelonejs/chelone/commit/8d13cb4d94313e899ec7bc750ac271211d6e68a1))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.12.0
+    * @chelone/utils bumped to 0.12.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.12.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.12.0
+
 ## [0.11.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.10.0...@chelone/vue@0.11.0) (2026-11-08)
 
 
