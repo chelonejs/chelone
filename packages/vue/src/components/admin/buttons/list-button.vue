@@ -23,7 +23,6 @@ export interface ListButtonProps {
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useTranslate } from "../../../i18n/use-translate";
-import { useGetResourceLabel } from "../../../label/use-get-resource-label";
 import { useResourceContext } from "../../../resource-context";
 import { useCreatePath } from "../../../router";
 import { buttonVariants } from "../../ui/button-variants";
@@ -39,15 +38,12 @@ if (!ambientResource) {
 }
 const resource: string = ambientResource;
 const createPath = useCreatePath();
-const getResourceLabel = useGetResourceLabel();
 const translate = useTranslate();
 
 const to = computed(() => createPath({ type: "list", resource }));
+// `chelone.action.list` interpolates nothing, so the label carries no `name`.
 const label = computed(() =>
-  translate("chelone.action.list", {
-    _: "List",
-    name: getResourceLabel(resource, 1),
-  }),
+  translate("chelone.action.list", { _: "List" }),
 );
 const classes = computed(() =>
   buttonVariants({ variant: "outline", class: props.class }),

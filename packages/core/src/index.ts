@@ -501,6 +501,15 @@ export { createApplicationUpdateStore } from "./environment/application-update-s
 export type { OfflineSnapshot } from "./environment/offline-store";
 export { createOfflineStore } from "./environment/offline-store";
 export type {
+  FileFieldLink,
+  ImageFieldSource,
+} from "./field-display/links";
+export {
+  fileFieldLinks,
+  imageFieldSources,
+  urlFieldHref,
+} from "./field-display/links";
+export type {
   FormatFieldCurrencyOptions,
   FormatFieldDateOptions,
   FormatFieldNumberOptions,
@@ -848,11 +857,18 @@ export { defaultMessages } from "./i18n/default-messages";
 export type { TextDirection } from "./i18n/direction";
 export { getLocaleDirection } from "./i18n/direction";
 export { englishMessages } from "./i18n/english-messages";
-export type { AnyCheloneI18n, CheloneI18n, I18nProvider } from "./i18n/i18n";
-export { createI18n } from "./i18n/i18n";
+export type {
+  AnyCheloneI18n,
+  CheloneI18n,
+  I18nProvider,
+  RegisteredTranslate,
+  TranslateFor,
+} from "./i18n/i18n";
+export { asRegisteredTranslate, createI18n } from "./i18n/i18n";
 export { humanize, humanizeField, pluralize } from "./i18n/inflection";
 export type {
   ExtractParams,
+  LocaleMessages,
   MessageCatalog,
   MessageKey,
   MessageValue,
@@ -862,6 +878,7 @@ export type {
 } from "./i18n/messages";
 export {
   definedParams,
+  defineLocale,
   defineMessages,
   pickTranslateParamValues,
 } from "./i18n/messages";
@@ -1033,6 +1050,7 @@ export type { LooseRecord, ResourceRecord } from "./resource/record";
 export { isLooseRecord, isResourceRecord } from "./resource/record";
 export type {
   Register,
+  RegisteredMessages,
   RegisteredPermissions,
   RegisteredRecord,
   RegisteredResourceName,

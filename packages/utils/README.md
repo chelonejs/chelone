@@ -12,6 +12,7 @@ pnpm add @chelone/utils
 | --- | --- | --- |
 | `@chelone/utils/cron` | cron expression helpers | `cronstrue` |
 | `@chelone/utils/geo` | GeoJSON cut and simplify | `@turf/difference`, `@turf/simplify` |
+| `@chelone/utils/i18next` | an `I18nProvider` over an i18next instance, and a catalog converter | `i18next` |
 | `@chelone/utils/osm` | Overpass and mask geometry | `@turf/buffer`, `@turf/difference`, `@turf/union`, `osm2geojson-lite` |
 
 Each peer is optional in `peerDependenciesMeta`, so a subpath you never import never asks for its library. `@tanstack/query-core` is the one required peer.
