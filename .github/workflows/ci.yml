@@ -44,6 +44,8 @@ jobs:
         run: pnpm check:type-escapes --base HEAD^1
       - name: Every component is in the showcase
         run: pnpm check:showcase --base HEAD^1
+      - name: Every registry-typed export names a Type Safety page
+        run: pnpm check:type-docs --base HEAD^1
       - name: Typecheck
         run: pnpm typecheck
       - name: Type cost within budget

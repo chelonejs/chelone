@@ -21,6 +21,12 @@
   },
   "overrides": [
     {
+      "includes": ["type-docs.json", "type-docs-baseline.json"],
+      "formatter": {
+        "enabled": false
+      }
+    },
+    {
       "includes": ["packages/react/src/components/ui/**"],
       "linter": {
         "rules": {

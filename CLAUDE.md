@@ -17,6 +17,7 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
 - After adding, moving or removing a React or Vue component file, or changing what one imports, run `pnpm --dir packages/react registry:generate` or `pnpm --dir packages/vue registry:generate` and commit that package's `registry.json`. CI fails on a stale one.
 - A pull request that adds or changes a type-safety feature updates its page under `apps/website/src/docs/content/type-safety/`. Its snippets are `twoslash` fences, and the website build fails on one whose types drift.
+- Type docs: `pnpm check:type-docs` reads every `.` export of core, react, vue and supabase and fails an export whose signature names a registry type (`Register`, `ResourceMap`, `SourcePath`, …) while naming no Type Safety page. `type-docs.json` maps a page slug to the rows it names; `type-docs-baseline.json` holds the rows still owed, under the page that will explain them, and only shrinks, so a new export goes to `type-docs.json` with its page naming it as a whole word. `node scripts/check-type-docs.mjs --update` rewrites both from the tree.
 - Types are exact: no `any`, no `as unknown as`, no `as never`, and `unknown` only at a real boundary. Read `.claude/skills/chelone-typescript/SKILL.md` before writing TypeScript. `pnpm check:type-escapes` fails on any new escape. It compares each file with the same file on main, so there is no baseline to edit.
 - Comment only what would surprise the next reader.
 - Before writing a helper, search core, `@chelone/utils` and the other adapter for one. Logic both adapters need goes in core. Test-only helpers go in `@chelone/test-utils`, a private workspace package that imports no Chelone package; the adapters may import it only from test files and `__fixtures__`.
@@ -54,6 +55,7 @@ pnpm check:duplication
 pnpm check:type-escapes
 pnpm check:type-cost
 pnpm check:showcase
+pnpm check:type-docs
 pnpm typecheck   # tsc, vue-tsc, react-router typegen
 pnpm test        # vitest --typecheck in every package
 pnpm build       # demo, vue-demo, website

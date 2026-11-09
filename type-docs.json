@@ -1,0 +1,24 @@
+{
+  "registering-your-app": [
+    "@chelone/core:Register",
+    "@chelone/react:Admin"
+  ],
+  "resource-registry-and-codegen": [
+    "@chelone/core:defineResources"
+  ],
+  "sources-filters-and-sort": [],
+  "translations-and-permissions": [],
+  "typed-components": [
+    "@chelone/react:createResourceComponents",
+    "@chelone/react:createResourceComponentsOf",
+    "@chelone/vue:createResourceComponents",
+    "@chelone/vue:createResourceComponentsOf"
+  ],
+  "typed-hooks": [
+    "@chelone/react:useGetList",
+    "@chelone/react:useGetOne",
+    "@chelone/vue:useGetList",
+    "@chelone/vue:useGetOne"
+  ],
+  "when-types-widen": []
+}
