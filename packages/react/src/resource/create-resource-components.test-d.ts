@@ -191,6 +191,39 @@ describe("posts.Create and posts.Edit", () => {
   });
 });
 
+describe("a posts bundle's reference components", () => {
+  it("reference is a name of the map and target a key of that resource's record", () => {
+    posts.ReferenceManyField({ reference: "comments", target: "body" });
+    posts.ReferenceOneField({ reference: "comments", target: "body" });
+    posts.ReferenceField({ source: "title", reference: "comments" });
+    posts.ReferenceArrayField({ source: "tags", reference: "comments" });
+    posts.ReferenceInput({ source: "title", reference: "comments" });
+    posts.ReferenceArrayInput({ source: "tags", reference: "comments" });
+  });
+
+  it("a reference name or target the map lacks does not compile", () => {
+    // @ts-expect-error `nope` is no resource
+    posts.ReferenceManyField({ reference: "nope", target: "body" });
+    // @ts-expect-error `title` is a key of a post, not of a comment
+    posts.ReferenceManyField({ reference: "comments", target: "title" });
+    // @ts-expect-error `nope` is no key of a comment
+    posts.ReferenceOneField({ reference: "comments", target: "nope" });
+    // @ts-expect-error `typo` is no resource
+    posts.ReferenceField({ source: "title", reference: "typo" });
+    // @ts-expect-error `typo` is no resource
+    posts.ReferenceArrayField({ source: "tags", reference: "typo" });
+    // @ts-expect-error `typo` is no resource
+    posts.ReferenceInput({ source: "title", reference: "typo" });
+    // @ts-expect-error `typo` is no resource
+    posts.ReferenceArrayInput({ source: "tags", reference: "typo" });
+  });
+
+  it("source stays typed by the posts record", () => {
+    // @ts-expect-error `titel` is no path of a post
+    posts.ReferenceField({ source: "titel", reference: "comments" });
+  });
+});
+
 describe("createResourceComponents", () => {
   it("createResourceComponents takes any name when nothing is registered", () => {
     const anything = createResourceComponents("anything-at-all");

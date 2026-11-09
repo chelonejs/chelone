@@ -19,6 +19,7 @@ import type {
   RegisteredResourceName,
   RegisteredResources,
   ResourceMap,
+  ResourceRecord,
   SourceProp,
   SourceValue,
 } from "@chelone/core";
@@ -43,11 +44,23 @@ import { NumberField } from "../components/admin/fields/number-field";
 import { PhoneField } from "../components/admin/fields/phone-field";
 import { RatingField } from "../components/admin/fields/rating-field";
 import { RecordField } from "../components/admin/fields/record-field";
-import { ReferenceArrayField } from "../components/admin/fields/reference-array-field";
-import { ReferenceField } from "../components/admin/fields/reference-field";
+import {
+  ReferenceArrayField,
+  type ReferenceArrayFieldProps,
+} from "../components/admin/fields/reference-array-field";
+import {
+  ReferenceField,
+  type ReferenceFieldProps,
+} from "../components/admin/fields/reference-field";
 import { ReferenceManyCount } from "../components/admin/fields/reference-many-count";
-import { ReferenceManyField } from "../components/admin/fields/reference-many-field";
-import { ReferenceOneField } from "../components/admin/fields/reference-one-field";
+import {
+  ReferenceManyField,
+  type ReferenceManyFieldProps,
+} from "../components/admin/fields/reference-many-field";
+import {
+  ReferenceOneField,
+  type ReferenceOneFieldProps,
+} from "../components/admin/fields/reference-one-field";
 import { SelectField } from "../components/admin/fields/select-field";
 import { SubscriptionPlanField } from "../components/admin/fields/subscription-plan-field";
 import { TextArrayField } from "../components/admin/fields/text-array-field";
@@ -99,8 +112,14 @@ import {
   RatingInput,
   type RatingInputProps,
 } from "../components/admin/inputs/rating-input";
-import { ReferenceArrayInput } from "../components/admin/inputs/reference-array-input";
-import { ReferenceInput } from "../components/admin/inputs/reference-input";
+import {
+  ReferenceArrayInput,
+  type ReferenceArrayInputProps,
+} from "../components/admin/inputs/reference-array-input";
+import {
+  ReferenceInput,
+  type ReferenceInputProps,
+} from "../components/admin/inputs/reference-input";
 import { ResettableTextInput } from "../components/admin/inputs/resettable-text-input";
 import { SearchInput } from "../components/admin/inputs/search-input";
 import {
@@ -384,6 +403,47 @@ type TypedInputMembers<TRecord> = {
   ) => ReactNode;
 };
 
+/**
+ * The reference components are generic over the referenced name too, so
+ * `reference` is a name of `TResources` and `target` a key of that resource's
+ * record, which {@link ResourceMember} would read at the constraint.
+ */
+type ReferenceMembers<
+  TRecord extends ResourceRecord,
+  TResources extends ResourceMap,
+> = {
+  ReferenceArrayField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceArrayFieldProps<TRecord, TResources, TReference>,
+  ) => ReactNode;
+  ReferenceArrayInput: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceArrayInputProps<TRecord, TResources, TReference>,
+  ) => ReactNode;
+  ReferenceField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceFieldProps<TRecord, TResources, TReference>,
+  ) => ReactNode;
+  ReferenceInput: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceInputProps<TRecord, TResources, TReference>,
+  ) => ReactNode;
+  ReferenceManyField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceManyFieldProps<TRecord, TResources, TReference>,
+  ) => ReactNode;
+  ReferenceOneField: <
+    TReference extends keyof TResources & string = keyof TResources & string,
+  >(
+    props: ReferenceOneFieldProps<TRecord, TResources, TReference>,
+  ) => ReactNode;
+};
+
 /** A view with no `resource` prop: the factory has bound it. */
 type BoundView<TProps extends { resource?: string }, TResult> = (
   props: Omit<TProps, "resource">,
@@ -399,9 +459,12 @@ export type ResourceComponents<
 > = {
   [K in Exclude<
     keyof Components,
-    "ArrayInput" | keyof TypedInputMembers<LooseRecord>
+    | "ArrayInput"
+    | keyof TypedInputMembers<LooseRecord>
+    | keyof ReferenceMembers<LooseRecord, ResourceMap>
   >]: ResourceMember<Components[K], RecordOf<TResources, TName>>;
-} & TypedInputMembers<RecordOf<TResources, TName>> & {
+} & TypedInputMembers<RecordOf<TResources, TName>> &
+  ReferenceMembers<RecordOf<TResources, TName>, TResources> & {
     ArrayInput: ArrayInputMember<RecordOf<TResources, TName>>;
     Edit: BoundView<EditProps<RecordOf<TResources, TName>>, ReactNode>;
     Create: BoundView<CreateProps<RecordOf<TResources, TName>>, ReactNode>;
