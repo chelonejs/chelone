@@ -1,9 +1,6 @@
 {
   "registering-your-app": [
     "@chelone/core:ComputeDefinitionProps",
-    "@chelone/core:RegisteredRecord",
-    "@chelone/core:RegisteredResourceName",
-    "@chelone/core:RegisteredResources",
     "@chelone/core:ResourceDefinition",
     "@chelone/react:AdminContext",
     "@chelone/react:AdminContextProps",
