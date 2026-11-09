@@ -58,6 +58,12 @@ export const resources = defineResources({
   pages: { schema: pageSchema },
   categories: { schema: categorySchema },
   tags: { schema: tagSchema },
+  /**
+   * No `<Resource>` and no nav entry: the Integrations page owns it through
+   * `ResourceContextProvider`. It is still a resource the app reads and writes,
+   * so the data hooks must accept its name.
+   */
+  api_keys: {},
 });
 
 /**

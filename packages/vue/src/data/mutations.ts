@@ -23,20 +23,19 @@ import {
   deleteMutationOptions,
   type Identifier,
   type MutationModeOptions,
-  patchedRecord,
   type RegisteredResources,
   type ResourceMap,
   type ResourceNameArg,
   type ResourceRecordArg,
   resourceKey,
   type UndoableCallbacks,
-  type UndoableDeleteCallbacks,
-  type UndoableUpdateCallbacks,
   type UndoableUpdateManyCallbacks,
   type UpdateManyParams,
   type UpdateParams,
   undoableCallbacks,
+  undoableDeleteMutators,
   undoableDeleteOptions,
+  undoableUpdateMutators,
   undoableUpdateOptions,
   updateMutationOptions,
 } from "@chelone/core";
@@ -70,7 +69,7 @@ type Undoable<TMutation, TParams, TData> = Omit<
 export function useCreate<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
->(resource: TName & ResourceNameArg<TResources, TName>) {
+>(resource: ResourceNameArg<TResources, TName>) {
   const ctx = useCheloneContext<TResources>();
   return useMutation(createMutationOptions(ctx, resource));
 }
@@ -85,7 +84,7 @@ export function useUpdate<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   options: MutationModeOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
@@ -99,37 +98,13 @@ export function useUpdate<
   // spread keeps the reactive state refs (`isPending`, …) as the same objects.
   // The callbacks of `mutate`'s second argument are the undoable ones: see
   // `UndoableCallbacks`.
-  const mutate = (
-    params: UpdateParams<ResourceRecordArg<TResources, TName>>,
-    callbacks?: UndoableUpdateCallbacks<ResourceRecordArg<TResources, TName>>,
-  ) => {
-    const settle = undoableCallbacks(params, callbacks);
-    // The deferred call carries the name the hook was handed, which may be a
-    // `string` the map cannot pin, so it runs on the loose context.
-    const dataContext: DataContext = ctx;
-    runUndoable({
-      ...undoableUpdateOptions(
-        ctx.queryClient,
-        resource,
-        [params.id],
-        params.data,
-      ),
-      commit: settle.commit(() =>
-        dataContext.dataProvider.update(resource, params),
-      ),
-    });
-    settle.success(patchedRecord(params));
-  };
   const undoable: Undoable<
     typeof mutation,
     UpdateParams<ResourceRecordArg<TResources, TName>>,
     ResourceRecordArg<TResources, TName>
   > = {
     ...mutation,
-    mutate,
-    mutateAsync: async (params) => {
-      mutate(params);
-    },
+    ...undoableUpdateMutators(ctx, resource, runUndoable),
   };
   return undoable;
 }
@@ -146,7 +121,7 @@ export function useDelete<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   options: MutationModeOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
@@ -155,30 +130,13 @@ export function useDelete<
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: remove the row now, defer the delete, notify with Undo. See
   // `useUpdate` for the `mutate`/`mutateAsync` semantics.
-  const mutate = (
-    params: DeleteParams<ResourceRecordArg<TResources, TName>>,
-    callbacks?: UndoableDeleteCallbacks<ResourceRecordArg<TResources, TName>>,
-  ) => {
-    const settle = undoableCallbacks(params, callbacks);
-    const dataContext: DataContext = ctx;
-    runUndoable({
-      ...undoableDeleteOptions(ctx.queryClient, resource, [params.id]),
-      commit: settle.commit(() =>
-        dataContext.dataProvider.delete(resource, params),
-      ),
-    });
-    settle.success(params.previousData);
-  };
   const undoable: Undoable<
     typeof mutation,
     DeleteParams<ResourceRecordArg<TResources, TName>>,
     ResourceRecordArg<TResources, TName> | undefined
   > = {
     ...mutation,
-    mutate,
-    mutateAsync: async (params) => {
-      mutate(params);
-    },
+    ...undoableDeleteMutators(ctx, resource, runUndoable),
   };
   return undoable;
 }
@@ -199,11 +157,10 @@ export function useDeleteMany<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   options: MutationModeOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
-  const runUndoable = useUndoable();
   const mutation = useMutation({
     mutationFn: async (params: DeleteManyParams) => {
       const result = await ctx.dataProvider.deleteMany(resource, params);
@@ -212,6 +169,7 @@ export function useDeleteMany<
     onSettled: () =>
       ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) }),
   });
+  const runUndoable = useUndoable();
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: remove the selected rows now, defer `deleteMany`, notify with Undo.
   const mutate = (
@@ -249,11 +207,10 @@ export function useUpdateMany<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   options: MutationModeOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
-  const runUndoable = useUndoable();
   // The provider call carries the name the hook was handed, which may be a
   // `string` the map cannot pin, so it runs on the loose context.
   const dataContext: DataContext = ctx;
@@ -270,6 +227,7 @@ export function useUpdateMany<
     onSettled: () =>
       ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) }),
   });
+  const runUndoable = useUndoable();
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: patch the selected rows now, defer `updateMany`, notify with Undo.
   const mutate = (

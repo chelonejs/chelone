@@ -39,7 +39,7 @@ export function useGetOne<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetOneParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
@@ -61,7 +61,7 @@ export function useGetMany<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
@@ -82,7 +82,7 @@ export function useGetManyAggregate<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {
@@ -109,7 +109,7 @@ export function useGetList<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: MaybeRefOrGetter<TName & ResourceNameArg<TResources, TName>>,
+  resource: MaybeRefOrGetter<ResourceNameArg<TResources, TName>>,
   params: MaybeRefOrGetter<GetListParams> = {},
   options: ListQueryOptions = {},
 ) {
@@ -135,7 +135,7 @@ export function useGetManyReference<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyReferenceParams>,
   options: { enabled?: MaybeRefOrGetter<boolean> } = {},
 ) {

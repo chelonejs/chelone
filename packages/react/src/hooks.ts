@@ -1,7 +1,5 @@
 import {
   createMutationOptions,
-  type DataContext,
-  type DeleteParams,
   deleteMutationOptions,
   type GetListParams,
   type GetManyParams,
@@ -13,20 +11,14 @@ import {
   getManyReferenceOptions,
   getOneOptions,
   type MutationModeOptions,
-  patchedRecord,
   type RegisteredResources,
   type ResourceMap,
   type ResourceNameArg,
-  type ResourceRecordArg,
-  type UndoableDeleteCallbacks,
-  type UndoableUpdateCallbacks,
-  type UpdateParams,
-  undoableCallbacks,
-  undoableDeleteOptions,
-  undoableUpdateOptions,
+  undoableDeleteMutators,
+  undoableUpdateMutators,
   updateMutationOptions,
 } from "@chelone/core";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCheloneContext } from "./context";
 import { useUndoable } from "./undoable-hooks";
 
@@ -41,7 +33,7 @@ export function useGetList<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: GetListParams = {},
   options: ListQueryOptions = {},
 ) {
@@ -61,7 +53,7 @@ export function useGetOne<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: GetOneParams,
   options: { enabled?: boolean; staleTime?: number } = {},
 ) {
@@ -73,7 +65,7 @@ export function useGetMany<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: GetManyParams,
   options: { enabled?: boolean; staleTime?: number } = {},
 ) {
@@ -89,7 +81,7 @@ export function useGetManyAggregate<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: GetManyParams,
   options: { enabled?: boolean; staleTime?: number } = {},
 ) {
@@ -104,7 +96,7 @@ export function useGetManyReference<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: GetManyReferenceParams,
   options: { enabled?: boolean; staleTime?: number } = {},
 ) {
@@ -118,7 +110,7 @@ export function useGetManyReference<
 export function useCreate<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
->(resource: TName & ResourceNameArg<TResources, TName>) {
+>(resource: ResourceNameArg<TResources, TName>) {
   const ctx = useCheloneContext<TResources>();
   return useMutation(createMutationOptions(ctx, resource));
 }
@@ -127,84 +119,36 @@ export function useUpdate<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   options: MutationModeOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
-  const queryClient = useQueryClient();
-  const runUndoable = useUndoable();
   const mutation = useMutation(updateMutationOptions(ctx, resource, options));
+  // Built whether or not the mode is undoable: `useUndoable` is a hook, and a
+  // hook may not be called behind a branch.
+  const undoable = undoableUpdateMutators(ctx, resource, useUndoable());
   if (options.mutationMode !== "undoable") return mutation;
-  // Undoable: patch the cache now, defer the update, notify with Undo. `mutate`
-  // is fire-and-forget (the server call is withheld until the undo window
-  // closes); `mutateAsync` resolves once the undoable is enqueued, not on the
-  // deferred server response. The callbacks of `mutate`'s second argument are
-  // the undoable ones: see `UndoableCallbacks`.
-  const mutate = (
-    params: UpdateParams<ResourceRecordArg<TResources, TName>>,
-    callbacks?: UndoableUpdateCallbacks<ResourceRecordArg<TResources, TName>>,
-  ) => {
-    const settle = undoableCallbacks(params, callbacks);
-    const { id, data } = params;
-    // The deferred call carries the name the hook was handed, which may be a
-    // `string` the map cannot pin, so it runs on the loose context.
-    const dataContext: DataContext = ctx;
-    runUndoable({
-      ...undoableUpdateOptions(queryClient, resource, [id], data),
-      commit: settle.commit(() =>
-        dataContext.dataProvider.update(resource, params),
-      ),
-    });
-    settle.success(patchedRecord(params));
-  };
-  return {
-    ...mutation,
-    mutate,
-    mutateAsync: async (
-      params: UpdateParams<ResourceRecordArg<TResources, TName>>,
-    ) => {
-      mutate(params);
-    },
-  };
+  // Undoable: patch the cache now, defer the update, notify with Undo. The pair
+  // core builds is fire-and-forget (`mutateAsync` resolves once the undoable is
+  // enqueued, not on the deferred server response), and the callbacks of
+  // `mutate`'s second argument are the undoable ones: see `UndoableCallbacks`.
+  return { ...mutation, ...undoable };
 }
 
 export function useDelete<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   options: MutationModeOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
-  const queryClient = useQueryClient();
-  const runUndoable = useUndoable();
   const mutation = useMutation(deleteMutationOptions(ctx, resource, options));
+  const undoable = undoableDeleteMutators(ctx, resource, useUndoable());
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: remove the row now, defer the delete, notify with Undo. See
-  // `useUpdate` for the `mutate`/`mutateAsync` semantics.
-  const mutate = (
-    params: DeleteParams<ResourceRecordArg<TResources, TName>>,
-    callbacks?: UndoableDeleteCallbacks<ResourceRecordArg<TResources, TName>>,
-  ) => {
-    const settle = undoableCallbacks(params, callbacks);
-    const dataContext: DataContext = ctx;
-    runUndoable({
-      ...undoableDeleteOptions(queryClient, resource, [params.id]),
-      commit: settle.commit(() =>
-        dataContext.dataProvider.delete(resource, params),
-      ),
-    });
-    settle.success(params.previousData);
-  };
-  return {
-    ...mutation,
-    mutate,
-    mutateAsync: async (
-      params: DeleteParams<ResourceRecordArg<TResources, TName>>,
-    ) => {
-      mutate(params);
-    },
-  };
+  // `useUpdate` for the pair core builds.
+  return { ...mutation, ...undoable };
 }
 
 /**
@@ -218,39 +162,39 @@ export function useDelete<
 export function createCheloneHooks<TResources extends ResourceMap>() {
   return {
     useGetList: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params?: GetListParams,
       options?: ListQueryOptions,
     ) => useGetList<TResources, TName>(resource, params, options),
     useGetOne: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: GetOneParams,
       options?: { enabled?: boolean; staleTime?: number },
     ) => useGetOne<TResources, TName>(resource, params, options),
     useGetMany: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: GetManyParams,
       options?: { enabled?: boolean; staleTime?: number },
     ) => useGetMany<TResources, TName>(resource, params, options),
     useGetManyAggregate: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: GetManyParams,
       options?: { enabled?: boolean; staleTime?: number },
     ) => useGetManyAggregate<TResources, TName>(resource, params, options),
     useGetManyReference: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: GetManyReferenceParams,
       options?: { enabled?: boolean; staleTime?: number },
     ) => useGetManyReference<TResources, TName>(resource, params, options),
     useCreate: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
     ) => useCreate<TResources, TName>(resource),
     useUpdate: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       options?: MutationModeOptions,
     ) => useUpdate<TResources, TName>(resource, options),
     useDelete: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       options?: MutationModeOptions,
     ) => useDelete<TResources, TName>(resource, options),
   };

@@ -42,47 +42,47 @@ type QueryOptions = { enabled?: MaybeRefOrGetter<boolean> };
 export function createCheloneHooks<TResources extends ResourceMap>() {
   return {
     useGetList: <TName extends keyof TResources & string>(
-      resource: MaybeRefOrGetter<TName & ResourceNameArg<TResources, TName>>,
+      resource: MaybeRefOrGetter<ResourceNameArg<TResources, TName>>,
       params?: MaybeRefOrGetter<GetListParams>,
       options?: ListQueryOptions,
     ) => useGetList<TResources, TName>(resource, params, options),
     useGetOne: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: MaybeRefOrGetter<GetOneParams>,
       options?: QueryOptions,
     ) => useGetOne<TResources, TName>(resource, params, options),
     useGetMany: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: MaybeRefOrGetter<GetManyParams>,
       options?: QueryOptions,
     ) => useGetMany<TResources, TName>(resource, params, options),
     useGetManyAggregate: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: MaybeRefOrGetter<GetManyParams>,
       options?: QueryOptions,
     ) => useGetManyAggregate<TResources, TName>(resource, params, options),
     useGetManyReference: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       params: MaybeRefOrGetter<GetManyReferenceParams>,
       options?: QueryOptions,
     ) => useGetManyReference<TResources, TName>(resource, params, options),
     useCreate: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
     ) => useCreate<TResources, TName>(resource),
     useUpdate: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       options?: MutationModeOptions,
     ) => useUpdate<TResources, TName>(resource, options),
     useUpdateMany: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       options?: MutationModeOptions,
     ) => useUpdateMany<TResources, TName>(resource, options),
     useDelete: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       options?: MutationModeOptions,
     ) => useDelete<TResources, TName>(resource, options),
     useDeleteMany: <TName extends keyof TResources & string>(
-      resource: TName & ResourceNameArg<TResources, TName>,
+      resource: ResourceNameArg<TResources, TName>,
       options?: MutationModeOptions,
     ) => useDeleteMany<TResources, TName>(resource, options),
   };

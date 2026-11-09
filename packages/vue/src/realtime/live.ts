@@ -27,7 +27,7 @@ export function useGetListLive<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: MaybeRefOrGetter<TName & ResourceNameArg<TResources, TName>>,
+  resource: MaybeRefOrGetter<ResourceNameArg<TResources, TName>>,
   params: MaybeRefOrGetter<GetListParams> = {},
   options: LiveReadOptions = {},
 ) {
@@ -45,7 +45,7 @@ export function useGetOneLive<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetOneParams>,
   options: LiveReadOptions = {},
 ) {
@@ -63,7 +63,7 @@ export function useGetManyLive<
   TResources extends ResourceMap = RegisteredResources,
   TName extends string = keyof TResources & string,
 >(
-  resource: TName & ResourceNameArg<TResources, TName>,
+  resource: ResourceNameArg<TResources, TName>,
   params: MaybeRefOrGetter<GetManyParams>,
   options: LiveReadOptions = {},
 ) {
