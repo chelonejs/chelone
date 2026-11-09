@@ -1,17 +1,13 @@
 import {
-  ArrayField,
-  ArrayInput,
-  DatagridInput,
+  createResourceComponents,
   DataTable,
-  Edit,
-  NumberInput,
-  ReferenceArrayInput,
   ResourceContextProvider,
   SimpleFormIterator,
   TabbedForm,
-  TextInput,
   Toolbar,
 } from "@chelone/react";
+
+const products = createResourceComponents("products");
 
 export const title = "Product variants";
 export const group = "Catalog";
@@ -27,36 +23,36 @@ const tabStyles =
 export default function ProductVariants() {
   return (
     <ResourceContextProvider value="products">
-      <Edit id={1} title="Product variants">
+      <products.Edit id={1} title="Product variants">
         <div className={tabStyles}>
           <TabbedForm syncWithLocation={false}>
             <TabbedForm.Tab name="variants" label="Variants">
-              <ArrayInput source="variants" label={false}>
+              <products.ArrayInput source="variants" label={false}>
                 <SimpleFormIterator inline getItemLabel>
-                  <TextInput source="option" label="Size" />
-                  <TextInput source="sku" label="SKU" />
-                  <NumberInput source="stock" label="Stock" min={0} />
+                  <products.TextInput source="option" label="Size" />
+                  <products.TextInput source="sku" label="SKU" />
+                  <products.NumberInput source="stock" label="Stock" min={0} />
                 </SimpleFormIterator>
-              </ArrayInput>
+              </products.ArrayInput>
             </TabbedForm.Tab>
             <TabbedForm.Tab name="tags" label="Tags">
-              <ReferenceArrayInput source="tags" reference="tags">
-                <DatagridInput optionLabel="Tag" />
-              </ReferenceArrayInput>
+              <products.ReferenceArrayInput source="tags" reference="tags">
+                <products.DatagridInput optionLabel="Tag" />
+              </products.ReferenceArrayInput>
             </TabbedForm.Tab>
             <TabbedForm.Tab name="stock" label="Stock">
-              <ArrayField source="variants">
+              <products.ArrayField source="variants">
                 <DataTable>
                   <DataTable.Col source="option" label="Size" />
                   <DataTable.Col source="sku" label="SKU" />
                   <DataTable.NumberCol source="stock" label="Stock" />
                 </DataTable>
-              </ArrayField>
+              </products.ArrayField>
             </TabbedForm.Tab>
             <Toolbar />
           </TabbedForm>
         </div>
-      </Edit>
+      </products.Edit>
     </ResourceContextProvider>
   );
 }
