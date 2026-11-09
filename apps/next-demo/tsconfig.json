@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "paths": {
+      "@/components/*": ["../../packages/react/src/components/*"],
+      "@/lib/*": ["../../packages/react/src/lib/*"],
+      "@/hooks/*": ["../../packages/react/src/hooks/*"]
+    },
+    "plugins": [{ "name": "next" }],
+    "noEmit": true,
+    "declaration": false,
+    "incremental": true
+  },
+  "include": [
+    "src",
+    "next.config.ts",
+    "vitest.config.ts",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}
