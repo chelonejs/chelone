@@ -50,7 +50,7 @@ export interface RejectionOptions {
   /** Record field the status is written to and read from. Default `"status"`. */
   statusSource?: string;
   /** Status written on rejection. Default `"rejected"`. */
-  // type-escape: a status is whatever the app's column holds (string, number, enum)
+  // type-escape: server: a status is whatever the app's column holds (string, number, enum)
   rejectedValue?: unknown;
   /** Record field the reason is written to. Default `"rejectionNote"`. */
   noteSource?: string;
@@ -179,7 +179,7 @@ export function buildApprovalUpdate<TRecord extends object>(
 export function buildRejectionUpdate<TRecord extends object>(
   record: TRecord & object,
   options: RejectionOptions = {},
-  // type-escape: the patch is keyed by caller-chosen strings, as buildApprovalUpdate's is
+  // type-escape: builder: the patch is keyed by caller-chosen strings, as buildApprovalUpdate's is
 ): Record<string, unknown> | null {
   const {
     identityId,

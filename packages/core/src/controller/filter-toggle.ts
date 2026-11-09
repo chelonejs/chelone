@@ -66,6 +66,6 @@ export function toggleFilterValue<TRecord = LooseRecord>(
 ): FilterPayload<TRecord> {
   if (!isFilterSelected<TRecord>(value, filters))
     return { ...filters, ...value };
-  // type-escape: omitValue only prunes keys from this filter, so the remaining keys still belong to TRecord.
+  // type-escape: filter-value: omitValue only prunes keys from this filter, so the remaining keys still belong to TRecord.
   return omitValue(filters, value) as FilterPayload<TRecord>;
 }
