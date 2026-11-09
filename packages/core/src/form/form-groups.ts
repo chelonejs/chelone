@@ -16,7 +16,7 @@
 
 import type { ValidationErrorMap } from "@tanstack/form-core";
 import { firstFieldError } from "./field-error";
-import type { TranslatableMessage } from "./form-controller";
+import type { ValidationErrorMessage } from "./form-errors";
 
 /** Called on every membership mutation (a member added or removed). */
 export type FormGroupsListener = () => void;
@@ -118,7 +118,7 @@ export interface GroupState {
   /** OR over members: true if any member is validating async. */
   isValidating: boolean;
   /** First displayable error per invalid member, keyed by source. */
-  errors: Record<string, string | TranslatableMessage>;
+  errors: Record<string, ValidationErrorMessage>;
 }
 
 /**
@@ -137,7 +137,7 @@ export function reduceGroupState(
   let isDirty = false;
   let isTouched = false;
   let isValidating = false;
-  const errors: Record<string, string | TranslatableMessage> = {};
+  const errors: Record<string, ValidationErrorMessage> = {};
 
   for (const source of members) {
     const meta = fieldMeta[source];

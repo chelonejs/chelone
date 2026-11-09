@@ -37,6 +37,7 @@ export const jaMessages = {
     "このリソースにアクセスする権限がありません",
   "chelone.notification.updated": "更新しました",
   "chelone.validation.email": "有効なメールアドレスを入力してください",
+  "chelone.validation.invalid": "無効な値です",
   "chelone.validation.maxLength": "{max} 文字以内で入力してください",
   "chelone.validation.maxValue": "{max} 以下で入力してください",
   "chelone.validation.minLength": "{min} 文字以上で入力してください",

@@ -30,6 +30,7 @@ export const defaultMessages = defineMessages({
     "You are not authorized to access this resource",
   "chelone.notification.updated": "Element updated",
   "chelone.validation.email": "Must be a valid email",
+  "chelone.validation.invalid": "Invalid value",
   "chelone.validation.maxLength": "Must be {max} characters or less",
   "chelone.validation.maxValue": "Must be {max} or less",
   "chelone.validation.minLength": "Must be {min} characters at least",

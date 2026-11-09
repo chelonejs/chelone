@@ -7,7 +7,6 @@ import {
   type FieldErrors,
   type FormController,
   type FormControllerOptions,
-  normalizeFormError,
 } from "./form-controller";
 
 interface PostDraft {
@@ -281,6 +280,61 @@ const makeSubmitHarness = (
     lastNotification,
   };
 };
+
+describe("errors are written as messages", () => {
+  it("a schema issue reaches the field's error map as its message", async () => {
+    const { controller, mountField } = makeSubmitHarness({
+      schema: draftSchema,
+    });
+    const title = mountField("title");
+    title.handleChange("x");
+    await controller.submit();
+    expect(title.state.meta.errorMap.onDynamic).toBe("too short");
+  });
+
+  it("an escape-hatch onChange validator's Error reaches the error map as its message", () => {
+    const { controller, mountField } = makeSubmitHarness({
+      formOptions: { validators: { onChange: () => new Error("Bad") } },
+    });
+    mountField("title").handleChange("x");
+    expect(controller.getSnapshot().errorMap.onChange).toBe("Bad");
+  });
+
+  it("an escape-hatch onChange validator's field issues reach each field as a message", () => {
+    const { mountField } = makeSubmitHarness({
+      formOptions: {
+        validators: {
+          onChange: () => ({
+            form: undefined,
+            fields: { title: [{ message: "chelone.validation.required" }] },
+          }),
+        },
+      },
+    });
+    const title = mountField("title");
+    title.handleChange("x");
+    expect(title.state.meta.errorMap.onChange).toBe(
+      "chelone.validation.required",
+    );
+  });
+
+  it("an escape-hatch Standard Schema reaches the fields as messages", () => {
+    const { mountField } = makeSubmitHarness({
+      formOptions: { validators: { onChange: draftSchema } },
+    });
+    const title = mountField("title");
+    title.handleChange("x");
+    expect(title.state.meta.errorMap.onChange).toBe("too short");
+  });
+
+  it("a server field error list reaches the field as its first message", async () => {
+    const { controller, save, mountField } = makeSubmitHarness();
+    save.mockResolvedValueOnce({ email: ["already taken", "too long"] });
+    const email = mountField("email");
+    await controller.submit();
+    expect(email.state.meta.errorMap.onSubmit).toBe("already taken");
+  });
+});
 
 describe("submit pipeline", () => {
   describe("client-side validation (schema, D6 revalidateLogic wiring)", () => {
@@ -599,61 +653,5 @@ describe("submit pipeline", () => {
       await expect(controller.submit()).resolves.toBeUndefined();
       expect(save).not.toHaveBeenCalled();
     });
-  });
-});
-
-describe("normalizeFormError", () => {
-  it("passes strings through", () => {
-    expect(normalizeFormError("Required")).toBe("Required");
-  });
-
-  it("preserves ra translatable payloads ({message, args})", () => {
-    expect(
-      normalizeFormError({
-        message: "chelone.validation.minLength",
-        args: { min: 5 },
-      }),
-    ).toEqual({ message: "chelone.validation.minLength", args: { min: 5 } });
-  });
-
-  it("collapses a bare {message} (StandardSchemaV1Issue shape) to its message", () => {
-    expect(normalizeFormError({ message: "Too small", path: ["title"] })).toBe(
-      "Too small",
-    );
-  });
-
-  it("drops a non-object args and returns the message alone", () => {
-    expect(normalizeFormError({ message: "x", args: 5 })).toBe("x");
-  });
-
-  it("keeps the string and number args when others are not message params", () => {
-    expect(
-      normalizeFormError({
-        message: "chelone.validation.minLength",
-        args: { min: 5, strict: true, extra: undefined },
-      }),
-    ).toEqual({ message: "chelone.validation.minLength", args: { min: 5 } });
-  });
-
-  it("uses an Error's message", () => {
-    expect(normalizeFormError(new Error("boom"))).toBe("boom");
-  });
-
-  it("normalizes the first entry of an issue array", () => {
-    expect(
-      normalizeFormError([{ message: "first" }, { message: "second" }]),
-    ).toBe("first");
-  });
-
-  it("returns undefined for nullish and empty-array input", () => {
-    expect(normalizeFormError(null)).toBeUndefined();
-    expect(normalizeFormError(undefined)).toBeUndefined();
-    expect(normalizeFormError([])).toBeUndefined();
-  });
-
-  it("stringifies everything else", () => {
-    expect(normalizeFormError(42)).toBe("42");
-    expect(normalizeFormError({ code: 1 })).toBe("[object Object]");
-    expect(normalizeFormError({ message: 123 })).toBe("[object Object]");
   });
 });

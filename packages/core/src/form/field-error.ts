@@ -1,7 +1,4 @@
-import {
-  normalizeFormError,
-  type TranslatableMessage,
-} from "./form-controller";
+import { normalizeFormError, type ValidationErrorMessage } from "./form-errors";
 
 /**
  * Error-map scan order: server/submit errors first, then validator causes.
@@ -25,7 +22,7 @@ export const ERROR_MAP_PRIORITY = [
  */
 export function firstFieldError(
   errorMap: object,
-): string | TranslatableMessage | undefined {
+): ValidationErrorMessage | undefined {
   for (const cause of ERROR_MAP_PRIORITY) {
     const normalized = normalizeFormError(Reflect.get(errorMap, cause));
     if (normalized !== undefined) return normalized;
