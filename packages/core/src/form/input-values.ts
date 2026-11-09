@@ -13,7 +13,7 @@ import { isSafeImageSrc } from "../rich-text/rich-text";
  * A value read out of form state: whatever the data provider put there, until a
  * guard names the family an input edits.
  */
-// type-escape: form state is record-free; narrowing it is a guard's whole job.
+// type-escape: context: form state is record-free; narrowing it is a guard's whole job.
 export type FormValue = unknown;
 
 /** What a date input edits: the `YYYY-MM-DD`/ISO string, the epoch number, a live `Date`, or nothing. */
@@ -48,10 +48,10 @@ export type ChoiceValueOf<TChoice> = TChoice extends { id: infer TId }
 export function choiceIdOf<TChoice>(choice: TChoice): ChoiceValueOf<TChoice> {
   if (typeof choice === "object" && choice !== null && "id" in choice) {
     // TS cannot follow the runtime `in` check into the deferred conditional.
-    // type-escape: `ChoiceValueOf` names the id of a choice that has one.
+    // type-escape: context: `ChoiceValueOf` names the id of a choice that has one.
     return choice.id as ChoiceValueOf<TChoice>;
   }
-  // type-escape: a choice with no id is its own value.
+  // type-escape: context: a choice with no id is its own value.
   return choice as ChoiceValueOf<TChoice>;
 }
 
@@ -64,7 +64,7 @@ export function toChoiceValue<TChoice>(
   value: FormValue,
 ): ChoiceValueOf<TChoice> {
   // Form state is record-free.
-  // type-escape: a choice input stores the value of one of its choices.
+  // type-escape: context: a choice input stores the value of one of its choices.
   return value as ChoiceValueOf<TChoice>;
 }
 
@@ -94,7 +94,7 @@ export function toChoiceValues<TChoice>(
 ): readonly ChoiceValueOf<TChoice>[] {
   if (value == null || value === "") return NO_CHOICE_VALUES;
   // Form state is record-free.
-  // type-escape: a multi-choice input stores an array of its choices' values.
+  // type-escape: context: a multi-choice input stores an array of its choices' values.
   if (Array.isArray(value)) return value as readonly ChoiceValueOf<TChoice>[];
   return [toChoiceValue<TChoice>(value)];
 }

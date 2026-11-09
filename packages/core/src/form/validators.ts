@@ -20,7 +20,7 @@ export type ValidatorResult = ValidationErrorMessage | null | undefined;
  * built-in except `required` stands down on them, so a validator written for a
  * `string` field is still legal on a field whose value is momentarily empty.
  */
-// type-escape: ra's empty values include an unset multi-input's `[]`.
+// type-escape: context: ra's empty values include an unset multi-input's `[]`, whose members no record type pins.
 export type EmptyValue = null | undefined | readonly unknown[];
 
 /**
@@ -33,7 +33,7 @@ export type EmptyValue = null | undefined | readonly unknown[];
 export interface FieldValidatorMeta {
   /** The FINAL field path the value came from, when a binding ran the stack. */
   source?: string;
-  // type-escape: the validator meta bag is an app-supplied bag of any values.
+  // type-escape: server: the validator meta bag is an app-supplied bag of any values.
   [key: string]: unknown;
 }
 
@@ -48,7 +48,7 @@ export interface FieldValidatorMeta {
  * {@link EmptyValue}), and one written for the widest pair (`Validator`, the
  * default) fits any field.
  */
-// type-escape: the default pair is "any field" — the widest validator every field accepts.
+// type-escape: context: the default pair is "any field" — the widest validator every field accepts.
 export type Validator<TValue = unknown, TValues = unknown> = (
   value: TValue | EmptyValue,
   values: TValues,
@@ -56,7 +56,7 @@ export type Validator<TValue = unknown, TValues = unknown> = (
 ) => ValidatorResult | Promise<ValidatorResult>;
 
 /** `required()`'s return: a validator tagged for {@link isRequired} detection. */
-// type-escape: the default pair is "any field" (see Validator).
+// type-escape: context: the default pair is "any field" (see Validator).
 export interface RequiredValidator<TValue = unknown, TValues = unknown> {
   (
     value: TValue | EmptyValue,
@@ -67,7 +67,7 @@ export interface RequiredValidator<TValue = unknown, TValues = unknown> {
 }
 
 /** A validator, or the `false`/nullish ra passes when a rule is switched off. */
-// type-escape: the default pair is "any field" (see Validator).
+// type-escape: context: the default pair is "any field" (see Validator).
 export type ValidatorInput<TValue = unknown, TValues = unknown> =
   | Validator<TValue, TValues>
   | false
@@ -75,28 +75,28 @@ export type ValidatorInput<TValue = unknown, TValues = unknown> =
   | undefined;
 
 /** One `validate` slot: a single validator or a list of them (ra call style). */
-// type-escape: the default pair is "any field" (see Validator).
+// type-escape: context: the default pair is "any field" (see Validator).
 export type ValidatorSlot<TValue = unknown, TValues = unknown> =
   | ValidatorInput<TValue, TValues>
   | ReadonlyArray<ValidatorInput<TValue, TValues>>;
 
 /** Params handed to a message factory when the error message is a function. */
-// type-escape: a message factory for no particular field takes any value.
+// type-escape: context: a message factory for no particular field takes any value.
 export interface ValidationMessageParams<TValue = unknown, TValues = unknown> {
-  // type-escape: interpolation args are an app-supplied bag of any values.
+  // type-escape: server: interpolation args are an app-supplied bag of any values.
   args: TranslateParamValues | undefined;
   value: TValue | EmptyValue;
   values: TValues;
 }
 
 /** Builds an error message dynamically from the failing value/args. */
-// type-escape: the default pair is "any field" (see Validator).
+// type-escape: context: the default pair is "any field" (see Validator).
 export type MessageFactory<TValue = unknown, TValues = unknown> = (
   params: ValidationMessageParams<TValue, TValues>,
 ) => ValidationErrorMessage;
 
 /** A built-in's `message` option: an i18n key/string or a factory. */
-// type-escape: the default pair is "any field" (see Validator).
+// type-escape: context: the default pair is "any field" (see Validator).
 export type ValidationMessage<TValue = unknown, TValues = unknown> =
   | string
   | MessageFactory<TValue, TValues>;
@@ -137,7 +137,7 @@ function getMessage<TValue, TValues>(
  * options rather than react-hook-form rules, so fresh identities per render
  * cannot re-trigger anything.
  */
-// type-escape: composition is value-agnostic: it forwards whatever it is handed.
+// type-escape: context: composition is value-agnostic: it forwards whatever it is handed.
 export function composeValidators<TValue = unknown, TValues = unknown>(
   ...validators: ReadonlyArray<ValidatorSlot<TValue, TValues>>
 ): Validator<TValue, TValues> {
@@ -174,7 +174,7 @@ export function composeValidators<TValue = unknown, TValues = unknown>(
  * every other one skips empty values so optional fields stay optional.
  * The returned validator is tagged `.isRequired` for {@link isRequired}.
  */
-// type-escape: `required()` reads only emptiness, so it fits any value pair.
+// type-escape: context: `required()` reads only emptiness, so it fits any value pair.
 export function required<TValue = unknown, TValues = unknown>(
   message: ValidationMessage<TValue, TValues> = "chelone.validation.required",
 ): RequiredValidator<TValue, TValues> {
@@ -287,6 +287,7 @@ export function choices<TChoice>(
     ChoiceValueOf<TChoice>
   > = "chelone.validation.oneOf",
 ): Validator<ChoiceValueOf<TChoice>> {
+  // type-escape: context: the ids are compared with a value that may be any hole or stray, so the list is read as unknown.
   const options: readonly unknown[] = list.map(choiceIdOf);
   return (value, values) =>
     !isEmpty(value) && !options.includes(value)
@@ -304,7 +305,7 @@ export function choices<TChoice>(
  * any array member tagged `.isRequired === true` (the `required()` tag).
  * Inputs use this to render the required marker without running validation.
  */
-// type-escape: requiredness is read off the tag, not the value.
+// type-escape: context: requiredness is read off the tag, not the value.
 export function isRequired<TValue = unknown, TValues = unknown>(
   validate: ValidatorSlot<TValue, TValues>,
 ): boolean {
