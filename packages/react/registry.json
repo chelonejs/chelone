@@ -8249,11 +8249,20 @@
       "type": "registry:block",
       "title": "Chelone Server Components",
       "categories": ["chelone", "fields"],
-      "description": "The opt-in React Server Components add-on: readFieldValue reads a typed value off a record passed as a prop, and serverEmptyText prints a field's empty text, with no hook or context, so they run in a server component.",
-      "dependencies": ["@chelone/core"],
+      "description": "The opt-in React Server Components add-on: the server text, number and date fields, and ServerList, which renders one loaded list page with sort and page links. Each reads a record or a page passed as a prop, with no hook or context, so it runs in a server component.",
+      "registryDependencies": ["@chelone/lib-utils", "@chelone/table"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "files": [
         {
           "path": "src/components/rsc/read-field-value.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list-link.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list.tsx",
           "type": "registry:component"
         },
         {
@@ -8272,6 +8281,41 @@
           "path": "src/components/rsc/read-field-value.ts",
           "type": "registry:component"
         }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-list-link",
+      "type": "registry:component",
+      "title": "Server List Link",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list-link.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-list",
+      "type": "registry:component",
+      "title": "Server List",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/read-field-value",
+        "@chelone/server-list-link",
+        "@chelone/server-scalar-fields",
+        "@chelone/table"
       ],
       "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
