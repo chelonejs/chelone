@@ -11,7 +11,7 @@ export const HANDLE_ID = "block-drag-handle";
 /** Prefix of the dnd-kit id of each drop gap, followed by the gap's index. */
 export const GAP_PREFIX = "block-gap-";
 
-// type-escape: tiptap attrs are open JSON, so the keys and values are not knowable here
+// type-escape: json: tiptap attrs are open, so the keys and values are not knowable here
 export type Attrs = Record<string, unknown>;
 
 /** The shape of tiptap JSON, with no tiptap import. */
@@ -23,7 +23,7 @@ export interface BlockDocNode {
   text?: string;
 }
 
-// type-escape: a schema's input is whatever its caller's form feeds it
+// type-escape: schema: the input is whatever its caller's form feeds it
 type BlockSchema<A extends Attrs> = StandardSchemaV1<unknown, A>;
 
 /**
@@ -90,7 +90,7 @@ export function createBlockRegistry<B extends BlockSpec>(
 }
 
 interface Parsable {
-  // type-escape: a member of either Zod major, whose output is its own
+  // type-escape: schema: a member of either Zod major, whose output is its own
   safeParse(value: undefined): { success: boolean; data?: unknown };
 }
 
@@ -118,7 +118,7 @@ export function getBlockDefaultAttrs<A extends Attrs>(
     const result = isParsable(member) ? member.safeParse(undefined) : undefined;
     defaults[key] = result?.success ? result.data : null;
   }
-  // type-escape: each key holds its member's default or null, which is the mapped type
+  // type-escape: builder: each key holds its member's default or null, which is the mapped type
   return defaults as { [K in keyof A]: A[K] | null };
 }
 

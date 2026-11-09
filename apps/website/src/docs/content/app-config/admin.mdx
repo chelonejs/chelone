@@ -308,6 +308,91 @@ The adapters live on their own entry so `@chelone/react` loads without
 `@tanstack/react-router`, an optional peer. Install that peer only when you use
 either adapter.
 
+### Next.js App Router
+
+`@chelone/react/next` ships `nextRouterAdapter`, which reads and drives a Next.js
+App Router app's own router through `next/navigation` and `next/link`. Next
+routes every URL, so pair it with `routes={false}`, and hand the page Next
+renders to the admin with `NextOutletProvider`. The admin's layout shows that
+page where a route table would render the matched route.
+
+The adapter and the data provider are functions, which a Server Component cannot
+pass to a Client Component, so `<Admin>` goes in a client component:
+
+```tsx title="app/admin/admin-shell.tsx"
+"use client";
+
+import { Admin, Layout, Resource } from "@chelone/react";
+import { NextOutletProvider, nextRouterAdapter } from "@chelone/react/next";
+import type { ReactNode } from "react";
+import { dataProvider, queryClient } from "./providers";
+
+export function AdminShell({ children }: { children: ReactNode }) {
+  return (
+    <NextOutletProvider outlet={children}>
+      <Admin
+        router={nextRouterAdapter}
+        routes={false}
+        basename="/admin"
+        dataProvider={dataProvider}
+        queryClient={queryClient}
+      >
+        <Admin.Layout>
+          <Layout />
+        </Admin.Layout>
+        <Resource name="posts" hasList hasEdit />
+      </Admin>
+    </NextOutletProvider>
+  );
+}
+```
+
+The adapter reads the query string with `useSearchParams`, so a page that
+renders the admin is dynamic or sits under `<Suspense>`. Otherwise `next build`
+fails on the static render:
+
+```tsx title="app/admin/layout.tsx"
+import { type ReactNode, Suspense } from "react";
+import { AdminShell } from "./admin-shell";
+
+export default function AdminLayout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense>
+      <AdminShell>{children}</AdminShell>
+    </Suspense>
+  );
+}
+```
+
+```tsx title="app/admin/posts/page.tsx"
+"use client";
+
+import { DataTable, List } from "@chelone/react";
+
+export default function Posts() {
+  return (
+    <List resource="posts">
+      <DataTable>
+        <DataTable.Col source="title" />
+      </DataTable>
+    </List>
+  );
+}
+```
+
+Route the folders to Chelone's paths under `basename`, as for any route-less
+admin: `app/admin/posts/[id]/page.tsx` renders `Edit`, which reads the `id`
+param. What the App Router lacks, the adapter leaves out:
+
+- `useLocation()` has `state: null` and an empty `hash`, since Next keeps no
+  history state and its hooks expose no hash.
+- Nothing blocks a navigation: `useCanBlock()` is `false`, so
+  `warnWhenUnsavedChanges` keeps only its tab-close warning.
+- A catch-all segment such as `[...slug]` is also the `'*'` param, its parts
+  joined with `/`.
+
+`next` is an optional peer, and only `@chelone/react/next` imports it.
+
 ### Revalidating a server-rendered route
 
 A client component under a server-rendered route calls `useRevalidate()` after a
@@ -315,6 +400,8 @@ write, so the router fetches that route's data again. The adapter decides how:
 
 - Both TanStack adapters call `router.invalidate()`, which re-runs the matched
   routes' loaders.
+- `nextRouterAdapter` calls `router.refresh()`, which renders the route's Server
+  Components again.
 - An adapter with no `useRevalidate`, such as the react-router default, gets a
   `replace` navigation to the current path, search, hash and state. State
   outside the route survives, since the page does not reload.
@@ -339,7 +426,7 @@ export function PublishButton({ id }: { id: number }) {
 ```
 
 An app's own adapter adds the optional `useRevalidate(): () => void` member to
-plug in its router's refresh, such as Next.js's `router.refresh()`.
+plug in its router's refresh.
 
 ## Props
 
