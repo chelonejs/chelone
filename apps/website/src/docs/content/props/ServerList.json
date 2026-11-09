@@ -1,0 +1,41 @@
+{
+  "name": "ServerList",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the wrapper."
+    },
+    {
+      "name": "columns",
+      "type": "NoInfer<ServerListColumn<RecordType, TReferences>>[]",
+      "optional": false,
+      "comment": "The columns, in order."
+    },
+    {
+      "name": "i18n",
+      "type": "ServerI18n",
+      "optional": true,
+      "comment": "Translates the pagination and no-results text. English without one."
+    },
+    {
+      "name": "page",
+      "type": "ServerListPageData<RecordType, TReferences>",
+      "optional": false,
+      "comment": "The page to render, as `loadServerListPage` returns it."
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": false,
+      "comment": "The list's pathname: every sort and page link is this path plus its query."
+    },
+    {
+      "name": "rowActions",
+      "type": "(record: NoInfer<RecordType>) => ReactNode",
+      "optional": true,
+      "comment": "What the last cell of each row renders."
+    }
+  ]
+}
