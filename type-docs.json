@@ -6,7 +6,21 @@
   "resource-registry-and-codegen": [
     "@chelone/core:defineResources"
   ],
-  "sources-filters-and-sort": [],
+  "sources-filters-and-sort": [
+    "@chelone/core:AnyFilterSourceKey",
+    "@chelone/core:AnyFilterSourceKeyOf",
+    "@chelone/core:AnySourcePath",
+    "@chelone/core:AnySourcePathOf",
+    "@chelone/core:FilterSourceKey",
+    "@chelone/core:RecordFilterKey",
+    "@chelone/core:ReferenceTargetOf",
+    "@chelone/core:SourcePath",
+    "@chelone/core:SourceProp",
+    "@chelone/core:calendarRangeFilter",
+    "@chelone/core:omitCalendarRangeFilter",
+    "@chelone/core:staleCalendarRangeKeys",
+    "@chelone/vue:useInput"
+  ],
   "translations-and-permissions": [],
   "typed-components": [
     "@chelone/react:createResourceComponents",

@@ -40,10 +40,6 @@
     "@chelone/vue:useDataProvider"
   ],
   "sources-filters-and-sort": [
-    "@chelone/core:AnyFilterSourceKey",
-    "@chelone/core:AnyFilterSourceKeyOf",
-    "@chelone/core:AnySourcePath",
-    "@chelone/core:AnySourcePathOf",
     "@chelone/core:ArrayBinding",
     "@chelone/core:ArrayBindingOptions",
     "@chelone/core:ArrayBindingUpdateOptions",
@@ -51,19 +47,11 @@
     "@chelone/core:ChoicesControllerOptions",
     "@chelone/core:FieldBinding",
     "@chelone/core:FieldBindingOptions",
-    "@chelone/core:FilterSourceKey",
-    "@chelone/core:RecordFilterKey",
-    "@chelone/core:ReferenceTargetOf",
-    "@chelone/core:SourcePath",
-    "@chelone/core:SourceProp",
     "@chelone/core:ToCalendarEventsOptions",
     "@chelone/core:buildRecordTree",
-    "@chelone/core:calendarRangeFilter",
     "@chelone/core:createArrayBinding",
     "@chelone/core:createFieldBinding",
     "@chelone/core:listFetchParams",
-    "@chelone/core:omitCalendarRangeFilter",
-    "@chelone/core:staleCalendarRangeKeys",
     "@chelone/react:UseArrayInputOptions",
     "@chelone/react:UseChoicesOptions",
     "@chelone/react:UseReferenceInputOptions",
@@ -74,8 +62,7 @@
     "@chelone/vue:UseChoicesOptions",
     "@chelone/vue:UseInputOptions",
     "@chelone/vue:UseReferenceInputOptions",
-    "@chelone/vue:useArrayInput",
-    "@chelone/vue:useInput"
+    "@chelone/vue:useArrayInput"
   ],
   "translations-and-permissions": [
     "@chelone/core:AuthProvider",

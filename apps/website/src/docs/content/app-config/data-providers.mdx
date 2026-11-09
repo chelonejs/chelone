@@ -19,7 +19,7 @@ type Pagination =
   | { page: number; perPage: number }
   | { cursor: string | null; limit: number };
 
-type SortPayload = { field: string; order: "ASC" | "DESC" };
+type LooseSortPayload = { field: string; order: "ASC" | "DESC" };
 
 interface PageInfo {
   nextCursor?: string | null;
@@ -30,7 +30,7 @@ interface PageInfo {
 
 interface GetListParams {
   pagination?: Pagination;
-  sort?: SortPayload | SortPayload[]; // an array sorts by each key in order
+  sort?: LooseSortPayload | LooseSortPayload[]; // an array sorts by each key in order
   filter?: Record<string, unknown>;
   meta?: unknown;
 }
@@ -51,7 +51,7 @@ interface DataProvider {
       target: string; // the foreign-key field on `resource`
       id: Identifier; // the value `target` must equal
       pagination?: Pagination;
-      sort?: SortPayload | SortPayload[];
+      sort?: LooseSortPayload | LooseSortPayload[];
       filter?: Record<string, unknown>;
       meta?: unknown;
     },
@@ -70,7 +70,9 @@ interface DataProvider {
   accept `{ page, perPage }`. A cursor reaches the provider only from your own
   `getList` call.
 - `sort` is one `{ field, order }` or an array of them, the first being the
-  primary key.
+  primary key. It is `LooseSortPayload`, the open field name a verb cannot
+  narrow. The record-typed `SortPayload` is in
+  [Sources, Filters & Sort](/docs/type-safety/sources-filters-and-sort).
 - `meta` is yours: Chelone does not read it, so it can carry anything the
   backend needs that has no param of its own.
 - `updateMany` and `deleteMany` resolve with the ids they touched, not records.
