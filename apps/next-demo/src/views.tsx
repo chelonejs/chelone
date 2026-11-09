@@ -38,3 +38,14 @@ export function PostEdit({ id }: { id: string }) {
     </Edit>
   );
 }
+
+export function CommentList() {
+  return (
+    <List resource="comments">
+      <DataTable>
+        <DataTable.Col source="authorName" />
+        <DataTable.Col source="body" />
+      </DataTable>
+    </List>
+  );
+}

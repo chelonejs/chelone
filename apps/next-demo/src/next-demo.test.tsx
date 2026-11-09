@@ -7,19 +7,25 @@
  * Next's app router context is internal, so `next/navigation` and `next/link`
  * are mocked with a small in-memory router, as in `@chelone/react`'s
  * `next-router-adapter.test.tsx`. Each test renders what Next would: the
- * layout's shell around the page's `<HydrationBoundary>`.
+ * layout's shell around the page's `<Prefetched>`.
  */
 
 import { fakeDataProvider } from "@chelone/core";
 import { seedData } from "@chelone/demo-data";
-import { HydrationBoundary } from "@tanstack/react-query";
-import { cleanup, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import nextConfig from "../next.config";
 import { AdminShell } from "./admin-shell";
+import { Prefetched } from "./prefetched";
 import type { NextDemoResources } from "./resources";
 import { prefetchList, prefetchOne } from "./server-context";
-import { PostEdit, PostList } from "./views";
+import { CommentList, PostEdit, PostList } from "./views";
 
 const next = vi.hoisted(() => {
   const mount = "/admin";
@@ -128,9 +134,9 @@ describe("the Next demo", () => {
 
     render(
       <AdminShell dataProvider={dataProvider}>
-        <HydrationBoundary state={state}>
+        <Prefetched state={state}>
           <PostList />
-        </HydrationBoundary>
+        </Prefetched>
       </AdminShell>,
     );
 
@@ -153,9 +159,9 @@ describe("the Next demo", () => {
 
     render(
       <AdminShell dataProvider={dataProvider}>
-        <HydrationBoundary state={state}>
+        <Prefetched state={state}>
           <PostList />
-        </HydrationBoundary>
+        </Prefetched>
       </AdminShell>,
     );
 
@@ -172,15 +178,67 @@ describe("the Next demo", () => {
 
     render(
       <AdminShell dataProvider={dataProvider}>
-        <HydrationBoundary state={state}>
+        <Prefetched state={state}>
           <PostEdit id="1" />
-        </HydrationBoundary>
+        </Prefetched>
       </AdminShell>,
     );
 
     const title = seeded(seedData().posts[0], "post").title;
     expect(await screen.findByDisplayValue(title)).toBeTruthy();
     expect(getOne).not.toHaveBeenCalled();
+  });
+
+  it("the comments prefetch is what the comments list reads", async () => {
+    next.reset("/admin/comments");
+    const { dataProvider, getList } = browserProvider();
+    const state = await prefetchList("comments", "");
+
+    render(
+      <AdminShell dataProvider={dataProvider}>
+        <Prefetched state={state}>
+          <CommentList />
+        </Prefetched>
+      </AdminShell>,
+    );
+
+    const body = seeded(seedData().comments[0], "comment").body;
+    expect((await screen.findAllByText(body)).length).toBeGreaterThan(0);
+    expect(getList).not.toHaveBeenCalled();
+  });
+
+  it("a saved title survives the next page's stale prefetch", async () => {
+    next.reset("/admin/posts/1");
+    const { dataProvider } = browserProvider();
+    const stale = await prefetchOne("posts", 1);
+    const title = seeded(seedData().posts[0], "post").title;
+
+    const { rerender } = render(
+      <AdminShell dataProvider={dataProvider}>
+        <Prefetched state={stale}>
+          <PostEdit id="1" />
+        </Prefetched>
+      </AdminShell>,
+    );
+    fireEvent.change(await screen.findByDisplayValue(title), {
+      target: { value: "Renamed in the browser" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /save/i }));
+    await waitFor(() => expect(next.router.push).toHaveBeenCalled());
+
+    // The server renders the list from its unchanged seed, after the save.
+    next.reset("/admin/posts");
+    const staleList = await prefetchList("posts", "");
+    rerender(
+      <AdminShell dataProvider={dataProvider}>
+        <Prefetched state={staleList}>
+          <PostList />
+        </Prefetched>
+      </AdminShell>,
+    );
+
+    expect(await screen.findByText("Renamed in the browser")).toBeTruthy();
+    expect(screen.queryByText(title)).toBe(null);
   });
 
   it("the bare paths redirect", async () => {

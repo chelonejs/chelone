@@ -8,7 +8,8 @@
  *
  * It holds one `QueryClient` and one data provider for the browser session.
  * `staleTime: Infinity` because a server component prefetched what the page
- * renders, so a mount must not refetch it; a mutation still invalidates.
+ * renders, so a mount must not refetch it; a mutation still invalidates. After
+ * a browser write the server's prefetch is stale, so `<Prefetched>` ignores it.
  */
 
 import { type DataProvider, fakeDataProvider } from "@chelone/core";
@@ -18,6 +19,7 @@ import { NextOutletProvider, nextRouterAdapter } from "@chelone/react/next";
 import { QueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { type ReactNode, useState } from "react";
+import { watchWrites } from "./prefetched";
 import { type NextDemoResources, resources } from "./resources";
 
 export interface AdminShellProps {
@@ -40,12 +42,13 @@ function AdminLayout({ children }: { children?: ReactNode }) {
 }
 
 export function AdminShell({ children, dataProvider }: AdminShellProps) {
-  const [queryClient] = useState(
-    () =>
-      new QueryClient({
-        defaultOptions: { queries: { retry: false, staleTime: Infinity } },
-      }),
-  );
+  const [queryClient] = useState(() => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false, staleTime: Infinity } },
+    });
+    watchWrites(client);
+    return client;
+  });
   const [provider] = useState(
     () => dataProvider ?? fakeDataProvider<NextDemoResources>(seedData()),
   );

@@ -1,4 +1,4 @@
-import { HydrationBoundary } from "@tanstack/react-query";
+import { Prefetched } from "../../../../prefetched";
 import { prefetchOne } from "../../../../server-context";
 import { PostEdit } from "../../../../views";
 
@@ -10,8 +10,8 @@ export default async function PostEditPage({
   const { id } = await params;
   const state = await prefetchOne("posts", id);
   return (
-    <HydrationBoundary state={state}>
+    <Prefetched state={state}>
       <PostEdit id={id} />
-    </HydrationBoundary>
+    </Prefetched>
   );
 }
