@@ -21,6 +21,7 @@ export interface EmailFieldProps<RecordType extends ResourceRecord = LooseRecord
  */
 
 import { computed } from "vue";
+import { emailFieldHref } from "@chelone/core";
 import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -36,6 +37,8 @@ const value = useFieldValue<RecordType>({
 const translate = useTranslate();
 
 const email = computed(() => (value.value == null ? null : String(value.value)));
+/** Null for a nullish or empty value, which is the `empty` case. */
+const href = computed(() => emailFieldHref(value.value));
 const emptyText = computed(() =>
   props.empty ? translate(props.empty, { _: props.empty }) : null,
 );
@@ -44,10 +47,10 @@ const linkClass = computed(() => cn("underline hover:no-underline", props.class)
 
 <template>
   <a
-    v-if="email != null"
+    v-if="href != null"
     data-slot="email-field"
     :class="linkClass"
-    :href="`mailto:${email}`"
+    :href="href"
     @click.stop
     >{{ email }}</a
   >

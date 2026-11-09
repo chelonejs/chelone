@@ -1,4 +1,8 @@
-import type { LooseRecord, ResourceRecord } from "@chelone/core";
+import {
+  emailFieldHref,
+  type LooseRecord,
+  type ResourceRecord,
+} from "@chelone/core";
 import type React from "react";
 import type { AnchorHTMLAttributes } from "react";
 import type { ElementFieldProps } from "@/lib/field-types";
@@ -19,7 +23,8 @@ function EmailFieldImpl<RecordType extends ResourceRecord = LooseRecord>(
   });
   const translate = useTranslate();
 
-  if (value == null) {
+  const href = emailFieldHref(value);
+  if (href === null) {
     if (!empty) {
       return null;
     }
@@ -34,7 +39,7 @@ function EmailFieldImpl<RecordType extends ResourceRecord = LooseRecord>(
   return (
     <a
       className={cn("underline hover:no-underline", className)}
-      href={`mailto:${value}`}
+      href={href}
       onClick={stopPropagation}
       {...sanitizeFieldRestProps(rest)}
     >

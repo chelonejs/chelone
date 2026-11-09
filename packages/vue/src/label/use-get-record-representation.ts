@@ -7,7 +7,8 @@
  * applies:
  * - a function → call it with the record;
  * - a string → the value at that (deep) source path off the record;
- * - otherwise the default chain `name → title → label → reference → #${id}`.
+ * - otherwise core's `defaultRecordRepresentation`: the default chain
+ *   `name → title → label → reference → #${id}`.
  * A nullish record → `""`.
  *
  * The resource comes from the argument or the ambient `<Resource>` name. The
@@ -16,15 +17,15 @@
  * core's `getAtPath`, the same reader `useFieldValue` uses.
  */
 
-import { getAtPath, type ResourceRecord } from "@chelone/core";
+import {
+  defaultRecordRepresentation,
+  getAtPath,
+  type ResourceRecord,
+} from "@chelone/core";
 import { inject } from "vue";
 import { ResourceRegistryKey } from "../admin/resource-registry";
 import type { RecordRepresentation } from "../index";
 import { useResourceContext } from "../resource-context";
-
-function isPresent(value: unknown): value is string | number {
-  return value != null && value !== "";
-}
 
 /**
  * Whether the representation is a function to call with the record. A Vue
@@ -62,10 +63,6 @@ export function useGetRecordRepresentation(
     if (typeof recordRepresentation === "string") {
       return String(getAtPath(record, recordRepresentation) ?? "");
     }
-    for (const key of ["name", "title", "label", "reference"]) {
-      const value = getAtPath(record, key);
-      if (isPresent(value)) return String(value);
-    }
-    return `#${String(getAtPath(record, "id"))}`;
+    return String(defaultRecordRepresentation(record));
   };
 }
