@@ -3,7 +3,7 @@
 > A framework-agnostic, type-safe, SSR/RSC-capable **headless admin engine**, distributed
 > shadcn-style (own-your-source registry) with thin per-framework adapters.
 
-**Status:** Draft for review · **Date:** 2026-06-23 (amended 2026-10-31, see §12) · **Supersedes:** the in-place shadmin
+**Status:** Draft for review · **Date:** 2026-06-23 (amended 2026-11-08, see §12) · **Supersedes:** the in-place shadmin
 modernization RFC (abandoned in favor of greenfield — see §1).
 
 ---
@@ -59,7 +59,7 @@ framework-agnostic engine it inspired).
 - **No Vue/Svelte adapters in v1.** The architecture *permits* them (boundary lint-enforced);
   we don't *build* them until demanded. (Amended: `@chelone/vue` is built, see §12.)
 - **Not RSC-first end-to-end.** Admin is inherently interactive; RSC wins the read path, not
-  the whole app.
+  the whole app. (Amended: RSC scope, see §12.)
 - **No ra-enterprise gap-fill in v1.** (AccordionForm, LongForm, MultiLevelMenu,
   ReferenceManyInput, DualListInput, RBAC enforcement — deferred to post-parity.) (Amended: realtime and record locks are built, see §12.)
 - **Not a backend or ORM.** The core depends on **Zod only**; Drizzle/Prisma are reference
@@ -252,7 +252,7 @@ shadmin and react-admin repos plus web research. See the brainstorming session t
 
 ---
 
-## 12. Amendments (2026-10-31)
+## 12. Amendments (2026-11-08)
 
 The decision record (§4) is amended, not rewritten, so its history stays readable. Where a
 section above is out of date, it carries a pointer here.
@@ -274,3 +274,10 @@ section above is out of date, it carries a pointer here.
   `@chelone/core`, framework-free, and `@chelone/react` and `@chelone/vue` both expose live
   hooks, live views and `LockOnMount`/`LockStatus`. Audit-log, ra-tree and calendar stay
   deferred. Guide: `apps/website/src/docs/content/app-config/realtime.mdx`.
+- **RSC covers the read path only (2026-11-08).** `<ServerShow>` and `<ServerList>` in
+  `@chelone/react/rsc` render as server components on TanStack Start. `<ServerList>` sorts,
+  pages and filters through the URL. A row mutation refreshes it with `router.invalidate()`.
+  Undoable and optimistic lists, inline edit, polling and every form stay client-rendered.
+  Undo, optimistic updates and mutation side effects all run through the react-query cache.
+  Server-rendered output never enters that cache, so a server list can only refresh after the
+  server answers.
