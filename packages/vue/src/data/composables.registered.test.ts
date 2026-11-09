@@ -13,7 +13,7 @@
  * couple of schemas would narrow every `source` prop in them besides.
  */
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -44,6 +44,26 @@ declare module "@chelone/core" {
 }
 `;
 
+/**
+ * The same resources with no schema. Registering schemas would also narrow
+ * every `source` prop, which is the `source` side's looseness and not this
+ * test's: here only the resource names are registered.
+ */
+const namesOnlyAugmentation = `import { defineResources } from "@chelone/core";
+
+export const resources = defineResources({
+  posts: {},
+  comments: {},
+  authors: {},
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+`;
+
 const probeCompilerOptions: ts.CompilerOptions = {
   target: ts.ScriptTarget.ES2022,
   module: ts.ModuleKind.ESNext,
@@ -57,13 +77,32 @@ const probeCompilerOptions: ts.CompilerOptions = {
   types: [],
 };
 
-const diagnosticsOf = (fileNames: string[]) => {
-  const program = ts.createProgram(fileNames, probeCompilerOptions);
+const diagnosticsOf = (
+  fileNames: string[],
+  options: ts.CompilerOptions = probeCompilerOptions,
+) => {
+  const program = ts.createProgram(fileNames, options);
   return ts
     .getPreEmitDiagnostics(program)
     .map((diagnostic) =>
       ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
     );
+};
+
+/** Each diagnostic as `file:line TScode message`, so two runs can be compared. */
+const locatedOf = (fileNames: string[], options: ts.CompilerOptions) => {
+  const program = ts.createProgram(fileNames, options);
+  return ts.getPreEmitDiagnostics(program).map((diagnostic) => {
+    const file = diagnostic.file
+      ? relative(packageRoot, diagnostic.file.fileName)
+      : "<none>";
+    const line =
+      diagnostic.file && diagnostic.start !== undefined
+        ? diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start).line +
+          1
+        : 0;
+    return `${file}:${line} TS${diagnostic.code} ${ts.flattenDiagnosticMessageText(diagnostic.messageText, " ")}`;
+  });
 };
 
 describe("the data composables in a registered app", () => {
@@ -165,4 +204,59 @@ export const liveList = useGetListLive("psots");
     expect(diagnostics).toHaveLength(3);
     expect(diagnostics.join("\n")).toContain("psots");
   }, 120_000);
+
+  it("every Vue source module compiles in a registered app", async () => {
+    const register = await write("register-sources.ts", namesOnlyAugmentation);
+    // A probe that only passes while the augmentation is live: an inert
+    // `Register` would leave the `@ts-expect-error` unused, and TS2578 would
+    // land in the diff below.
+    const probe = await write(
+      "probe-sources.ts",
+      `import { useGetList } from "${queries}";
+import "./register-sources";
+
+// @ts-expect-error psots is not a registered resource name
+export const bad = useGetList("psots");
+`,
+    );
+    const read = ts.readConfigFile(
+      join(packageRoot, "tsconfig.json"),
+      ts.sys.readFile,
+    );
+    expect(read.error).toBeUndefined();
+    const parsed = ts.parseJsonConfigFileContent(
+      read.config,
+      ts.sys,
+      packageRoot,
+    );
+    // The probe sits outside `src`, and the program emits nothing.
+    const options: ts.CompilerOptions = {
+      ...parsed.options,
+      rootDir: packageRoot,
+      noEmit: true,
+      declaration: false,
+    };
+    // Plain `tsc` cannot read a `.vue` file, so this pin covers the `.ts`
+    // modules; `vue-tsc` reads the components, and `apps/vue-demo` reads them
+    // under that app's own `Register` augmentation. Test files and their
+    // fixtures mount fake resources on purpose, so they name things no
+    // registered app would.
+    const sources = parsed.fileNames.filter(
+      (file) =>
+        file.endsWith(".ts") &&
+        !file.endsWith(".d.ts") &&
+        !/\.test(-d)?\.ts$/.test(file) &&
+        !/\/__fixtures__\//.test(file),
+    );
+    expect(sources.length).toBeGreaterThan(100);
+
+    // The `.ts` set carries noise plain `tsc` cannot clear: a `.vue` import it
+    // cannot read, and the tiptap chain methods a component file brings in.
+    // The pin is that the augmentation adds nothing to it.
+    const bare = new Set(locatedOf(sources, options));
+    const added = locatedOf([register, probe, ...sources], options).filter(
+      (diagnostic) => !bare.has(diagnostic),
+    );
+    expect(added).toEqual([]);
+  }, 300_000);
 });
