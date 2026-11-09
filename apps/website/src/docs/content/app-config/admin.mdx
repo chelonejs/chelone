@@ -308,6 +308,39 @@ The adapters live on their own entry so `@chelone/react` loads without
 `@tanstack/react-router`, an optional peer. Install that peer only when you use
 either adapter.
 
+### Revalidating a server-rendered route
+
+A client component under a server-rendered route calls `useRevalidate()` after a
+write, so the router fetches that route's data again. The adapter decides how:
+
+- Both TanStack adapters call `router.invalidate()`, which re-runs the matched
+  routes' loaders.
+- An adapter with no `useRevalidate`, such as the react-router default, gets a
+  `replace` navigation to the current path, search, hash and state. State
+  outside the route survives, since the page does not reload.
+
+```tsx title="src/posts/publish-button.tsx"
+import { useRevalidate, useUpdate } from "@chelone/react";
+
+export function PublishButton({ id }: { id: number }) {
+  const update = useUpdate("posts");
+  const revalidate = useRevalidate();
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        update.mutate({ id, data: { published: true } }, { onSuccess: revalidate })
+      }
+    >
+      Publish
+    </button>
+  );
+}
+```
+
+An app's own adapter adds the optional `useRevalidate(): () => void` member to
+plug in its router's refresh, such as Next.js's `router.refresh()`.
+
 ## Props
 
 <PropsTable name="Admin" />
