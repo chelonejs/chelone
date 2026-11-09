@@ -58,20 +58,9 @@ export function makeI18n() {
 An `<Admin i18n={…}>` holds a catalog-erased i18n, so on its own `useTranslate()`
 takes any string. Tell core which catalog the app translates against and the
 hook types its keys and params instead, the way registering resources types
-`source` props:
-
-```ts title="src/resources.ts"
-import { defineResources, englishMessages } from "@chelone/core";
-
-export const resources = defineResources({ posts: { schema: postSchema } });
-
-declare module "@chelone/core" {
-  interface Register {
-    resources: typeof resources
-    messages: typeof englishMessages
-  }
-}
-```
+`source` props. Put `messages: typeof englishMessages` on `Register` beside your
+resources, as [Registering your app](/docs/type-safety/registering-your-app)
+shows.
 
 The augmentation is global to your TypeScript program, so `useTranslate()` reads
 it in every file. What it gives you:
@@ -98,17 +87,9 @@ as the key or its `_` default at runtime.
 ## Literal text for a key
 
 `translate` returns `string`. An app that needs the exact text in a type, for a
-lookup table or a discriminated check, can ask for the text instead:
-
-```ts title="src/resources.ts"
-declare module "@chelone/core" {
-  interface Register {
-    resources: typeof resources
-    messages: typeof en | typeof fr
-    literalMessages: true
-  }
-}
-```
+lookup table or a discriminated check, can ask for the text instead. Put `literalMessages: true` on `Register` beside
+`messages`, as [Registering your app](/docs/type-safety/registering-your-app)
+shows.
 
 With the flag on, a key the catalog holds returns the union of its text across
 the registered locale catalogs:

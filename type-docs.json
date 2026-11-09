@@ -1,6 +1,9 @@
 {
   "registering-your-app": [
     "@chelone/core:Register",
+    "@chelone/core:RegisteredRecord",
+    "@chelone/core:RegisteredResourceName",
+    "@chelone/core:RegisteredResources",
     "@chelone/react:Admin"
   ],
   "resource-registry-and-codegen": [

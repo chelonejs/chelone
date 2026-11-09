@@ -1,8 +1,199 @@
 ---
-title: "Registering Your App"
-description: "defineResources, the Register augmentation, and handing the map to the Admin."
+title: "Registering your app"
+description: "One declare module block tells Chelone your resources, permissions and message catalog. Every typed source, hook and component reads it."
 ---
 
-This page will cover the one file that does the registering: `defineResources`,
-the `declare module "@chelone/core"` augmentation of `Register`, and passing the
-map to `<Admin resources={…}>` in React and `<Admin :registry="…">` in Vue.
+Chelone cannot know your app's resources, permissions or messages on its own.
+`Register`, in `packages/core/src/resource/register.ts`, is the one place you
+say. It is an empty interface that your app augments, and every `Registered*`
+type reads what you put on it.
+
+Registering is optional. Without it each of those types falls back to a loose
+shape and nothing breaks. With it, a misspelt resource name or `source` stops
+compiling.
+
+## The registration
+
+One file defines the resources and augments `Register`:
+
+```ts twoslash title="src/registry.ts"
+import { defineResources, englishMessages } from "@chelone/core";
+import { z } from "zod";
+
+export const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), post_id: z.number() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+    permissions: string[];
+    messages: typeof englishMessages;
+  }
+}
+```
+
+Hand `resources` to `<Admin resources={resources}>` in React and to
+`<Admin :registry="resources">` in Vue. The augmentation is what the compiler
+reads, and the map is what the app runs.
+
+Once registered, the names are a union:
+
+```ts twoslash
+import { defineResources, type RegisteredResourceName } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), post_id: z.number() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+type Name = RegisteredResourceName;
+//   ^?
+```
+
+A record type is inferred from the resource's schema:
+
+```ts twoslash
+import { defineResources, type RegisteredRecord } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+type Post = RegisteredRecord<"posts">;
+//   ^?
+```
+
+A name the registry lacks is an error:
+
+```ts twoslash
+import { defineResources, type RegisteredRecord } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), post_id: z.number() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// @errors: 2344
+type Missing = RegisteredRecord<"commnets">;
+```
+
+## What each key types
+
+| Key               | Read by                                                        | Types                                                                                       |
+| ----------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `resources`       | `RegisteredResources`, `RegisteredResourceName`, `RegisteredRecord` | `<Resource name>`, every `source`, and `createResourceComponents`                      |
+| `permissions`     | `RegisteredPermissions`                                        | `AuthProvider`, `usePermissions` and the `<Admin>` function child in React; `usePermissions` in Vue |
+| `messages`        | `RegisteredMessages`                                           | `useTranslate`: its keys and their `{placeholders}`                                         |
+| `literalMessages` | `RegisteredLiteralMessages` and `HasLiteralMessages`           | `translate`, which returns a key's text instead of `string` when the value is `true`        |
+
+`literalMessages: true` sits beside `messages` on `Register`. It is off by
+default, because a union of literal text is not a `string` you can reassign.
+
+## Where it goes
+
+Put the block in one file the TypeScript program includes. The file needs a
+top-level `import` or `export`: without one it is a script, and `declare module`
+replaces the module instead of augmenting it.
+
+The augmentation is global to the program. Every file reads it, and a second
+`interface Register` in another file merges with the first, so register each key
+once.
+
+## Without it
+
+A key you leave off keeps its fallback:
+
+| Key               | Falls back to                                                      |
+| ----------------- | ------------------------------------------------------------------ |
+| `resources`       | `ResourceMap`, so a resource name is a `string` and a record is `LooseRecord` |
+| `permissions`     | `unknown`                                                          |
+| `messages`        | `MessageCatalog`, so any key is accepted                           |
+| `literalMessages` | off, so `translate` returns `string`                               |
+
+See [When types widen](/docs/type-safety/when-types-widen) for the cases where a
+registered app still falls back, such as a resource with no schema.
+
+## Slots an adapter fills
+
+`ResourceSlots`, in `packages/core/src/resource/registry-store.ts`, is a second
+augmentation point. Core does not know what a menu icon or a view is, because
+that depends on the framework. Each adapter augments `ResourceSlots` with an
+`icon`, a `representation` and a `component`, so an app writes none of them.
+They resolve `ResourceIcon`, `ResourceRepresentation` and `ResourceComponent`
+per adapter.
+
+React declares:
+
+```ts title="packages/react/src/index.ts"
+declare module "@chelone/core" {
+  interface ResourceSlots {
+    icon: ComponentType;
+    representation: RecordRepresentation;
+    component: ResourceViewChild;
+  }
+}
+```
+
+Vue declares:
+
+```ts title="packages/vue/src/index.ts"
+declare module "@chelone/core" {
+  interface ResourceSlots {
+    icon: Component;
+    representation: RecordRepresentation;
+    component: Component;
+  }
+}
+```
+
+Import an adapter and the slot resolves to its type:
+
+```ts twoslash
+import "@chelone/react";
+import type { ResourceIcon } from "@chelone/core";
+
+type Icon = ResourceIcon;
+//   ^?
+```
+
+A program that imports both adapters sees both augmentations. They declare the
+same properties with different types, so TypeScript keeps one declaration per
+property. Keep one adapter in a program. With neither, each of the three types
+is `unknown`.
+
+## Pages that use the registration
+
+- [Resource registry and codegen](/docs/type-safety/resource-registry-and-codegen)
+  for the registry as a runtime value and `chelone-supabase gen`.
+- [Typed components](/docs/type-safety/typed-components) for
+  `createResourceComponents`.
+- [Typed hooks](/docs/type-safety/typed-hooks) for the hooks that read the
+  registry.
+- [Translations and permissions](/docs/type-safety/translations-and-permissions)
+  for `messages`, `literalMessages` and `permissions` in use.
+- [Translation](/docs/app-config/translation) and
+  [Security](/docs/app-config/security) for the runtime side of the same keys.
+- [Supabase](/docs/app-config/supabase) for the file the bin writes.

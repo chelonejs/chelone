@@ -134,19 +134,14 @@ const { data: identity } = useGetIdentity(); // identity?.fullName
 ## Permissions
 
 Implement `getPermissions` to expose your application's permission data. Its
-shape is up to your provider: name it once on `Register`, and `getPermissions`,
+shape is up to your provider: [name it once on
+`Register`](/docs/type-safety/registering-your-app), and `getPermissions`,
 `usePermissions` and the `<Admin>` function child all use it. Without it,
 permissions are `unknown`. `usePermissions` returns them as `permissions`,
 alongside `isPending`, `error`, and `refetch`:
 
 ```tsx
 import { usePermissions } from "@chelone/react";
-
-declare module "@chelone/core" {
-  interface Register {
-    permissions: string[];
-  }
-}
 
 const { permissions, isPending } = usePermissions();
 const isAdmin = !isPending && permissions?.includes("admin");
