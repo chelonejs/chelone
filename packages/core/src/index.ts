@@ -889,6 +889,7 @@ export { arMessages } from "./i18n/locales/ar";
 export { deMessages } from "./i18n/locales/de";
 export { esMessages } from "./i18n/locales/es";
 export { hiMessages } from "./i18n/locales/hi";
+export { jaMessages } from "./i18n/locales/ja";
 export { zhMessages } from "./i18n/locales/zh";
 export type {
   ExtractParams,
