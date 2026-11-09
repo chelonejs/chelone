@@ -67,16 +67,83 @@ type ParamsObject<T extends string> = [ExtractParams<T>] extends [never]
   ? undefined
   : { [K in ExtractParams<T>]: string | number };
 
+/** The two names a plural call may put its count under: core's `count`, polyglot/ra's `smart_count`. */
+type PluralCountName = "count" | "smart_count";
+
+/** A plural entry's own placeholders; the count itself comes from the count arms. */
+type OtherPlaceholders<TOther extends string> = {
+  [K in Exclude<ExtractParams<TOther>, PluralCountName>]: string | number;
+};
+
 /**
  * Required params for a message value: placeholder names for plain strings;
- * plural messages additionally require `count` (drives Intl.PluralRules).
+ * plural messages require a number under `count` or under `smart_count`
+ * (either drives Intl.PluralRules), plus the `other` branch's placeholders.
  */
 export type TranslateParams<TValue extends MessageValue> = TValue extends string
   ? ParamsObject<TValue>
   : TValue extends PluralMessage
-    ? [ExtractParams<TValue["other"]>] extends [never]
-      ? { count: number }
-      : { [K in ExtractParams<TValue["other"]>]: string | number } & {
-          count: number;
-        }
+    ? OtherPlaceholders<TValue["other"]> &
+        ({ count: number } | { smart_count: number })
     : never;
+
+/** A locale's value for a base entry: the same kind, whatever the text. */
+type LocaleValue<TValue extends MessageValue> = TValue extends string
+  ? string
+  : TValue extends PluralMessage
+    ? PluralMessage
+    : never;
+
+/**
+ * A catalog that matches `TBase` key for key: every base key present, no key
+ * outside it, and each value the same kind — a string where English has a
+ * plural (or the reverse) fails.
+ */
+export type LocaleMessages<TBase extends MessageCatalog> = {
+  [K in MessageKey<TBase>]: LocaleValue<TBase[K]>;
+};
+
+/** The placeholders a message value interpolates: a string's own, a plural's `other`. */
+type ValuePlaceholders<TValue> = TValue extends string
+  ? ExtractParams<TValue>
+  : TValue extends { other: string }
+    ? ExtractParams<TValue["other"]>
+    : never;
+
+/** The keys whose locale text drops a placeholder the base entry has. */
+type PlaceholderGaps<TBase extends MessageCatalog, T extends MessageCatalog> = {
+  [K in MessageKey<TBase>]: ValuePlaceholders<
+    TBase[K]
+  > extends ValuePlaceholders<T[K & keyof T]>
+    ? never
+    : K;
+}[MessageKey<TBase>];
+
+/**
+ * Identity helper that checks a locale catalog against a base catalog — usually
+ * `englishMessages` — and keeps the catalog's own literal type, so
+ * `defineLocale<typeof en>()(fr)` is `typeof fr` and not a widened map.
+ *
+ * It checks types only: a missing key, an extra key, a string where English has
+ * a plural (or the reverse), and a string or plural `other` that drops a
+ * placeholder English has all fail typecheck. Placeholders may come in any
+ * order, and a plural may leave out a category English fills.
+ *
+ * ```ts
+ * const fr = defineLocale<typeof englishMessages>()({
+ *   "chelone.page.create": "Créer {name}",
+ *   // …every other English key
+ * });
+ * ```
+ */
+export function defineLocale<TBase extends MessageCatalog>() {
+  return <
+    const T extends LocaleMessages<TBase> &
+      Record<
+        Exclude<keyof T, MessageKey<TBase>> | PlaceholderGaps<TBase, T>,
+        never
+      >,
+  >(
+    catalog: T,
+  ): T => catalog;
+}
