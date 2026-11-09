@@ -28,25 +28,34 @@ describe("mergeFilterValues", () => {
 });
 
 describe("getFilterFormValues", () => {
-  it("checks filter keys while keeping the form-values map open", () => {
+  it("takes and returns a FilterPayload of the record", () => {
     const values = getFilterFormValues<Post>(
-      { title_gte: "", formOnly: undefined },
+      { title_gte: "", q: undefined },
       { title_gte: "A", q: "x" },
     );
-    expectTypeOf(values.formOnly).toBeUnknown();
+    expectTypeOf(values).toEqualTypeOf<FilterPayload<Post>>();
+    // @ts-expect-error titel_gte is not a Post filter key
+    getFilterFormValues<Post>({ titel_gte: "" }, {});
     // @ts-expect-error titel_gte is not a Post filter key
     getFilterFormValues<Post>({}, { titel_gte: "A" });
+  });
+
+  it("keeps bare form values on the default payload", () => {
+    const values = getFilterFormValues({ custom: "" }, { status: "draft" });
+    expectTypeOf(values).toEqualTypeOf<FilterPayload>();
   });
 });
 
 describe("filterFormReflectShape", () => {
-  it("checks filter keys while keeping form values and field metadata open", () => {
+  it("takes and returns a FilterPayload of the record, with open field metadata", () => {
     const shape = filterFormReflectShape<Post>(
-      { formOnly: "" },
+      { title_gte: "" },
       { "formOnly.nested": {} },
       { title_gte: "A", q: "x" },
     );
-    expectTypeOf(shape.formOnly).toBeUnknown();
+    expectTypeOf(shape).toEqualTypeOf<FilterPayload<Post>>();
+    // @ts-expect-error titel_gte is not a Post filter key
+    filterFormReflectShape<Post>({ titel_gte: "" }, {}, {});
     // @ts-expect-error titel_gte is not a Post filter key
     filterFormReflectShape<Post>({}, {}, { titel_gte: "A" });
   });
