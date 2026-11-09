@@ -82,7 +82,7 @@ type Rules<TRecord extends ResourceRecord> = Pick<
   "retryFrom" | "cancelFrom" | "retryValue" | "cancelValue"
 >;
 
-// type-escape: getAtPath reads a record by a runtime path and returns unknown
+// type-escape: server: getAtPath reads a record by a runtime path and returns unknown
 const text = (value: unknown) =>
   value == null || value === "" ? undefined : String(value);
 

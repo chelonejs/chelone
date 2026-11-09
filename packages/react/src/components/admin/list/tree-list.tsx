@@ -269,7 +269,7 @@ function TreeList<TRecord extends ResourceRecord = LooseRecord>({
   // string off any record.
   const roots = useMemo(
     () =>
-      // type-escape: `parentSource` is the loose `SourceProp` a list source is.
+      // type-escape: context: `parentSource` is the loose `SourceProp` a list source is, not tied to `TRecord`
       buildRecordTree<TRecord>(data ?? [], parentSource as SourcePath<TRecord>),
     [data, parentSource],
   );

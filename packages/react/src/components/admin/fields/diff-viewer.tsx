@@ -137,7 +137,7 @@ function DiffViewer<TRecord extends ResourceRecord = LooseRecord>({
   );
 }
 
-// type-escape: a diffed value is whatever the record held at the source path
+// type-escape: server: a diffed value is whatever the record held at the source path
 type RenderDiffValue = (source: string, value: unknown) => ReactNode;
 
 function inlineValues<TRecord extends ResourceRecord>(
@@ -172,7 +172,7 @@ interface DiffViewerProps<TRecord extends ResourceRecord = LooseRecord> {
   /** A label per source, replacing the translated field label. */
   labels?: Partial<Record<string, ReactNode>>;
   /** A renderer per source, replacing the default value text. */
-  // type-escape: a formatter receives whatever the record held at the source
+  // type-escape: server: a formatter receives whatever the record held at the source
   formatters?: Partial<Record<string, (value: unknown) => ReactNode>>;
   /** Table (`side-by-side`, the default) or list (`inline`). */
   mode?: DiffViewerMode;
