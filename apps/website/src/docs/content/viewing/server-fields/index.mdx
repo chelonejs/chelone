@@ -1,0 +1,80 @@
+---
+title: "Server fields"
+description: "Text, number and date fields that render in a React Server Component, from a record passed as a prop."
+registry: "server-scalar-fields"
+---
+
+A server field prints a record value the way its client twin does, with no
+hook and no context, so it renders in a React Server Component. It ships in
+the `@chelone/react/rsc` entry:
+
+- `<ServerTextField>` prints what [TextField](/docs/viewing/text-field) prints.
+- `<ServerNumberField>` prints what [NumberField](/docs/viewing/number-field) prints.
+- `<ServerDateField>` prints what [DateField](/docs/viewing/date-field) prints.
+
+Each renders the same `<span>` as its twin, and nothing when the value is
+empty and `empty` is unset.
+
+## When to use one
+
+Use a server field for a read-only page the server renders from data it
+already holds, so the page ships no field code to the browser. Use the client
+field inside `<Show>`, `<List>` or a `<DataTable>`, where the record comes from
+context.
+
+What a server field cannot do:
+
+- It reads no record context, so `record` is required.
+- It reads no i18n context. Pass `i18n` to translate `empty`; without it,
+  `empty` prints as is.
+- It takes no function prop, so there is no `transform`. Shape the value
+  before you pass the record.
+
+## With TanStack Start
+
+A server function reads the record and returns the rendered fields, and the
+route renders what its loader got:
+
+```tsx
+import {
+  ServerDateField,
+  ServerNumberField,
+  ServerTextField,
+} from "@chelone/react/rsc";
+import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { renderServerComponent } from "@tanstack/react-start/rsc";
+
+const getPostFields = createServerFn().handler(async () => {
+  const { data: post } = await dataProvider.getOne("posts", { id: 1 });
+  return renderServerComponent(
+    <>
+      <ServerTextField record={post} source="title" />
+      <ServerNumberField record={post} source="views" />
+      <ServerDateField record={post} source="published_at" showTime />
+    </>,
+  );
+});
+
+export const Route = createFileRoute("/posts/1")({
+  loader: () => getPostFields(),
+  component: () => Route.useLoaderData(),
+});
+```
+
+`source` is checked against the record's type, so a misspelled path is a type
+error, as on the client fields.
+
+## Props
+
+### ServerTextField
+
+<PropsTable name="ServerTextField" />
+
+### ServerNumberField
+
+<PropsTable name="ServerNumberField" />
+
+### ServerDateField
+
+<PropsTable name="ServerDateField" />

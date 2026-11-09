@@ -23,6 +23,7 @@ export default [
       "url-field",
       "rating-field",
       "count",
+      "server-fields",
     ],
   },
   {

@@ -8255,6 +8255,10 @@
         {
           "path": "src/components/rsc/read-field-value.ts",
           "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-scalar-fields.tsx",
+          "type": "registry:component"
         }
       ],
       "author": "Chelone <https://chelone.dev>"
@@ -8269,6 +8273,21 @@
           "type": "registry:component"
         }
       ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-scalar-fields",
+      "type": "registry:component",
+      "title": "Server Scalar Fields",
+      "files": [
+        {
+          "path": "src/components/rsc/server-scalar-fields.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/read-field-value"],
       "dependencies": ["@chelone/core"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
