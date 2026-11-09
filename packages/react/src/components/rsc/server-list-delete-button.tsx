@@ -9,6 +9,7 @@ interface ServerListDeleteButtonProps {
   /** The id of the row's record, passed to `onDelete`. */
   id: Identifier;
   /** The app's server function. The list is revalidated once it resolves. */
+  // type-escape: the result of a server function, which the button ignores
   onDelete: (id: Identifier) => Promise<unknown>;
   /** Button text. Defaults to the English `chelone.action.*` messages. */
   labels?: { delete?: string; confirm?: string; cancel?: string };

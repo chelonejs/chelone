@@ -1,0 +1,23 @@
+{
+  "name": "ServerListDeleteButton",
+  "props": [
+    {
+      "name": "id",
+      "type": "Identifier",
+      "optional": false,
+      "comment": "The id of the row's record, passed to `onDelete`."
+    },
+    {
+      "name": "labels",
+      "type": "{ cancel?: string; confirm?: string; delete?: string }",
+      "optional": true,
+      "comment": "Button text. Defaults to the English `chelone.action.*` messages."
+    },
+    {
+      "name": "onDelete",
+      "type": "(id: Identifier) => Promise<unknown>",
+      "optional": false,
+      "comment": "The app's server function. The list is revalidated once it resolves."
+    }
+  ]
+}

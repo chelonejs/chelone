@@ -4,11 +4,12 @@ import {
   englishMessages,
   type GetListParams,
   type Identifier,
+  type LooseFilterPayload,
   type LooseRecord,
   type RecordFilterKey,
   type ResourceRecord,
 } from "@chelone/core";
-import { type FormEvent, useCallback } from "react";
+import { type FormEvent, useCallback, useId } from "react";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "../../router/nav-hooks";
 import { Button } from "../ui/button";
@@ -37,11 +38,14 @@ interface ServerListFiltersProps<
   className?: string;
 }
 
-/** The value `filter` holds at a flat filter key. */
-function valueAt(filter: GetListParams["filter"], key: string): unknown {
-  return filter
+/** The text an input shows for the value `filter` holds at a flat filter key. */
+function textAt(filter: GetListParams["filter"], key: string): string {
+  const value = filter
     ? Object.entries(filter).find(([k]) => k === key)?.[1]
     : undefined;
+  return typeof value === "string" || typeof value === "number"
+    ? String(value)
+    : "";
 }
 
 /**
@@ -68,13 +72,14 @@ function ServerListFilters<RecordType extends ResourceRecord = LooseRecord>({
   className,
 }: ServerListFiltersProps<RecordType>) {
   const navigate = useNavigate();
+  const id = useId();
   const { perPage, state } = readUrlState(params);
 
   const onSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
       const data = new FormData(event.currentTarget);
-      const next: Record<string, unknown> = { ...params.filter };
+      const next: LooseFilterPayload = { ...params.filter };
       for (const { source, choices } of filters) {
         const raw = data.get(source);
         const text = typeof raw === "string" ? raw : "";
@@ -95,13 +100,16 @@ function ServerListFilters<RecordType extends ResourceRecord = LooseRecord>({
       className={cn("flex flex-wrap items-end gap-2", className)}
     >
       {filters.map(({ source, label, choices }) => {
-        const value = valueAt(params.filter, source);
-        const defaultValue = value == null ? "" : String(value);
+        const defaultValue = textAt(params.filter, source);
         return (
-          <label key={source} className="flex flex-col gap-1 text-sm">
-            {label}
+          <div key={source} className="flex flex-col gap-1 text-sm">
+            <label htmlFor={`${id}${source}`}>{label}</label>
             {choices ? (
-              <NativeSelect name={source} defaultValue={defaultValue}>
+              <NativeSelect
+                id={`${id}${source}`}
+                name={source}
+                defaultValue={defaultValue}
+              >
                 <NativeSelectOption value="" />
                 {choices.map((choice) => (
                   <NativeSelectOption key={choice.id} value={String(choice.id)}>
@@ -110,9 +118,13 @@ function ServerListFilters<RecordType extends ResourceRecord = LooseRecord>({
                 ))}
               </NativeSelect>
             ) : (
-              <Input name={source} defaultValue={defaultValue} />
+              <Input
+                id={`${id}${source}`}
+                name={source}
+                defaultValue={defaultValue}
+              />
             )}
-          </label>
+          </div>
         );
       })}
       <Button type="submit">{englishMessages["chelone.action.search"]}</Button>
@@ -121,7 +133,7 @@ function ServerListFilters<RecordType extends ResourceRecord = LooseRecord>({
 }
 
 export {
-  ServerListFilters,
   type ServerListFilter,
+  ServerListFilters,
   type ServerListFiltersProps,
 };
