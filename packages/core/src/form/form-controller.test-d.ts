@@ -51,6 +51,28 @@ it("accepts a zod resource schema as the StandardSchemaV1 slot", () => {
   expectTypeOf(options.schema).not.toBeAny();
 });
 
+it("takes a schema whose input differs from its output", () => {
+  const schema = z.object({
+    title: z.string(),
+    views: z.string().transform(Number),
+  });
+  const options: FormControllerOptions<PostDraft> = {
+    schema,
+    save: async () => undefined,
+  };
+  expectTypeOf(options.schema).not.toBeAny();
+});
+
+it("refuses a schema whose output is another record", () => {
+  const commentSchema = z.object({ body: z.number() });
+  const options: FormControllerOptions<PostDraft> = {
+    // @ts-expect-error -- a Comment schema does not validate a PostDraft
+    schema: commentSchema,
+    save: async () => undefined,
+  };
+  expectTypeOf(options).not.toBeAny();
+});
+
 it("form.setFieldValue is typed by the record's DeepKeys", () => {
   const controller: FormController<PostDraft> = createFormController({
     save: async (data) => {
