@@ -34,6 +34,7 @@
     "./rich-text-input": "./src/rich-text-input.ts",
     "./rich-text-input.css": "./src/components/rich-text-input/rich-text.css",
     "./block-editor": "./src/block-editor.ts",
+    "./rsc": "./src/rsc.ts",
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -98,6 +99,10 @@
       "./block-editor": {
         "types": "./dist/block-editor.d.ts",
         "default": "./dist/block-editor.js"
+      },
+      "./rsc": {
+        "types": "./dist/rsc.d.ts",
+        "default": "./dist/rsc.js"
       },
       "./package.json": "./package.json"
     }

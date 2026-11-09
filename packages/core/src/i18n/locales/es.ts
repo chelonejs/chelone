@@ -39,6 +39,7 @@ export const esMessages = {
     "No tiene autorización para acceder a este recurso",
   "chelone.notification.updated": "Elemento actualizado",
   "chelone.validation.email": "Debe ser un correo electrónico válido",
+  "chelone.validation.invalid": "Valor no válido",
   "chelone.validation.maxLength": "Debe tener {max} caracteres o menos",
   "chelone.validation.maxValue": "Debe ser {max} o menos",
   "chelone.validation.minLength": "Debe tener al menos {min} caracteres",

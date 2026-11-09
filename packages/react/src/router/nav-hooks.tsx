@@ -75,6 +75,33 @@ export function useMatch(pattern: string | UseMatchArgs): PathMatch | null {
   return useRouterAdapter().useMatch(pattern);
 }
 
+/**
+ * A function that asks the router to fetch the current route's server data
+ * again, as a client island needs after a write. The adapter's own when it has
+ * one; else a `replace` navigation to the current location, which keeps state
+ * outside the route that a page reload would drop.
+ *
+ * Rules of Hooks: which branch runs depends only on the injected adapter, a
+ * module constant every routing hook already relies on staying put.
+ */
+export function useRevalidate(): () => void {
+  const adapter = useRouterAdapter();
+  // biome-ignore lint/correctness/useHookAtTopLevel: the branch is fixed by the adapter, which does not change between renders.
+  return adapter.useRevalidate ? adapter.useRevalidate() : useNavigateInPlace();
+}
+
+function useNavigateInPlace(): () => void {
+  const navigate = useNavigate();
+  const { pathname, search, hash, state } = useLocation();
+  return useCallback(() => {
+    const path = `${pathname}${search}${hash}`;
+    navigate(
+      path,
+      state == null ? { replace: true } : { replace: true, state },
+    );
+  }, [navigate, pathname, search, hash, state]);
+}
+
 // Re-export the basename hook so all router hooks import from `./router`.
 export { useBasename } from "./context";
 

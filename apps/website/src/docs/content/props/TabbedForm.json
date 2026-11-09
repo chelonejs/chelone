@@ -17,7 +17,7 @@
       "name": "formOptions",
       "type": "Omit<CheloneFormOptions<TFormData>, \"defaultValues\">",
       "optional": true,
-      "comment": "Escape hatch to the underlying FormApi options (validators, listeners,\n…). `defaultValues` lives top-level on the controller options instead.\nThe controller OWNS submission: `onSubmit` is replaced by the save\npipeline (use `onSuccess`), `onSubmitInvalid` is chained after the\ndefault invalid-form notification, and `validators.onDynamic` is\ncomposed after `schema` + `validate` (first error wins per field)."
+      "comment": "Escape hatch to the underlying FormApi options (validators, listeners,\n…). `defaultValues` lives top-level on the controller options instead.\nThe controller OWNS submission: `onSubmit` is replaced by the save\npipeline (use `onSuccess`), `onSubmitInvalid` is chained after the\ndefault invalid-form notification, and `validators.onDynamic` is\ncomposed after `schema` + `validate` (first error wins per field). Every\nvalidator slot writes messages: whatever a validator returns reaches the\nerror map as a `ValidationErrorMessage`."
     },
     {
       "name": "getRecord",

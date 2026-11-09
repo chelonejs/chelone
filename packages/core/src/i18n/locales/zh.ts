@@ -32,6 +32,7 @@ export const zhMessages = {
   "chelone.notification.not_authorized": "您无权访问此资源",
   "chelone.notification.updated": "元素已更新",
   "chelone.validation.email": "必须是有效的电子邮件地址",
+  "chelone.validation.invalid": "无效的值",
   "chelone.validation.maxLength": "不得超过 {max} 个字符",
   "chelone.validation.maxValue": "不得大于 {max}",
   "chelone.validation.minLength": "至少需要 {min} 个字符",

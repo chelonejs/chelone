@@ -36,6 +36,7 @@ export const hiMessages = {
   "chelone.notification.not_authorized": "आपको इस संसाधन तक पहुँचने की अनुमति नहीं है",
   "chelone.notification.updated": "आइटम अपडेट किया गया",
   "chelone.validation.email": "मान्य ईमेल होना चाहिए",
+  "chelone.validation.invalid": "अमान्य मान",
   "chelone.validation.maxLength": "{max} या उससे कम वर्ण होने चाहिए",
   "chelone.validation.maxValue": "{max} या उससे कम होना चाहिए",
   "chelone.validation.minLength": "कम से कम {min} वर्ण होने चाहिए",

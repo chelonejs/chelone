@@ -5,20 +5,20 @@ import {
   type FormValidateOrFn,
   revalidateLogic,
   type StandardSchemaV1,
-  type ValidationErrorMap,
 } from "@tanstack/form-core";
-import { hasProperty, isThenable } from "../guards";
-import {
-  pickTranslateParamValues,
-  type TranslateParamValues,
-} from "../i18n/messages";
+import { isThenable } from "../guards";
 import type { NotificationStore } from "../notification/notification-store";
-import { ERROR_MAP_PRIORITY } from "./field-error";
+import { firstFieldError } from "./field-error";
+import {
+  type FormErrors,
+  toFormErrorMapValue,
+  type ValidationErrorMessage,
+} from "./form-errors";
 import { createFormHandle, type FormHandle } from "./form-handle";
 import {
   composeFormValidator,
   sanitizeEmptyValues,
-  toFormErrorMapValue,
+  writeFormValidators,
 } from "./save-pipeline";
 
 /** A sync validator slot of the wrapped FormApi: fn, Standard Schema, or absent. */
@@ -77,27 +77,17 @@ export type CheloneFormState<TRecord> = CheloneFormApi<TRecord>["state"];
 export type FieldErrors = Record<string, string | string[]>;
 
 /**
- * A translatable error payload (ra validator contract): an i18n key plus
- * interpolation args. form-core errors are `unknown`, so these flow through
- * form state natively — no string-smuggling.
- */
-export interface TranslatableMessage {
-  message: string;
-  args?: TranslateParamValues;
-}
-
-/**
- * Form-level validate fn (ra contract): receives ALL values, returns a map of
- * field path -> error (plus optional `root` for the form-level message), or
- * nullish when valid. Sync or async. Consumed by the submit pipeline (T2).
+ * Form-level validate fn (ra contract): receives ALL values, returns a
+ * message per record path (plus optional `root` for the form-level message),
+ * or nullish when valid. Sync or async. Consumed by the submit pipeline (T2).
  */
 export type FormLevelValidate<TRecord> = (
   values: TRecord,
 ) =>
-  | Record<string, unknown>
+  | FormErrors<TRecord>
   | null
   | undefined
-  | Promise<Record<string, unknown> | null | undefined>;
+  | Promise<FormErrors<TRecord> | null | undefined>;
 
 export interface FormControllerOptions<TRecord> {
   /**
@@ -146,7 +136,9 @@ export interface FormControllerOptions<TRecord> {
    * The controller OWNS submission: `onSubmit` is replaced by the save
    * pipeline (use `onSuccess`), `onSubmitInvalid` is chained after the
    * default invalid-form notification, and `validators.onDynamic` is
-   * composed after `schema` + `validate` (first error wins per field).
+   * composed after `schema` + `validate` (first error wins per field). Every
+   * validator slot writes messages: whatever a validator returns reaches the
+   * error map as a `ValidationErrorMessage`.
    */
   formOptions?: Omit<CheloneFormOptions<TRecord>, "defaultValues">;
 }
@@ -222,14 +214,10 @@ export function createFormController<TRecord>(
    */
   let serverErrorsApplied = false;
 
-  /** Emits the invalid-form notification, preferring a displayable root message. */
-  const notifyInvalid = (root: unknown): void => {
-    const display = displayableRoot(root);
-    if (display === undefined) {
-      options.notifications?.notify("chelone.message.invalid_form", {
-        type: "error",
-      });
-    } else if (typeof display === "string") {
+  /** Emits the invalid-form notification, preferring the root message. */
+  const notifyInvalid = (root: ValidationErrorMessage | undefined): void => {
+    const display = root ?? "chelone.message.invalid_form";
+    if (typeof display === "string") {
       options.notifications?.notify(display, { type: "error" });
     } else {
       options.notifications?.notify(display.message, {
@@ -295,16 +283,17 @@ export function createFormController<TRecord>(
   ) => {
     // Client-side invalid submit: surface a displayable form-level error
     // from the error map when one exists, else the generic invalid_form key.
-    notifyInvalid(firstFormLevelError(form.store.state.errorMap));
+    notifyInvalid(firstFieldError(form.store.state.errorMap));
     userFormOptions?.onSubmitInvalid?.(props);
   };
 
   const formOptions: CheloneFormOptions<TRecord> = {
     ...userFormOptions,
     defaultValues: options.defaultValues,
-    validators: dynamicValidator
-      ? { ...userFormOptions?.validators, onDynamic: dynamicValidator }
-      : userFormOptions?.validators,
+    validators: writeFormValidators(
+      userFormOptions?.validators,
+      dynamicValidator,
+    ),
     // revalidateLogic routes the onDynamic slots: run on submit, re-run on
     // change once a submission failed. ALWAYS set (not only when the form
     // has its own dynamic validator): FIELD bindings (T3) wire their
@@ -391,62 +380,4 @@ export function createFormController<TRecord>(
       subscriptions.clear();
     },
   };
-}
-
-/**
- * Filters an error down to something a NOTIFICATION can display: strings
- * (and the first entry of arrays) pass, objects with a string `message`
- * normalize to a translatable payload, everything else — schema path-record
- * objects, issue lists addressed at fields — yields `undefined` (those are
- * field concerns, the generic invalid_form key covers the notification).
- */
-function displayableRoot(
-  error: unknown,
-): string | TranslatableMessage | undefined {
-  if (typeof error === "string") return error || undefined;
-  if (Array.isArray(error)) return displayableRoot(error[0]);
-  if (hasProperty(error, "message") && typeof error.message === "string") {
-    return normalizeFormError(error);
-  }
-  return undefined;
-}
-
-/** First displayable form-level error across the error-map keys, submit-first. */
-function firstFormLevelError(
-  errorMap: ValidationErrorMap,
-): string | TranslatableMessage | undefined {
-  for (const key of ERROR_MAP_PRIORITY) {
-    const candidate = displayableRoot(errorMap[key]);
-    if (candidate !== undefined) return candidate;
-  }
-  return undefined;
-}
-
-/**
- * Boundary normalizer for form-core's `unknown`-typed errors: strings pass
- * through, ra translatable payloads (`{message, args}`) are preserved,
- * Standard Schema issues (and anything else with a string `message`,
- * including `Error`s) collapse to their message, arrays surface their first
- * entry (schema validators emit `StandardSchemaV1Issue[]`), nullish/empty
- * input yields `undefined`, and everything else is `String()`-ed.
- */
-export function normalizeFormError(
-  error: unknown,
-): string | TranslatableMessage | undefined {
-  if (error == null) return undefined;
-  if (typeof error === "string") return error;
-  if (Array.isArray(error)) {
-    return error.length > 0 ? normalizeFormError(error[0]) : undefined;
-  }
-  if (typeof error === "object" && "message" in error) {
-    const { message } = error;
-    if (typeof message === "string") {
-      if ("args" in error) {
-        const args = pickTranslateParamValues(error.args);
-        if (args) return { message, args };
-      }
-      return message;
-    }
-  }
-  return String(error);
 }

@@ -46,5 +46,6 @@ export {
   useParams,
   useRedirect,
   useRedirectOptional,
+  useRevalidate,
 } from "./nav-hooks";
 export { reactRouterAdapter } from "./react-router-adapter";

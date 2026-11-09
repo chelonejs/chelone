@@ -543,9 +543,7 @@ describe("createFieldBinding — field-level schema", () => {
     binding.setValue("x");
     await controller.submit();
     expect(save).not.toHaveBeenCalled();
-    expect(errors()).toContainEqual(
-      expect.objectContaining({ message: "too short" }),
-    );
+    expect(errors()).toEqual(["too short"]);
     expect(spy).not.toHaveBeenCalled();
     binding.setValue("long enough");
     expect(errors()).toEqual([]);
@@ -580,9 +578,7 @@ describe("createFieldBinding — field-level schema", () => {
     binding.setValue("x");
     await controller.submit();
     expect(save).not.toHaveBeenCalled();
-    expect(errors()).toContainEqual(
-      expect.objectContaining({ message: "thenable schema rejects" }),
-    );
+    expect(errors()).toEqual(["thenable schema rejects"]);
   });
 });
 
@@ -604,9 +600,7 @@ describe("createFieldBinding — scalar-array fields (#20 pin)", () => {
     expect(binding.getValue()).toBe("x");
     await controller.submit();
     expect(save).not.toHaveBeenCalled();
-    expect(binding.getSnapshot().meta.errors).toContainEqual(
-      expect.objectContaining({ message: "too short" }),
-    );
+    expect(binding.getSnapshot().meta.errors).toEqual(["too short"]);
     binding.setValue("fixed-tag");
     expect(controller.getSnapshot().values.tags).toEqual([
       "long-enough",

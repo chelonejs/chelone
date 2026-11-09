@@ -426,6 +426,10 @@ describe("@chelone/core barrel", () => {
     expect(barrel.getManyAggregateOptions).toBeTypeOf("function");
   });
 
+  it("exports loadServerListPage", () => {
+    expect(barrel.loadServerListPage).toBeTypeOf("function");
+  });
+
   it("exports the identifier guards", () => {
     expect(barrel.isIdentifier).toBeTypeOf("function");
     expect(barrel.isIdentifierArray).toBeTypeOf("function");

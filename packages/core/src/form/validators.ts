@@ -4,20 +4,12 @@ import type {
 } from "@tanstack/form-core";
 import { isThenable } from "../guards";
 import type { TranslateParamValues } from "../i18n/messages";
-import type { TranslatableMessage } from "./form-controller";
+import type { ValidationErrorMessage } from "./form-errors";
 import { type ChoiceValueOf, choiceIdOf } from "./input-values";
 
 /* @link http://stackoverflow.com/questions/46155/validate-email-address-in-javascript */
 const EMAIL_REGEX =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-/**
- * What a validator may return on failure: a plain string (an i18n key or
- * pre-translated text) or a translatable payload with interpolation args.
- * form-core errors are `unknown`, so these flow through form state natively —
- * no ra-style `'@@react-admin@@'+JSON` string smuggling.
- */
-export type ValidationErrorMessage = string | TranslatableMessage;
 
 /** A validator's verdict: nullish means the value passes. */
 export type ValidatorResult = ValidationErrorMessage | null | undefined;
