@@ -31,7 +31,7 @@ import { createMicroStore, type MicroStore } from "../store/micro-store";
  * and an adapter's choice inputs are generic over one. Both adapters re-export
  * this as their own `ChoiceRecord`.
  */
-// type-escape: a choice is any record shape; the caller's `TChoice` names it.
+// type-escape: context: a choice is any record shape; the caller's `TChoice` names it.
 export type ChoiceRecord = Record<string, unknown>;
 
 /**
@@ -83,6 +83,7 @@ export interface ChoicesController<TRecord, TName extends string = string>
   /** Sets the dynamic filter (`removeEmpty` applied). `debounce` delays by `debounceMs`. */
   setFilters(filter: FilterPayload<TRecord>, debounce?: boolean): void;
   /** Feeds the selected-record resolution. Scalar or array; `null`/`[]` clears. */
+  // type-escape: context: the value is whatever a `source` read hands over, which no record type pins.
   setValue(value: unknown): void;
   refetch(): void;
 }
@@ -119,13 +120,14 @@ export interface ChoicesControllerOptions<
   debounceMs?: number;
   /** The FK source field on the referencing side (metadata only). */
   source?: string;
+  // type-escape: server: an app's opaque bag, handed to the provider as it is.
   meta?: unknown;
 }
 
 const DEFAULT_PAGE = 1;
 /** The sort of a controller given none: `id`, which every record has. */
 function defaultSort<TRecord>(): SortPayload<TRecord> {
-  // type-escape: every record has an `id`, but `SourcePath<TRecord>` stays deferred while `TRecord` is open.
+  // type-escape: context: every record has an `id`, but `SourcePath<TRecord>` stays deferred while `TRecord` is open.
   return { field: "id", order: "DESC" } as SortPayload<TRecord>;
 }
 /** perPage for the non-id selected getList — generous, real values sets are small. */
@@ -288,6 +290,7 @@ export function createChoicesController<
     const selected = selectedData;
 
     // allChoices: page with any missing selected prepended, deduped by lookupKey.
+    // type-escape: context: the value under the lookup key, which no record type pins.
     const keyOf = (record: TRecord): unknown => record[lookupKey];
     const pageKeys = new Set(page.map(keyOf));
     const missing = selected.filter((record) => !pageKeys.has(keyOf(record)));
@@ -429,6 +432,7 @@ export function createChoicesController<
     }, debounceMs);
   };
 
+  // type-escape: context: the value is whatever a `source` read hands over, which no record type pins.
   const setValue = (value: unknown): void => {
     if (destroyed) return;
     const next = toValueList(value);
@@ -521,7 +525,7 @@ export function choiceListsOf<TRecord, TName extends string>(
   state: ChoicesControllerState<TRecord, TName>,
 ): ChoiceLists {
   const { allChoices, availableChoices, selectedChoices } = state;
-  // type-escape: `RecordOf` cannot be proved a `ChoiceRecord` while it is generic.
+  // type-escape: context: `RecordOf` cannot be proved a `ChoiceRecord` while it is generic.
   return { allChoices, availableChoices, selectedChoices } as ChoiceLists;
 }
 
@@ -534,6 +538,6 @@ export function choiceListsOf<TRecord, TName extends string>(
 export function eraseChoicesController<TRecord, TName extends string>(
   controller: ChoicesController<TRecord, TName>,
 ): ChoicesController<ChoiceRecord> {
-  // type-escape: `RecordOf` cannot be proved a `ChoiceRecord` while it is generic, and the erased context is read by choice inputs that know no record.
+  // type-escape: context: `RecordOf` cannot be proved a `ChoiceRecord` while it is generic, and the erased context is read by choice inputs that know no record.
   return controller as ChoicesController<ChoiceRecord>;
 }
