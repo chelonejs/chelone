@@ -6,6 +6,9 @@
 @source "../../../packages/react/src";
 @import "tw-animate-css";
 @import "@fontsource-variable/inter";
+/* The docs' twoslash fences: popups, error lines and query lines. The vars
+   below re-point it at the site's palette (see the twoslash block further down). */
+@import "@shikijs/twoslash/style-rich.css";
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
@@ -143,6 +146,70 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0)
+}
+
+/* ── twoslash (docs fences that show inferred types) ─────────────────────────
+   @shikijs/twoslash/style-rich.css draws the hover popups, the `// ^?` query
+   popups and the `// @errors` lines. Its own palette is fixed hex colors, so
+   every var it reads is re-pointed at a site token here: the tokens swap under
+   `.dark` on their own, which is the same swap the rehype-pretty-code token
+   rules above use. Only the values with no site token behind them — the popup
+   shadow, and the warn/tag hues — need a `.dark` rule of their own. */
+
+:root {
+  --twoslash-border-color: var(--border);
+  --twoslash-popup-bg: var(--popover);
+  --twoslash-popup-color: var(--popover-foreground);
+  --twoslash-popup-shadow: 0 1px 4px oklch(0 0 0 / 8%);
+  --twoslash-docs-color: var(--muted-foreground);
+  --twoslash-docs-font: var(--font-sans);
+  --twoslash-code-font: var(--font-mono);
+  --twoslash-unmatched-color: var(--muted-foreground);
+  --twoslash-cursor-color: var(--muted-foreground);
+  --twoslash-error-color: var(--destructive);
+  --twoslash-error-bg: color-mix(in oklch, var(--destructive) 12%, transparent);
+  --twoslash-warn-color: oklch(0.62 0.14 75);
+  --twoslash-warn-bg: color-mix(in oklch, oklch(0.62 0.14 75) 14%, transparent);
+  --twoslash-tag-color: var(--sidebar-primary);
+  --twoslash-tag-bg: color-mix(in oklch, var(--brand-to) 12%, transparent);
+  --twoslash-highlighted-border: color-mix(in oklch, var(--brand-to) 40%, transparent);
+  --twoslash-highlighted-bg: color-mix(in oklch, var(--brand-to) 12%, transparent)
+}
+
+.dark {
+  --twoslash-popup-shadow: 0 2px 8px oklch(0 0 0 / 45%);
+  --twoslash-warn-color: oklch(0.78 0.15 75);
+  --twoslash-error-bg: color-mix(in oklch, var(--destructive) 24%, transparent)
+}
+
+/* A popup hangs off the token it describes, and that token is a narrow inline
+   box: an absolutely positioned box with an auto width shrinks to its containing
+   block, so a popup under a 6-character token comes out 6 characters wide. It
+   needs a width of its own, capped at the prose column so it wraps instead of
+   pushing the figure sideways. */
+[data-rehype-pretty-code-figure] .twoslash-popup-container {
+  width: max-content;
+  max-width: min(34rem, 90vw);
+}
+
+[data-rehype-pretty-code-figure] .twoslash-popup-code {
+  white-space: pre-wrap;
+}
+
+/* An error line is a sentence, not a line of code: twoslash sizes it to its own
+   width, which pushes the figure into a horizontal scroll. Wrap it instead. */
+[data-rehype-pretty-code-figure] .twoslash-error-line {
+  width: auto;
+  min-width: 0;
+  white-space: normal;
+}
+
+/* @tailwindcss/typography gives prose code a heavier weight and a bigger size
+   than a type popup or an error line wants. */
+.prose .twoslash-popup-container :is(code, pre),
+.prose .twoslash-meta-line {
+  font-weight: 400;
+  font-size: 0.8125rem;
 }
 
 @layer base {
