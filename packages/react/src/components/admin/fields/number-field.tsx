@@ -1,8 +1,10 @@
-import type {
-  LooseRecord,
-  ResourceRecord,
-  SourceProp,
-  SourceValue,
+import {
+  defaultNumberTransform,
+  formatFieldNumber,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourceProp,
+  type SourceValue,
 } from "@chelone/core";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
@@ -33,7 +35,7 @@ function NumberField<RecordType extends ResourceRecord = LooseRecord>({
   source,
   record,
   empty,
-  transform = defaultTransform,
+  transform = defaultNumberTransform,
   locales,
   options,
   ...rest
@@ -43,7 +45,7 @@ function NumberField<RecordType extends ResourceRecord = LooseRecord>({
 
   // A nullish value before or after the transform is "nothing to show": the
   // `empty` placeholder, or nothing.
-  const value = raw == null ? null : transform(raw);
+  const value = formatFieldNumber(raw, { locales, options, transform });
 
   if (value == null) {
     if (!empty) {
@@ -57,13 +59,7 @@ function NumberField<RecordType extends ResourceRecord = LooseRecord>({
     );
   }
 
-  return (
-    <span {...sanitizeFieldRestProps(rest)}>
-      {hasNumberFormat && typeof value === "number"
-        ? value.toLocaleString(locales, options)
-        : value}
-    </span>
-  );
+  return <span {...sanitizeFieldRestProps(rest)}>{value}</span>;
 }
 
 interface NumberFieldProps<RecordType extends ResourceRecord = LooseRecord>
@@ -74,26 +70,5 @@ interface NumberFieldProps<RecordType extends ResourceRecord = LooseRecord>
     value: SourceValue<RecordType, SourceProp<RecordType>>,
   ) => number | string | null | undefined;
 }
-
-/**
- * The default `transform`: a numeric string becomes a number so `options` can
- * format it; every other value arrives as text the `<span>` can render.
- */
-function defaultTransform(value: unknown): number | string | null | undefined {
-  if (typeof value === "string") {
-    const num = Number(value);
-    return value !== "" && !Number.isNaN(num) ? num : value;
-  }
-  if (typeof value === "number" || value == null) {
-    return value;
-  }
-  return String(value);
-}
-
-const hasNumberFormat = !!(
-  typeof Intl === "object" &&
-  Intl &&
-  typeof Intl.NumberFormat === "function"
-);
 
 export { NumberField, type NumberFieldProps };
