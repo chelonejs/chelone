@@ -1,8 +1,9 @@
-import type {
-  LooseRecord,
-  ResourceRecord,
-  SourceProp,
-  SourceValue,
+import {
+  booleanFieldDisplay,
+  type LooseRecord,
+  type ResourceRecord,
+  type SourceProp,
+  type SourceValue,
 } from "@chelone/core";
 import { Check, type LucideIcon, X } from "lucide-react";
 import {
@@ -43,57 +44,45 @@ function BooleanField<RecordType extends ResourceRecord = LooseRecord>({
   empty = null,
 }: BooleanFieldProps<RecordType>) {
   const value = useFieldValue({ source, record, defaultValue });
-  const isTruthyValue = value === true || (looseValue && value);
+  const display = booleanFieldDisplay(value, {
+    looseValue,
+    valueLabelFalse,
+    valueLabelTrue,
+  });
+
+  if (display === null) {
+    return <>{empty}</>;
+  }
+
   const baseClassName = "size-5 text-foreground";
 
-  if (looseValue || typeof value === "boolean") {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {isTruthyValue ? (
-            TrueIcon ? (
-              <TrueIcon className={cn(baseClassName, className)} />
-            ) : (
-              <div />
-            )
-          ) : FalseIcon ? (
-            <FalseIcon className={cn(baseClassName, className)} />
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {display.truthy ? (
+          TrueIcon ? (
+            <TrueIcon className={cn(baseClassName, className)} />
           ) : (
             <div />
-          )}
-        </TooltipTrigger>
-        <TooltipContent>
-          <RenderLabel
-            value={!!value}
-            valueLabelFalse={valueLabelFalse}
-            valueLabelTrue={valueLabelTrue}
-          />
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  return <>{empty}</>;
+          )
+        ) : FalseIcon ? (
+          <FalseIcon className={cn(baseClassName, className)} />
+        ) : (
+          <div />
+        )}
+      </TooltipTrigger>
+      <TooltipContent>
+        <RenderLabel labelKey={display.labelKey} />
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
-function RenderLabel({
-  value,
-  valueLabelTrue,
-  valueLabelFalse,
-}: Pick<BooleanFieldProps, "valueLabelFalse" | "valueLabelTrue"> & {
-  value: boolean;
-}) {
+function RenderLabel({ labelKey }: { labelKey: string }) {
   const translate = useTranslate();
-
-  let label = value ? valueLabelTrue : valueLabelFalse;
-  if (!label) {
-    label = value ? "chelone.boolean.true" : "chelone.boolean.false";
-  }
-  if (typeof label === "string") {
-    label = translate(label, { _: label });
-  }
-
-  return <p>{label}</p>;
+  // `labelKey` is a translation key or the caller's own label: the `{ _: }`
+  // fallback renders it either way.
+  return <p>{translate(labelKey, { _: labelKey })}</p>;
 }
 
 interface BooleanFieldProps<RecordType extends ResourceRecord = LooseRecord>

@@ -37,6 +37,7 @@ export interface BooleanFieldProps<RecordType extends ResourceRecord = LooseReco
  */
 
 import { computed } from "vue";
+import { booleanFieldDisplay } from "@chelone/core";
 import { cn } from "../../../lib/utils";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -51,20 +52,22 @@ const value = useFieldValue<RecordType>({
 
 const translate = useTranslate();
 
-/** Render an icon (looseValue OR a real boolean); otherwise fall through to empty. */
-const renderIcon = computed(
-  () => props.looseValue || typeof value.value === "boolean",
+/** The core rule: null (render `empty`) when the value is not a boolean and looseValue is off. */
+const display = computed(() =>
+  booleanFieldDisplay(value.value, {
+    looseValue: props.looseValue,
+    valueLabelTrue: props.valueLabelTrue,
+    valueLabelFalse: props.valueLabelFalse,
+  }),
 );
 
-const isTruthy = computed(
-  () => value.value === true || (props.looseValue === true && !!value.value),
-);
+const renderIcon = computed(() => display.value !== null);
+
+const isTruthy = computed(() => display.value?.truthy === true);
 
 const label = computed(() => {
-  const explicit = isTruthy.value
-    ? props.valueLabelTrue
-    : props.valueLabelFalse;
-  const key = explicit ?? (isTruthy.value ? "chelone.boolean.true" : "chelone.boolean.false");
+  const key = display.value?.labelKey;
+  if (key == null) return "";
   return translate(key, { _: key });
 });
 
