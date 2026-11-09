@@ -74,48 +74,59 @@ function sourceFiles(module) {
 }
 
 /**
- * A name re-exported from a module this check cannot read, such as one of
- * `@tanstack/query-core`'s, is taken at face value as a value unless the export
- * carries `type`.
+ * Whether a name an `export { ... }` hands out is a value or a type where it comes
+ * from: the module it re-exports from, or this module's own imports and declarations.
+ * A name its source does not carry, such as a `.vue` file's default export or one of
+ * `@tanstack/query-core`'s, is taken at face value as a value.
  *
  * @param {string} local
- * @param {ExportedNames | undefined} reexported
+ * @param {ExportedNames} source
  * @returns {"values" | "types"}
  */
-function exportKind(local, reexported) {
-  return reexported?.types.has(local) && !reexported.values.has(local) ? "types" : "values";
+function exportKind(local, source) {
+  return source.types.has(local) && !source.values.has(local) ? "types" : "values";
 }
 
-/** An import names what the module can re-export under its own `export { ... }`. */
-function importedNames(statement, names) {
+/**
+ * A name the module can hand out under its own specifier-less `export { ... }`: an
+ * import or a declaration. An import is not an export on its own, and a name that is
+ * not exported here does not travel through an `export *` that opens this module.
+ */
+function localNames(statement, locals) {
+  if (!ts.isImportDeclaration(statement)) {
+    declaredNames(statement, locals);
+    return;
+  }
   const clause = statement.importClause;
   const bindings = clause?.namedBindings;
   if (!clause || !bindings || !ts.isNamedImports(bindings)) return;
   for (const element of bindings.elements) {
-    names[clause.isTypeOnly || element.isTypeOnly ? "types" : "values"].add(element.name.text);
+    locals[clause.isTypeOnly || element.isTypeOnly ? "types" : "values"].add(element.name.text);
   }
 }
 
-/** A declaration in the module itself, such as `export function useThing() {}`. */
-function declaredNames(statement, names) {
+/** A declaration, exported or not, into the names the caller names. */
+function declaredNames(statement, into) {
   if (ts.isExportAssignment(statement)) {
-    names.values.add("default");
-    return;
-  }
-  if (!ts.getModifiers(statement)?.some((modifier) => ts.isExportModifier(modifier))) return;
-  if (ts.isVariableStatement(statement)) {
+    into.values.add("default");
+  } else if (ts.isVariableStatement(statement)) {
     for (const declaration of statement.declarationList.declarations) {
-      if (ts.isIdentifier(declaration.name)) names.values.add(declaration.name.text);
+      if (ts.isIdentifier(declaration.name)) into.values.add(declaration.name.text);
     }
   } else if (ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) || ts.isEnumDeclaration(statement)) {
-    if (statement.name) names.values.add(statement.name.text);
+    if (statement.name) into.values.add(statement.name.text);
   } else if (ts.isTypeAliasDeclaration(statement) || ts.isInterfaceDeclaration(statement)) {
-    names.types.add(statement.name.text);
+    into.types.add(statement.name.text);
   }
 }
 
-/** `export { A, B as C } from "./m"`, `export * from "./m"`, and their type-only forms. */
-function reexportedNames(statement, module, load, cache, names) {
+/** @param {ts.Statement} statement @returns {boolean} */
+function isExported(statement) {
+  return ts.isExportAssignment(statement) || Boolean(ts.getModifiers(statement)?.some((modifier) => ts.isExportModifier(modifier)));
+}
+
+/** `export { A, B as C } from "./m"`, `export { A }`, `export * from "./m"`, and their type-only forms. */
+function exportDeclaration(statement, module, load, cache, names, locals) {
   const specifier = statement.moduleSpecifier?.text;
   const target = specifier ? load(specifier, module) : undefined;
   const clause = statement.exportClause;
@@ -131,10 +142,10 @@ function reexportedNames(statement, module, load, cache, names) {
     return;
   }
   if (!ts.isNamedExports(clause)) return;
-  const followed = target ? exportedNames(target, load, cache) : undefined;
+  const source = target ? exportedNames(target, load, cache) : locals;
   for (const element of clause.elements) {
     const local = element.propertyName?.text ?? element.name.text;
-    const kind = element.isTypeOnly || statement.isTypeOnly ? "types" : exportKind(local, followed);
+    const kind = element.isTypeOnly || statement.isTypeOnly ? "types" : exportKind(local, source);
     names[kind].add(element.name.text);
   }
 }
@@ -154,11 +165,18 @@ export function exportedNames(module, load, cache = new Map()) {
   /** @type {ExportedNames} */
   const names = { values: new Set(), types: new Set() };
   cache.set(module.key, names);
-  for (const file of sourceFiles(module)) {
+  /** @type {ExportedNames} */
+  const locals = { values: new Set(), types: new Set() };
+  const files = sourceFiles(module);
+  for (const file of files) {
     for (const statement of file.statements) {
-      if (ts.isImportDeclaration(statement)) importedNames(statement, names);
-      else if (ts.isExportDeclaration(statement)) reexportedNames(statement, module, load, cache, names);
-      else declaredNames(statement, names);
+      if (!ts.isExportDeclaration(statement) && !isExported(statement)) localNames(statement, locals);
+    }
+  }
+  for (const file of files) {
+    for (const statement of file.statements) {
+      if (ts.isExportDeclaration(statement)) exportDeclaration(statement, module, load, cache, names, locals);
+      else if (isExported(statement)) declaredNames(statement, names);
     }
   }
   return names;
@@ -450,6 +468,22 @@ describe("exportedNames", () => {
     const names = fixture({}).names(`export { useQuery, type UseQueryOptions } from "@tanstack/react-query";`);
     assert.deepEqual([...names.values], ["useQuery"]);
     assert.deepEqual([...names.types], ["UseQueryOptions"]);
+  });
+
+  it("an import is not an export", () => {
+    const names = fixture({ "./b": `export function useX() {}` }).names(`import { useX } from "./b";\nimport { useRouter } from "vue-router";\nexport function useY() {}`);
+    assert.deepEqual([...names.values], ["useY"]);
+  });
+
+  it("export * carries what the target exports, not what it imports", () => {
+    const names = fixture({ "./a": `import { useX } from "./b";\nimport { useRouter } from "vue-router";\nexport function useY() {}` }).names(`export * from "./a";`);
+    assert.deepEqual([...names.values], ["useY"]);
+  });
+
+  it("hands out a local import only under an export that names it", () => {
+    const names = fixture({}).names(`import { useX } from "./b";\nimport type { XResult } from "./b";\nfunction useLocal() {}\nexport { useX, useLocal };\nexport type { XResult };`);
+    assert.deepEqual([...names.values].sort(), ["useLocal", "useX"]);
+    assert.deepEqual([...names.types], ["XResult"]);
   });
 });
 
