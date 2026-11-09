@@ -128,6 +128,11 @@ translate("chelone.action.save"); // "Save" | "Enregistrer"
 - A key no catalog holds returns `string`. So does a catalog imported from
   JSON: TypeScript types a JSON import's values as `string`, so no literal
   reaches the type.
+- A key that is known and unknown at once returns `string`. Each member of a
+  key union is asked on its own, so
+  `translate(isPost ? "resources.posts.name" : "resources.comments.name")`
+  keeps `string` for the member no catalog holds, which comes back as the key
+  or its `_` default.
 
 The flag is off by default, because a literal union is not a `string` you can
 reassign:

@@ -8,6 +8,7 @@ const en = defineMessages({
   "app.greeting": "Hello {name}",
   "app.items": { one: "1 element", other: "{smart_count} elements" },
   "app.plain": { one: "1 element", other: "many elements" },
+  "resources.posts.name": "Post",
 });
 
 const fr = defineLocale<typeof en>()({
@@ -15,6 +16,7 @@ const fr = defineLocale<typeof en>()({
   "app.greeting": "Bonjour {name}",
   "app.items": { one: "1 élément", other: "{smart_count} éléments" },
   "app.plain": { one: "1 élément", other: "plusieurs éléments" },
+  "resources.posts.name": "Article",
 });
 
 /** The registered list: `messages: typeof en | typeof fr`. */
@@ -37,6 +39,7 @@ declare const translate: RegisteredTranslate;
 
 declare const nameText: string;
 declare const nameNumber: number;
+declare const flag: boolean;
 
 /** A catalog imported from JSON: a JSON import's values arrive as `string`. */
 declare const jsonMessages: {
@@ -121,8 +124,29 @@ describe("with literalMessages: true", () => {
       literal("app.nope", { _: "Nope", name: "Ann" }),
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      literal(`resources.${"posts"}.name`, { _: "Post" }),
+      literal(`resources.${"comments"}.name`, { _: "Post" }),
     ).toEqualTypeOf<string>();
+  });
+
+  it("a template key the catalogs hold keeps its text union", () => {
+    expectTypeOf(literal(`resources.${"posts"}.name`)).toEqualTypeOf<
+      "Post" | "Article"
+    >();
+  });
+
+  it("a key that is known and unknown at once returns string", () => {
+    // the unknown member answers with the key echo or its `_` default, so the
+    // known members' text alone would be a type the value can never have
+    expectTypeOf(
+      literal(flag ? "chelone.action.save" : "app.nope"),
+    ).toEqualTypeOf<string>();
+    expectTypeOf(
+      literal(flag ? "chelone.action.save" : "app.nope", { _: "Nope" }),
+    ).toEqualTypeOf<string>();
+    expectTypeOf(
+      literal(`resources.${flag ? "posts" : "comments"}.name`, { _: "Post" }),
+    ).toEqualTypeOf<string>();
+    expectTypeOf(literal(nameText)).toEqualTypeOf<string>();
   });
 
   it("a catalog imported from JSON returns string", () => {

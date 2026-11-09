@@ -180,7 +180,17 @@ type NoParamsFor<TCatalog extends MessageCatalog, K extends string> =
         : [params: never]
       : [params?: TranslateParamValues];
 
-/** The text a call returns: `string`, or the key's own text when the app asked for literals. */
+/**
+ * The text a call returns: `string`, or the key's own text when the app asked
+ * for literals.
+ *
+ * Distributed over `K`, because `CatalogValue` drops a key no catalog holds:
+ * checked over the whole union, a key that is known and unknown at once (a
+ * conditional key, or a template over a union of resource names) would return
+ * only the known members' text, while the provider answers the unknown one with
+ * the key echo or its `_` default. Each member is asked on its own, so any
+ * member no catalog holds puts `string` back in the union.
+ */
 type TranslateText<
   TCatalog extends MessageCatalog,
   K extends string,
@@ -188,9 +198,9 @@ type TranslateText<
   TRegister extends Register,
 > =
   HasLiteralMessages<TRegister> extends true
-    ? [CatalogValue<TCatalog, K>] extends [never]
-      ? string
-      : MessageValueText<CatalogValue<TCatalog, K>, TParams>
+    ? K extends CatalogKey<TCatalog>
+      ? MessageValueText<CatalogValue<TCatalog, K>, TParams>
+      : string
     : string;
 
 /**
