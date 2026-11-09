@@ -84,8 +84,13 @@ const fk = useFieldValue({ source: props.source, record: props.record });
 // The FK read: only a string or number counts as an id.
 const id = computed(() => (isIdentifier(fk.value) ? fk.value : undefined));
 
+// The field's `TReference` is its own open type parameter, so the read takes the
+// composable's loose arm: the record is the loose one, as it was before the
+// composables read the registry.
+const name: string = props.reference;
+
 const query = useGetManyAggregate(
-  props.reference,
+  name,
   () => ({ ids: id.value != null ? [id.value] : [] }),
   { enabled: () => id.value != null },
 );
