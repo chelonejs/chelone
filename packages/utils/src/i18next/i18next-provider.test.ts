@@ -167,7 +167,7 @@ describe("createI18nextProvider", () => {
     });
 
     it("matches createI18n for every englishMessages key", () => {
-      const expected: I18nProvider = createI18n({
+      const expected: I18nProvider = createI18n<MessageCatalog>({
         locale: "en",
         messages: { en: englishMessages },
       });
