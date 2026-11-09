@@ -2,11 +2,12 @@ import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type { FilterPayload } from "../data/types";
 import type { LooseRecord, ResourceRecord } from "./record";
-import { defineResources } from "./registry";
+import { defineResources, type ResourceMap } from "./registry";
 import type {
   AnySourcePath,
   AnySourcePathOf,
   FilterSourceKey,
+  ReferenceTargetOf,
   RowSourcePath,
   SourceKey,
   SourcePath,
@@ -36,6 +37,9 @@ const resources = defineResources({
   },
   users: { schema: z.object({ id: z.string(), name: z.string() }) },
 });
+
+/** A registered resource with no schema: its record is loose, so any target passes. */
+const schemaless = defineResources({ logs: {} });
 
 /** The shape a jsonb column arrives as (the Supabase add-on's `Json`). */
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json };
@@ -290,6 +294,26 @@ describe("SourceProp", () => {
     acceptPostSource("published_at_gte");
     // @ts-expect-error "titel" is not a path of Post
     acceptPostSource("titel");
+  });
+});
+
+describe("ReferenceTargetOf", () => {
+  it("a target is a top-level key of the named resource's record", () => {
+    expectTypeOf<ReferenceTargetOf<typeof resources, "posts">>().toEqualTypeOf<
+      "id" | "title" | "items"
+    >();
+    expectTypeOf<ReferenceTargetOf<typeof resources, "users">>().toEqualTypeOf<
+      "id" | "name"
+    >();
+  });
+
+  it("a target is string for an open map and for a resource with no schema", () => {
+    expectTypeOf<
+      ReferenceTargetOf<ResourceMap, string>
+    >().toEqualTypeOf<string>();
+    expectTypeOf<
+      ReferenceTargetOf<typeof schemaless, "logs">
+    >().toEqualTypeOf<string>();
   });
 });
 

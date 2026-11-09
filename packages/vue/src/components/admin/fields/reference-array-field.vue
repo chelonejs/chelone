@@ -1,18 +1,31 @@
-<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+<script
+  lang="ts"
+  generic="
+    RecordType extends ResourceRecord = LooseRecord,
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
 import type {
   FilterPayload,
   LooseRecord,
+  RegisteredResources,
+  ResourceMap,
   ResourceRecord,
   SortPayload,
   SourceProp,
 } from "@chelone/core";
 
 /** Props for {@link ReferenceArrayField}. */
-export interface ReferenceArrayFieldProps<RecordType extends ResourceRecord = LooseRecord> {
+export interface ReferenceArrayFieldProps<
+  RecordType extends ResourceRecord = LooseRecord,
+  TResources extends ResourceMap = RegisteredResources,
+  TReference extends keyof TResources & string = keyof TResources & string
+> {
   /** The FK-array field on the current record (e.g. `"tag_ids"`). */
   source: SourceProp<RecordType>;
-  /** The referenced resource the ids point at (e.g. `"tags"`). */
-  reference: string;
+  /** The referenced resource the ids point at (e.g. `"tags"`). A registered resource name. */
+  reference: TReference;
   /** The record to read the FK array off. Defaults to the ambient record. */
   record?: RecordType;
   /** Client-side sort for the resolved list. */
@@ -24,7 +37,15 @@ export interface ReferenceArrayFieldProps<RecordType extends ResourceRecord = Lo
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+<script
+  setup
+  lang="ts"
+  generic="
+    RecordType extends ResourceRecord = LooseRecord,
+    TResources extends ResourceMap = RegisteredResources,
+    TReference extends keyof TResources & string = keyof TResources & string
+  "
+>
 /**
  * `<ReferenceArrayField>` — displays multiple related records by following an
  * array of foreign keys. The Vue port of `@chelone/react`'s
@@ -45,7 +66,9 @@ import { provideListContext } from "../../../list/list-context";
 import { provideResourceContext } from "../../../resource-context";
 import { useList } from "../../../list/use-list";
 
-const props = defineProps<ReferenceArrayFieldProps<RecordType>>();
+const props = defineProps<
+  ReferenceArrayFieldProps<RecordType, TResources, TReference>
+>();
 
 const value = useFieldValue({ source: props.source, record: props.record });
 
