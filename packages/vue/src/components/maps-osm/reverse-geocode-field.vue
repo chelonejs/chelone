@@ -1,7 +1,7 @@
 <script lang="ts" generic="TRecord">
 import type { GeocodingProvider, SourceProp } from "@chelone/core";
 
-// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+// type-escape: context: without a `record` the paths are loose, as `SourceProp<unknown>` is
 /** Props for {@link ReverseGeocodeField}. */
 export interface ReverseGeocodeFieldProps<TRecord = unknown> {
   /** The record property holding the latitude. */

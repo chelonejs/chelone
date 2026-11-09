@@ -71,7 +71,7 @@ const adapter = useRouterAdapterOptional();
 const recordFromLocation = adapter
   ? getRecordFromLocation(adapter.useLocation().value)
   : null;
-// type-escape: the location's `?source=` JSON is untyped, and the form seeds from it as it does from `record`
+// type-escape: json: the location's `?source=` is untyped, and the form seeds from it as it does from `record`
 const seed = { ...props.record, ...recordFromLocation } as Partial<TRecord>;
 
 const create = useCreateController<RecordResources<TRecord>, string>({

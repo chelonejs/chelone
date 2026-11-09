@@ -11,7 +11,7 @@ const BROADCAST_EVENT = "chelone";
 
 /** What supabase-js hands to a broadcast listener; `payload` is whatever a client sent. */
 export interface SupabaseBroadcastMessage {
-  // type-escape: wire data from any client on the channel, checked by `isWireEvent` before use.
+  // type-escape: json: JSON broadcast by any client on the channel, checked by `isWireEvent` before use.
   payload?: unknown;
 }
 
