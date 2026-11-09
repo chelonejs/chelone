@@ -2,7 +2,7 @@
  * Data-mutation composables over `@tanstack/vue-query` — the Vue twin of the
  * mutation half of `@chelone/react`'s `hooks.ts` (`useUpdate` / `useDelete` +
  * the bulk pair). Wraps core's framework-agnostic `updateMutationOptions` /
- * `deleteMutationOptions` (`mutationFn` + cache invalidation) and hands it to
+ * `deleteMutationOptions` and their bulk twins (`mutationFn` + cache invalidation) and hands it to
  * vue-query's `useMutation`, reusing the SAME `dataProvider` + `queryClient`
  * `<Admin>` provides. `<ApiKeyInput>` is the first consumer: it is NOT form-bound
  * — it reads the ambient record/resource and dispatches this mutation directly
@@ -20,6 +20,7 @@ import {
   type DataContext,
   type DeleteManyParams,
   type DeleteParams,
+  deleteManyMutationOptions,
   deleteMutationOptions,
   type Identifier,
   type MutationModeOptions,
@@ -27,7 +28,6 @@ import {
   type ResourceMap,
   type ResourceNameArg,
   type ResourceRecordArg,
-  resourceKey,
   type UndoableCallbacks,
   type UndoableUpdateManyCallbacks,
   type UpdateManyParams,
@@ -37,6 +37,7 @@ import {
   undoableDeleteOptions,
   undoableUpdateMutators,
   undoableUpdateOptions,
+  updateManyMutationOptions,
   updateMutationOptions,
 } from "@chelone/core";
 import { useMutation } from "@tanstack/vue-query";
@@ -144,10 +145,8 @@ export function useDelete<
 /**
  * Delete-many mutation for `resource` — the Vue twin of the bulk delete path
  * `@chelone/react`'s `<BulkDeleteButton>` fires against
- * `dataProvider.deleteMany`. Core carries NO `deleteManyMutationOptions` (there
- * is no bulk mutation-options helper), so this wraps `dataProvider.deleteMany`
- * itself and invalidates the resource's caches on settle (the same
- * `resourceKey` scope core's single-record helpers invalidate). Call
+ * `dataProvider.deleteMany`. `deleteManyMutationOptions` binds the resource and
+ * invalidates its caches on settle, as core's single-record helpers do. Call
  * `.mutateAsync({ ids })` to dispatch; `<BulkDeleteButton>` then clears the
  * selection + notifies. `options.mutationMode: "undoable"` swaps `mutate` /
  * `mutateAsync` for the optimistic-with-Undo flow (remove the rows now, defer the
@@ -161,14 +160,7 @@ export function useDeleteMany<
   options: MutationModeOptions = {},
 ) {
   const ctx = useCheloneContext<TResources>();
-  const mutation = useMutation({
-    mutationFn: async (params: DeleteManyParams) => {
-      const result = await ctx.dataProvider.deleteMany(resource, params);
-      return result.data;
-    },
-    onSettled: () =>
-      ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) }),
-  });
+  const mutation = useMutation(deleteManyMutationOptions(ctx, resource));
   const runUndoable = useUndoable();
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: remove the selected rows now, defer `deleteMany`, notify with Undo.
@@ -198,9 +190,8 @@ export function useDeleteMany<
 /**
  * Update-many mutation for `resource` — the Vue twin of the bulk update path
  * `@chelone/react`'s `<BulkUpdateButton>` fires against
- * `dataProvider.updateMany`. Like {@link useDeleteMany}, core has no bulk
- * mutation-options helper, so this wraps `dataProvider.updateMany` itself and
- * invalidates the resource's caches on settle. Call `.mutateAsync({ ids, data })`
+ * `dataProvider.updateMany`. Like {@link useDeleteMany}, it builds on core's
+ * `updateManyMutationOptions`. Call `.mutateAsync({ ids, data })`
  * to dispatch; `<BulkUpdateButton>` then clears the selection + notifies.
  */
 export function useUpdateMany<
@@ -214,19 +205,7 @@ export function useUpdateMany<
   // The provider call carries the name the hook was handed, which may be a
   // `string` the map cannot pin, so it runs on the loose context.
   const dataContext: DataContext = ctx;
-  const mutation = useMutation({
-    mutationFn: async (
-      params: UpdateManyParams<ResourceRecordArg<TResources, TName>>,
-    ) => {
-      const result = await dataContext.dataProvider.updateMany(
-        resource,
-        params,
-      );
-      return result.data;
-    },
-    onSettled: () =>
-      ctx.queryClient.invalidateQueries({ queryKey: resourceKey(resource) }),
-  });
+  const mutation = useMutation(updateManyMutationOptions(ctx, resource));
   const runUndoable = useUndoable();
   if (options.mutationMode !== "undoable") return mutation;
   // Undoable: patch the selected rows now, defer `updateMany`, notify with Undo.

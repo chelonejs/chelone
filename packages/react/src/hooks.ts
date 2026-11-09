@@ -1,5 +1,8 @@
 import {
   createMutationOptions,
+  type DataContext,
+  type DeleteManyParams,
+  deleteManyMutationOptions,
   deleteMutationOptions,
   type GetListParams,
   type GetManyParams,
@@ -10,12 +13,21 @@ import {
   getManyOptions,
   getManyReferenceOptions,
   getOneOptions,
+  type Identifier,
   type MutationModeOptions,
   type RegisteredResources,
   type ResourceMap,
   type ResourceNameArg,
+  type ResourceRecordArg,
+  type UndoableCallbacks,
+  type UndoableUpdateManyCallbacks,
+  type UpdateManyParams,
+  undoableCallbacks,
   undoableDeleteMutators,
+  undoableDeleteOptions,
   undoableUpdateMutators,
+  undoableUpdateOptions,
+  updateManyMutationOptions,
   updateMutationOptions,
 } from "@chelone/core";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -151,6 +163,87 @@ export function useDelete<
   return { ...mutation, ...undoable };
 }
 
+export function useDeleteMany<
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
+>(
+  resource: ResourceNameArg<TResources, TName>,
+  options: MutationModeOptions = {},
+) {
+  const ctx = useCheloneContext<TResources>();
+  const mutation = useMutation(deleteManyMutationOptions(ctx, resource));
+  const runUndoable = useUndoable();
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: remove the selected rows now, defer `deleteMany`, notify with
+  // Undo. See `useUpdate` for the `mutate` / `mutateAsync` semantics.
+  const mutate = (
+    params: DeleteManyParams,
+    callbacks?: UndoableCallbacks<Identifier[], DeleteManyParams>,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
+    runUndoable({
+      ...undoableDeleteOptions(ctx.queryClient, resource, params.ids),
+      commit: settle.commit(() =>
+        ctx.dataProvider.deleteMany(resource, params),
+      ),
+    });
+    settle.success(params.ids);
+  };
+  return {
+    ...mutation,
+    mutate,
+    mutateAsync: async (params: DeleteManyParams) => {
+      mutate(params);
+    },
+  };
+}
+
+export function useUpdateMany<
+  TResources extends ResourceMap = RegisteredResources,
+  TName extends string = keyof TResources & string,
+>(
+  resource: ResourceNameArg<TResources, TName>,
+  options: MutationModeOptions = {},
+) {
+  const ctx = useCheloneContext<TResources>();
+  const mutation = useMutation(updateManyMutationOptions(ctx, resource));
+  // The deferred call carries the name the hook was handed, which may be a
+  // `string` the map cannot pin, so it runs on the loose context.
+  const dataContext: DataContext = ctx;
+  const runUndoable = useUndoable();
+  if (options.mutationMode !== "undoable") return mutation;
+  // Undoable: patch the selected rows now, defer `updateMany`, notify with Undo.
+  const mutate = (
+    params: UpdateManyParams<ResourceRecordArg<TResources, TName>>,
+    callbacks?: UndoableUpdateManyCallbacks<
+      ResourceRecordArg<TResources, TName>
+    >,
+  ) => {
+    const settle = undoableCallbacks(params, callbacks);
+    runUndoable({
+      ...undoableUpdateOptions(
+        ctx.queryClient,
+        resource,
+        params.ids,
+        params.data,
+      ),
+      commit: settle.commit(() =>
+        dataContext.dataProvider.updateMany(resource, params),
+      ),
+    });
+    settle.success(params.ids);
+  };
+  return {
+    ...mutation,
+    mutate,
+    mutateAsync: async (
+      params: UpdateManyParams<ResourceRecordArg<TResources, TName>>,
+    ) => {
+      mutate(params);
+    },
+  };
+}
+
 /**
  * Bind the hooks to a registry type once — full inference at every call site:
  *   const hooks = createCheloneHooks<typeof resources>();
@@ -197,5 +290,13 @@ export function createCheloneHooks<TResources extends ResourceMap>() {
       resource: ResourceNameArg<TResources, TName>,
       options?: MutationModeOptions,
     ) => useDelete<TResources, TName>(resource, options),
+    useUpdateMany: <TName extends keyof TResources & string>(
+      resource: ResourceNameArg<TResources, TName>,
+      options?: MutationModeOptions,
+    ) => useUpdateMany<TResources, TName>(resource, options),
+    useDeleteMany: <TName extends keyof TResources & string>(
+      resource: ResourceNameArg<TResources, TName>,
+      options?: MutationModeOptions,
+    ) => useDeleteMany<TResources, TName>(resource, options),
   };
 }

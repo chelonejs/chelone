@@ -14,9 +14,9 @@ their caller writes the record type.
 
 In both adapters: `useGetList`, `useGetOne`, `useGetMany`,
 `useGetManyAggregate`, `useGetManyReference`, `useCreate`, `useUpdate`,
-`useDelete`, `useGetListLive`, `useGetOneLive` and `useGetManyLive`. In Vue
-only, since React has no bulk mutation hook yet: `useUpdateMany` and
-`useDeleteMany`.
+`useDelete`, `useUpdateMany`, `useDeleteMany`, `useGetListLive`,
+`useGetOneLive` and `useGetManyLive`. Both bulk hooks build on core's
+`updateManyMutationOptions` and `deleteManyMutationOptions`.
 
 Each takes `TResources` and `TName`. `TResources` defaults to
 `RegisteredResources`, which is what the `Register` augmentation fills

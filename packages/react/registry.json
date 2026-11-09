@@ -2331,7 +2331,6 @@
         "@chelone/use-menu-access"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
-      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -2366,7 +2365,6 @@
         "@chelone/use-menu-access"
       ],
       "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
-      "devDependencies": ["@tanstack/react-query"],
       "categories": ["chelone", "buttons"],
       "author": "Chelone <https://chelone.dev>"
     },

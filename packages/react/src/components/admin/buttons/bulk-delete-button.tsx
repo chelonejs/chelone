@@ -5,34 +5,29 @@
  * - `mutationMode="pessimistic"` (default) is confirm-gated via the `<Confirm>`
  *   dialog; `mutationMode="undoable"` deletes optimistically with an Undo
  *   notification (via the vanilla `startUndoableMutation` engine) and no confirm.
- * - The delete fires against the raw `dataProvider.deleteMany(resource, { ids })`
- *   (there is no bulk mutation hook). The pessimistic path invalidates queries
- *   (`useRefresh`) so the list refetches, clears the selection (`unselectAll`),
- *   and notifies `chelone.notification.deleted`; the undoable path removes the
- *   rows from the cache now and defers the server call until commit.
+ * - The delete runs through `useDeleteMany(resource, { mutationMode })`. The
+ *   pessimistic path refreshes (`useRefresh`) so the list refetches, clears the
+ *   selection (`unselectAll`), and notifies `chelone.notification.deleted`; the
+ *   undoable path removes the rows from the cache now and defers the server
+ *   call until commit.
  * - `useCanAccess` (which throws with no authProvider) → the no-throw
  *   `useMenuAccess`.
  */
 
-import {
-  definedParams,
-  type MutationMode,
-  removeRecordsFromCache,
-} from "@chelone/core";
-import { useQueryClient } from "@tanstack/react-query";
+import { definedParams, type MutationMode } from "@chelone/core";
 import { Trash } from "lucide-react";
 import type { ReactNode, Ref } from "react";
 import { Fragment, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useDataProvider, useRefresh } from "../../../compat-hooks";
+import { useRefresh } from "../../../compat-hooks";
 import { useListContext } from "../../../form";
+import { useDeleteMany } from "../../../hooks";
 import { useTranslate } from "../../../i18n-hooks";
 import { useGetResourceLabel, useResourceTranslation } from "../../../label";
 import { humanize, pluralize } from "../../../label/inflection";
 import { useNotify } from "../../../notification-hooks";
 import { useResourceContext } from "../../../resource";
-import { useUndoable } from "../../../undoable-hooks";
 import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
@@ -85,7 +80,6 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
     mutationMode = "pessimistic",
   } = props;
   const [isOpen, setOpen] = useState(false);
-  const [isPending, setPending] = useState(false);
   const { selectedIds, unselectAll } = useListContext();
   const resource = useResourceContext(props);
   const { canAccess, isPending: isAccessPending } = useMenuAccess({
@@ -94,11 +88,11 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
   });
   const translate = useTranslate();
   const getResourceLabel = useGetResourceLabel();
-  const dataProvider = useDataProvider();
   const refresh = useRefresh();
   const notify = useNotify();
-  const queryClient = useQueryClient();
-  const runUndoable = useUndoable();
+  const { mutate, mutateAsync, isPending } = useDeleteMany(resource ?? "", {
+    mutationMode,
+  });
 
   const label = useResourceTranslation({
     resourceI18nKey: resource
@@ -129,18 +123,7 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
     e.stopPropagation();
     if (mutationMode === "undoable") {
       if (!resource) return;
-      runUndoable({
-        queryKeys: [[resource]],
-        applyOptimistic: () =>
-          removeRecordsFromCache(queryClient, resource, selectedIds),
-        commit: () => dataProvider.deleteMany(resource, { ids: selectedIds }),
-        message: "chelone.notification.deleted",
-        messageArgs: { smart_count: selectedIds.length },
-        onCommitError: () => {
-          notify("chelone.notification.http_error", { type: "error" });
-          refresh();
-        },
-      });
+      mutate({ ids: selectedIds }, { onError: () => refresh() });
       unselectAll();
       onClick?.(e);
       return;
@@ -155,9 +138,8 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
   const handleConfirm = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     if (!resource) return;
-    setPending(true);
     try {
-      await dataProvider.deleteMany(resource, { ids: selectedIds });
+      await mutateAsync({ ids: selectedIds });
       notify("chelone.notification.deleted", {
         type: "info",
         messageArgs: { smart_count: selectedIds.length },
@@ -168,7 +150,6 @@ function BulkDeleteButton(props: BulkDeleteButtonProps) {
       console.error(error);
       notify("chelone.notification.http_error", { type: "error" });
     } finally {
-      setPending(false);
       setOpen(false);
     }
     onClick?.(e);

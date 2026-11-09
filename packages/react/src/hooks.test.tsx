@@ -8,9 +8,19 @@ import {
   type NotifyOptions,
 } from "@chelone/core";
 import { QueryClient } from "@tanstack/react-query";
-import { act, renderHook, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
 import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import type { ReactNode } from "react";
+import { MemoryRouter } from "react-router";
+import {
+  afterEach,
   describe,
   expect,
   expectTypeOf,
@@ -23,12 +33,17 @@ import { CheloneProvider } from "./context";
 import {
   createCheloneHooks,
   useDelete,
+  useDeleteMany,
   useGetList,
   useGetManyAggregate,
   useGetManyReference,
   useGetOne,
   useUpdate,
+  useUpdateMany,
 } from "./hooks";
+import { Admin, Resource } from "./index";
+
+afterEach(cleanup);
 
 const resources = defineResources({
   posts: { schema: z.object({ id: z.number(), title: z.string() }) },
@@ -508,5 +523,147 @@ describe("undoable useDelete / useUpdate hooks", () => {
     );
     expect(onError).not.toHaveBeenCalled();
     expect(onSettled).toHaveBeenCalledTimes(1);
+  });
+});
+
+type BulkMode = "pessimistic" | "undoable";
+
+/** Lists the posts and runs one bulk delete or update of both rows on click. */
+function bulkProbe(kind: "delete" | "update", mutationMode: BulkMode) {
+  return function BulkProbe() {
+    const list = useGetList<R, "posts">("posts");
+    const del = useDeleteMany<R, "posts">("posts", { mutationMode });
+    const update = useUpdateMany<R, "posts">("posts", { mutationMode });
+    return (
+      <div>
+        <ul>
+          {list.data?.data.map((post) => (
+            <li key={post.id}>{post.title}</li>
+          ))}
+        </ul>
+        <button
+          type="button"
+          onClick={() =>
+            kind === "delete"
+              ? del.mutate({ ids: [1, 2] })
+              : update.mutate({ ids: [1, 2], data: { title: "same" } })
+          }
+        >
+          run
+        </button>
+      </div>
+    );
+  };
+}
+
+function mountBulk(kind: "delete" | "update", mutationMode: BulkMode) {
+  const dataProvider = fakeDataProvider<R>({
+    posts: [
+      { id: 1, title: "a" },
+      { id: 2, title: "b" },
+    ],
+  });
+  const notifications = createNotificationStore();
+  const notify = vi.spyOn(notifications, "notify");
+  render(
+    <MemoryRouter initialEntries={["/posts"]}>
+      <Admin
+        dataProvider={dataProvider}
+        queryClient={
+          new QueryClient({
+            defaultOptions: {
+              queries: { retry: false },
+              mutations: { retry: false },
+            },
+          })
+        }
+        notifications={notifications}
+      >
+        <Resource name="posts" list={bulkProbe(kind, mutationMode)} />
+      </Admin>
+    </MemoryRouter>,
+  );
+  const titles = () =>
+    screen.queryAllByRole("listitem").map((item) => item.textContent);
+  return { dataProvider, notify, titles };
+}
+
+describe("useDeleteMany / useUpdateMany hooks", () => {
+  it("useDeleteMany deletes the ids and refetches the list", async () => {
+    const { dataProvider, titles } = mountBulk("delete", "pessimistic");
+    const deleteMany = vi.spyOn(dataProvider, "deleteMany");
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    fireEvent.click(screen.getByRole("button", { name: "run" }));
+    await waitFor(() => expect(titles()).toEqual([]));
+    expect(deleteMany).toHaveBeenCalledWith("posts", { ids: [1, 2] });
+  });
+
+  it("useUpdateMany updates the ids and refetches the list", async () => {
+    const { dataProvider, titles } = mountBulk("update", "pessimistic");
+    const updateMany = vi.spyOn(dataProvider, "updateMany");
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    fireEvent.click(screen.getByRole("button", { name: "run" }));
+    await waitFor(() => expect(titles()).toEqual(["same", "same"]));
+    expect(updateMany).toHaveBeenCalledWith("posts", {
+      ids: [1, 2],
+      data: { title: "same" },
+    });
+  });
+
+  it("undoable useDeleteMany removes the rows now and calls deleteMany only after the undo window", async () => {
+    const { dataProvider, notify, titles } = mountBulk("delete", "undoable");
+    const deleteMany = vi.spyOn(dataProvider, "deleteMany");
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    fireEvent.click(screen.getByRole("button", { name: "run" }));
+    await waitFor(() => expect(titles()).toEqual([]));
+    expect(deleteMany).not.toHaveBeenCalled();
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+    expect(deleteMany).toHaveBeenCalledTimes(1);
+    expect(deleteMany).toHaveBeenCalledWith("posts", { ids: [1, 2] });
+  });
+
+  it("undo restores the rows and never calls deleteMany", async () => {
+    const { dataProvider, notify, titles } = mountBulk("delete", "undoable");
+    const deleteMany = vi.spyOn(dataProvider, "deleteMany");
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    fireEvent.click(screen.getByRole("button", { name: "run" }));
+    await waitFor(() => expect(titles()).toEqual([]));
+    act(() => {
+      captureUndoable(notify).undo?.();
+    });
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    expect(deleteMany).not.toHaveBeenCalled();
+  });
+
+  it("undoable useUpdateMany patches the rows now and calls updateMany only after the undo window", async () => {
+    const { dataProvider, notify, titles } = mountBulk("update", "undoable");
+    const updateMany = vi.spyOn(dataProvider, "updateMany");
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    fireEvent.click(screen.getByRole("button", { name: "run" }));
+    await waitFor(() => expect(titles()).toEqual(["same", "same"]));
+    expect(updateMany).not.toHaveBeenCalled();
+    await act(async () => {
+      captureUndoable(notify).onClose?.();
+    });
+    expect(updateMany).toHaveBeenCalledTimes(1);
+    expect(updateMany).toHaveBeenCalledWith("posts", {
+      ids: [1, 2],
+      data: { title: "same" },
+    });
+  });
+
+  it("undo restores the rows and never calls updateMany", async () => {
+    const { dataProvider, notify, titles } = mountBulk("update", "undoable");
+    const updateMany = vi.spyOn(dataProvider, "updateMany");
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    fireEvent.click(screen.getByRole("button", { name: "run" }));
+    await waitFor(() => expect(titles()).toEqual(["same", "same"]));
+    act(() => {
+      captureUndoable(notify).undo?.();
+    });
+    await waitFor(() => expect(titles()).toEqual(["a", "b"]));
+    expect(updateMany).not.toHaveBeenCalled();
   });
 });

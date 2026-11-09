@@ -40,7 +40,6 @@
   "vue:.:useChoiceInput": "gap: React has no shared choice-input composable; each choice input wires useChoicesContext, useChoices and the text resolver itself",
   "vue:.:useCommand": "intended: Vue's dependency-free <Command> threads its search state through an injected contract; React's <Command> is Radix, which owns it",
   "vue:.:useDataTablePass": "gap: React keeps its header and data render-pass read private in packages/react/src/components/admin/list/data-table.tsx, so a custom React column cannot tell which pass it renders in",
-  "vue:.:useDeleteMany": "gap: React has no bulk delete hook; its BulkDeleteButton calls dataProvider.deleteMany itself",
   "vue:.:useDropdownMenu": "intended: Vue's dependency-free <DropdownMenu> threads its open state through an injected contract; React's is Radix, which owns it",
   "vue:.:useMenuAccess": "gap: React has the hook in packages/react/src/components/admin/layout/use-menu-access.ts but exports it from no entry, so a React app cannot run a no-throw access check",
   "vue:.:useMicroStore": "intended: Vue's reactivity bridge over a core MicroStore; React subscribes through useSyncExternalStore in each hook",
@@ -53,6 +52,5 @@
   "vue:.:useSidebar": "gap: React keeps its sidebar context hooks private in packages/react/src/components/ui/sidebar.tsx, so a React app cannot read the sidebar state from its own part",
   "vue:.:useSourceScope": "matches react:.:useSourceContext",
   "vue:.:useSubscribable": "intended: Vue's ref bridge over a core subscribable; React subscribes inside each hook",
-  "vue:.:useTabs": "intended: Vue's dependency-free <Tabs> threads its active value through an injected contract; React's <Tabs> is Radix, which owns it",
-  "vue:.:useUpdateMany": "gap: React has no bulk update hook; its BulkUpdateButton calls dataProvider.updateMany itself"
+  "vue:.:useTabs": "intended: Vue's dependency-free <Tabs> threads its active value through an injected contract; React's <Tabs> is Radix, which owns it"
 }
