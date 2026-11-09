@@ -177,11 +177,43 @@ export function App({ permissions }: { permissions: string }) {
 `router` to run under another router. The components speak the adapter's
 navigation contract, not a specific router.
 
-`@chelone/react/tanstack-router` ships a TanStack Router adapter. It is a
-reference adapter that shows the router seam is neutral, not a second maintained
-router. It creates its own TanStack router on memory history, so the browser URL
-bar does not follow navigation, and it does not join an existing TanStack router.
-Its custom routes must use the adapter's own `Route`, not react-router's:
+`@chelone/react/tanstack-router` ships two TanStack Router adapters. Pick one by
+who owns the router:
+
+- `tanstackRouterAdapter` creates its own TanStack router on memory history, so
+  the browser URL bar does not follow navigation. Pick it for an app with no
+  TanStack router, or to try the seam. It is a reference adapter, not a second
+  maintained router.
+- `tanstackHostRouterAdapter` joins the router of the nearest TanStack
+  `RouterProvider`, such as a TanStack Start app's, and reads and drives its URL.
+  Pick it when `<Admin>` mounts under one of the app's routes. It never creates a
+  router, so outside a `RouterProvider` it throws TanStack's own error.
+
+Under a splat route such as `/admin/$`, pass the mount path as `basename`:
+
+```tsx title="src/routes/admin.$.tsx"
+import { Admin, Resource } from "@chelone/react";
+import { tanstackHostRouterAdapter } from "@chelone/react/tanstack-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { dataProvider, queryClient } from "../admin";
+import { PostList } from "../posts";
+
+export const Route = createFileRoute("/admin/$")({
+  component: () => (
+    <Admin
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+      router={tanstackHostRouterAdapter}
+      basename="/admin"
+    >
+      <Resource name="posts" list={PostList} />
+    </Admin>
+  ),
+});
+```
+
+With `tanstackRouterAdapter`, custom routes must use the adapter's own `Route`,
+not react-router's:
 
 ```tsx title="src/App.tsx"
 import { fakeDataProvider } from "@chelone/core";
@@ -214,9 +246,9 @@ export function App() {
 }
 ```
 
-The adapter lives on its own entry so `@chelone/react` loads without
+The adapters live on their own entry so `@chelone/react` loads without
 `@tanstack/react-router`, an optional peer. Install that peer only when you use
-this adapter.
+either adapter.
 
 ## Props
 
