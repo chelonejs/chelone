@@ -141,6 +141,23 @@ it("the page documents what is on main, with no coming soon note", () => {
   expect(page).not.toMatch(/coming soon|not yet|will cover/i);
 });
 
+/**
+ * Core types a verb's `filter` as `FilterPayload`, keyed by the registered
+ * union, and only its `sort` as the open `LooseSortPayload`. The page used to
+ * say a verb takes all three loose shapes.
+ */
+it("the loose section names the loose shape a verb takes and the one it does not", () => {
+  const at = page.indexOf("## What stays loose on purpose");
+  const section = page.slice(at, page.indexOf("## Vue"));
+
+  expect(at).toBeGreaterThan(0);
+  expect(section).toContain("GetListParams.sort");
+  expect(section).toContain("GetManyReferenceParams.sort");
+  expect(section).toContain("AnyFilterSourceKey");
+  expect(section).not.toMatch(/verb takes them/);
+  expect(section).toContain("](/docs/type-safety/typed-hooks)");
+});
+
 it("the two map-typed twins map to When types widen, not to this page", () => {
   const docs: RowsByPage = JSON.parse(read("../../../type-docs.json"));
   const baseline: RowsByPage = JSON.parse(
@@ -166,6 +183,8 @@ it("the data providers page names the loose sort payload the contract takes", ()
     "sort?: LooseSortPayload | LooseSortPayload[]",
   );
   expect(dataProvidersPage).not.toContain("type SortPayload =");
+  expect(dataProvidersPage).toContain("filter?: FilterPayload;");
+  expect(dataProvidersPage).not.toContain("filter?: Record<string, unknown>;");
   expect(dataProvidersPage).toContain(
     "](/docs/type-safety/sources-filters-and-sort)",
   );

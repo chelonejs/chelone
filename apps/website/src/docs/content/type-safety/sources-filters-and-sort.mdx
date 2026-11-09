@@ -359,10 +359,58 @@ const back: SortPayload<Post> = loose;
 const filter: LooseFilterPayload = { anything_gte: 3 };
 ```
 
-A data provider verb takes them, and so does each adapter's list context, because
-a context cannot be generic and a controller typed to any record has to mount in
-one. What writes a context filter names no record either: a filter form's field
-names, a calendar's range keys, a URL query. The typed side is the list
+What a verb actually takes is narrower than the three names above:
+
+```tsx twoslash title="src/verb-params.ts"
+import {
+  defineResources,
+  type GetListParams,
+  type LooseFilterPayload,
+} from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({ id: z.number(), title: z.string(), views: z.number() }),
+  },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// `sort` is open, because a verb is not generic over the record.
+const sort: GetListParams["sort"] = { field: "anything", order: "ASC" };
+
+// `filter` is keyed by the registered union.
+type VerbFilter = GetListParams["filter"];
+//    ^?
+
+const inside: GetListParams["filter"] = { title_gte: 3, q: "x" };
+
+// @errors: 2353
+const outside: GetListParams["filter"] = { titel_gte: 3 };
+
+// The open map is the one a helper that walks keys names.
+const walked: LooseFilterPayload = { titel_gte: 3 };
+```
+
+`LooseSortPayload` is the only one of the three a verb takes: `GetListParams.sort`
+and `GetManyReferenceParams.sort` take it or an array of them, because a verb is
+not generic over the record and a controller's typed sort assigns to it with no
+cast. `filter` on both verbs is `FilterPayload`, whose key set for the loose
+record it defaults to is `AnyFilterSourceKey`: plain `string` while an app
+registers nothing, and the registered union once it does. A verb's filter is
+keyed, not an open map, and a key outside that union stops compiling at the verb.
+
+`LooseFilterPayload` and `LooseDisplayedFilters` are for code that walks one of
+those maps key by key with no record in scope: pruning a filter, stripping empty
+keys, a filter form reading `displayedFilters[source]`, and each adapter's list
+context, which cannot be generic and has to mount a controller typed to any
+record. What writes a context filter names no record either: a filter form's
+field names, a calendar's range keys, a URL query. The typed side is the list
 controller's own `setSort`, `setFilters`, `showFilter` and `hideFilter`, which
 [Typed hooks](/docs/type-safety/typed-hooks) covers.
 
