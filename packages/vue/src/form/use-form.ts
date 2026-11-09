@@ -102,6 +102,7 @@ export interface UseFormReturn<TFormData> {
   reset: (values?: TFormData) => void;
 }
 
+// type-escape: context: a form that holds no record names no fields
 export function useForm<TFormData = Record<string, unknown>>(
   options: UseFormOptions<TFormData>,
 ): UseFormReturn<TFormData> {

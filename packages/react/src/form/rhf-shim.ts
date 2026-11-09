@@ -62,8 +62,7 @@ export interface UseWatchOptions {
 export function useWatch<TValue = unknown>(
   options: UseWatchOptions,
 ): TValue | undefined;
-// The value is `unknown` at the ambient form, which names no record: `TValue`
-// is the caller's claim about it, as in RHF.
+// type-escape: context: the ambient form names no record, so the value is unknown and `TValue` is the caller's claim about it, as in RHF
 export function useWatch({ name }: UseWatchOptions): unknown {
   const { ambient } = useCheloneFormContext().form;
   const scope = useSourceContext();
