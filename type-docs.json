@@ -7,6 +7,8 @@
     "@chelone/react:Admin"
   ],
   "resource-registry-and-codegen": [
+    "@chelone/core:RecordOf",
+    "@chelone/core:ResourceMap",
     "@chelone/core:defineResources"
   ],
   "sources-filters-and-sort": [],
@@ -29,8 +31,10 @@
     "@chelone/vue:UsePermissionsResult"
   ],
   "typed-components": [
+    "@chelone/react:ResourceComponents",
     "@chelone/react:createResourceComponents",
     "@chelone/react:createResourceComponentsOf",
+    "@chelone/vue:ResourceComponents",
     "@chelone/vue:createResourceComponents",
     "@chelone/vue:createResourceComponentsOf"
   ],
@@ -40,5 +44,8 @@
     "@chelone/vue:useGetList",
     "@chelone/vue:useGetOne"
   ],
-  "when-types-widen": []
+  "when-types-widen": [
+    "@chelone/core:AnyFilterSourceKeyOf",
+    "@chelone/core:AnySourcePathOf"
+  ]
 }

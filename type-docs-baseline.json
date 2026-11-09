@@ -22,8 +22,6 @@
     "@chelone/core:LifecycleHandler",
     "@chelone/core:LockProvider",
     "@chelone/core:RealtimeDataProvider",
-    "@chelone/core:RecordOf",
-    "@chelone/core:ResourceMap",
     "@chelone/core:assertRealtimeDataProvider",
     "@chelone/core:combineDataProviders",
     "@chelone/core:fakeDataProvider",
@@ -38,9 +36,7 @@
   ],
   "sources-filters-and-sort": [
     "@chelone/core:AnyFilterSourceKey",
-    "@chelone/core:AnyFilterSourceKeyOf",
     "@chelone/core:AnySourcePath",
-    "@chelone/core:AnySourcePathOf",
     "@chelone/core:ArrayBinding",
     "@chelone/core:ArrayBindingOptions",
     "@chelone/core:ArrayBindingUpdateOptions",
@@ -93,13 +89,11 @@
     "@chelone/react:ReferenceManyFieldProps",
     "@chelone/react:ReferenceOneField",
     "@chelone/react:ReferenceOneFieldProps",
-    "@chelone/react:ResourceComponents",
     "@chelone/react:SelectFieldProps",
     "@chelone/react:StatusTransitionButton",
     "@chelone/react:StatusTransitionButtonProps",
     "@chelone/vue:ChoiceInputBaseProps",
-    "@chelone/vue:OptionText",
-    "@chelone/vue:ResourceComponents"
+    "@chelone/vue:OptionText"
   ],
   "typed-hooks": [
     "@chelone/core:ChoicesControllerContext",
