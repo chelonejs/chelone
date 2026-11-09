@@ -162,6 +162,7 @@ export {
   ServerDateField,
   type ServerDateFieldProps,
   type ServerFieldProps,
+  ServerFieldSpan,
   ServerNumberField,
   type ServerNumberFieldProps,
   ServerTextField,
