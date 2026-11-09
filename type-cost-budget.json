@@ -8,8 +8,8 @@
     "Types": 48000
   },
   "rest": {
-    "Instantiations": 78000,
-    "Types": 41000
+    "Instantiations": 79000,
+    "Types": 42000
   },
   "supabase": {
     "Instantiations": 172000,
