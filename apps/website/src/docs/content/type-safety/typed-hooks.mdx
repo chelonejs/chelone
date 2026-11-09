@@ -294,6 +294,52 @@ asserts `mutateAsync` equals `Post | void`, and that assigning it to a `Post` is
 an error.
 
 
+## A server list page
+
+`loadServerListPage` is core's one-pass fetch for a server-rendered list. It
+takes `TResources` and `TName` from the context and the resource name, calls
+`getList` with the params `listFetchParams` returns, then one `getMany` per
+referenced resource. Its `references` argument maps a top-level key of the
+record to a resource name. A key the record lacks, or a resource the map lacks,
+is a type error at the argument, and each returned map holds the referenced
+resource's record.
+
+```ts twoslash title="src/posts-page.ts"
+import {
+  defineResources,
+  type ListControllerContext,
+  loadServerListPage,
+  type RegisteredResources,
+} from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({ id: z.number(), title: z.string(), author_id: z.number() }),
+  },
+  users: { schema: z.object({ id: z.number(), name: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+declare const ctx: ListControllerContext<RegisteredResources>;
+
+// ---cut---
+const page = await loadServerListPage(ctx, "posts", {
+  references: { author_id: "users" },
+});
+
+const author = page.references.author_id.get(1);
+//    ^?
+```
+
+`ServerListPageInput` and `ServerListPage` are the argument and result types.
+`packages/core/src/controller/server-list-page.test-d.ts` pins the rejections.
+
 ## The record context hooks
 
 `useRecordContext<RecordType = LooseRecord>` in both adapters,

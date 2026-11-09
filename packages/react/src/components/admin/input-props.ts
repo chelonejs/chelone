@@ -26,7 +26,7 @@ import type { ChoiceRecord, OptionText } from "../../choices-hooks";
  * presentational keys the input components read directly.
  */
 export interface InputProps<
-  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  // type-escape: context: the no-record sentinel `SourcePath` and `SourceValue` test for
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
 > {
@@ -102,7 +102,7 @@ export type InputFieldError = string | TranslatableMessage | undefined;
  * against the value the binding reads.
  */
 export interface LooseFormatProps {
-  format?: (value: unknown) => unknown; // type-escape: the resolved source names no path of a record
+  format?: (value: unknown) => unknown; // type-escape: context: the resolved source names no path of a record
 }
 
 /**

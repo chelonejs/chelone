@@ -65,7 +65,7 @@ const readText = (file: File) =>
 
 export interface CsvImportProps<TRecord = LooseRecord> {
   /** A Standard Schema (zod, valibot, ...). Its keys are the fields; its non-optional keys are required. */
-  // type-escape: a CSV cell is a string, so the schema takes any input and its output is the record
+  // type-escape: schema: a CSV cell is a string, so the schema takes any input and its output is the record
   schema?: StandardSchemaV1<unknown, TRecord>;
   /** Overrides the schema's keys. Without either, the CSV headers are the fields. */
   fields?: SourceKey<TRecord>[];

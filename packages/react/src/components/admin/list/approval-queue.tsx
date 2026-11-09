@@ -62,7 +62,7 @@ type RowProps<TRecord extends ResourceRecord> = Omit<
   "className"
 > & { record: TRecord };
 
-// type-escape: getAtPath reads a record by a runtime path and returns unknown
+// type-escape: server: getAtPath reads a record by a runtime path and returns unknown
 const isEmpty = (value: unknown) => value == null || value === "";
 
 function ApprovalQueueRow<TRecord extends ResourceRecord>({
