@@ -17,6 +17,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { MemoryRouter } from "react-router";
@@ -129,6 +130,43 @@ test("OrderCreate blocks an empty save the orders schema rejects", async () => {
   expect(calls.create).not.toHaveBeenCalled();
 });
 
+test("OrderCreate saves an order that leaves the optional delivery fields untouched", async () => {
+  const calls = renderPage({ create: <OrderCreate /> }, "/create");
+
+  fireEvent.change(input(/reference/i), { target: { value: "ORD-TEST" } });
+
+  fireEvent.click(elementOf(screen.getByLabelText("Customer"), HTMLElement));
+  const customerListbox = await screen.findByRole("listbox");
+  fireEvent.click(within(customerListbox).getByText("River Stone"));
+
+  fireEvent.click(
+    elementOf(screen.getByLabelText("Main product"), HTMLElement),
+  );
+  const productListbox = await screen.findByRole("listbox");
+  fireEvent.click(within(productListbox).getByText("Mechanical Keyboard"));
+
+  fireEvent.click(elementOf(screen.getByLabelText(/status/i), HTMLElement));
+  const statusListbox = await screen.findByRole("listbox");
+  fireEvent.click(within(statusListbox).getByText("Pending"));
+
+  fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+  await waitFor(() => expect(calls.create).toHaveBeenCalledTimes(1));
+  expect(calls.create).toHaveBeenCalledWith(
+    "orders",
+    expect.objectContaining({
+      data: expect.objectContaining({
+        reference: "ORD-TEST",
+        customer_id: 1,
+        product_id: 1,
+        quantity: 1,
+        status: "pending",
+        total: 0,
+      }),
+    }),
+  );
+});
+
 test("OrderShow shows the order, its customer and its products", async () => {
   const calls = renderPage({ show: <OrderShow /> }, "/1/show");
 
@@ -154,4 +192,17 @@ test("the orders schema accepts every seeded order", () => {
   for (const order of orders) {
     expect(orderSchema.safeParse(order).success).toBe(true);
   }
+});
+
+test("the orders schema accepts a create without the optional delivery fields", () => {
+  expect(
+    orderSchema.safeParse({
+      reference: "ORD-TEST",
+      customer_id: 1,
+      product_id: 1,
+      quantity: 1,
+      status: "pending",
+      total: 0,
+    }).success,
+  ).toBe(true);
 });

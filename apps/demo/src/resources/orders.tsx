@@ -27,7 +27,8 @@ import { z } from "zod";
 /**
  * The record the views read and the forms validate against. The three nullable
  * fields are the ones their input writes `null` back to: clearing a date, a
- * time or a duration stores null, not an empty string.
+ * time or a duration stores null, not an empty string. They are optional too:
+ * a create form leaves them out until the user touches them.
  */
 export const orderSchema = z.object({
   id: z.number().optional(),
@@ -38,7 +39,7 @@ export const orderSchema = z.object({
     .min(1, "Reference is required"),
   customer_id: z.number({ error: "Pick a customer" }),
   product_id: z.number({ error: "Pick a product" }),
-  product_ids: z.array(z.number({ error: "Pick a product" })),
+  product_ids: z.array(z.number({ error: "Pick a product" })).optional(),
   quantity: z
     .number({ error: "Quantity is required" })
     .min(1, "Quantity must be at least 1"),
@@ -48,9 +49,12 @@ export const orderSchema = z.object({
   total: z
     .number({ error: "Total is required" })
     .min(0, "Total cannot be negative"),
-  delivery_at: z.string({ error: "Pick a delivery date" }).nullable(),
-  slot: z.string().nullable(),
-  handling: z.string().nullable(),
+  delivery_at: z
+    .string({ error: "Pick a delivery date" })
+    .nullable()
+    .optional(),
+  slot: z.string().nullable().optional(),
+  handling: z.string().nullable().optional(),
 });
 
 const orders = createResourceComponents("orders");

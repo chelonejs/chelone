@@ -19,13 +19,13 @@ expectTypeOf<RecordOf<typeof resources, "orders">>().toEqualTypeOf<{
   reference: string;
   customer_id: number;
   product_id: number;
-  product_ids: number[];
+  product_ids?: number[];
   quantity: number;
   status: "pending" | "shipped" | "delivered" | "cancelled";
   total: number;
-  delivery_at: string | null;
-  slot: string | null;
-  handling: string | null;
+  delivery_at?: string | null;
+  slot?: string | null;
+  handling?: string | null;
 }>();
 
 /** The registry carries the schema itself, so the forms validate against it. */
@@ -56,7 +56,7 @@ export function OrderSourceProof() {
       />
       <orders.TimeInput
         source="slot"
-        // @ts-expect-error `slot` holds a string or null, not a number
+        // @ts-expect-error `slot` holds a string, null or undefined, not a number
         parse={(slot) => (slot ? Number.parseInt(slot, 10) : null)}
       />
     </>
