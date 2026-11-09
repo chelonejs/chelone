@@ -115,7 +115,8 @@ function PhoneInput(props: PhoneInputProps) {
           aria-label="Country"
           value={country}
           onChange={(e) => {
-            const cc = e.target.value as CountryCode;
+            const cc = countries.find((c) => c === e.target.value);
+            if (cc === undefined) return;
             setCountry(cc);
             writeBack(display, cc);
           }}
