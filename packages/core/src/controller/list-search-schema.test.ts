@@ -44,6 +44,10 @@ describe("listSearchSchema", () => {
     ["a truncated filter", "?filter=%7Bnot-json&page=2"],
     ["a filter that is a JSON array", `?filter=${filterJson([])}&sort=title`],
     ["a filter that is null", "?filter=null&sort=title"],
+    ["a sort that reads as a number", "?sort=2024&page=2"],
+    ["a sort that reads as a negative number", "?sort=-7"],
+    ["a sort that reads as true", "?sort=true&order=DESC"],
+    ["a sort that reads as null", "?sort=null"],
     ["an empty search", ""],
   ])(
     "reads a query string's raw strings as parseListParams does: %s",
@@ -64,6 +68,19 @@ describe("listSearchSchema", () => {
       displayedFilters: { q: true },
     };
     expect(listSearchSchema.parse(search)).toEqual(search);
+  });
+
+  it("reads a sort a router read as a JSON scalar back as its name", () => {
+    expect(listSearchSchema.parse({ sort: 2024, page: 2 })).toEqual({
+      sort: "2024",
+      page: 2,
+    });
+    expect(listSearchSchema.parse({ sort: -7 })).toEqual({ sort: "-7" });
+    expect(listSearchSchema.parse({ sort: true, order: "DESC" })).toEqual({
+      sort: "true",
+      order: "DESC",
+    });
+    expect(listSearchSchema.parse({ sort: null })).toEqual({ sort: "null" });
   });
 
   it("upper-cases an order a router hands in lowercase", () => {
@@ -87,7 +104,7 @@ describe("listSearchSchema", () => {
       page: {},
       filter: 5,
       order: 3,
-      sort: 4,
+      sort: {},
     });
     expect(parsed).toEqual({});
     expect(parsed.page).toBeUndefined();
@@ -119,6 +136,10 @@ describe("listSearchSchema round-trips through serializeListParams", () => {
       perPage: 10,
     },
     { filter: {}, displayedFilters: {} },
+    { sort: "2024", order: "DESC", page: 3 },
+    { sort: "-7" },
+    { sort: "true" },
+    { sort: "null" },
   ];
 
   it.each(queries.map((query, index) => [index, query]))(

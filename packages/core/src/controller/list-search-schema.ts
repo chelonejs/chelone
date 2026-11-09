@@ -8,7 +8,10 @@
  * nothing throws, as in {@link parseListParams}: bad JSON, JSON that is not an
  * object, a `page` or `perPage` below 1, an `order` outside `ASC` and `DESC`.
  * A key the list does not have is dropped, which is zod's default for an
- * object. The output is mutually assignable with {@link ListParamsQuery}.
+ * object. A `sort` the parser read as a JSON scalar (`?sort=2024` on a year
+ * column) comes back as the name it was written as, so a URL Chelone wrote
+ * reads back the same. The output is mutually assignable with
+ * {@link ListParamsQuery}.
  *
  * `filter` keys stay an open map, the way {@link parseListParams} returns them:
  * the schema is for a loose record, and a schema typed per resource waits for a
@@ -50,11 +53,26 @@ function intKey() {
     .optional();
 }
 
-/** A key that takes a string and nothing else. */
+/**
+ * `sort`: the field name a URL carries. A router whose parser JSON-reads values
+ * hands over a number, a boolean or a `null` for a name that reads as a JSON
+ * scalar (`?sort=2024`, `?sort=true`, `?sort=null`), so those come back as the
+ * name they were written as, the way `URLSearchParams` hands them over.
+ */
 function stringKey() {
   return z
     .unknown()
-    .transform((value) => (typeof value === "string" ? value : undefined))
+    .transform((value) => {
+      if (typeof value === "string") return value;
+      if (
+        typeof value === "number" ||
+        typeof value === "boolean" ||
+        value === null
+      ) {
+        return String(value);
+      }
+      return undefined;
+    })
     .optional();
 }
 

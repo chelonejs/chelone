@@ -175,9 +175,11 @@ export const Route = createFileRoute("/posts")({
 
 A router hands `validateSearch` what its own search parser produced, so a key
 arrives as the wire string (`page=2`) or already parsed (`2`, a JSON object).
-The schema takes both, and drops a key a list does not have. `filter` keys stay
-an open map, the way `parseListParams` returns them. Extend it with the app's
-own keys:
+The schema takes both, and drops a key a list does not have. A `sort` whose name
+reads as a JSON scalar (`?sort=2024` for a year column) comes back as the name
+it was written as, so the URL a list wrote reads back the same. `filter` keys
+stay an open map, the way `parseListParams` returns them. Extend it with the
+app's own keys:
 
 ```tsx
 import { listSearchSchema } from "@chelone/core";
