@@ -32,7 +32,7 @@ export interface FileFieldProps<
  */
 
 import { computed } from "vue";
-import { getAtPath, isSafeFileUrl } from "@chelone/core";
+import { fileFieldLinks } from "@chelone/core";
 import { cn } from "../../../lib/utils";
 import { useRecordContextRef } from "../../../record/record-context";
 import { useFieldValue } from "../../../record/use-field-value";
@@ -46,69 +46,25 @@ const sourceValue = useFieldValue<RecordType>({
   defaultValue: props.defaultValue,
 });
 
-// A `title` may be a record path OR a literal label, so it is read with
+// A `title` may be a record path OR a literal label, so core reads it with
 // `getAtPath` off the ambient record instead of `useFieldValue`: that hook wants
 // a `SourceProp<RecordType>`, and a literal label is no record's path.
 const ctxRecord = useRecordContextRef<RecordType>(() => props.record);
-const titleFromRecord = computed(() =>
-  props.title ? getAtPath(ctxRecord.value, props.title) : undefined,
-);
-
-const titleValue = computed(() =>
-  props.title
-    ? titleFromRecord.value == null
-      ? props.title
-      : String(titleFromRecord.value)
-    : undefined,
-);
 
 const translate = useTranslate();
 
-const isEmpty = computed(() => {
-  const v = sourceValue.value;
-  return v == null || (Array.isArray(v) && v.length === 0);
-});
+const links = computed(() =>
+  fileFieldLinks(sourceValue.value, ctxRecord.value, {
+    src: props.src,
+    title: props.title,
+  }),
+);
 
 const emptyText = computed(() =>
   props.empty ? translate(props.empty, { _: props.empty }) : null,
 );
 
 const isArray = computed(() => Array.isArray(sourceValue.value));
-
-interface FileLink {
-  href: string | undefined;
-  title: string | undefined;
-  key: string | number;
-}
-
-const links = computed<FileLink[]>(() => {
-  if (!Array.isArray(sourceValue.value)) return [];
-  return sourceValue.value.map((file, index) => {
-    // Inside `props.title ?`, the fallback is never nullish.
-    const fileTitleValue = props.title
-      ? String(getAtPath(file, props.title) ?? props.title)
-      : props.title;
-    // `src` falls back to `props.title`, which may be absent: a miss stays
-    // `undefined` so the link gets no href, never the text "undefined".
-    const srcPath = props.src
-      ? (getAtPath(file, props.src) ?? props.title)
-      : props.title;
-    const srcValue = srcPath == null ? undefined : String(srcPath);
-    return {
-      // A stored url reaches `href` only when its scheme is safe. An unsafe
-      // value renders the anchor with no href, as a missing `src` does.
-      href: srcValue != null && isSafeFileUrl(srcValue) ? srcValue : undefined,
-      title: fileTitleValue,
-      key: srcValue ?? index,
-    };
-  });
-});
-
-const singleHref = computed(() => {
-  if (sourceValue.value == null) return undefined;
-  const value = String(sourceValue.value);
-  return isSafeFileUrl(value) ? value : undefined;
-});
 
 function stop(e: Event): void {
   e.stopPropagation();
@@ -117,18 +73,18 @@ function stop(e: Event): void {
 
 <template>
   <div
-    v-if="isEmpty && emptyText != null"
+    v-if="links === null && emptyText != null"
     :class="cn('inline-block', props.class)"
     data-slot="file-field"
   >
     {{ emptyText }}
   </div>
   <ul
-    v-else-if="!isEmpty && isArray"
+    v-else-if="links !== null && isArray"
     :class="cn('inline-block', props.class)"
     data-slot="file-field"
   >
-    <li v-for="link in links" :key="link.key">
+    <li v-for="(link, index) in links" :key="index">
       <a
         :href="link.href"
         :title="link.title"
@@ -142,19 +98,19 @@ function stop(e: Event): void {
     </li>
   </ul>
   <div
-    v-else-if="!isEmpty"
+    v-else-if="links !== null"
     :class="cn('inline-block', props.class)"
     data-slot="file-field"
   >
     <a
-      :href="singleHref"
-      :title="titleValue"
+      :href="links[0]?.href"
+      :title="links[0]?.title"
       :target="props.target"
       :download="props.download"
       :ping="props.ping"
       :rel="props.rel"
       @click="stop"
-      >{{ titleValue }}</a
+      >{{ links[0]?.title }}</a
     >
   </div>
 </template>
