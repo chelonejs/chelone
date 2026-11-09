@@ -1,4 +1,4 @@
-import { defineResources } from "@chelone/core";
+import { defineResources, type englishMessages } from "@chelone/core";
 import { z } from "zod";
 import { postSchema } from "./posts";
 
@@ -62,9 +62,14 @@ export const resources = defineResources({
  * resources are `{}` entries so the plain components still accept their paths
  * (a resource with no schema has a loose record). `createResourceComponents`
  * is the strict path: see `register-proof.tsx`.
+ *
+ * Registering `englishMessages` — the catalog `makeDemoI18n` mounts — types
+ * every `useTranslate()` key and param in the app. The demos' own `demo.*` keys
+ * are not in it, so they keep the loose arm with a `_` default.
  */
 declare module "@chelone/core" {
   interface Register {
     resources: typeof resources;
+    messages: typeof englishMessages;
   }
 }

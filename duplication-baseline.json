@@ -110,7 +110,6 @@
   "packages/react/src/hooks.ts <-> packages/react/src/hooks.ts": 2,
   "packages/react/src/hooks.ts <-> packages/vue/src/data/create-chelone-hooks.ts": 1,
   "packages/react/src/hooks.ts <-> packages/vue/src/data/mutations.ts": 3,
-  "packages/react/src/i18n-hooks.ts <-> packages/vue/src/i18n/use-translate.ts": 1,
   "packages/react/src/infinite-hooks.ts <-> packages/vue/src/controllers/use-infinite-list-controller.ts": 1,
   "packages/react/src/router/react-router-adapter.tsx <-> packages/react/src/ssr/router-factory.tsx": 1,
   "packages/react/src/undoable-hooks.ts <-> packages/vue/src/data/undoable.ts": 2,

@@ -1,8 +1,9 @@
 import {
   type AnyCheloneI18n,
+  asRegisteredTranslate,
   createI18n,
   type MessageCatalog,
-  type TranslateParamValues,
+  type RegisteredTranslate,
 } from "@chelone/core";
 import { useCallback, useMemo, useSyncExternalStore } from "react";
 import { useCheloneContext, useCheloneI18n } from "./context";
@@ -25,8 +26,6 @@ export function useSetLocale(): (locale: string) => void {
   return useCallback((locale: string) => i18n.setLocale(locale), [i18n]);
 }
 
-type Translate = (key: string, params?: TranslateParamValues) => string;
-
 // No i18n: an empty catalog echoes the key, and for a missing key honours the
 // polyglot `{ _: default }` convention, placeholders filled in, as with a real one.
 const echoI18n: AnyCheloneI18n = createI18n<MessageCatalog>({
@@ -34,8 +33,11 @@ const echoI18n: AnyCheloneI18n = createI18n<MessageCatalog>({
   messages: { en: {} },
 });
 
-/** Bound `translate`, or an echo when no i18n was passed to `<Admin>`. */
-export function useTranslate(): Translate {
+/**
+ * Bound `translate`, typed against the app's registered catalog (see
+ * `RegisteredMessages`), or an echo when no i18n was passed to `<Admin>`.
+ */
+export function useTranslate(): RegisteredTranslate {
   const i18n = useCheloneContext().i18n ?? echoI18n;
   const locale = useSyncExternalStore(
     useCallback((cb: () => void) => i18n.subscribe(cb), [i18n]),
@@ -44,5 +46,8 @@ export function useTranslate(): Translate {
   ); // re-render this consumer on locale change — no remount anywhere
   // Identity-stable per locale so React.memo children receiving `t` skip correctly.
   // biome-ignore lint/correctness/useExhaustiveDependencies(locale): locale is the deliberate invalidation key — translate closes over the i18n instance's mutable locale, so the bound identity must refresh on locale change.
-  return useMemo(() => i18n.translate.bind(i18n), [i18n, locale]);
+  return useMemo(
+    () => asRegisteredTranslate(i18n.translate.bind(i18n)),
+    [i18n, locale],
+  );
 }
