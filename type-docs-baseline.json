@@ -59,24 +59,7 @@
     "@chelone/vue:UseReferenceInputOptions",
     "@chelone/vue:useArrayInput"
   ],
-  "translations-and-permissions": [
-    "@chelone/core:AuthProvider",
-    "@chelone/core:HasLiteralMessages",
-    "@chelone/core:RegisteredLiteralMessages",
-    "@chelone/core:RegisteredMessages",
-    "@chelone/core:RegisteredPermissions",
-    "@chelone/core:RegisteredTranslate",
-    "@chelone/core:TranslateFor",
-    "@chelone/react:AdminChildren",
-    "@chelone/react:AdminUIProps",
-    "@chelone/react:UsePermissionsResult",
-    "@chelone/react:useAdminChildren",
-    "@chelone/react:useResolvedChildren",
-    "@chelone/supabase:SupabaseAuthProvider",
-    "@chelone/supabase:SupabaseAuthProviderOptions",
-    "@chelone/supabase:supabaseAuthProvider",
-    "@chelone/vue:UsePermissionsResult"
-  ],
+  "translations-and-permissions": [],
   "typed-components": [
     "@chelone/react:CalendarListProps",
     "@chelone/react:DatagridInputProps",
