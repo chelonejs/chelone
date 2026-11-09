@@ -155,6 +155,48 @@ a link you can share.
   `storeKey: "other"` to namespace them, or `storeKey: false` to turn the
   persistence off.
 
+### Validate the search in a route
+
+A route can validate the query before the list reads it. TanStack Router's
+`validateSearch` takes a schema, and `listSearchSchema` is the list's six keys
+as one: `filter`, `displayedFilters`, `sort`, `order`, `page` and `perPage`,
+each optional, each read by the same rules `parseListParams` uses. A malformed
+key becomes absent and nothing throws.
+
+```tsx title="src/routes/posts.tsx"
+import { listSearchSchema } from "@chelone/core";
+import { createFileRoute } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/posts")({
+  validateSearch: listSearchSchema,
+  component: PostList,
+});
+```
+
+A router hands `validateSearch` what its own search parser produced, so a key
+arrives as the wire string (`page=2`) or already parsed (`2`, a JSON object).
+The schema takes both, and drops a key a list does not have. A `sort` whose name
+reads as a JSON scalar (`?sort=2024` for a year column) comes back as the name
+it was written as, so the URL a list wrote reads back the same. `filter` keys
+stay an open map, the way `parseListParams` returns them. Extend it with the
+app's own keys:
+
+```tsx
+import { listSearchSchema } from "@chelone/core";
+import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
+
+export const Route = createFileRoute("/posts")({
+  validateSearch: listSearchSchema.extend({ tab: z.string() }),
+  component: PostList,
+});
+```
+
+The result is `ListParamsQuery`-shaped, so `parseListParams`,
+`serializeListParams` and `hasCustomParams` read it as they read a parsed URL.
+Validating it changes nothing about what the list writes: the same six keys,
+read back the same way.
+
 ### Prefetch in a route loader
 
 A loader that prefetches a list has to hit the query key the mounted list
