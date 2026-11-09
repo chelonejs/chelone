@@ -2,7 +2,13 @@ import { defineResources } from "@chelone/core";
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type { UsePermissionsResult } from "./auth-hooks";
-import { useDelete, useUpdate } from "./hooks";
+import {
+  createCheloneHooks,
+  useDelete,
+  useDeleteMany,
+  useUpdate,
+  useUpdateMany,
+} from "./hooks";
 import { useTranslate } from "./i18n-hooks";
 
 const resources = defineResources({
@@ -59,6 +65,26 @@ it("an undoable useUpdate patch is the named resource's Partial", () => {
     data: { title: 1 },
     previousData: { id: 1, title: "y" },
   });
+});
+
+it("useUpdateMany types data by the resource's record", () => {
+  const update = useUpdateMany<R, "posts">("posts");
+  type Params = Parameters<typeof update.mutate>[0];
+  expectTypeOf<Params["data"]>().toEqualTypeOf<Partial<Post>>();
+  update.mutate({
+    ids: [1],
+    // @ts-expect-error title is a string
+    data: { title: 1 },
+  });
+});
+
+it("createCheloneHooks().useDeleteMany rejects an unknown resource", () => {
+  const hooks = createCheloneHooks<R>();
+  hooks.useDeleteMany("posts");
+  // @ts-expect-error "nope" is not a resource of R
+  hooks.useDeleteMany("nope");
+  const del = useDeleteMany<R, "posts">("posts");
+  del.mutate({ ids: [1] });
 });
 
 it("translate params refuse an object value", () => {

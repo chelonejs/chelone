@@ -426,7 +426,9 @@ export type {
 } from "./data/mutation-options";
 export {
   createMutationOptions,
+  deleteManyMutationOptions,
   deleteMutationOptions,
+  updateManyMutationOptions,
   updateMutationOptions,
 } from "./data/mutation-options";
 export type { DataContext } from "./data/query-options";
