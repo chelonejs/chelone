@@ -21,6 +21,6 @@ export type FieldData<TRecord> = DeepValue<TRecord, DeepKeys<TRecord>>;
 
 /** A runtime-composed path, as form-core's name for it. */
 export function toFieldName<TRecord>(path: string): DeepKeys<TRecord> {
-  // type-escape: a path of the record by construction, which TS cannot see.
+  // type-escape: form-core: a path of the record by construction, which TS cannot see.
   return path as DeepKeys<TRecord>;
 }
