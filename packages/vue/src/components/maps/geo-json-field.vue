@@ -2,7 +2,7 @@
 import type { SourceProp } from "@chelone/core";
 import type { GeoJsonViewProps } from "./geo-json-view.vue";
 
-// type-escape: without a `record` the paths are loose, as `SourceProp<unknown>` is
+// type-escape: context: without a `record` the paths are loose, as `SourceProp<unknown>` is
 /** Props for {@link GeoJsonField}. */
 export interface GeoJsonFieldProps<TRecord = unknown>
   extends Partial<Omit<GeoJsonViewProps, "data">> {
@@ -53,7 +53,7 @@ const props = withDefaults(defineProps<GeoJsonFieldProps<TRecord>>(), {
 
 const translate = useTranslate();
 // A getter, so a new record prop reaches the computed value.
-// type-escape: `source` is the loose `SourceProp`, so the read is untyped
+// type-escape: context: `source` is the loose `SourceProp`, so the read is untyped
 const value = useFieldValue<unknown>({
   source: props.source,
   get record() {

@@ -157,6 +157,6 @@ export function useChoicesContext<TChoice extends ChoiceRecord = ChoiceRecord>(
       "useChoicesContext: pass `choices` or call provideChoicesContext() above.",
     );
   }
-  // type-escape: the context holds the erased value; the caller names its choice shape
+  // type-escape: context: the context holds the erased value; the caller names its choice shape
   return resolved as ChoicesContextValue<TChoice>;
 }
