@@ -212,6 +212,30 @@ it("the page holds the five twoslash examples", () => {
   expect(page).toContain("```vue");
 });
 
+it("the page shows that a bound hook rejects a name the caller cannot pin", () => {
+  // The fence holding the call must declare its error, so the build gate fails
+  // if the bound members ever stop rejecting a `string` name.
+  const fence = twoslashFences().find((each) =>
+    each.value.includes("hooks.useGetList(fromContext);"),
+  );
+  expect(fence, "a fence with `hooks.useGetList(fromContext)`").toBeDefined();
+  expect(fence?.value).toMatch(/^\/\/ @errors: \d+/m);
+  expect(section("## createCheloneHooks")).toContain(
+    "keyof TResources & string",
+  );
+});
+
+it("the page says an undoable mutateAsync settles at once, not on the response", () => {
+  const mutations = section("## Mutations");
+  expect(mutations.length).toBeGreaterThan(0);
+  expect(mutations).toContain("fire-and-forget");
+  expect(mutations).toContain("undo or no undo");
+  // Core's undoable pair really does resolve nothing.
+  expect(read("../../../packages/core/src/data/undoable.ts")).toMatch(
+    /mutateAsync: async \(params\) => \{\s*\n\s*mutate\(params\);/,
+  );
+});
+
 it("every twoslash fence on the page type-checks", () => {
   const fences = twoslashFences();
   expect(fences.length).toBeGreaterThanOrEqual(5);
@@ -229,6 +253,9 @@ it("the page says the context hooks read no registry, and marks the read-back", 
   expect(context).toContain("Register");
   expect(context).toContain("type-escape");
   expect(context).toContain("LooseRecord");
+  // Vue's `RecordValue` is the plain union; only `useRecordContextRef` wraps it.
+  expect(context).toContain("not a ref");
+  expect(context).toContain("ComputedRef");
 });
 
 it("the page holds no em dash and no bold", () => {

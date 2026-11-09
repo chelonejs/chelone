@@ -136,8 +136,36 @@ const row = bound.data?.data[0];
 `createCheloneHooks<typeof resources>()` binds the map the module holds.
 `createCheloneHooks<RegisteredResources>()` is the form that follows
 `Register`, for an app that registers once and wants the bound hooks to read
-whatever that augmentation holds. A bound call site is no looser than a plain
-one: a name held as a `string` still reaches the loose arm.
+whatever that augmentation holds.
+
+A bound call site is stricter than a plain one. Every member constrains `TName`
+to `keyof TResources & string`, so a name the caller cannot pin is rejected
+instead of falling to the loose arm. For a name read from context or props, use
+the plain hook, which keeps the `string` arm:
+
+```tsx twoslash title="src/hooks.ts"
+// @errors: 2345
+import { defineResources } from "@chelone/core";
+import { createCheloneHooks } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+export const hooks = createCheloneHooks<typeof resources>();
+
+declare const fromContext: string;
+hooks.useGetList(fromContext);
+```
 
 ### What the factory returns
 
@@ -232,8 +260,12 @@ hooks.useUpdate("posts").mutate({ id: 1, data: { title: 1 } });
 
 With `mutationMode: "undoable"` the adapter swaps in the pair core builds
 (`undoableUpdateMutators` and `undoableDeleteMutators`), which patches the cache
-now and defers the provider call. `mutateAsync` then resolves to the record or
-to nothing, because an undo cancels the call before it lands:
+now and defers the provider call. That pair is fire-and-forget: its
+`mutateAsync` calls `mutate` and settles at once, so in the undoable mode it
+resolves to nothing every time, undo or no undo. The `Post | void` on
+`mutateAsync` is the union of the undoable return and the ordinary one, because
+the adapter picks the shape from the mode it is handed at runtime and the type
+cannot see which one a call got. Await the record only in the ordinary modes:
 
 ```tsx twoslash title="src/hooks.ts"
 import { defineResources } from "@chelone/core";
@@ -252,13 +284,15 @@ declare module "@chelone/core" {
 
 // ---cut---
 const update = useUpdate("posts", { mutationMode: "undoable" });
+// The undoable pair settles once the undoable is enqueued.
 const done = update.mutateAsync({ id: 1, data: { title: "new" } });
 //    ^?
 ```
 
-Both arms are pinned in `packages/react/src/hooks.test-d.ts`, which asserts
-`mutateAsync` equals `Post | void` and that assigning it to a `Post` is an
-error.
+`packages/react/src/hooks.test-d.ts` pins the type rather than the arrival: it
+asserts `mutateAsync` equals `Post | void`, and that assigning it to a `Post` is
+an error.
+
 
 ## The record context hooks
 
@@ -294,8 +328,10 @@ const title = record?.title;
 //    ^?
 ```
 
-`RecordContextValue<RecordType>` is `RecordType | undefined`, and Vue's
-`RecordValue<RecordType>` is the same union behind a `Ref`.
+`RecordContextValue<RecordType>` is `RecordType | undefined`. Vue's
+`RecordValue<RecordType>` is the same union, and it is not a ref:
+`useRecordContext` returns the value itself, and `useRecordContextRef` returns
+it inside a `ComputedRef`.
 
 The type is a claim about the provider above it, not a fact read off it: a
 context value cannot carry a type argument, so the provider publishes the record
