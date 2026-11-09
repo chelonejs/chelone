@@ -22,8 +22,6 @@
     "@chelone/core:LifecycleHandler",
     "@chelone/core:LockProvider",
     "@chelone/core:RealtimeDataProvider",
-    "@chelone/core:RecordOf",
-    "@chelone/core:ResourceMap",
     "@chelone/core:assertRealtimeDataProvider",
     "@chelone/core:combineDataProviders",
     "@chelone/core:fakeDataProvider",
