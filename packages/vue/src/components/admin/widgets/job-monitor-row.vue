@@ -81,7 +81,7 @@ const jobActions = computed(() => getJobActions(props.job, options.value));
 const mayAct = computed(
   () => props.actions && canAccess.value && !isAccessPending.value,
 );
-// type-escape: getAtPath reads a record by a runtime path and returns unknown
+// type-escape: server: getAtPath reads a record by a runtime path and returns unknown
 const text = (value: unknown) =>
   value == null || value === "" ? undefined : String(value);
 const type = computed(() => text(getAtPath(props.job, props.fields.typeSource)));

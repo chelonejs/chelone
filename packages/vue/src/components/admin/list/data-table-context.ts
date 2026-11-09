@@ -117,7 +117,7 @@ const DataTableRowsKey: InjectionKey<DataTableRowsContext<ResourceRecord>> =
 export function provideDataTableRows<TRecord extends ResourceRecord>(
   context: DataTableRowsContext<TRecord>,
 ): void {
-  // type-escape: an injection key cannot carry the table's record type; `useDataTableRows` reads it back at the same one
+  // type-escape: context: an injection key cannot carry the table's record type; `useDataTableRows` reads it back at the same one
   provide(DataTableRowsKey, context as DataTableRowsContext<ResourceRecord>);
 }
 
@@ -125,6 +125,6 @@ export function provideDataTableRows<TRecord extends ResourceRecord>(
 export function useDataTableRows<
   TRecord extends ResourceRecord = LooseRecord,
 >(): DataTableRowsContext<TRecord> | null {
-  // type-escape: the table published its context at its own record type, which the row names
+  // type-escape: context: the table published its context at its own record type, which the row names
   return inject(DataTableRowsKey, null) as DataTableRowsContext<TRecord> | null;
 }

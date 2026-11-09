@@ -75,7 +75,7 @@ const title = computed(() => {
     : undefined;
   return value == null ? getRepresentation(props.record) : String(value);
 });
-// type-escape: getAtPath reads a record by a runtime path and returns unknown
+// type-escape: server: getAtPath reads a record by a runtime path and returns unknown
 const subtitle = computed<unknown>(() =>
   props.subtitleSource ? getAtPath(props.record, props.subtitleSource) : undefined,
 );
