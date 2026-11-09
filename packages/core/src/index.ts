@@ -502,6 +502,19 @@ export { createApplicationUpdateStore } from "./environment/application-update-s
 export type { OfflineSnapshot } from "./environment/offline-store";
 export { createOfflineStore } from "./environment/offline-store";
 export type {
+  BooleanFieldDisplay,
+  BooleanFieldDisplayOptions,
+  RatingStar,
+  RatingStars,
+  RatingStarsOptions,
+} from "./field-display/labels";
+export {
+  booleanFieldDisplay,
+  defaultRecordRepresentation,
+  emailFieldHref,
+  ratingStars,
+} from "./field-display/labels";
+export type {
   FileFieldLink,
   ImageFieldSource,
 } from "./field-display/links";

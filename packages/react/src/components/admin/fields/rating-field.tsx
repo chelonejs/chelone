@@ -1,10 +1,11 @@
 import {
   getAtPath,
   type LooseRecord,
+  type RatingStar,
   type ResourceRecord,
+  ratingStars,
   type SourceKey,
 } from "@chelone/core";
-import type { ReactNode } from "react";
 import type { SpanFieldProps } from "@/lib/field-types";
 import { useTranslate } from "../../../i18n-hooks";
 import { useRecordContext } from "../../../record/record-context";
@@ -65,17 +66,21 @@ function RatingField<RecordType extends ResourceRecord = LooseRecord>({
     );
   }
 
-  const numericValue = typeof value === "number" ? value : Number(value);
-  const stars = renderStars(numericValue, max, allowHalf);
+  const rating = ratingStars(value, { max, allowHalf });
 
   return (
     <span
       {...sanitizeFieldRestProps(rest)}
       className={`inline-flex items-center gap-1 ${className ?? ""}`}
       role="img"
-      aria-label={`${numericValue} out of ${max}`}
+      aria-label={`${rating.value} out of ${max}`}
     >
-      <span className="inline-flex">{stars}</span>
+      <span className="inline-flex">
+        {rating.stars.map((kind, index) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: stars are positional and repeat, so only their place keys them
+          <Star key={index + 1} kind={kind} />
+        ))}
+      </span>
       {count != null && (
         <span className="text-muted-foreground text-sm">({count})</span>
       )}
@@ -83,18 +88,7 @@ function RatingField<RecordType extends ResourceRecord = LooseRecord>({
   );
 }
 
-function renderStars(value: number, max: number, allowHalf: boolean) {
-  const out: ReactNode[] = [];
-  for (let i = 1; i <= max; i++) {
-    let kind: "filled" | "half" | "empty" = "empty";
-    if (value >= i) kind = "filled";
-    else if (allowHalf && value >= i - 0.5) kind = "half";
-    out.push(<Star key={i} kind={kind} />);
-  }
-  return out;
-}
-
-function Star({ kind }: { kind: "filled" | "half" | "empty" }) {
+function Star({ kind }: { kind: RatingStar }) {
   const fill =
     kind === "filled"
       ? "currentColor"

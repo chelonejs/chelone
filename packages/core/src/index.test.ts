@@ -43,6 +43,13 @@ describe("@chelone/core barrel", () => {
     expect(barrel.formatFieldCurrency).toBeTypeOf("function");
   });
 
+  it("exports the boolean, rating and email field rules", () => {
+    expect(barrel.booleanFieldDisplay).toBeTypeOf("function");
+    expect(barrel.ratingStars).toBeTypeOf("function");
+    expect(barrel.emailFieldHref).toBeTypeOf("function");
+    expect(barrel.defaultRecordRepresentation).toBeTypeOf("function");
+  });
+
   it("exports noop", () => {
     expect(barrel.noop).toBeTypeOf("function");
     expect(barrel.noop()).toBeUndefined();

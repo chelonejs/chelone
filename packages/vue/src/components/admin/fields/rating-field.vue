@@ -42,6 +42,7 @@ export interface RatingFieldProps<
  */
 
 import { computed } from "vue";
+import { ratingStars, type RatingStar } from "@chelone/core";
 import { useFieldValue } from "../../../record/use-field-value";
 import { useRecordContextRef } from "../../../record/record-context";
 import { useTranslate } from "../../../i18n/use-translate";
@@ -72,24 +73,18 @@ const emptyText = computed(() =>
   props.empty ? translate(props.empty, { _: props.empty }) : null,
 );
 
-const numericValue = computed(() =>
-  typeof value.value === "number" ? value.value : Number(value.value),
+const rating = computed(() =>
+  ratingStars(value.value, { max: max.value, allowHalf: props.allowHalf }),
 );
 
-/** One entry per star: filled / half / empty (mirrors the twin's `renderStars`). */
-const stars = computed(() => {
-  const out: Array<"filled" | "half" | "empty"> = [];
-  for (let i = 1; i <= max.value; i++) {
-    if (numericValue.value >= i) out.push("filled");
-    else if (props.allowHalf && numericValue.value >= i - 0.5) out.push("half");
-    else out.push("empty");
-  }
-  return out;
-});
+const numericValue = computed(() => rating.value.value);
+
+/** One entry per star: filled / half / empty, from core's `ratingStars`. */
+const stars = computed(() => rating.value.stars);
 
 const hasValue = computed(() => value.value != null);
 
-function starFill(kind: "filled" | "half" | "empty"): string {
+function starFill(kind: RatingStar): string {
   if (kind === "filled") return "currentColor";
   if (kind === "half") return "url(#rating-half)";
   return "none";
