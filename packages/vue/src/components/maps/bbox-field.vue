@@ -32,14 +32,15 @@ const props = withDefaults(defineProps<BBoxFieldProps<TRecord>>(), {
   scrollZoom: false,
 });
 
-// type-escape: context: `source` is the loose `SourceProp`, so the read is untyped
-const value = useFieldValue<unknown>({
+const read = useFieldValue<TRecord>({
   source: props.source,
   get record() {
     return props.record;
   },
-  defaultValue: props.defaultValue,
 });
+const value = computed(() =>
+  read.value === undefined ? props.defaultValue : read.value,
+);
 // The polygon goes to `GeoJsonField` as a one-property record, so the box
 // shares its empty state and its map.
 const polygonRecord = computed(() => ({ box: bboxToPolygon(value.value) }));
