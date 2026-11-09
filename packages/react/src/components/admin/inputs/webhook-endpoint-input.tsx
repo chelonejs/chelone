@@ -13,7 +13,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { ValidationError } from "../../../field-error-display";
-import { useInput } from "../../../form-hooks";
+import { type UseInputOptions, useInput } from "../../../form-hooks";
 import { useResourceContext } from "../../../resource";
 import type { InputProps } from "../input-props";
 
@@ -39,7 +39,7 @@ const DEFAULT_VALUE: WebhookEndpoint = {
 };
 
 /** `options` with the empty endpoint as its `defaultValue` when it has none (`null` counts as none). */
-function withEmptyEndpoint(options: { defaultValue?: unknown }) {
+function withEmptyEndpoint(options: Pick<UseInputOptions, "defaultValue">) {
   return { ...options, defaultValue: options.defaultValue ?? DEFAULT_VALUE };
 }
 
@@ -71,8 +71,8 @@ function WebhookEndpointInput<
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
 
-  // `withEmptyEndpoint` takes the options loose: `DEFAULT_VALUE` is a
-  // `WebhookEndpoint`, not the value at `source`.
+  // type-escape: context: the options reach `useInput` record-free, since
+  // `DEFAULT_VALUE` is a `WebhookEndpoint`, not the value at `source`.
   const { id, field, fieldState, isRequired } = useInput({
     ...withEmptyEndpoint(inputProps),
     source,
