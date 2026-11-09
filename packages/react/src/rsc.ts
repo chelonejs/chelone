@@ -5,3 +5,11 @@ export {
   type ServerI18n,
   serverEmptyText,
 } from "./components/rsc/read-field-value";
+export {
+  ServerDateField,
+  type ServerDateFieldProps,
+  ServerNumberField,
+  type ServerNumberFieldProps,
+  ServerTextField,
+  type ServerTextFieldProps,
+} from "./components/rsc/server-scalar-fields";
