@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./drag-dom": "./src/drag-dom.ts",
-    "./i18n-provider-contract": "./src/i18n-provider-contract.ts"
+    "./i18n-provider-contract": "./src/i18n-provider-contract.ts",
+    "./locale-catalog": "./src/locale-catalog.ts"
   },
   "scripts": {
     "test": "NODE_OPTIONS=--no-experimental-webstorage vitest run --typecheck",
