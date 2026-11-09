@@ -12,12 +12,12 @@ export function useCoordinates<TRecord>(options: {
   lngSource: SourceProp;
   record?: TRecord;
 }): { lat: ComputedRef<number | null>; lng: ComputedRef<number | null> } {
-  // type-escape: `source` is the loose `SourceProp`, so the read is untyped
+  // type-escape: context: `source` is the loose `SourceProp`, so the read is untyped
   const latValue = useFieldValue<unknown>({
     source: options.latSource,
     record: options.record,
   });
-  // type-escape: `source` is the loose `SourceProp`, so the read is untyped
+  // type-escape: context: `source` is the loose `SourceProp`, so the read is untyped
   const lngValue = useFieldValue<unknown>({
     source: options.lngSource,
     record: options.record,

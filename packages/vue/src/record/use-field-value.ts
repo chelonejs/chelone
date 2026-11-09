@@ -61,11 +61,11 @@ export function useFieldValue<
 // overload above states the value's type.
 export function useFieldValue(options: {
   source: string;
-  // type-escape: implementation signature; the overload above states the type
+  // type-escape: context: the record-free implementation signature; the overload above states the type
   record?: unknown;
-  // type-escape: implementation signature; the overload above states the type
+  // type-escape: context: the record-free implementation signature; the overload above states the type
   defaultValue?: unknown;
-  // type-escape: as above
+  // type-escape: context: as above
 }): ComputedRef<unknown> {
   const { source, defaultValue } = options;
   const injected = inject(RecordContextKey, null);
