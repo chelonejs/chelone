@@ -39,7 +39,7 @@ describe("readFieldValue", () => {
 
 describe("serverEmptyText", () => {
   it("returns empty as is with no i18n", () => {
-    expect(serverEmptyText("ra.field.empty")).toBe("ra.field.empty");
+    expect(serverEmptyText("app.none")).toBe("app.none");
   });
 
   it("translates empty with the given i18n", () => {
