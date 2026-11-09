@@ -45,6 +45,7 @@ import { useTranslate } from "../../../i18n/use-translate";
 import { areIdsEqual } from "../../../lib/are-ids-equal";
 import { Field, FieldDescription, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
+import { targetOf } from "./event-target";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
@@ -135,7 +136,9 @@ function onFocus() {
 }
 
 function onInput(event: Event) {
-  const text = (event.target as HTMLInputElement).value;
+  const input = targetOf(event, HTMLInputElement);
+  if (!input) return;
+  const text = input.value;
   query.value = text;
   open.value = true;
   if (isFromReference) setFilters(props.filterToQuery(text));

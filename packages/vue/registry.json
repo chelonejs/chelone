@@ -1182,6 +1182,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/inputs/event-target.ts",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/inputs/file-input-preview.vue",
           "type": "registry:component"
         },
@@ -3647,6 +3651,7 @@
       ],
       "registryDependencies": [
         "@chelone/choice-input-props",
+        "@chelone/event-target",
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/lib-are-ids-equal",
@@ -3669,6 +3674,7 @@
       ],
       "registryDependencies": [
         "@chelone/choice-input-props",
+        "@chelone/event-target",
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/lib-are-ids-equal",
@@ -3801,6 +3807,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/event-target",
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
@@ -3906,6 +3913,7 @@
       ],
       "registryDependencies": [
         "@chelone/duration-utils",
+        "@chelone/event-target",
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/lib-utils",
@@ -3927,6 +3935,19 @@
         }
       ],
       "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "event-target",
+      "type": "registry:component",
+      "title": "Event Target",
+      "files": [
+        {
+          "path": "src/components/admin/inputs/event-target.ts",
+          "type": "registry:component"
+        }
+      ],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -3956,6 +3977,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/event-target",
         "@chelone/field",
         "@chelone/file-input-preview",
         "@chelone/label-text",
@@ -4137,6 +4159,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/event-target",
         "@chelone/field",
         "@chelone/input",
         "@chelone/label-text",
@@ -4295,6 +4318,7 @@
       ],
       "registryDependencies": [
         "@chelone/choice-input-props",
+        "@chelone/event-target",
         "@chelone/field",
         "@chelone/label-text",
         "@chelone/use-choice-input",
