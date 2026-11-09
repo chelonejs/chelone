@@ -16,12 +16,15 @@ A headless admin engine: a vanilla-TypeScript core with thin React and Vue adapt
 - Test from the outside: mount the component under `<Admin>` (see the harnesses in `packages/vue/src/components/admin/inputs/*.test.ts` and `packages/react/src/components/admin/inputs/*.test.tsx`) and assert DOM, roles and data-provider calls. jsdom applies no CSS, so never assert styling.
 - A package that imports a dependency declares it in its own `package.json`. pnpm hoisting can hide a missing one locally; CI's fresh install will not.
 - After adding, moving or removing a React or Vue component file, or changing what one imports, run `pnpm --dir packages/react registry:generate` or `pnpm --dir packages/vue registry:generate` and commit that package's `registry.json`. CI fails on a stale one.
+- A pull request that adds or changes a type-safety feature updates its page under `apps/website/src/docs/content/type-safety/`. Its snippets are `twoslash` fences, and the website build fails on one whose types drift.
+- Type docs: `pnpm check:type-docs` reads every `.` export of core, react, vue and supabase and fails an export whose signature names a registry type (`Register`, `ResourceMap`, `SourcePath`, …) while naming no Type Safety page. `type-docs.json` maps a page slug to the rows it names; `type-docs-baseline.json` holds the rows still owed, under the page that will explain them, and only shrinks, so a new export goes to `type-docs.json` with its page naming it as a whole word. `node scripts/check-type-docs.mjs --update` rewrites both from the tree.
 - Types are exact: no `any`, no `as unknown as`, no `as never`, and `unknown` only at a real boundary. Read `.claude/skills/chelone-typescript/SKILL.md` before writing TypeScript. `pnpm check:type-escapes` fails on any new escape. It compares each file with the same file on main, so there is no baseline to edit.
 - Comment only what would surprise the next reader.
 - Before writing a helper, search core, `@chelone/utils` and the other adapter for one. Logic both adapters need goes in core. Test-only helpers go in `@chelone/test-utils`, a private workspace package that imports no Chelone package; the adapters may import it only from test files and `__fixtures__`.
 - `pnpm check:duplication` (jscpd, counted per file pair against `duplication-baseline.json`) fails on new duplication and names both copies. Remove the copy instead. `pnpm check:duplication --update` is only for a pull request that removes or moves duplication, never to let a new clone through.
 - `pnpm check:type-cost` fails when a package's Instantiations or Types pass `type-cost-budget.json`. Find what grew first. `pnpm check:type-cost --update` is for a change that needs the cost, with why in the pull request, and for a TypeScript upgrade.
 - Prop parity: `pnpm test:scripts` compares each component's React and Vue props with `prop-parity-baseline.json`, set aside `class`/`className`, `readonly`/`readOnly`, callback props and emits, and `children` and slots, so a React prop a Vue slot stands for is not a gap. A new one-sided prop fails, and so does a row the adapters no longer have. `node scripts/prop-parity.test.mjs --update` rewrites the list.
+- Export parity: `pnpm test:scripts` compares the hooks and factories (`use*`, `create*`) each adapter's `package.json` entry points export with `export-parity-baseline.json`, a row per one-sided export, as `react:.:useEvent` or `vue:./maps:useMapLayer`. Components are left out, since `showcase.json` tracks them. A new one-sided hook fails, and so does a row the adapters no longer have, a note that is none of `matches <row>`, `intended: <reason>` or `gap: <what is missing>`, and a `gap:` note still holding the `gap: untriaged` placeholder: every row says why, and the pull request that adds a one-sided export writes its note. An issue that closes a gap takes its row out. `node scripts/export-parity.test.mjs --update` rewrites the list, writing a new row as `gap: untriaged` and keeping every other note as written.
 - Run `pnpm format` before every commit: `pnpm lint` fails on any file Biome would reformat. The pre-push hook in `.githooks/` runs `pnpm lint` and refuses the push when it fails; it also runs the duplication check, and skips it with a warning when jscpd is not installed (CI still runs it); `pnpm install` turns it on.
 - Commits: a conventional prefix (`feat:`, `fix:`, `test:`, `chore:`, `docs:`, `refactor:`) and a body that says why. Pull request bodies: a short bullet list of what changed, no em dashes, no bold.
 
@@ -47,11 +50,12 @@ From the root, the same commands CI runs (`.github/workflows/ci.yml`):
 pnpm install --frozen-lockfile
 pnpm format      # the fix, not a CI step: biome rewrites files so lint passes
 pnpm lint        # biome
-pnpm test:scripts # node --test over scripts/, prop parity included
+pnpm test:scripts # node --test over scripts/, prop and export parity included
 pnpm check:duplication
 pnpm check:type-escapes
 pnpm check:type-cost
 pnpm check:showcase
+pnpm check:type-docs
 pnpm typecheck   # tsc, vue-tsc, react-router typegen
 pnpm test        # vitest --typecheck in every package
 pnpm build       # demo, vue-demo, website

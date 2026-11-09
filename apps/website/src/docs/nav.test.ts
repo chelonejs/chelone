@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { defined } from "@chelone/test-utils";
 import { test } from "vitest";
 import rootMeta from "./content/_meta.ts";
+import typeSafetyMeta from "./content/type-safety/_meta.ts";
 import { buildNavTree, lastSegment } from "./nav.ts";
 import type { DocGroup, DocLeaf, DocNode } from "./types.ts";
 
@@ -150,6 +151,57 @@ test("the real section order puts React above Vue, under Getting Started", () =>
       ["vue", "Vue"],
     ],
   );
+});
+
+test("the real section order puts Type Safety second, after Getting Started", () => {
+  const tree = buildNavTree(
+    [
+      "getting-started/install",
+      "type-safety/overview",
+      "react/setup",
+      "vue/setup",
+    ],
+    { "": rootMeta },
+  );
+  assert.deepEqual(
+    tree.map((node) => [node.dir, node.title]),
+    [
+      ["getting-started", "Getting Started"],
+      ["type-safety", "Type Safety"],
+      ["react", "React"],
+      ["vue", "Vue"],
+    ],
+  );
+});
+
+test("the Type Safety section lists Overview first", () => {
+  // The slugs arrive scrambled, so the order below can only come from _meta.
+  const tree = buildNavTree(
+    [
+      "type-safety/when-types-widen",
+      "type-safety/overview",
+      "type-safety/typed-hooks",
+      "type-safety/registering-your-app",
+      "type-safety/sources-filters-and-sort",
+      "type-safety/typed-components",
+      "type-safety/translations-and-permissions",
+      "type-safety/resource-registry-and-codegen",
+    ],
+    { "": rootMeta, "type-safety": typeSafetyMeta },
+  );
+  const section = defined(tree.find((g) => g.dir === "type-safety"));
+  const slugs = leavesOf(section.children).map((leaf) => leaf.slug);
+  assert.equal(slugs[0], "type-safety/overview");
+  assert.deepEqual(slugs, [
+    "type-safety/overview",
+    "type-safety/registering-your-app",
+    "type-safety/resource-registry-and-codegen",
+    "type-safety/typed-components",
+    "type-safety/typed-hooks",
+    "type-safety/sources-filters-and-sort",
+    "type-safety/translations-and-permissions",
+    "type-safety/when-types-widen",
+  ]);
 });
 
 test("lastSegment returns the last path segment", () => {

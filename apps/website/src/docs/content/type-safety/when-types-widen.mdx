@@ -1,0 +1,389 @@
+---
+title: "When Types Widen"
+description: "Every fallback that keeps an app compiling before and after registering, what each one gives up, and what the checks cost an editor."
+---
+
+[Registering your app](/docs/type-safety/registering-your-app) is what turns a
+`source` from a plain `string` into a checked path. This page is the other half:
+the places where a checked type falls back to a loose one, what each fallback
+gives up, and what the whole scheme costs an editor.
+
+Every example here imports from `@chelone/core`. Both adapters put these same
+types on their props, and [Typed components](/docs/type-safety/typed-components)
+covers how a component gets them.
+
+## Nothing registered
+
+An app that never writes a `Register` augmentation still compiles and runs. Each
+registered type takes its fallback.
+
+| Type | With no augmentation |
+| --- | --- |
+| `AnySourcePath` | `string` |
+| `RegisteredResourceName` | `string` |
+| `RegisteredMessages` | `MessageCatalog` |
+| `RegisteredPermissions` | `unknown` |
+
+```ts twoslash title="src/loose.ts"
+import {
+  type AnySourcePath,
+  type RegisteredMessages,
+  type RegisteredPermissions,
+  type RegisteredResourceName,
+  type SortPayload,
+} from "@chelone/core";
+
+type Path = AnySourcePath;
+//    ^?
+
+type Name = RegisteredResourceName;
+//    ^?
+
+type SortField = SortPayload["field"];
+//    ^?
+
+// `MessageCatalog`, which is what the hover expands to.
+type Messages = RegisteredMessages;
+//    ^?
+
+type Permissions = RegisteredPermissions;
+//    ^?
+
+const sort: SortPayload = { field: "made_up_column", order: "ASC" };
+```
+
+Nothing breaks, and nothing is checked. `Resource` takes a
+`RegisteredResourceName`, so `name="posts"` and `name="pots"` are the same call.
+A `source` is a `string`, so a misspelt column compiles and renders an empty
+cell. `SortPayload["field"]` and `FilterPayload`'s keys are `string` too, so a
+sort on a column that does not exist reaches the data provider as written.
+`useTranslate` takes any key, and `usePermissions` hands back `unknown`.
+
+This is the state an app is in before it has written a single schema, and it is
+the reason `@chelone/core` has no compile-time requirement on registration.
+
+## One resource without a schema
+
+`defineResources` accepts a resource with no `schema`. `RecordOf` then hands back
+`LooseRecord` for it, and `SourcePath<LooseRecord>` is `string`.
+
+That reaches the whole map, not just the one resource. `AnySourcePathOf` unions
+every resource's paths, row paths and filter keys, and a union that holds
+`string` is `string`. One schemaless resource keeps the loose arm `string` for
+every prop that takes it. `SortPayload` and `FilterPayload` read that same arm
+for a loose record, so they widen with it.
+
+```ts twoslash title="src/half-registered.ts"
+import {
+  type AnySourcePath,
+  defineResources,
+  type RecordOf,
+  type SortPayload,
+} from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: {},
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// `comments` has no schema, so the loose arm is `string` for the whole map.
+type AnyPath = AnySourcePath;
+//    ^?
+
+type CommentRecord = RecordOf<typeof resources, "comments">;
+//    ^?
+
+type PostRecord = RecordOf<typeof resources, "posts">;
+
+// @errors: 2820
+const sort: SortPayload<PostRecord> = { field: "titel", order: "ASC" };
+```
+
+`posts` is registered and checked on its own: `SortPayload<PostRecord>` rejects
+`"titel"` whatever `comments` holds. The loose arm is what stays open. Give
+`comments` a schema and it closes.
+
+## Bare components
+
+There are two ways to get a `TextField`, and they are typed differently.
+
+`createResourceComponents("posts")` retypes every member's `source` against
+`posts`' record alone. Importing the component from the package gives you the
+generic one, whose `source` is `SourceProp` with its default `LooseRecord`, which
+is `AnySourcePath`: the union over every registered resource.
+
+```ts twoslash title="src/bare-and-typed.ts"
+import {
+  type AnySourcePath,
+  defineResources,
+  type RecordOf,
+  type SourceProp,
+} from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// Every registered resource's paths, row paths and filter keys in one union.
+type AnyPath = AnySourcePath;
+//    ^?
+
+type PostRecord = RecordOf<typeof resources, "posts">;
+
+// A bare component takes the union, so a `comments` path compiles on a post.
+const bare: SourceProp = "body";
+
+// @errors: 2820 2322
+// The same typo is rejected on the union.
+const typo: SourceProp = "titel";
+
+// A typed component takes `posts` paths alone, whatever the other resources hold.
+const typed: SourceProp<PostRecord> = "body";
+```
+
+A bare component is checked against the app, not against the page you are
+looking at. A component from the factory is checked against one record.
+[Typed components](/docs/type-safety/typed-components) covers what the factory
+hands back and how its members are retyped.
+
+## Records that name no keys
+
+`LooseRecord` is `ResourceRecord & { [key: string]: unknown }`. A field of a
+loose record reads as `unknown`, never `any`, so reading one is a check you write
+yourself.
+
+```ts twoslash title="src/loose-record.ts"
+import { type LooseRecord } from "@chelone/core";
+
+type Row = LooseRecord;
+//    ^?
+
+declare const row: LooseRecord;
+
+// @errors: 18046
+const title = row.title.toUpperCase();
+```
+
+`any` would let that line compile and fail at runtime. `unknown` stops it at the
+line.
+
+A schema can also name no keys for one field, and each shape gives up something
+different.
+
+- A record type that is an index signature, `LooseRecord` or a whole record
+  written as `z.record(z.string(), z.unknown())`, has `keyof` of `string`, so
+  `RecordFilterKey` is plain `string` for it and every filter key compiles.
+- A field with an index signature accepts any path under it, `extra.anything`
+  and `extra.anything_gte`, plus every filter key built from those paths.
+- A jsonb column typed `Json`, the union Supabase's generated types write for
+  one, has an object arm with an index signature, so it reads the same way.
+- An array of open rows adds no row paths. `RowSourcePath` drops a row whose
+  paths are `string`, because one `string` there would swallow every other
+  array's row paths and let every typo through again.
+- A `z.any()` field accepts any path under it, dotted or bracketed, and the rest
+  of the record stays checked.
+
+```ts twoslash title="src/open-record.ts"
+import { defineResources, type RecordOf, type SourceProp } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({
+      id: z.number(),
+      title: z.string(),
+      extra: z.record(z.string(), z.unknown()),
+      any: z.any(),
+      rows: z.array(z.record(z.string(), z.unknown())),
+    }),
+  },
+});
+
+type Open = RecordOf<typeof resources, "posts">;
+
+// The record's own paths, plus a wildcard under each open member.
+type OpenSource = SourceProp<Open>;
+//    ^?
+
+const extra: OpenSource = "extra.anything";
+const underAny: OpenSource = "any.anything";
+const underRow: OpenSource = "rows[0].anything";
+
+// @errors: 2820
+const typo: OpenSource = "titel";
+```
+
+A record that wants its jsonb rows checked gives them a schema. That is the
+whole fix, and [Sources, filters and sort](/docs/type-safety/sources-filters-and-sort)
+covers what a path may look like once a member is closed.
+
+## Limits
+
+Two bounds keep the path union finite, and both are in the type rather than a
+warning at runtime.
+
+- `SourcePath` walks 8 object levels, so a path stops at 8 segments.
+- `RowSourcePath` walks the same 8 levels looking for arrays and follows array
+  nesting 3 deep.
+
+```ts twoslash title="src/deep.ts"
+import { defineResources, type RecordOf, type SourcePath } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({
+      id: z.number(),
+      a: z.object({
+        b: z.object({
+          c: z.object({
+            d: z.object({
+              e: z.object({
+                f: z.object({
+                  g: z.object({ h: z.object({ i: z.string() }) }),
+                }),
+              }),
+            }),
+          }),
+        }),
+      }),
+    }),
+  },
+});
+
+type Deep = RecordOf<typeof resources, "posts">;
+
+// `a` is level 1, and `a.b.c.d.e.f.g.h` is level 8.
+const eight: SourcePath<Deep> = "a.b.c.d.e.f.g.h";
+
+// @errors: 2820
+// Level 9 is never produced, and the suggestion names the deepest legal path.
+const past: SourcePath<Deep> = "a.b.c.d.e.f.g.h.i";
+```
+
+A record nested past the bound has paths its props cannot name. The values are
+still there at runtime, and `getAtPath` reads any string you hand it. What stops
+is the autocomplete and the typo check, not the data.
+
+## The `*Of` variants
+
+`Register` is global to a TypeScript program. A published library cannot augment
+it on your behalf, and a type test that wants two different maps in one file
+cannot either. Each registry type has a variant that takes the map or the catalog
+as an argument:
+
+- `AnySourcePathOf<TResources>` and `AnyFilterSourceKeyOf<TResources>`
+- `RecordOf<TResources, TName>`
+- `createResourceComponentsOf<TResources, TName>` in `@chelone/react` and in
+  `@chelone/vue`
+- `TranslateFor<TCatalog, TRegister>`
+
+```ts twoslash title="src/type-test.ts"
+import {
+  type AnyFilterSourceKeyOf,
+  type AnySourcePathOf,
+  defineResources,
+} from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: { schema: z.object({ id: z.number(), body: z.string() }) },
+});
+
+// No augmentation in this file: the map is an argument.
+type Paths = AnySourcePathOf<typeof resources>;
+//    ^?
+
+type FilterKeys = AnyFilterSourceKeyOf<typeof resources>;
+//    ^?
+```
+
+The registered types are these with `RegisteredResources` filled in, so a library
+can take a map from its caller and stay checked without touching `Register`.
+`createResourceComponentsOf` is the same factory with the map written out, which
+is how a test checks a resource it never registers.
+
+## Editor performance and type cost
+
+Registration replaces a `string` prop with a union of paths. The loose arm unions
+every resource's paths, row paths and filter keys, so what grows is the number of
+types an editor instantiates when it checks one of those props. It follows the
+number of resources in the map and the number of fields each schema names.
+Nesting is bounded by the limits above, so a deep record cannot push the union
+past them.
+
+Measure instead of guessing. `tsc --noEmit --extendedDiagnostics` prints two
+counters worth watching:
+
+```bash
+tsc --noEmit --extendedDiagnostics
+```
+
+`Instantiations` is how many times the compiler opened a generic, and `Types` is
+how many types it built. `tsc --generateTrace <dir>` then shows which files and
+which types they came from:
+
+```bash
+tsc --generateTrace .type-trace
+```
+
+Chelone holds its own packages to those two counters in `type-cost-budget.json`
+through `pnpm check:type-cost`, which fails a package whose numbers move past its
+budget. That script is for contributors, and it is what keeps Chelone's own
+packages inside the bounds rather than leaving them to a reviewer's judgement.
+
+Three things follow from how the types are written:
+
+- Type a component per resource. `createResourceComponents(name)` types each
+  member against one record, so a page built from it checks that record's paths
+  instead of the whole map's union.
+- Give a jsonb column a schema only where you want its rows checked. An open
+  `Json` member adds almost nothing to the union, and a closed one adds a path
+  per field you named.
+- Leave `literalMessages` off unless a type needs the exact text of a key. It
+  turns each key's return type into that text, which is a second union over your
+  catalog.
+
+No threshold is given here on purpose. The numbers depend on how many resources
+and fields your app has, and a figure measured on one machine goes stale on the
+next TypeScript release.
+
+## Vue
+
+The Vue package is checked by `vue-tsc`, which reports the same two counters:
+
+```bash
+vue-tsc --noEmit --extendedDiagnostics
+```
+
+That is the compiler `pnpm check:type-cost` runs for `@chelone/vue`, so a Vue app
+measures its own type cost the same way the repo measures its own.
+
+## Where to read next
+
+- [Registering your app](/docs/type-safety/registering-your-app) for
+  `defineResources`, the `Register` augmentation and handing the map to `Admin`.
+- [Resource registry and codegen](/docs/type-safety/resource-registry-and-codegen)
+  for the registry as a runtime value and the codegen that writes the map.
+- [Typed components](/docs/type-safety/typed-components) for how a component's
+  props read the map.
+- [Sources, filters and sort](/docs/type-safety/sources-filters-and-sort) for
+  the path grammar and the operator-suffixed filter keys.
+- [Translations and permissions](/docs/type-safety/translations-and-permissions)
+  for `RegisteredMessages`, `literalMessages` and `RegisteredPermissions`.

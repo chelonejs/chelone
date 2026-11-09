@@ -11,6 +11,7 @@
     "check:duplication": "node scripts/check-duplication.mjs",
     "check:type-escapes": "node scripts/check-type-escapes.mjs",
     "check:type-cost": "node scripts/check-type-cost.mjs",
+    "check:type-docs": "node scripts/check-type-docs.mjs",
     "check:release-notes": "node scripts/check-release-notes.mjs",
     "check:showcase": "node scripts/showcase.mjs",
     "test:scripts": "node --test \"scripts/*.test.mjs\" \"apps/website/scripts/*.test.mjs\"",

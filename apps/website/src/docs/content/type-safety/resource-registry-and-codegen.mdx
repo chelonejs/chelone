@@ -1,0 +1,280 @@
+---
+title: "Resource registry and codegen"
+description: "defineResources builds the resource map, RecordOf reads a record type out of it, and chelone-supabase writes the map from your database."
+---
+
+The resource map is one object, keyed by resource name. Every record type in a
+Chelone app comes out of it, so it is the first thing to get right. This page
+covers how `defineResources` builds the map, what a resource can declare, how a
+record type is read back, and how the Supabase codegen writes the map for you.
+[Registering your app](/docs/type-safety/registering-your-app) covers the next
+step, telling the rest of the program about the map.
+
+The registry is core's, so everything here is the same in `@chelone/react` and
+`@chelone/vue`. Only the way the map reaches `<Admin>` differs, and
+[Handing the map to the app](#handing-the-map-to-the-app) shows both.
+
+## Defining resources
+
+`defineResources` is an identity function with a `const` type parameter. It
+returns the object you pass, and the `const` keeps what you wrote exact: each
+resource name stays a literal such as `"posts"`, not `string`, and each
+schema's output type survives.
+
+```ts twoslash
+import { defineResources } from "@chelone/core";
+import { z } from "zod";
+
+const postSchema = z.object({ id: z.number(), title: z.string() });
+
+export const resources = defineResources({
+  posts: { schema: postSchema },
+  comments: {},
+});
+
+type Names = keyof typeof resources;
+//   ^?
+```
+
+The map's type is `ResourceMap`, `{ [name: string]: ResourceConfig }`.
+`defineResources` accepts any `ResourceMap` and returns the narrower type of
+the object you wrote, which is what the rest of the types read.
+
+## ResourceConfig
+
+A resource's config has two optional parts.
+
+- `schema` is any [Standard Schema](https://standardschema.dev). The examples
+  here use Zod, and the types are tested with Zod 3 and Zod 4. The schema's
+  output type becomes the resource's record type. The same schema validates the
+  forms of the resource, see [Resource](/docs/app-config/resource).
+- `references` maps a field name to the name of the resource it points at.
+  A reference is declared here and never inferred from a name suffix, so a
+  field called `author_id` points nowhere until you write
+  `references: { author_id: "authors" }`.
+
+```ts twoslash
+import { defineResources } from "@chelone/core";
+import { z } from "zod";
+
+export const resources = defineResources({
+  posts: {
+    schema: z.object({ id: z.number(), authorId: z.number(), title: z.string() }),
+    references: { authorId: "users" },
+  },
+  users: {},
+});
+```
+
+## Record types
+
+`RecordOf<TResources, TName>` reads the record type of one resource out of a
+map. With a schema, it is the schema's output type.
+
+```ts twoslash
+import { defineResources, type RecordOf } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: {},
+});
+
+type Post = RecordOf<typeof resources, "posts">;
+//   ^?
+```
+
+A resource with no schema has no output type to read, so its record is
+`LooseRecord`: a record with an `id` and any other string key holding
+`unknown`. The hover below shows `LooseRecord` expanded.
+
+```ts twoslash
+import { defineResources, type RecordOf } from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+  comments: {},
+});
+
+type Comment = RecordOf<typeof resources, "comments">;
+//   ^?
+```
+
+Once the map is registered, `RegisteredRecord<"posts">` is the same lookup
+against the registered map, with no map to pass. It is covered on
+[Registering your app](/docs/type-safety/registering-your-app).
+
+## Checked references
+
+`defineResources` checks each `references` entry against the map it is part of.
+
+- A key must be a top-level field of the resource's record. A misspelled key is
+  an error on the key.
+- A value must be the name of a resource in the same map.
+
+```ts twoslash
+// @errors: 2322
+import { defineResources } from "@chelone/core";
+import { z } from "zod";
+
+const postSchema = z.object({ id: z.number(), authorId: z.number() });
+
+defineResources({
+  posts: {
+    schema: postSchema,
+    references: { authorid: "users" },
+  },
+  users: {},
+});
+```
+
+```ts twoslash
+// @errors: 2322
+import { defineResources } from "@chelone/core";
+import { z } from "zod";
+
+const postSchema = z.object({ id: z.number(), authorId: z.number() });
+
+defineResources({
+  posts: {
+    schema: postSchema,
+    references: { authorId: "writers" },
+  },
+  users: {},
+});
+```
+
+A resource with no schema has no fields to check against, so it accepts any
+key. Its values are still checked.
+
+### Build the map as one literal object
+
+The checks read the object literal you pass. Build the map some other way and
+they have nothing to read. An array of entries passed through
+`Object.fromEntries` has a type with string keys, so every record type
+collapses to `LooseRecord` and no reference is checked. Nothing reports it,
+since the result is still a valid `ResourceMap`.
+
+```ts
+// Every record is LooseRecord, and "writers" passes.
+const resources = defineResources(
+  Object.fromEntries([
+    ["posts", { schema: postSchema, references: { authorId: "writers" } }],
+    ["users", {}],
+  ]),
+);
+```
+
+Write the keys out, as above. A map you need to assemble from parts can spread
+other literal objects, since a spread of a literal keeps its keys.
+
+## RecordResources
+
+A view that is generic over its record type has no map to hand a hook that is
+generic over a map. `RecordResources<TRecord>` is a map in which every resource
+has `TRecord` as its record, so the view passes it in and the hook sees
+`TRecord`.
+
+```ts twoslash
+import type { RecordOf, RecordResources } from "@chelone/core";
+
+interface Post {
+  id: number;
+  title: string;
+}
+
+type Back = RecordOf<RecordResources<Post>, string>;
+//   ^?
+```
+
+`ApiKeyInput` in `@chelone/react` uses it this way. It is generic over
+`TRecord`, so it calls `useUpdate<RecordResources<TRecord>, string>(resource)`
+and the mutation's `data` and `previousData` are typed as `TRecord`.
+
+## Handing the map to the app
+
+Pass the map to `<Admin>`. React takes it as `resources`, and Vue as
+`registry`. The prop gives the app the schemas at run time, which is how forms
+validate and the guessers read fields. It is separate from the types, which
+come from the `Register` augmentation on
+[Registering your app](/docs/type-safety/registering-your-app).
+
+```tsx title="src/App.tsx"
+import { Admin, Resource } from "@chelone/react";
+import { dataProvider } from "./data-provider";
+import { resources } from "./resources";
+
+export const App = () => (
+  <Admin dataProvider={dataProvider} resources={resources}>
+    <Resource name="posts" />
+  </Admin>
+);
+```
+
+```vue title="src/App.vue"
+<script setup lang="ts">
+import { Admin, Resource } from "@chelone/vue";
+import { dataProvider } from "./data-provider";
+import { resources } from "./resources";
+</script>
+
+<template>
+  <Admin :data-provider="dataProvider" :registry="resources">
+    <Resource name="posts" />
+  </Admin>
+</template>
+```
+
+A `<Resource>` takes its `name` from the map. See
+[Resource](/docs/app-config/resource) for what the element declares.
+
+## Generating the registry
+
+A Supabase project already describes its tables, so the `chelone-supabase` bin
+writes the map from the types file the Supabase CLI makes. It writes two files
+to the directory you choose:
+
+- `schemas.ts` holds one Zod schema per table and view, written by `supazod`.
+- `resources.ts` holds a `defineResources` map of those schemas, with each
+  foreign key as a `references` entry, and the `Register` augmentation.
+
+```ts title="src/resources/resources.ts"
+export const resources = defineResources({
+  authors: { schema: publicAuthorsRowSchema },
+  posts: {
+    schema: publicPostsRowSchema,
+    references: { author_id: "authors" },
+  },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+```
+
+The command, its flags and what it reads are on
+[Supabase](/docs/app-config/supabase#generating-resources). Three things about
+the result matter for types:
+
+- The generated `resources.ts` already carries the `resources` entry on
+  `Register`, so an app adds none.
+- The bin overwrites both files each run. Put `permissions` and `messages` on
+  `Register` in a file of your own, since an edit to `resources.ts` is lost on
+  the next run.
+- A second `resources` entry on `Register` with a different type fails.
+  Interface members must agree, so a hand-written `resources` beside the
+  generated one is a type error.
+
+```ts title="src/register.ts"
+import type { messages } from "./messages";
+
+declare module "@chelone/core" {
+  interface Register {
+    messages: typeof messages;
+    permissions: string[];
+  }
+}
+```
