@@ -150,7 +150,7 @@ export function remarkTwoslash() {
       try {
         runTwoslasher(node.value, LANGUAGE_ALIASES[lang] ?? lang, twoslashOptions);
       } catch (error) {
-        const page = path.relative(path.resolve(websiteDir, ".."), file.path);
+        const page = path.relative(path.resolve(websiteDir, "..", ".."), file.path);
         const message = error instanceof Error ? error.message : String(error);
         throw new Error(`twoslash failed in ${page} (${lang} fence):\n${message}`, {
           cause: error,

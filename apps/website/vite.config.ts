@@ -13,6 +13,7 @@ import { cheloneSourcePlugin } from "./scripts/chelone-source-resolver.mjs";
 import { remarkCalloutDirective } from "./scripts/remark-callout-directive.mjs";
 import { remarkNeutralizeTextDirectives } from "./scripts/remark-neutralize-text-directives.mjs";
 import { remarkRelativeLinks } from "./scripts/remark-relative-links.mjs";
+import { remarkTwoslash, twoslashTransformer } from "./scripts/twoslash.mjs";
 import { SHIKI_THEME } from "./src/lib/shiki-theme";
 
 // The `@chelone/react` package is workspace-linked to its SOURCE (main:
@@ -76,6 +77,10 @@ export default defineConfig({
           // After callouts claim their container directives, revert any stray
           // text/leaf directives (e.g. `:3000` in a URL) back to literal text.
           remarkNeutralizeTextDirectives,
+          // Type-checks every `twoslash` fence and throws, naming the page. It
+          // runs here rather than as a transformer because rehype-pretty-code
+          // catches a transformer's error and re-renders the fence as plaintext.
+          remarkTwoslash,
         ],
         rehypePlugins: [
           rehypeSlug,
@@ -85,6 +90,10 @@ export default defineConfig({
               // Same theme as the react-shiki code blocks (SHIKI_THEME).
               theme: { ...SHIKI_THEME },
               keepBackground: false,
+              // Renders the fences `remarkTwoslash` already checked: hover
+              // popups, `// ^?` results and `// @errors` lines. Only a fence
+              // whose meta says `twoslash` runs it.
+              transformers: [twoslashTransformer],
             },
           ],
         ],

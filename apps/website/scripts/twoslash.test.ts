@@ -165,7 +165,7 @@ it("leaves a fence with no `twoslash` in its meta as plain highlighted code", as
 
   expect(collect(tree, "twoslash")).toEqual([]);
   expect(collect(tree, "twoslash-error-line")).toEqual([]);
-  expect(textOf(tree.children[0] as Element)).toContain('source="name"');
+  expect(textOf(tree.children[0])).toContain('source="name"');
 });
 
 it("renders the error a Vue template raises against a typed prop", async () => {
