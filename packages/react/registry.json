@@ -1455,6 +1455,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/image-field-images.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/image-field.tsx",
           "type": "registry:component"
         },
@@ -3314,6 +3318,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "image-field-images",
+      "type": "registry:component",
+      "title": "Image Field Images",
+      "files": [
+        {
+          "path": "src/components/admin/fields/image-field-images.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "image-field",
       "type": "registry:component",
       "title": "Image Field",
@@ -3324,6 +3342,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/image-field-images",
         "@chelone/lib-field-types",
         "@chelone/lib-utils"
       ],
@@ -8250,7 +8269,10 @@
       "title": "Chelone Server Components",
       "categories": ["chelone", "fields"],
       "description": "The opt-in React Server Components add-on: readFieldValue reads a typed value off a record passed as a prop, and serverEmptyText prints a field's empty text, with no hook or context, so they run in a server component.",
-      "registryDependencies": ["@chelone/lib-utils"],
+      "registryDependencies": [
+        "@chelone/image-field-images",
+        "@chelone/lib-utils"
+      ],
       "dependencies": ["@chelone/core"],
       "files": [
         {
@@ -8293,6 +8315,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/image-field-images",
         "@chelone/lib-utils",
         "@chelone/read-field-value",
         "@chelone/server-scalar-fields"

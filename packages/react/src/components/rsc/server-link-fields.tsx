@@ -17,6 +17,7 @@ import {
   urlFieldHref,
 } from "@chelone/core";
 import type { HTMLAttributeAnchorTarget, ReactElement, ReactNode } from "react";
+import { ImageFieldImages } from "@/components/admin/fields/image-field-images";
 import { cn } from "@/lib/utils";
 import { readFieldValue, serverEmptyText } from "./read-field-value";
 import { type ServerFieldProps, ServerFieldSpan } from "./server-scalar-fields";
@@ -226,25 +227,10 @@ function ServerImageField<RecordType extends ResourceRecord = LooseRecord>({
     );
   }
 
-  if (Array.isArray(value)) {
-    return (
-      <span className={cn("image-list", className)}>
-        <ul>
-          {images.map((image, index) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: an unsafe `src` is dropped, so it cannot key the row.
-            <li key={index}>
-              <img alt={image.title} title={image.title} src={image.src} />
-            </li>
-          ))}
-        </ul>
-      </span>
-    );
-  }
-
-  const [image] = images;
+  const list = Array.isArray(value);
   return (
-    <span className={cn("image-single", className)}>
-      <img title={image?.title} alt={image?.title} src={image?.src} />
+    <span className={cn(list ? "image-list" : "image-single", className)}>
+      <ImageFieldImages images={images} list={list} />
     </span>
   );
 }
