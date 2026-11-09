@@ -59,6 +59,11 @@ import PasswordInput from "../inputs/password-input.vue";
 import TextInput from "../inputs/text-input.vue";
 import { LogInIcon } from "./icons";
 
+// A template cannot pass a type argument, so the inputs are the same components
+// at the form's own values: `source` checks against them, not the registry.
+const EmailInput = TextInput<LoginWithEmailValues>;
+const SecretInput = PasswordInput<LoginWithEmailValues>;
+
 const props = withDefaults(defineProps<LoginWithEmailProps>(), {
   loading: false,
 });
@@ -121,13 +126,13 @@ function handleSubmit(event: Event): void {
     novalidate
     @submit="handleSubmit"
   >
-    <TextInput
+    <EmailInput
       label="Email"
       source="email"
       type="email"
       :validate="required()"
     />
-    <PasswordInput label="Password" source="password" :validate="required()" />
+    <SecretInput label="Password" source="password" :validate="required()" />
     <Button
       type="submit"
       class="cursor-pointer"
