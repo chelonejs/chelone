@@ -6,7 +6,8 @@
  * - a string → the value at that (deep) source path off the record when it is
  *   text, a number or an element, and `String` of it otherwise (`""` when absent), as the Vue twin does;
  * - a React element → returned verbatim;
- * - otherwise the default chain `name → title → label → reference → #${id}`.
+ * - otherwise core's `defaultRecordRepresentation`: the default chain
+ *   `name → title → label → reference → #${id}`.
  * A nullish record → `""`.
  *
  * The resource is taken from the argument or the ambient `ResourceContext`
@@ -16,6 +17,7 @@
  */
 
 import {
+  defaultRecordRepresentation,
   getAtPath,
   isResourceRecord,
   type ResourceRecord,
@@ -25,24 +27,10 @@ import { isValidElement, type ReactNode, useCallback } from "react";
 import type { ChoiceRecord } from "../choices-hooks";
 import { useResourceDefinition } from "../resource";
 
-/** Whether a default-chain field is a non-empty display value. */
-function isPresent(value: unknown): value is string | number {
-  return value != null && value !== "";
-}
-
 /** The resolver `useGetRecordRepresentation` returns. */
 export type GetRecordRepresentation = (
   record: ResourceRecord | null | undefined,
 ) => ReactNode;
-
-/** The default chain `name → title → label → reference → #${id}`. */
-function defaultRepresentation(record: ResourceRecord): string | number {
-  for (const key of ["name", "title", "label", "reference"]) {
-    const value = getAtPath(record, key);
-    if (isPresent(value)) return value;
-  }
-  return `#${String(getAtPath(record, "id"))}`;
-}
 
 export function useGetRecordRepresentation(
   resource?: string,
@@ -66,7 +54,7 @@ export function useGetRecordRepresentation(
       if (isValidElement(recordRepresentation)) {
         return recordRepresentation;
       }
-      return defaultRepresentation(record);
+      return defaultRecordRepresentation(record);
     },
     [recordRepresentation],
   );
@@ -96,7 +84,7 @@ export function useGetRecordRepresentationText(
         const value = getAtPath(record, recordRepresentation);
         return textOf(value);
       }
-      return String(defaultRepresentation(record));
+      return String(defaultRecordRepresentation(record));
     },
     [recordRepresentation],
   );
