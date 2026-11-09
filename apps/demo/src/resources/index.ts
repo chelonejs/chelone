@@ -2,6 +2,7 @@ import { defineResources, type englishMessages } from "@chelone/core";
 import { z } from "zod";
 import { authorSchema } from "./authors";
 import { customerSchema } from "./customers";
+import { orderSchema } from "./orders";
 import { placeSchema } from "./places";
 import { postSchema } from "./posts";
 import { productSchema } from "./products";
@@ -43,31 +44,32 @@ export const tagSchema = z.object({
  * forms automatic validation (the D6 default validator reads the registry
  * schema and validates the form against it, no per-input `validate` props).
  * `defineResources` keeps the `"posts"` key + `typeof postSchema` literal for
- * end-to-end record-type inference. `authors`, `products`, `customers` and
- * `places` carry their schema the same way and build their views from
- * `createResourceComponents(...)`, so every `source` in those demos is checked
- * against the schema.
+ * end-to-end record-type inference. `authors`, `products`, `customers`, `orders`
+ * and `places` carry their schema the same way and build their views from
+ * `createResourceComponents("<name>")`, so every `source` in those demos is
+ * checked against the schema.
  *
- * The other resources omit a schema — they fall back to the loose record type
+ * The schema-less entries - `api_keys`, `webhooks`, `integration_settings`,
+ * `jobs` and `roles` - are `{}` entries. They fall back to the loose record type
  * and only validate what their inputs declare. Add a `schema` to any of them to
- * opt into the same auto-validation.
+ * opt into the same auto-validation. `activity` is left out because
+ * `apps/demo/src/pages/activity.tsx` owns the `/activity` route.
  */
 export const resources = defineResources({
   posts: { schema: postSchema },
   authors: { schema: authorSchema },
   products: { schema: productSchema },
   customers: { schema: customerSchema },
-  orders: {},
+  orders: { schema: orderSchema },
   places: { schema: placeSchema },
   pages: { schema: pageSchema },
   categories: { schema: categorySchema },
   tags: { schema: tagSchema },
-  /**
-   * No `<Resource>` and no nav entry: the Integrations page owns it through
-   * `ResourceContextProvider`. It is still a resource the app reads and writes,
-   * so the data hooks must accept its name.
-   */
   api_keys: {},
+  webhooks: {},
+  integration_settings: {},
+  jobs: {},
+  roles: {},
 });
 
 /**
