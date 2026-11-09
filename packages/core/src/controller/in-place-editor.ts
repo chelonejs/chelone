@@ -64,7 +64,7 @@ export function planInPlaceSave<R extends ResourceRecord>(
     ([key, value]) => !deepEqual(record[key], value),
   );
   if (changed.length === 0) return null;
-  // type-escape: the form holds the record's own fields, so the changed ones are a patch of it
+  // type-escape: builder: the form holds the record's own fields, so the changed ones are a patch of it
   const data = Object.fromEntries(changed) as Partial<R>;
   return {
     id: record.id,
