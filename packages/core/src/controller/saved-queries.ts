@@ -74,7 +74,7 @@ function isSavedQueryValue<TRecord = LooseRecord>(
  * dropped, labels are trimmed, and a repeated label keeps its first entry.
  */
 export function extractValidSavedQueries<TRecord = LooseRecord>(
-  // type-escape: storage is trusted to hold keys of the record the caller names; only the structure is checked
+  // type-escape: json: storage is trusted to hold keys of the record the caller names; only the structure is checked
   raw: unknown,
 ): SavedQuery<TRecord>[] {
   if (!Array.isArray(raw)) return [];

@@ -14,18 +14,18 @@ export type DiffStatus = "unchanged" | "added" | "removed" | "changed";
 export interface RecordDiffRow<R = LooseRecord> {
   source: SourceProp<R>;
   status: DiffStatus;
-  // type-escape: a row holds whatever the record held at the source path
+  // type-escape: server: a row holds whatever the record held at the source path
   before: unknown;
-  // type-escape: a row holds whatever the record held at the source path
+  // type-escape: server: a row holds whatever the record held at the source path
   after: unknown;
 }
 
-// type-escape: a guard input; the record type is erased once sources are strings
+// type-escape: server: a guard input; the record type is erased once sources are strings
 function topLevelKeys(record: unknown): string[] {
   return isRecord(record) ? Object.keys(record) : [];
 }
 
-// type-escape: both values come from `getAtPath`, which returns `unknown`
+// type-escape: server: both values come from `getAtPath`, which returns `unknown`
 function statusOf(before: unknown, after: unknown): DiffStatus {
   const hadBefore = before != null;
   const hasAfter = after != null;
@@ -51,7 +51,7 @@ export function diffRecords<R>(
     ...beforeKeys,
     ...topLevelKeys(after).filter((key) => !beforeKeys.includes(key)),
   ];
-  // type-escape: Object.keys returns strings, but a record's top-level keys are its source paths
+  // type-escape: server: Object.keys returns strings, but a record's top-level keys are its source paths
   const keys = sources ?? (inferredKeys as SourceProp<R>[]);
   return keys.map((source) => {
     const was = getAtPath(before, source);
@@ -62,7 +62,7 @@ export function diffRecords<R>(
 
 /** The text a viewer shows for a value when the app gives no renderer. */
 export function formatDiffValue(
-  value: unknown, // type-escape: a diffed value is whatever the record held at the path
+  value: unknown, // type-escape: server: a diffed value is whatever the record held at the path
 ): string {
   if (value == null) return "";
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
