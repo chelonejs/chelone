@@ -20,6 +20,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./tanstack-router": "./src/tanstack-router.ts",
+    "./next": "./src/next.ts",
     "./monaco": "./src/monaco.ts",
     "./charts": "./src/charts.ts",
     "./kanban": "./src/kanban.ts",
@@ -49,6 +50,10 @@
       "./tanstack-router": {
         "types": "./dist/tanstack-router.d.ts",
         "default": "./dist/tanstack-router.js"
+      },
+      "./next": {
+        "types": "./dist/next.d.ts",
+        "default": "./dist/next.js"
       },
       "./monaco": {
         "types": "./dist/monaco.d.ts",
@@ -165,6 +170,7 @@
     "lowlight": "^3.3.0",
     "maplibre-gl": "^6",
     "monaco-editor": "^0.57.0",
+    "next": "^15.0.0 || ^16.0.0",
     "osm2geojson-lite": "^2.0.1",
     "papaparse": "^5.4.0",
     "react": "^18 || ^19",
@@ -251,6 +257,9 @@
     "monaco-editor": {
       "optional": true
     },
+    "next": {
+      "optional": true
+    },
     "osm2geojson-lite": {
       "optional": true
     },
@@ -309,6 +318,7 @@
     "lowlight": "^3.3.0",
     "maplibre-gl": "^6.16.0",
     "monaco-editor": "^0.57.0",
+    "next": "^16.4.5",
     "osm2geojson-lite": "^2.0.1",
     "papaparse": "^5.7.0",
     "publint": "^0.3.25",
