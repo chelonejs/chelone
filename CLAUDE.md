@@ -59,6 +59,8 @@ pnpm check:type-docs
 pnpm typecheck   # tsc, vue-tsc, react-router typegen
 pnpm test        # vitest --typecheck in every package
 pnpm build       # demo, vue-demo, website
+pnpm --dir apps/website props   # commit the output: a prop's doc comment changes it
+pnpm --filter "./packages/*" --if-present run check:pack
 pnpm --dir packages/react registry:build
 pnpm --dir packages/vue registry:build
 ```
