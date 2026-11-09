@@ -159,11 +159,11 @@ interface ServerDateFieldProps<RecordType extends ResourceRecord = LooseRecord>
 }
 
 export {
-  type ServerDateFieldProps,
   ServerDateField,
+  type ServerDateFieldProps,
   type ServerFieldProps,
-  type ServerNumberFieldProps,
   ServerNumberField,
-  type ServerTextFieldProps,
+  type ServerNumberFieldProps,
   ServerTextField,
+  type ServerTextFieldProps,
 };
