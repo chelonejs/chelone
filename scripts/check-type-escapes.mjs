@@ -33,7 +33,11 @@ const ts = createRequire(import.meta.url)(process.env.TYPESCRIPT_PATH ?? "typesc
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const KINDS = ["double-cast", "unknown-cast", "as-never", "as-any", "cast", "non-null", "any", "unknown", "loose-bound", "ts-comment"];
-const SKIP = /(^|\/)(node_modules|dist|build|coverage|\.react-router|\.turbo)(\/|$)/;
+// `routeTree.gen.ts` is TanStack Router's generated route tree: `@ts-nocheck`ed,
+// `as any`-cast by the generator, and never hand-edited. It is gitignored, so a
+// fresh checkout has none and CI never sees it — but any local dev/typecheck run
+// writes one, and the ratchet must not read a generated file as the app's code.
+export const SKIP = /(^|\/)(node_modules|dist|build|coverage|\.react-router|\.turbo|routeTree\.gen\.tsx?)(\/|$)/;
 const JUSTIFIED = /\/\/\s*type-escape:\s*\S/;
 // @ts-expect-error is how a type test proves a call fails, so it is only counted outside tests.
 const TEST_FILE = /\.(test|spec)\.|\.test-d\.tsx?$|\/(__tests__|__fixtures__|e2e)\//;

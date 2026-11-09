@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 
-import { classify, fileSites, startsFromUnknown } from "./check-type-escapes.mjs";
+import { SKIP, classify, fileSites, startsFromUnknown } from "./check-type-escapes.mjs";
 
 const ts = createRequire(import.meta.url)("typescript");
 
@@ -89,4 +89,11 @@ test("a comment does not excuse a bound", () => {
     ),
     [{ line: 2, kind: "loose-bound" }],
   );
+});
+
+test("a generated route tree is skipped, and a hand-written file next to it is not", () => {
+  assert.equal(SKIP.test("apps/start-demo/src/routeTree.gen.ts"), true);
+  assert.equal(SKIP.test("src/routeTree.gen.tsx"), true);
+  assert.equal(SKIP.test("apps/start-demo/src/router.tsx"), false);
+  assert.equal(SKIP.test("apps/start-demo/src/routes/routeTree.gen_backup.ts"), false);
 });

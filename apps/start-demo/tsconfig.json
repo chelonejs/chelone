@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "node"],
+    "paths": {
+      "@/components/*": ["../../packages/react/src/components/*"],
+      "@/lib/*": ["../../packages/react/src/lib/*"],
+      "@/hooks/*": ["../../packages/react/src/hooks/*"]
+    },
+    "noEmit": true,
+    "declaration": false
+  },
+  "include": ["src", "vite.config.ts", "vitest.config.ts"]
+}

@@ -1,0 +1,5 @@
+# TanStack Start generates the route tree from `src/routes/` on every dev,
+# build, `tsr generate` and typecheck run, so it is never committed.
+src/routeTree.gen.ts
+.tanstack/
+dist/

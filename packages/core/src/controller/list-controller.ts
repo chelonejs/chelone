@@ -400,6 +400,35 @@ function withPersistedParams<TRecord>(
 }
 
 /**
+ * What a list starts on for a URL `search`: option defaults, then the params
+ * persisted in `ctx.store`, then the URL patch. `listFetchParams` hands these to
+ * a loader as `getList` params and `createListController` mounts on them, so a
+ * loader's query key and the list's first fetch are one key by construction —
+ * including for a URL with a query string.
+ */
+function listInitialParams<TRecord>(
+  ctx: { store?: CheloneStore },
+  resource: string,
+  options: ListControllerOptions<TRecord>,
+  search: string,
+): {
+  params: PersistedListParams<TRecord>;
+  /** True when `search` moved the params, which is when they get persisted. */
+  fromUrl: boolean;
+} {
+  const persisted = withPersistedParams(
+    listDefaults(options),
+    listParamsKey(resource, options),
+    ctx.store,
+  );
+  const patch = listPatchFromSearch<TRecord>(search);
+  return {
+    params: { ...persisted, ...(patch ? listParamsFromPatch(patch) : {}) },
+    fromUrl: patch !== null,
+  };
+}
+
+/**
  * The `getList` params a list state fetches with: one `sort` object when there
  * is exactly one key (adapter compat), and the permanent `filter` merged over
  * the user filter.
@@ -434,17 +463,10 @@ export function listFetchParams<
   search = "",
 ): GetListParams {
   type TRecord = RecordOf<TResources, TName>;
-  const initial: PersistedListParams<TRecord> = withPersistedParams(
-    listDefaults(options),
-    listParamsKey(resource, options),
-    ctx.store,
+  return fetchParamsOf(
+    listInitialParams<TRecord>(ctx, resource, options, search).params,
+    options.filter,
   );
-  const patch = listPatchFromSearch<TRecord>(search);
-  const seeded: PersistedListParams<TRecord> = {
-    ...initial,
-    ...(patch ? listParamsFromPatch(patch) : {}),
-  };
-  return fetchParamsOf(seeded, options.filter);
 }
 
 /** The notification key for a failed fetch: the error's own message, else `chelone.notification.http_error`. */
@@ -618,6 +640,13 @@ export function createListController<
   ctx: ListControllerContext<TResources>,
   resource: TName,
   options: ListControllerOptions<RecordOf<TResources, TName>> = {},
+  /**
+   * The list's own URL query string, with or without the `?`, exactly as
+   * `listFetchParams` takes it: the mount and a prefetching loader then start
+   * on the same params and the same query key. `""` when the list is not synced
+   * with a URL.
+   */
+  search = "",
 ): ListController<RecordOf<TResources, TName>> {
   type TRecord = RecordOf<TResources, TName>;
   type ListResult = GetListResult<TRecord>;
@@ -626,27 +655,69 @@ export function createListController<
   const selectionKey = storeKey ? `${storeKey}.selectedIds` : null;
   const kv = ctx.store;
 
-  // --- initial params: persisted (when available) over option defaults ---
+  // --- initial params: option defaults, then persisted, then the URL search ---
   const defaults = listDefaults<TRecord>(options);
   const paramsKey = listParamsKey(resource, options);
-  const initialParams = withPersistedParams(defaults, paramsKey, kv);
+  const { params: initialParams, fromUrl } = listInitialParams<TRecord>(
+    ctx,
+    resource,
+    options,
+    search,
+  );
 
   const readSelection = (): Identifier[] =>
     (selectionKey && kv ? kv.getItem<Identifier[]>(selectionKey) : undefined) ??
     [];
 
+  /**
+   * What the state shows for params it is not fetching with: the settled result
+   * those SAME params point at, when the query cache already holds it — a route
+   * loader prefetched it, or an earlier mount left it. `acquire` syncs the same
+   * value on attach, so a client render never sees a difference; a SERVER
+   * render, which never subscribes, sees the rows instead of the skeleton.
+   *
+   * The lookup is keyed on the params, so a state that has moved can never keep
+   * the rows of where it was.
+   */
+  const seedFromCache = (
+    params: Pick<
+      ListControllerState<TRecord>,
+      "page" | "perPage" | "sort" | "filter"
+    >,
+  ): Pick<
+    ListControllerState<TRecord>,
+    | "data"
+    | "total"
+    | "pageInfo"
+    | "isPending"
+    | "hasNextPage"
+    | "hasPreviousPage"
+  > => {
+    const cached = ctx.queryClient.getQueryData<ListResult>(
+      getListOptions(ctx, resource, fetchParamsOf(params, options.filter))
+        .queryKey,
+    );
+    return {
+      data: cached?.data,
+      total: cached?.total,
+      pageInfo: cached?.pageInfo,
+      isPending: cached === undefined,
+      ...pageFlags(
+        params.page,
+        params.perPage,
+        cached?.total,
+        cached?.pageInfo,
+      ),
+    };
+  };
+
   const store = createMicroStore<ListControllerState<TRecord>>(
     {
       ...initialParams,
       selectedIds: readSelection(),
-      data: undefined,
-      total: undefined,
-      pageInfo: undefined,
-      isPending: true,
+      ...seedFromCache(initialParams),
       isFetching: false,
       error: null,
-      hasNextPage: undefined,
-      hasPreviousPage: undefined,
     },
     // Acquisition is subscription-driven: nothing is fetched or subscribed
     // until the first subscriber attaches (see `acquire` below, hoisted).
@@ -688,6 +759,11 @@ export function createListController<
     kv.setItem(paramsKey, params);
   };
 
+  // A URL seed is a param change, and the adapters used to make it with
+  // `setParams` right after construction, which persisted it. Keep that write:
+  // a later clean-URL mount starts where the deep link left the list.
+  if (fromUrl) persistParams();
+
   /**
    * The ONLY path that reconfigures the observer — param-mutating actions.
    * Detached, the observer does not exist: state still updates and persists,
@@ -701,7 +777,15 @@ export function createListController<
       >
     >,
   ): void => {
-    store.setState(patch);
+    // Detached, the state is all a render can read, so it must describe its own
+    // params: re-seed under the NEW key, which drops a seeded page the moved
+    // params no longer describe. Attached, the observer answers for the new
+    // params and keeps the old rows as `placeholderData`.
+    store.setState(
+      observer
+        ? patch
+        : { ...patch, ...seedFromCache({ ...store.getSnapshot(), ...patch }) },
+    );
     persistParams();
     observer?.setOptions(buildOptions());
   };

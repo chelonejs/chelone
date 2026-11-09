@@ -217,6 +217,18 @@ export async function loader({ request }: { request: Request }) {
 Pass the same options the list gets. `search` is the raw query string, with or
 without the `?`.
 
+A mount takes the same `search` as its fourth argument, so the loader's key and
+the list's first fetch are one key. `<List>` and `useListController` pass it
+from the router location; a vanilla mount passes it itself:
+
+```ts
+const controller = createListController(ctx, "posts", { perPage: 20 }, search);
+```
+
+The prefetched page is also what the controller's FIRST snapshot holds, which is
+what a server render reads before anything subscribes. A snapshot never keeps
+the rows of params it has moved off.
+
 - A server has no saved list params. A server loader passes a `ctx` with no
   `store`, so the params are the defaults plus the URL. A browser that holds
   saved params and opens a clean URL mounts the list on a different key and

@@ -10,7 +10,7 @@ import {
   type ListControllerOptions,
   listFetchParams,
 } from "./list-controller";
-import { listPatchFromSearch, serializeListParams } from "./list-params";
+import { serializeListParams } from "./list-params";
 
 const resources = defineResources({
   posts: {
@@ -59,15 +59,16 @@ async function load(
   );
 }
 
-/** Mounts a list the way an adapter does: seed from the URL while inert, then subscribe. */
+/**
+ * Mounts a list the way an adapter does: the URL search goes in at
+ * construction, then the first subscriber attaches the observer.
+ */
 async function mount(
   ctx: ReturnType<typeof makeCtx> & { store?: ReturnType<typeof createStore> },
   options: ListControllerOptions<Post>,
   search: string,
 ) {
-  const controller = createListController(ctx, "posts", options);
-  const patch = listPatchFromSearch<Post>(search);
-  if (patch) controller.setParams(patch);
+  const controller = createListController(ctx, "posts", options, search);
   const unsubscribe = controller.subscribe(() => {});
   await vi.waitFor(() =>
     expect(controller.getSnapshot().isPending).toBe(false),
