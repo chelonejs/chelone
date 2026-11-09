@@ -67,7 +67,7 @@ export function SaveContextProvider<RecordType = ResourceRecord>({
   value,
   children,
 }: SaveContextProviderProps<RecordType>): ReactNode {
-  // type-escape: the context stores each view's save at its own record, and `useSaveContext` reads it back at the caller's
+  // type-escape: context: stores each view's save at its own record; `useSaveContext` reads it back at the caller's
   const stored = value as SaveContextValue;
   return <SaveContext.Provider value={stored}>{children}</SaveContext.Provider>;
 }
@@ -80,6 +80,6 @@ export function SaveContextProvider<RecordType = ResourceRecord>({
 export function useSaveContext<
   RecordType extends ResourceRecord = ResourceRecord,
 >(): SaveContextValue<RecordType> {
-  // type-escape: the view that published the save typed it at its own record, as `useEditContext` reads it
+  // type-escape: context: the view that published the save typed it at its own record, as `useEditContext` reads it
   return useContext(SaveContext) as SaveContextValue<RecordType>;
 }

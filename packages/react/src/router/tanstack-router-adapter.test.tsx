@@ -57,6 +57,7 @@ import {
   useNavigate,
   useParams,
   useRedirect,
+  useRevalidate,
 } from "./nav-hooks";
 import {
   tanstackHostRouterAdapter,
@@ -739,6 +740,53 @@ describe("tanstackHostRouterAdapter navigates the app's router", () => {
     expect(router.state.location.pathname).toBe("/admin/posts/8");
     navFn.current?.(-1);
     await settle();
+    expect(router.state.location.pathname).toBe("/admin/posts/7");
+  });
+});
+
+describe("tanstackHostRouterAdapter revalidates the app's route", () => {
+  it("useRevalidate re-runs the route's loader", async () => {
+    let loads = 0;
+    const revalidateRef = ref<() => void>();
+    function Probe() {
+      revalidateRef.current = useRevalidate();
+      return null;
+    }
+    const rootRoute = createRootRoute({ component: Outlet });
+    const postRoute = createRoute({
+      getParentRoute: () => rootRoute,
+      path: "/admin/posts/$id",
+      loader: () => {
+        loads += 1;
+      },
+      component: () => (
+        <RouterAdapterProvider adapter={tanstackHostRouterAdapter}>
+          <Probe />
+        </RouterAdapterProvider>
+      ),
+    });
+    const router = createRouter({
+      routeTree: rootRoute.addChildren([postRoute]),
+      history: createMemoryHistory({ initialEntries: ["/admin/posts/7"] }),
+    });
+    await act(async () => {
+      render(<RouterProvider router={router} />);
+      await new Promise((r) => setTimeout(r, 40));
+    });
+    expect(loads).toBe(1);
+
+    const revalidate = requireCaptured(revalidateRef, "revalidate");
+    await act(async () => {
+      revalidate();
+      await new Promise((r) => setTimeout(r, 40));
+    });
+    expect(loads).toBe(2);
+
+    await act(async () => {
+      revalidate();
+      await new Promise((r) => setTimeout(r, 40));
+    });
+    expect(loads).toBe(3);
     expect(router.state.location.pathname).toBe("/admin/posts/7");
   });
 });

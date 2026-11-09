@@ -120,6 +120,12 @@ const ADDONS: {
     entry: "src/supabase.ts",
     packages: ["@chelone/supabase"],
   },
+  {
+    name: "rsc",
+    folder: "src/components/rsc",
+    entry: "src/rsc.ts",
+    packages: [],
+  },
 ];
 
 const BASE_ENTRIES = ["src/index.ts", "src/tanstack-router.ts"];

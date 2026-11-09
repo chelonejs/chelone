@@ -1,12 +1,25 @@
 import {
+  type FormAsyncValidateOrFn,
+  type FormValidateAsyncFn,
   type FormValidateFn,
   type FormValidateOrFn,
   isStandardSchemaValidator,
   type StandardSchemaV1,
   standardSchemaValidators,
 } from "@tanstack/form-core";
-import { isRecord, isThenable } from "../guards";
-import type { FormLevelValidate } from "./form-controller";
+import { isThenable } from "../guards";
+import type {
+  AsyncValidator,
+  CheloneFormOptions,
+  FormLevelValidate,
+  SyncValidator,
+} from "./form-controller";
+import {
+  type FormErrorMapValue,
+  readFormValidatorResult,
+  toFormErrorMapValue,
+  type ValidationErrorMessage,
+} from "./form-errors";
 
 /**
  * ra parity (exact semantics, TOP-LEVEL keys only): `null`, `''` and
@@ -35,35 +48,6 @@ export function sanitizeEmptyValues<TValues>(
   return result as TValues;
 }
 
-/**
- * form-core's "global form validation error" shape: `form` is the form-level
- * error, `fields` maps field paths (dot/bracket, `items[0].sku`) to errors.
- * Returned by form-level validators and accepted by `setErrorMap`.
- */
-export interface FormErrorMapValue {
-  form: unknown;
-  fields: Record<string, unknown>;
-}
-
-/**
- * Converts an ra-shaped error record (field path -> error, `root` reserved
- * for the form-level message) — the form-level validate fn contract AND the
- * P4 save `FieldErrors` contract — into form-core's global error-map value.
- * Nullish entries are dropped; returns `undefined` when nothing remains.
- */
-export function toFormErrorMapValue(
-  errors: Record<string, unknown> | null | undefined,
-): FormErrorMapValue | undefined {
-  if (errors == null) return undefined;
-  const { root, ...rest } = errors;
-  const fields: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(rest)) {
-    if (value != null) fields[key] = value;
-  }
-  if (root == null && Object.keys(fields).length === 0) return undefined;
-  return { form: root ?? undefined, fields };
-}
-
 export interface ComposeFormValidatorConfig<TFormData> {
   /** Resource schema (zod or any Standard Schema) — the D6 default validator. */
   schema?: StandardSchemaV1<TFormData, unknown>;
@@ -80,6 +64,73 @@ export interface ComposeFormValidatorConfig<TFormData> {
 export type FormValidatorProps<TFormData> = Parameters<
   FormValidateFn<TFormData>
 >[0];
+
+/** What form-core hands an async form-level validator fn: also a `signal`. */
+type FormAsyncValidatorProps<TFormData> = Parameters<
+  FormValidateAsyncFn<TFormData>
+>[0];
+
+/** Runs a sync form-level validator, fn or Standard Schema, and reads its result as messages. */
+function runFormValidator<TFormData>(
+  validator: FormValidateOrFn<TFormData>,
+  props: FormValidatorProps<TFormData>,
+): FormErrorMapValue | undefined {
+  return readFormValidatorResult(
+    isStandardSchemaValidator(validator)
+      ? standardSchemaValidators.validate(
+          { value: props.value, validationSource: "form" },
+          validator,
+        )
+      : validator(props),
+  );
+}
+
+/** {@link runFormValidator} for an async slot. */
+async function runAsyncFormValidator<TFormData>(
+  validator: FormAsyncValidateOrFn<TFormData>,
+  props: FormAsyncValidatorProps<TFormData>,
+): Promise<FormErrorMapValue | undefined> {
+  return readFormValidatorResult(
+    isStandardSchemaValidator(validator)
+      ? await standardSchemaValidators.validateAsync(
+          { value: props.value, validationSource: "form" },
+          validator,
+        )
+      : await validator(props),
+  );
+}
+
+const writeSync = <TFormData>(
+  validator: SyncValidator<TFormData>,
+): SyncValidator<TFormData> =>
+  validator && ((props) => runFormValidator(validator, props));
+
+const writeAsync = <TFormData>(
+  validator: AsyncValidator<TFormData>,
+): AsyncValidator<TFormData> =>
+  validator && ((props) => runAsyncFormValidator(validator, props));
+
+/**
+ * The form's validator options with every escape-hatch slot writing
+ * messages into the error map, and `onDynamic` replaced by the composed stack.
+ */
+export function writeFormValidators<TFormData>(
+  validators: CheloneFormOptions<TFormData>["validators"],
+  onDynamic: SyncValidator<TFormData>,
+): CheloneFormOptions<TFormData>["validators"] {
+  return {
+    ...validators,
+    onMount: writeSync(validators?.onMount),
+    onChange: writeSync(validators?.onChange),
+    onChangeAsync: writeAsync(validators?.onChangeAsync),
+    onBlur: writeSync(validators?.onBlur),
+    onBlurAsync: writeAsync(validators?.onBlurAsync),
+    onSubmit: writeSync(validators?.onSubmit),
+    onSubmitAsync: writeAsync(validators?.onSubmitAsync),
+    onDynamic,
+    onDynamicAsync: writeAsync(validators?.onDynamicAsync),
+  };
+}
 
 /**
  * Composes the D6 validator stack into ONE sync `onDynamic` validator:
@@ -110,35 +161,18 @@ export function composeFormValidator<TFormData>(
   let validateIsAsync = false;
 
   return (props) => {
-    let formError: unknown;
-    const fields: Record<string, unknown> = {};
+    let formError: ValidationErrorMessage | undefined;
+    const fields: Record<string, ValidationErrorMessage> = {};
 
-    const absorb = (result: unknown): void => {
-      if (result == null) return;
-      if (isRecord(result) && "fields" in result) {
-        if (formError === undefined && result.form != null) {
-          formError = result.form;
-        }
-        if (isRecord(result.fields)) {
-          for (const [key, error] of Object.entries(result.fields)) {
-            if (error != null && !(key in fields)) fields[key] = error;
-          }
-        }
-        return;
+    const absorb = (result: FormErrorMapValue | undefined): void => {
+      if (!result) return;
+      formError ??= result.form;
+      for (const [path, error] of Object.entries(result.fields)) {
+        if (!(path in fields)) fields[path] = error;
       }
-      // A bare return value (string, translatable payload, ...) is a
-      // form-level error — the form-core fn-validator convention.
-      if (formError === undefined) formError = result;
     };
 
-    if (schema) {
-      absorb(
-        standardSchemaValidators.validate(
-          { value: props.value, validationSource: "form" },
-          schema,
-        ),
-      );
-    }
+    if (schema) absorb(runFormValidator(schema, props));
     if (validate && !validateIsAsync) {
       const result = validate(props.value);
       if (isThenable(result)) {
@@ -149,16 +183,7 @@ export function composeFormValidator<TFormData>(
         absorb(toFormErrorMapValue(result));
       }
     }
-    if (userValidator) {
-      absorb(
-        isStandardSchemaValidator(userValidator)
-          ? standardSchemaValidators.validate(
-              { value: props.value, validationSource: "form" },
-              userValidator,
-            )
-          : userValidator(props),
-      );
-    }
+    if (userValidator) absorb(runFormValidator(userValidator, props));
 
     if (formError === undefined && Object.keys(fields).length === 0) {
       return undefined;

@@ -1,19 +1,16 @@
 import type { FormValidateOrFn } from "@tanstack/form-core";
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
-import type { TranslateParamValues } from "../i18n/messages";
 import {
   createFormController,
   type FieldErrors,
   type FormController,
   type FormControllerOptions,
-  normalizeFormError,
-  type TranslatableMessage,
 } from "./form-controller";
+import type { FormErrorMapValue } from "./form-errors";
 import {
   type ComposeFormValidatorConfig,
   composeFormValidator,
-  type FormErrorMapValue,
 } from "./save-pipeline";
 
 interface PostDraft {
@@ -66,16 +63,6 @@ it("form.setFieldValue is typed by the record's DeepKeys", () => {
     .toEqualTypeOf<"title">();
   // @ts-expect-error -- "nope" is not a key of PostDraft
   controller.form.setFieldValue("nope", 1);
-});
-
-it("normalizeFormError returns the translatable boundary union", () => {
-  expectTypeOf(normalizeFormError(null)).toEqualTypeOf<
-    string | TranslatableMessage | undefined
-  >();
-  expectTypeOf<TranslatableMessage>().toEqualTypeOf<{
-    message: string;
-    args?: TranslateParamValues;
-  }>();
 });
 
 it("submit never rejects and takes no arguments", () => {

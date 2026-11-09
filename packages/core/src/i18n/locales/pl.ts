@@ -42,6 +42,7 @@ export const plMessages = {
     "Nie masz uprawnień dostępu do tego zasobu",
   "chelone.notification.updated": "Element zaktualizowany",
   "chelone.validation.email": "Musi być prawidłowym adresem e-mail",
+  "chelone.validation.invalid": "Nieprawidłowa wartość",
   "chelone.validation.maxLength": "Maksymalna liczba znaków: {max}",
   "chelone.validation.maxValue": "Musi wynosić {max} lub mniej",
   "chelone.validation.minLength": "Minimalna liczba znaków: {min}",

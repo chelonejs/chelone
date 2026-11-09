@@ -92,6 +92,7 @@ export default defineConfig({
         "src/maps-osm.ts",
         "src/supabase.ts",
         "src/csv-import.ts",
+        "src/rsc.ts",
       ],
       formats: ["es"],
     },

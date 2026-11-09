@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import react from "@vitejs/plugin-react";
+import rsc from "@vitejs/plugin-rsc";
 import { defineConfig } from "vite";
 
 /**
@@ -14,7 +15,10 @@ const reactPkgSrc = fileURLToPath(
 );
 
 export default defineConfig({
-  plugins: [tanstackStart(), react()],
+  // React Server Components, as the TanStack Start RSC guide sets them up:
+  // Start's `rsc` flag adds its server-component environment, and
+  // `@vitejs/plugin-rsc` builds it.
+  plugins: [tanstackStart({ rsc: { enabled: true } }), rsc(), react()],
   resolve: {
     alias: {
       "@/components": `${reactPkgSrc}/components`,

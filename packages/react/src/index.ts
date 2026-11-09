@@ -1349,6 +1349,7 @@ export {
   useNavigate,
   useParams,
   useRedirect,
+  useRevalidate,
   useRouterAdapter,
 } from "./router";
 export type {

@@ -187,6 +187,27 @@ const dotted: SourceKey<Post> = "author.name";
 generic field's sibling prop (`limitSource`) does not collapse to the single key
 every shared record type has.
 
+## Form errors
+
+`FormErrors<TRecord>` is what a form's `validate` returns: a message per source
+path, plus `root` for the form-level message. A message is a string or an i18n
+key with its args (`ValidationErrorMessage`).
+
+```tsx twoslash title="src/errors.ts"
+// @include: type-safety-post-record
+import { type FormErrors } from "@chelone/core";
+
+const errors: FormErrors<Post> = {
+  root: "Fix the errors below",
+  "author.name": { message: "chelone.validation.required" },
+};
+// @errors: 2561
+const typo: FormErrors<Post> = { titel: "chelone.validation.required" };
+```
+
+A server's field errors stay `FieldErrors`, keyed by any string, since the
+provider decides them.
+
 ## Filters
 
 A filter key is a source path with an operator suffix, or the free-text `q`.

@@ -15,6 +15,7 @@
     "@chelone/core:AnyFilterSourceKey",
     "@chelone/core:AnySourcePath",
     "@chelone/core:FilterSourceKey",
+    "@chelone/core:FormErrors",
     "@chelone/core:RecordFilterKey",
     "@chelone/core:ReferenceTargetOf",
     "@chelone/core:SourcePath",
@@ -51,9 +52,13 @@
     "@chelone/vue:createResourceComponentsOf"
   ],
   "typed-hooks": [
+    "@chelone/core:ListControllerContext",
     "@chelone/core:ResourceNameArg",
     "@chelone/core:ResourceRecordArg",
+    "@chelone/core:ServerListPage",
+    "@chelone/core:ServerListPageInput",
     "@chelone/core:deleteManyMutationOptions",
+    "@chelone/core:loadServerListPage",
     "@chelone/core:undoableDeleteMutators",
     "@chelone/core:undoableUpdateMutators",
     "@chelone/core:updateManyMutationOptions",

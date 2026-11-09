@@ -39,6 +39,7 @@ export const arMessages = {
   "chelone.notification.not_authorized": "غير مصرح لك بالوصول إلى هذا المورد",
   "chelone.notification.updated": "تم تحديث العنصر",
   "chelone.validation.email": "يجب أن يكون بريدًا إلكترونيًا صالحًا",
+  "chelone.validation.invalid": "قيمة غير صالحة",
   "chelone.validation.maxLength": "يجب ألا يزيد عدد الأحرف على {max}",
   "chelone.validation.maxValue": "يجب أن تكون القيمة {max} أو أقل",
   "chelone.validation.minLength": "يجب ألا يقل عدد الأحرف عن {min}",

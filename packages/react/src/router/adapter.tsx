@@ -136,6 +136,12 @@ export interface RouterAdapter {
   useInRouterContext(): boolean;
   /** Whether the host router can block navigation (drives `warnWhenUnsaved`). */
   useCanBlock(): boolean;
+  /**
+   * A function that re-runs the current route's server data (TanStack's
+   * `router.invalidate()`, Next.js's `router.refresh()`). Optional: without it
+   * `useRevalidate` re-navigates to the current location in place.
+   */
+  useRevalidate?(): () => void;
 
   // --- 5 components ---
   Link: ForwardRefExoticComponent<

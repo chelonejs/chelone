@@ -21,7 +21,7 @@ export interface LocationState {
   /** Where to go once a blocked navigation is confirmed. */
   nextPathname?: string;
   /** A seed record of any resource, read by `getRecordFromLocation`. */
-  // type-escape: a seed record can belong to any resource
+  // type-escape: context: a seed record can belong to any resource
   record?: Record<string, unknown>;
 }
 
@@ -30,7 +30,7 @@ export interface LocationState {
  * `null` for anything that is not an object or whose known keys have the wrong
  * type. App keys pass through unchecked.
  */
-// type-escape: browser history state is untyped input
+// type-escape: dom: browser history state is untyped
 export function toLocationState(raw: unknown): LocationState | null {
   return isLocationState(raw) ? raw : null;
 }
