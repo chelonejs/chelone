@@ -280,6 +280,17 @@ export const blocks = [
     inferDependencies: true,
     sourceDirs: [{ path: "src/components/admin/supabase", recursive: true }],
   },
+  {
+    name: "rsc",
+    type: "registry:block",
+    title: "Chelone Server Components",
+    categories: ["chelone", "fields"],
+    description:
+      "The opt-in React Server Components add-on: readFieldValue reads a typed value off a record passed as a prop, and serverEmptyText prints a field's empty text, with no hook or context, so they run in a server component.",
+    granularize: true,
+    inferDependencies: true,
+    sourceDirs: [{ path: "src/components/rsc", recursive: true }],
+  },
 ];
 
 /**
