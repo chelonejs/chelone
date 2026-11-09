@@ -47,6 +47,10 @@ interface LoginValues {
   password: string;
 }
 
+// A template cannot pass a type argument, so the inputs are the same component
+// at the form's own values: `source` checks against them, not the registry.
+const CredentialInput = TextInput<LoginValues>;
+
 const props = defineProps<LoginFormProps>();
 
 const login = useLogin();
@@ -93,13 +97,13 @@ function handleSubmit(event: Event): void {
     novalidate
     @submit="handleSubmit"
   >
-    <TextInput
+    <CredentialInput
       label="Email"
       source="email"
       type="email"
       :validate="required()"
     />
-    <TextInput
+    <CredentialInput
       label="Password"
       source="password"
       type="password"

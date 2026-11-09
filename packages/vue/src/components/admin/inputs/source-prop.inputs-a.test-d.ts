@@ -73,9 +73,8 @@ describe("the first eleven inputs", () => {
   });
 
   it("the PasswordInput source prop is SourceProp", () => {
-    expectTypeOf<
-      InstanceType<typeof PasswordInput>["$props"]["source"]
-    >().toEqualTypeOf<SourceProp>();
+    type Props = Parameters<typeof PasswordInput>[0];
+    expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 
   it("the PhoneInput source prop is SourceProp", () => {

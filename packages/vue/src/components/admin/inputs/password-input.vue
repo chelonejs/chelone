@@ -1,7 +1,12 @@
-<script lang="ts">
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { LooseRecord, SourceProp } from "@chelone/core";
+
 /** Props for {@link PasswordInput}. */
-export interface PasswordInputProps {
-  source: SourceProp;
+export interface PasswordInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
+  source: TPath;
   label?: string | false;
   initiallyVisible?: boolean;
   defaultValue?: string;
@@ -17,7 +22,7 @@ export interface PasswordInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<PasswordInput>` — text input for passwords with a reveal toggle, the Vue
  * analog of `@chelone/react`'s `inputs/password-input.tsx`. Wraps `<TextInput>`
@@ -28,14 +33,18 @@ export interface PasswordInputProps {
  * eye / eye-off glyphs are inlined SVGs mirroring lucide's paths.
  */
 
-import type { SourceProp, Validator } from "@chelone/core";
+import type { Validator } from "@chelone/core";
 import { computed, ref } from "vue";
 import { useTranslate } from "../../../i18n/use-translate";
 import { cn } from "../../../lib/utils";
 import Button from "../../ui/button.vue";
 import TextInput from "./text-input.vue";
 
-const props = withDefaults(defineProps<PasswordInputProps>(), {
+// A template cannot pass a type argument, so the wrapped input is the same
+// component at this one's own record and `source`.
+const InnerInput = TextInput<RecordType, TPath>;
+
+const props = withDefaults(defineProps<PasswordInputProps<RecordType, TPath>>(), {
   label: undefined,
 });
 
@@ -50,7 +59,7 @@ const toggleLabel = computed(() =>
 </script>
 
 <template>
-  <TextInput
+  <InnerInput
     :source="source"
     :label="label"
     :type="visible ? 'text' : 'password'"
@@ -109,5 +118,5 @@ const toggleLabel = computed(() =>
         </svg>
       </Button>
     </template>
-  </TextInput>
+  </InnerInput>
 </template>
