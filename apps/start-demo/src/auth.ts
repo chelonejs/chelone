@@ -150,11 +150,62 @@ export async function makeSessionAuthProvider(
   gateway: SessionGateway,
 ): Promise<AuthProvider> {
   let session: DemoSession | undefined = await gateway.read();
+  let committed = session;
+  let restoring = false;
   let written: Promise<void> = Promise.resolve();
 
+  // `session` is what the store answers from, so it moves at once: the sign-in
+  // reads it back before the write lands. A failed write puts it back to the
+  // last session that was written, unless a later save already replaced it, and
+  // the next write starts from a settled chain instead of the old rejection.
   const save = (next: DemoSession | undefined) => {
     session = next;
-    written = written.then(() => gateway.write(next));
+    const run = written
+      .catch(() => {})
+      .then(async () => {
+        try {
+          await gateway.write(next);
+          committed = next;
+        } catch (error) {
+          if (session === next) restore();
+          throw error;
+        }
+      });
+    run.catch(() => {});
+    written = run;
+  };
+
+  // The store caches what it was given, so putting `session` back is not
+  // enough: the store is written to as well, without saving that write.
+  const restore = () => {
+    session = committed;
+    restoring = true;
+    try {
+      store.setItem(SIGNED_IN_KEY, committed !== undefined);
+      if (committed) store.setItem(USER_KEY, committed.user);
+      else store.removeItem(USER_KEY);
+    } finally {
+      restoring = false;
+    }
+  };
+
+  const refreshAuth = async () => {
+    await Promise.all(
+      (["checkAuth", "getIdentity", "canAccess"] as const).map((query) =>
+        queryClient.resetQueries({ queryKey: ["auth", query] }),
+      ),
+    );
+  };
+
+  // A failed write has already rolled the session back, but the sign-in reset
+  // the auth queries while it still looked signed in, so reset them again.
+  const settled = async () => {
+    try {
+      await written;
+    } catch (error) {
+      await refreshAuth();
+      throw error;
+    }
   };
 
   const store = createStore({
@@ -164,6 +215,7 @@ export async function makeSessionAuthProvider(
       return undefined;
     },
     setItem: (key, value) => {
+      if (restoring) return;
       if (key === SIGNED_IN_KEY) {
         save(value === true ? (session ?? newSession()) : undefined);
         return;
@@ -173,6 +225,7 @@ export async function makeSessionAuthProvider(
       }
     },
     removeItem: (key) => {
+      if (restoring) return;
       if (key === SIGNED_IN_KEY) save(undefined);
     },
   });
@@ -182,11 +235,11 @@ export async function makeSessionAuthProvider(
     ...demo,
     login: async (params) => {
       await demo.login(params);
-      await written;
+      await settled();
     },
     logout: async (params) => {
       await demo.logout(params);
-      await written;
+      await settled();
     },
     handleCallback: async () => {
       const result = await demo.handleCallback?.();

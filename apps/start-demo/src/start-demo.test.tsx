@@ -12,12 +12,14 @@
 
 import { listFetchParams } from "@chelone/core";
 import { seedData } from "@chelone/demo-data";
+import { QueryClient } from "@tanstack/react-query";
 import { createMemoryHistory, RouterProvider } from "@tanstack/react-router";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   type DemoSession,
+  makeSessionAuthProvider,
   memorySessionGateway,
   parseSessionCookie,
   type SessionGateway,
@@ -237,5 +239,31 @@ describe("the Start demo's auth", () => {
     expect(parseSessionCookie("token-1.%zz")?.user).toBe("%zz");
     expect(parseSessionCookie("")).toBeUndefined();
     expect(parseSessionCookie(".no-token")).toBeUndefined();
+  });
+
+  it("a failed cookie write signs nobody in and the next one still writes", async () => {
+    const inner = memorySessionGateway();
+    let failing = true;
+    const written: (DemoSession | undefined)[] = [];
+    const gateway: SessionGateway = {
+      read: inner.read,
+      write: async (next) => {
+        if (failing) throw new Error("connection dropped");
+        written.push(next);
+        await inner.write(next);
+      },
+    };
+    const auth = await makeSessionAuthProvider(new QueryClient(), gateway);
+
+    await expect(auth.login({ email: "a@example.com" })).rejects.toThrow(
+      "connection dropped",
+    );
+    await expect(auth.checkAuth({})).rejects.toThrow();
+
+    failing = false;
+    await auth.login({ email: "a@example.com" });
+    await expect(auth.checkAuth({})).resolves.toBeUndefined();
+    expect(session(written.at(-1)).user).toBe("a@example.com");
+    expect(session(await inner.read()).user).toBe("a@example.com");
   });
 });
