@@ -190,9 +190,10 @@ const posts = createResourceComponents("posts");
 const field = <posts.TextInput source="body" />;
 ```
 
-A `source` that is optional on a component stays optional on the member.
-`ReferenceManyCount` takes no `source`, so `<posts.ReferenceManyCount reference="comments" target="post_id" />`
-compiles, while `<posts.TextInput />` does not.
+A `source` that is optional on a component stays optional on the member. In
+React, `ReferenceManyCount` declares `source?`, so
+`<posts.ReferenceManyCount reference="comments" target="post_id" />` compiles,
+while `<posts.TextInput />` does not.
 
 ## Value callbacks
 
