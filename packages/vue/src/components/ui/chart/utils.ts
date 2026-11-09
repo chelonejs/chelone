@@ -105,8 +105,8 @@ let idCounter = 0;
  * does not reset, so on Vue 3.4 pass `id` to `<ChartContainer>` for SSR.
  */
 export function useId(): string {
-  // type-escape: Vue 3.4 has no useId, so the cast types the 3.5 export we probe for
-  const vueUseId = (Vue as { useId?: () => string }).useId;
+  // Vue 3.4 has no `useId`, so the 3.5 export is probed as possibly absent.
+  const vueUseId: (() => string) | undefined = Vue.useId;
   if (vueUseId && getCurrentInstance()) {
     return vueUseId().replace(/[^\w-]/g, "");
   }
