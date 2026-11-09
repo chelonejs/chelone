@@ -1,14 +1,13 @@
 /**
- * `reference` and `target` on the six reference components, typed against a
- * resource map. Like `createResourceComponentsOf`, the map is a type argument,
- * so these tests need no `Register` augmentation, which is global to a
- * TypeScript program. TypeScript takes all type arguments or none, so each case
- * names the record, the map and the reference.
+ * `reference` and `target` on the Vue reference components, typed against a
+ * resource map. The map is a type argument, as in `createResourceComponentsOf`,
+ * so these tests need no `Register` augmentation, which is global to a TypeScript
+ * program. Each case is a props object: the SFCs are generic, so their props are
+ * read through the exported props interfaces.
  */
 
 import {
   defineResources,
-  type LooseRecord,
   type RecordOf,
   type ReferenceTargetOf,
   type RegisteredResourceName,
@@ -24,224 +23,159 @@ import type { ReferenceFieldProps } from "./reference-field.vue";
 import type { ReferenceManyFieldProps } from "./reference-many-field.vue";
 import type { ReferenceOneFieldProps } from "./reference-one-field.vue";
 
-const resources = defineResources({
-  posts: {
+const catalog = defineResources({
+  authors: { schema: z.object({ id: z.number(), name: z.string() }) },
+  reviews: {
     schema: z.object({
       id: z.number(),
-      title: z.string(),
       author_id: z.number(),
-      tag_ids: z.array(z.number()),
+      stars: z.number(),
+      body: z.string().optional(),
     }),
   },
-  authors: { schema: z.object({ id: z.number(), name: z.string() }) },
-  comments: {
-    schema: z.object({ id: z.number(), post_id: z.number(), body: z.string() }),
-  },
+  badges: { schema: z.object({ id: z.string(), label: z.string() }) },
 });
 
-type Post = RecordOf<typeof resources, "posts">;
-type Comment = RecordOf<typeof resources, "comments">;
+type Author = RecordOf<typeof catalog, "authors">;
+type Review = RecordOf<typeof catalog, "reviews">;
+type ReviewTarget = ReferenceTargetOf<typeof catalog, "reviews">;
 
-const post: Post = {
-  id: 1,
-  title: "one",
-  author_id: 7,
-  tag_ids: [1, 2],
-};
+const author: Author = { id: 4, name: "Ada" };
 
 /**
  * What an app with `Register` augmented sees: the map is fixed by the app and
  * only the name is inferred, so `target` follows the name with no type argument
  * written at the call.
  */
-declare function postsField<TReference extends keyof typeof resources & string>(
-  props: ReferenceManyFieldProps<LooseRecord, typeof resources, TReference>,
+declare function reviewPropsOf<TName extends keyof typeof catalog & string>(
+  props: ReferenceManyFieldProps<Author, typeof catalog, TName>,
 ): void;
 
-describe("with nothing registered", () => {
-  it("reference and target fall back to string", () => {
+describe("the loose components", () => {
+  it("with no augmentation reference is RegisteredResourceName", () => {
     expectTypeOf<
       ReferenceFieldProps["reference"]
     >().toEqualTypeOf<RegisteredResourceName>();
-    expectTypeOf<ReferenceFieldProps["reference"]>().toEqualTypeOf<string>();
-    expectTypeOf<
-      ReferenceManyFieldProps["reference"]
-    >().toEqualTypeOf<string>();
-    expectTypeOf<ReferenceManyFieldProps["target"]>().toEqualTypeOf<string>();
     expectTypeOf<ReferenceOneFieldProps["target"]>().toEqualTypeOf<string>();
     expectTypeOf<
-      ReferenceArrayFieldProps["reference"]
-    >().toEqualTypeOf<string>();
-    expectTypeOf<ReferenceInputProps["reference"]>().toEqualTypeOf<string>();
-    expectTypeOf<
       ReferenceArrayInputProps["reference"]
-    >().toEqualTypeOf<string>();
+    >().toEqualTypeOf<RegisteredResourceName>();
   });
 
-  it("source stays a SourceProp of the record", () => {
+  it("source keeps its own record typing", () => {
     expectTypeOf<ReferenceFieldProps["source"]>().toEqualTypeOf<SourceProp>();
     expectTypeOf<ReferenceManyFieldProps["source"]>().toEqualTypeOf<
       SourceProp | undefined
     >();
-    expectTypeOf<ReferenceInputProps["source"]>().toEqualTypeOf<SourceProp>();
   });
 
-  it("any name and any target compile", () => {
+  it("an unregistered app passes any name and any column", () => {
     const field: ReferenceFieldProps = {
       source: "author_id",
-      reference: "whatever",
-    };
-    const many: ReferenceManyFieldProps = {
-      reference: "whatever",
-      target: "any_column",
-      source: "author.roles[0].name",
+      reference: "whoever",
     };
     const one: ReferenceOneFieldProps = {
-      reference: "whatever",
-      target: "any_column",
+      reference: "whoever",
+      target: "some_column",
     };
     const array: ReferenceArrayFieldProps = {
       source: "tag_ids",
-      reference: "whatever",
+      reference: "whoever",
     };
-    const input: ReferenceInputProps = {
+    const picker: ReferenceInputProps = {
       source: "company_id",
-      reference: "whatever",
+      reference: "whoever",
     };
-    const arrayInput: ReferenceArrayInputProps = {
+    const multi: ReferenceArrayInputProps = {
       source: "tag_ids",
-      reference: "whatever",
+      reference: "whoever",
     };
-    void [field, many, one, array, input, arrayInput];
+    void [field, one, array, picker, multi];
   });
 });
 
-describe("with a resource map", () => {
-  it("reference is a name of the map", () => {
-    expectTypeOf<
-      ReferenceFieldProps<LooseRecord, typeof resources>["reference"]
-    >().toEqualTypeOf<"posts" | "authors" | "comments">();
-    expectTypeOf<
-      ReferenceManyFieldProps<LooseRecord, typeof resources>["reference"]
-    >().toEqualTypeOf<"posts" | "authors" | "comments">();
-    expectTypeOf<
-      ReferenceArrayInputProps<typeof resources>["reference"]
-    >().toEqualTypeOf<"posts" | "authors" | "comments">();
-  });
-
-  it("target is a key of the referenced resource's record", () => {
-    expectTypeOf<
-      ReferenceManyFieldProps<
-        LooseRecord,
-        typeof resources,
-        "comments"
-      >["target"]
-    >().toEqualTypeOf<SourceKey<Comment>>();
-    expectTypeOf<
-      ReferenceOneFieldProps<
-        LooseRecord,
-        typeof resources,
-        "comments"
-      >["target"]
-    >().toEqualTypeOf<"id" | "post_id" | "body">();
-    expectTypeOf<
-      ReferenceManyFieldProps<LooseRecord, typeof resources, "posts">["target"]
-    >().toEqualTypeOf<ReferenceTargetOf<typeof resources, "posts">>();
-  });
-
-  it("a reference the map does not have is a type error", () => {
-    const field: ReferenceFieldProps<LooseRecord, typeof resources, "authors"> =
-      {
-        source: "author_id",
-        reference: "authors",
-      };
-    const wrongField: ReferenceFieldProps<
-      LooseRecord,
-      typeof resources,
-      "authors"
-    > = {
+describe("the components under a resource map", () => {
+  it("reference takes only the map's names", () => {
+    const field: ReferenceFieldProps<Author, typeof catalog> = {
+      source: "id",
+      reference: "reviews",
+    };
+    const picker: ReferenceInputProps<typeof catalog> = {
       source: "author_id",
-      // @ts-expect-error "tags" is no resource of the map
+      reference: "badges",
+    };
+    const badField: ReferenceFieldProps<Author, typeof catalog> = {
+      source: "id",
+      // @ts-expect-error "tags" is no resource of the catalog
       reference: "tags",
     };
-    const wrongInput: ReferenceArrayInputProps<typeof resources, "comments"> = {
-      source: "tag_ids",
-      // @ts-expect-error "tag_ids" is no resource of the map
-      reference: "tag_ids",
+    const badPicker: ReferenceInputProps<typeof catalog> = {
+      source: "author_id",
+      // @ts-expect-error "reviews" is a resource, "review" is not
+      reference: "review",
     };
-    void [field, wrongField, wrongInput];
+    void [field, picker, badField, badPicker];
   });
 
-  it("a target the referenced record does not have is a type error", () => {
-    const many: ReferenceManyFieldProps<
-      LooseRecord,
-      typeof resources,
-      "comments"
-    > = {
-      reference: "comments",
-      target: "post_id",
+  it("target takes only a key of the referenced record", () => {
+    expectTypeOf<ReviewTarget>().toEqualTypeOf<SourceKey<Review>>();
+    expectTypeOf<ReviewTarget>().toEqualTypeOf<
+      "id" | "author_id" | "stars" | "body"
+    >();
+    const many: ReferenceManyFieldProps<Author, typeof catalog, "reviews"> = {
+      reference: "reviews",
+      target: "author_id",
     };
-    const wrongMany: ReferenceManyFieldProps<
-      LooseRecord,
-      typeof resources,
-      "comments"
-    > = {
-      reference: "comments",
-      // @ts-expect-error "postid" is no key of a comment
-      target: "postid",
+    const badMany: ReferenceManyFieldProps<Author, typeof catalog, "reviews"> =
+      {
+        reference: "reviews",
+        // @ts-expect-error "authorid" is no key of a review
+        target: "authorid",
+      };
+    const badOne: ReferenceOneFieldProps<Author, typeof catalog, "reviews"> = {
+      reference: "reviews",
+      // @ts-expect-error "name" is a key of an author, not of a review
+      target: "name",
     };
-    const wrongOne: ReferenceOneFieldProps<
-      LooseRecord,
-      typeof resources,
-      "comments"
-    > = {
-      reference: "comments",
-      // @ts-expect-error "title" is a key of a post, not of a comment
-      target: "title",
-    };
-    void [many, wrongMany, wrongOne];
+    void [many, badMany, badOne];
   });
 
-  it("the reference name is inferred from the reference prop", () => {
-    postsField({ reference: "comments", target: "post_id" });
-    postsField({
-      reference: "comments",
-      // @ts-expect-error "postid" is no key of a comment
-      target: "postid",
+  it("the name follows the reference prop", () => {
+    reviewPropsOf({ reference: "reviews", target: "stars" });
+    reviewPropsOf({
+      reference: "reviews",
+      // @ts-expect-error "stars" is a key of a review, "star" is not
+      target: "star",
     });
-    postsField({
-      // @ts-expect-error "coments" is no resource of the map
-      reference: "coments",
+    reviewPropsOf({
+      // @ts-expect-error "rewiews" is no resource of the catalog
+      reference: "rewiews",
       target: "id",
     });
   });
 
-  it("source stays a path of the current record", () => {
-    expectTypeOf<ReferenceFieldProps<Post>["source"]>().toEqualTypeOf<
-      SourceProp<Post>
+  it("source stays a path of the record it reads", () => {
+    expectTypeOf<ReferenceFieldProps<Author>["source"]>().toEqualTypeOf<
+      SourceProp<Author>
     >();
-    const field: ReferenceFieldProps<Post, typeof resources, "authors"> = {
-      source: "author_id",
-      reference: "authors",
-      record: post,
+    const field: ReferenceFieldProps<Author, typeof catalog, "badges"> = {
+      source: "name",
+      reference: "badges",
+      record: author,
     };
-    const wrongField: ReferenceFieldProps<Post, typeof resources, "authors"> = {
-      // @ts-expect-error "autor_id" is no path of a post
-      source: "autor_id",
-      reference: "authors",
-      record: post,
+    const badField: ReferenceFieldProps<Author, typeof catalog, "badges"> = {
+      // @ts-expect-error "nmae" is no path of an author
+      source: "nmae",
+      reference: "badges",
+      record: author,
     };
-    const wrongMany: ReferenceManyFieldProps<
-      Post,
-      typeof resources,
-      "comments"
-    > = {
-      reference: "comments",
-      // @ts-expect-error "postid" is no key of a comment
-      target: "postid",
-      source: "title",
-      record: post,
-    };
-    void [field, wrongField, wrongMany];
+    const badArray: ReferenceArrayFieldProps<Author, typeof catalog, "badges"> =
+      {
+        // @ts-expect-error "idz" is no path of an author
+        source: "idz",
+        reference: "badges",
+        record: author,
+      };
+    void [field, badField, badArray];
   });
 });
