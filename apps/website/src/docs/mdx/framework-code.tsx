@@ -56,7 +56,9 @@ export function FrameworkCode({ children }: FrameworkCodeProps) {
       {react.length > 0 && vue.length > 0 ? (
         <FrameworkSwitch framework={framework} onChange={setFramework} />
       ) : null}
-      <div>{shown.length > 0 ? shown : react}</div>
+      {/* One side empty means there is nothing to switch to, so the block shows
+          what exists rather than an empty div. */}
+      <div>{shown.length > 0 ? shown : fences}</div>
     </section>
   );
 }

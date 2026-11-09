@@ -80,3 +80,18 @@ it("a block with only one framework's fence shows no switch", () => {
   expect(screen.queryByRole("button", { name: "Vue" })).toBeNull();
   expect(screen.queryByRole("button", { name: "React" })).toBeNull();
 });
+
+it("a Vue-only block shows its fence at the default framework", () => {
+  render(
+    <MemoryRouter initialEntries={["/docs/type-safety/overview"]}>
+      <FrameworkCode>
+        <figure data-rehype-pretty-code-figure="">
+          <pre data-language="vue">{'<posts.TextInput source="title" />'}</pre>
+        </figure>
+      </FrameworkCode>
+    </MemoryRouter>,
+  );
+
+  expect(screen.getByText('<posts.TextInput source="title" />')).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "Vue" })).toBeNull();
+});
