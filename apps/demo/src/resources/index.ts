@@ -1,6 +1,7 @@
 import { defineResources, type englishMessages } from "@chelone/core";
 import { z } from "zod";
 import { authorSchema } from "./authors";
+import { customerSchema } from "./customers";
 import { postSchema } from "./posts";
 
 /**
@@ -40,9 +41,10 @@ export const tagSchema = z.object({
  * forms automatic validation (the D6 default validator reads the registry
  * schema and validates the form against it, no per-input `validate` props).
  * `defineResources` keeps the `"posts"` key + `typeof postSchema` literal for
- * end-to-end record-type inference. `authors` carries `authorSchema` the same
- * way and builds its views from `createResourceComponents("authors")`, so every
- * `source` in that demo is checked against the schema.
+ * end-to-end record-type inference. `authors` and `customers` carry their
+ * schema the same way and build their views from
+ * `createResourceComponents(...)`, so every `source` in those demos is checked
+ * against the schema.
  *
  * The other resources omit a schema — they fall back to the loose record type
  * and only validate what their inputs declare. Add a `schema` to any of them to
@@ -52,7 +54,7 @@ export const resources = defineResources({
   posts: { schema: postSchema },
   authors: { schema: authorSchema },
   products: {},
-  customers: {},
+  customers: { schema: customerSchema },
   orders: {},
   places: {},
   pages: { schema: pageSchema },
