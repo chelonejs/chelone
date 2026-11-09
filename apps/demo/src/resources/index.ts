@@ -50,9 +50,10 @@ export const tagSchema = z.object({
  * checked against the schema.
  *
  * The schema-less entries - `api_keys`, `webhooks`, `integration_settings`,
- * `activity`, `jobs` and `roles` - are `{}` entries. They fall back to the loose
- * record type and only validate what their inputs declare. Add a `schema` to any
- * of them to opt into the same auto-validation.
+ * `jobs` and `roles` - are `{}` entries. They fall back to the loose record type
+ * and only validate what their inputs declare. Add a `schema` to any of them to
+ * opt into the same auto-validation. `activity` is left out because
+ * `apps/demo/src/pages/activity.tsx` owns the `/activity` route.
  */
 export const resources = defineResources({
   posts: { schema: postSchema },
@@ -67,7 +68,6 @@ export const resources = defineResources({
   api_keys: {},
   webhooks: {},
   integration_settings: {},
-  activity: {},
   jobs: {},
   roles: {},
 });
