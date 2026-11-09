@@ -183,25 +183,38 @@ function sourceFiles(folder: string): string[] {
 }
 
 describe("the rsc entry", () => {
-  it("exports the server fields and their helpers", async () => {
+  it("exports the server fields, the server list and their helpers", async () => {
     const entry = await import("./rsc");
     expect(Object.keys(entry).sort()).toEqual([
       "ServerDateField",
+      "ServerEmailField",
+      "ServerFileField",
+      "ServerImageField",
+      "ServerList",
       "ServerNumberField",
       "ServerTextField",
+      "ServerUrlField",
       "readFieldValue",
       "serverEmptyText",
     ]);
   });
 
-  it("no file in components/rsc reaches a React hook, createContext or a hooks module", () => {
-    const files = sourceFiles(rscFolder);
-    // Guards the walk: an empty list would pass vacuously.
-    expect(files.map((file) => relative(src, file))).toContain(
-      "components/rsc/read-field-value.ts",
+  it("no server file in components/rsc reaches a React hook, createContext or a hooks module", () => {
+    // A client file there is one a server file renders, and may call hooks.
+    const files = sourceFiles(rscFolder).filter(
+      (file) => !opensWithUseClient(readFileSync(file, "utf8")),
     );
-    expect(files.map((file) => relative(src, file))).toContain(
-      "components/rsc/server-scalar-fields.tsx",
+    // Guards the walk: an empty list would pass vacuously.
+    expect(files.map((file) => relative(src, file))).toEqual(
+      expect.arrayContaining([
+        "components/rsc/read-field-value.ts",
+        "components/rsc/server-scalar-fields.tsx",
+        "components/rsc/server-link-fields.tsx",
+        "components/rsc/server-list.tsx",
+      ]),
+    );
+    expect(files.map((file) => relative(src, file))).not.toContain(
+      "components/rsc/server-list-link.tsx",
     );
     expect(files.flatMap(serverOffences)).toEqual([]);
   });

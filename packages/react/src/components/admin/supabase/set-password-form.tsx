@@ -117,14 +117,14 @@ function SetPasswordForm({ className }: SetPasswordFormProps) {
         onSubmit={handleSubmit}
         noValidate
       >
-        <PasswordInput
+        <PasswordInput<SetPasswordValues>
           label={translate("chelone.auth.password", { _: "Password" })}
           source="password"
           autoComplete="new-password"
           autoFocus
           validate={required()}
         />
-        <PasswordInput
+        <PasswordInput<SetPasswordValues>
           label={translate("ra-supabase.auth.confirm_password", {
             _: "Confirm password",
           })}

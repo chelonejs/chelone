@@ -34,6 +34,10 @@ interface SetPasswordValues {
   confirmPassword: string;
 }
 
+// A template cannot pass a type argument, so the input is the same component at
+// the form's own values: `source` checks against them, not the registry.
+const NewPasswordInput = PasswordInput<SetPasswordValues>;
+
 const props = defineProps<SetPasswordFormProps>();
 
 const { accessToken, refreshToken } = useSupabaseUrlTokens();
@@ -112,14 +116,14 @@ const linkClass =
     novalidate
     @submit="handleSubmit"
   >
-    <PasswordInput
+    <NewPasswordInput
       :label="translate('chelone.auth.password', { _: 'Password' })"
       source="password"
       autocomplete="new-password"
       autofocus
       :validate="required()"
     />
-    <PasswordInput
+    <NewPasswordInput
       :label="
         translate('ra-supabase.auth.confirm_password', {
           _: 'Confirm password',

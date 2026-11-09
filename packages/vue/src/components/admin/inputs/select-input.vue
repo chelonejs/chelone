@@ -34,6 +34,7 @@ import { useInput } from "../../../form/use-input";
 import { useTranslate } from "../../../i18n/use-translate";
 import { Field, FieldDescription, FieldError, FieldLabel } from "../../ui/field";
 import ValidationError from "../common/validation-error.vue";
+import { targetOf } from "./event-target";
 import { humanizeSource } from "./label-text";
 import { useChoiceInput } from "./use-choice-input";
 
@@ -83,7 +84,9 @@ const emptyLabel = computed(() =>
 );
 
 function onChange(event: Event) {
-  const raw = (event.target as HTMLSelectElement).value;
+  const select = targetOf(event, HTMLSelectElement);
+  if (!select) return;
+  const raw = select.value;
   if (raw === String(props.emptyValue)) {
     setValue(props.emptyValue);
   } else {

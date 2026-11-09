@@ -51,9 +51,9 @@
     },
     {
       "name": "schema",
-      "type": "StandardSchemaV1<TFormData, unknown>",
+      "type": "StandardSchemaV1<unknown, Partial<TFormData>>",
       "optional": true,
-      "comment": "Resource schema (zod or any Standard Schema) — wired as the default form\nvalidator by the submit pipeline (T2)."
+      "comment": "Resource schema (zod or any Standard Schema) — wired as the default form\nvalidator by the submit pipeline (T2). Typed by what it outputs, so a\nschema whose input differs (a zod `transform`) fits and one for another\nrecord does not."
     },
     {
       "name": "syncWithLocation",

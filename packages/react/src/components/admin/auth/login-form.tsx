@@ -92,7 +92,7 @@ function LoginForm(props: LoginFormProps) {
         onSubmit={handleSubmit}
         noValidate
       >
-        <TextInput
+        <TextInput<LoginValues>
           label="Email"
           source="email"
           type="email"
@@ -100,7 +100,7 @@ function LoginForm(props: LoginFormProps) {
           autoFocus
           validate={required()}
         />
-        <TextInput
+        <TextInput<LoginValues>
           label="Password"
           source="password"
           type="password"

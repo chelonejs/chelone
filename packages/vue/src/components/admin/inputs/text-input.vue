@@ -1,9 +1,12 @@
-<script lang="ts">
-import type { SourceProp } from "@chelone/core";
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
 /** Props for {@link TextInput}. */
-export interface TextInputProps {
-  source: SourceProp;
+export interface TextInputProps<
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
+> {
+  source: TPath;
   label?: string | false;
   type?: string;
   defaultValue?: string;
@@ -20,7 +23,7 @@ export interface TextInputProps {
 }
 </script>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<TextInput>` — single-line text input, the Vue analog of `@chelone/react`'s
  * `inputs/text-input.tsx`. Binds ONE field via `useInput` (Task 6) and renders
@@ -41,11 +44,12 @@ import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<TextInputProps>(), {
+const props = withDefaults(defineProps<TextInputProps<RecordType, TPath>>(), {
   label: undefined,
 });
 
 const { id, value, setValue, blur, error, touched, isRequired } = useInput<
+  // type-escape: context: no record, so the record-free form is the sentinel `SourcePath` and `SourceValue` test for
   unknown,
   string,
   string

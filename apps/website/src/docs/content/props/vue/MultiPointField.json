@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<TRecord>",
       "optional": false,
       "comment": "The record property holding the GeoJSON value."
     },

@@ -132,7 +132,7 @@ function LoginWithEmail(props: LoginWithEmailProps) {
         onSubmit={handleSubmit}
         noValidate
       >
-        <TextInput
+        <TextInput<LoginWithEmailValues>
           label="Email"
           source="email"
           type="email"
@@ -140,7 +140,7 @@ function LoginWithEmail(props: LoginWithEmailProps) {
           autoFocus
           validate={required()}
         />
-        <PasswordInput
+        <PasswordInput<LoginWithEmailValues>
           label="Password"
           source="password"
           autoComplete="current-password"
