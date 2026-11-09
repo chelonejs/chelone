@@ -1,5 +1,5 @@
 <script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
-import type { DateInputValue, LooseRecord, SourceProp } from "@chelone/core";
+import type { DateInputValue, LooseRecord, SourceProp, SourceValue } from "@chelone/core";
 import type { SourceInputProps } from "./source-input-props";
 
 /** Props for {@link TimeInput}. */
@@ -14,7 +14,7 @@ export interface TimeInputProps<
   /** Read transform (form value → display string). Default {@link formatTime}. */
   format?: (value: DateInputValue) => string;
   /** Write transform (display string → stored value). Default {@link parseTimeToDate}. */
-  parse?: (input: string) => unknown;
+  parse?: (input: string) => SourceValue<RecordType, TPath>;
   class?: string;
 }
 </script>
@@ -52,8 +52,8 @@ const { id, value, setValue, blur, error, touched, isRequired } = useInput({
   source: props.source,
   defaultValue: props.defaultValue,
   validate: props.validate,
-  format: (v: unknown) => format.value(toDateInputValue(v)),
-  parse: (v: unknown) => parse.value(toTextValue(v)),
+  format: (v) => format.value(toDateInputValue(v)),
+  parse: (v) => parse.value(toTextValue(v)),
 });
 
 const buffer = ref(textOf(value.value));

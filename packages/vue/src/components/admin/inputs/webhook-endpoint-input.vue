@@ -71,7 +71,7 @@ const {
   error,
   touched,
   isRequired,
-} = useInput<unknown, string, WebhookValue>({
+} = useInput<unknown, string, WebhookValue>({ // type-escape: context: no record, so the record-free form is the sentinel `SourcePath` and `SourceValue` test for
   source: props.source,
   defaultValue: props.defaultValue ?? DEFAULT_VALUE,
   validate: props.validate,
