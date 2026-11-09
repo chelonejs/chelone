@@ -88,19 +88,17 @@ export function useListController<
   const location = syncEnabled && adapter ? adapter.useLocation() : null;
   const navigate = syncEnabled && adapter ? adapter.useNavigate() : null;
 
+  // Deep-link seed (URL -> state) goes in AT CONSTRUCTION, before
+  // `useMicroStore` subscribes (the first subscriber triggers the fetch), with
+  // the same `search` a route loader hands to `listFetchParams` — so the first
+  // fetch, the first snapshot and the loader's prefetch are one query key. A
+  // clean URL falls back to the option/KV defaults (ra-core semantics).
   const controller: ListController<TRecord> = createListController(
     toControllerContext(ctx),
     resource,
     options,
+    location ? location.value.search : "",
   );
-
-  // Deep-link seed (URL -> state): apply BEFORE `useMicroStore` subscribes (the first
-  // subscriber triggers the fetch), and only when the URL carries custom params,
-  // so a clean URL falls back to the option/KV defaults (ra-core semantics).
-  const seed = location
-    ? listPatchFromSearch<TRecord>(location.value.search)
-    : null;
-  if (seed) controller.setParams(seed);
 
   // The single subscribe seam: mounts the controller's observer (4R acquire),
   // releases it on scope disposal (4R release). `state` is a read-only ref that

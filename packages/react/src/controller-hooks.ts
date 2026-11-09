@@ -129,22 +129,18 @@ export function useListController<
   // biome-ignore lint/correctness/useHookAtTopLevel: same mount-stability as `location`.
   const navigate = syncEnabled && adapter ? adapter.useNavigate() : null;
 
-  const [controller] = useState<ListController<TRecord>>(() => {
-    const created = createListController(
+  // Deep-link seed: the URL search goes into the controller AT CONSTRUCTION,
+  // the same `search` a route loader hands to `listFetchParams`, so the first
+  // fetch, the first snapshot and the loader's prefetch are one query key. A
+  // clean URL keeps the option/KV defaults (ra-core semantics).
+  const [controller] = useState<ListController<TRecord>>(() =>
+    createListController(
       toControllerContext(ctx),
       resource,
       options,
-    );
-    // Deep-link seed, applied while the controller is still inert so the FIRST
-    // fetch already uses the URL params. A clean URL keeps the option/KV
-    // defaults (ra-core semantics).
-    const patch =
-      syncEnabled && location
-        ? listPatchFromSearch<TRecord>(location.search)
-        : null;
-    if (patch) created.setParams(patch);
-    return created;
-  });
+      syncEnabled && location ? location.search : "",
+    ),
+  );
 
   // Push param changes -> URL. Read the live pathname through a ref so a router
   // that re-renders us with a new pathname pushes to the right place without
