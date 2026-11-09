@@ -9,14 +9,14 @@ export interface DataProviderLogEntry {
   /** The first argument when it is a string, else `""`. */
   resource: string;
   /** The second argument as passed. */
-  // type-escape: a provider's params and results are whatever the app's methods take and give
+  // type-escape: server: a provider's params and results are whatever the app's methods take and give
   params: unknown;
   status: "ok" | "error";
   durationMs: number;
   /** ISO timestamp taken at the start of the call. */
   at: string;
   /** What the call resolved with. Present when `status` is `"ok"`. */
-  // type-escape: see params
+  // type-escape: server: see params
   result?: unknown;
   /** The error's message, or `String(err)` for a non-Error. Present when `status` is `"error"`. */
   error?: string;
@@ -48,7 +48,7 @@ export interface DataProviderLog {
  * the order calls settle (resolving a new promise with it would defer them to
  * the order calls started).
  */
-// type-escape: wraps any provider method, whose result type is unknown here
+// type-escape: server: wraps any provider method, whose result type is unknown here
 function settled(call: () => unknown): Promise<unknown> {
   try {
     return Promise.resolve(call());
@@ -57,7 +57,7 @@ function settled(call: () => unknown): Promise<unknown> {
   }
 }
 
-// type-escape: a provider method takes and gives whatever the app defines
+// type-escape: server: a provider method takes and gives whatever the app defines
 type ProviderMethod = (...args: unknown[]) => unknown;
 
 function isMethod(value: unknown): value is ProviderMethod {
@@ -112,7 +112,7 @@ export function createDataProviderLog({
     const copy = { ...dataProvider };
     Object.setPrototypeOf(copy, Object.getPrototypeOf(dataProvider));
     for (const [method, value] of methodsOf(dataProvider)) {
-      // type-escape: the wrapper forwards any arguments and results of any method
+      // type-escape: server: the wrapper forwards any arguments and results of any method
       const logged = (...args: unknown[]): Promise<unknown> => {
         const id = ++lastId;
         const at = clock().toISOString();
@@ -135,7 +135,7 @@ export function createDataProviderLog({
             });
             return result;
           },
-          // type-escape: a rejection can be any value
+          // type-escape: server: a rejection can be any value
           (err: unknown) => {
             record({
               ...base,
