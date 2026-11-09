@@ -1,8 +1,13 @@
-import type { RegisteredMessages } from "../resource/register";
+import type {
+  HasLiteralMessages,
+  Register,
+  RegisteredMessages,
+} from "../resource/register";
 import type {
   MessageCatalog,
   MessageKey,
   MessageValue,
+  MessageValueText,
   TranslateParams,
   TranslateParamValues,
 } from "./messages";
@@ -129,29 +134,102 @@ type CallParams<TValue extends MessageValue> = [
   ? { _?: string } | undefined
   : TranslateParams<TValue> & { _?: string };
 
-/** The params argument for a key: an entry's placeholders, or loose params for a key the catalog does not hold. */
-type TranslateArgs<TCatalog extends MessageCatalog, K extends string> =
+/** The params a key's entry takes, widened: what a call must satisfy whatever it passes. */
+type ParamsShape<TCatalog extends MessageCatalog, K extends string> =
+  HasKnownKeys<TCatalog> extends false
+    ? TranslateParamValues
+    : K extends CatalogKey<TCatalog>
+      ? CallParams<CatalogValue<TCatalog, K>>
+      : TranslateParamValues;
+
+/**
+ * Every name a call for `K` may carry: the entry's placeholders, the plural
+ * count names, and `_`. Distributed over a heterogeneous catalog, where one
+ * locale's entry can name a placeholder another's does not.
+ */
+type ParamNames<TCatalog extends MessageCatalog, K extends string> =
+  ParamsShape<TCatalog, K> extends infer TParams
+    ? TParams extends unknown
+      ? keyof TParams | "_"
+      : never
+    : never;
+
+/**
+ * The constraint on the params a call passes: the entry's own params, plus
+ * `never` under every name the entry does not take, so a misspelt placeholder
+ * fails the way an excess property would.
+ */
+type ParamsFor<
+  TCatalog extends MessageCatalog,
+  K extends string,
+  TParams,
+> = ParamsShape<TCatalog, K> &
+  Record<Exclude<keyof TParams, ParamNames<TCatalog, K>>, never>;
+
+/**
+ * The arms of the no-params signature: the params a key may leave out, and
+ * `never` for a key whose entry interpolates something, so omitting them is
+ * the same error the single signature gave.
+ */
+type NoParamsFor<TCatalog extends MessageCatalog, K extends string> =
   HasKnownKeys<TCatalog> extends false
     ? [params?: TranslateParamValues]
     : K extends CatalogKey<TCatalog>
-      ? CallParams<CatalogValue<TCatalog, K>> extends infer P
-        ? undefined extends P
-          ? [params?: Exclude<P, undefined>]
-          : [params: P]
-        : never
+      ? undefined extends CallParams<CatalogValue<TCatalog, K>>
+        ? [params?: Exclude<CallParams<CatalogValue<TCatalog, K>>, undefined>]
+        : [params: never]
       : [params?: TranslateParamValues];
+
+/**
+ * The text a call returns: `string`, or the key's own text when the app asked
+ * for literals.
+ *
+ * Distributed over `K`, because `CatalogValue` drops a key no catalog holds:
+ * checked over the whole union, a key that is known and unknown at once (a
+ * conditional key, or a template over a union of resource names) would return
+ * only the known members' text, while the provider answers the unknown one with
+ * the key echo or its `_` default. Each member is asked on its own, so any
+ * member no catalog holds puts `string` back in the union.
+ */
+type TranslateText<
+  TCatalog extends MessageCatalog,
+  K extends string,
+  TParams,
+  TRegister extends Register,
+> =
+  HasLiteralMessages<TRegister> extends true
+    ? K extends CatalogKey<TCatalog>
+      ? MessageValueText<CatalogValue<TCatalog, K>, TParams>
+      : string
+    : string;
 
 /**
  * `translate` typed against a catalog: a key the catalog holds autocompletes
  * and must be passed its placeholders; any other key still compiles with
  * {@link TranslateParamValues}.
+ *
+ * Two signatures, because the params argument has to be a naked type parameter
+ * for a literal `{ name: "Ann" }` to survive inference, and a naked parameter
+ * cannot be required for one key and optional for another. The first takes the
+ * params and keeps their literal types; the second takes none, and names
+ * `never` for a key whose entry interpolates something.
  */
-export type TranslateFor<TCatalog extends MessageCatalog> = <
-  K extends TranslatableKey<TCatalog>,
->(
-  key: K,
-  ...params: TranslateArgs<TCatalog, K>
-) => string;
+export type TranslateFor<
+  TCatalog extends MessageCatalog,
+  TRegister extends Register = Register,
+> = {
+  <
+    K extends TranslatableKey<TCatalog>,
+    const TParams extends ParamsFor<TCatalog, K, TParams>,
+  >(
+    key: K,
+    params: TParams,
+  ): TranslateText<TCatalog, K, TParams, TRegister>;
+  <K extends TranslatableKey<TCatalog>>(
+    key: K,
+    ...params: NoParamsFor<TCatalog, K>
+  ): TranslateText<TCatalog, K, ParamsShape<TCatalog, K>, TRegister>;
+};
 
 /** `translate` typed against the app's registered catalog (see {@link RegisteredMessages}). */
 export type RegisteredTranslate = TranslateFor<RegisteredMessages>;
@@ -160,13 +238,15 @@ export type RegisteredTranslate = TranslateFor<RegisteredMessages>;
  * Read the catalog-erased `translate` an adapter holds — `<Admin i18n>` is an
  * {@link AnyCheloneI18n} — as {@link RegisteredTranslate}, so neither adapter
  * writes a cast. A function that takes any key takes every key the registered
- * catalog names, so this is plain assignability and not a coercion: the typed
- * signature narrows what a call may pass, never what the instance accepts.
+ * catalog names: the typed signature narrows what a call may pass, never what
+ * the instance accepts. The one thing it cannot keep is the return type, which
+ * `literalMessages: true` narrows below `string`.
  */
 export function asRegisteredTranslate(
   translate: AnyCheloneI18n["translate"],
 ): RegisteredTranslate {
-  return translate;
+  // type-escape: the app registered this catalog, so every key the typed signature names is one the instance answers, and its literal text is the registered catalog's own
+  return translate as RegisteredTranslate;
 }
 
 function interpolate(

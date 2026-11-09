@@ -95,6 +95,59 @@ Register the catalog you actually mount. The typing is a compile-time claim
 about the instance `<Admin>` holds: a key that instance lacks still comes back
 as the key or its `_` default at runtime.
 
+## Literal text for a key
+
+`translate` returns `string`. An app that needs the exact text in a type, for a
+lookup table or a discriminated check, can ask for the text instead:
+
+```ts title="src/resources.ts"
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources
+    messages: typeof en | typeof fr
+    literalMessages: true
+  }
+}
+```
+
+With the flag on, a key the catalog holds returns the union of its text across
+the registered locale catalogs:
+
+```ts
+translate("chelone.action.save"); // "Save" | "Enregistrer"
+```
+
+- A `{placeholder}` is interpolated in the type from the param you pass.
+  `translate("app.greeting", { name: "Ann" })` returns
+  `"Hello Ann" | "Bonjour Ann"`, and with `name: string` it returns
+  `` `Hello ${string}` | `Bonjour ${string}` ``. Params keep their literal
+  types, so a call needs no `as const`.
+- A plural returns every form of every locale at once, whatever `count` is.
+  Which form a count picks depends on the locale's `Intl.PluralRules`, so the
+  type cannot name one.
+- A key no catalog holds returns `string`. So does a catalog imported from
+  JSON: TypeScript types a JSON import's values as `string`, so no literal
+  reaches the type.
+- A key that is known and unknown at once returns `string`. Each member of a
+  key union is asked on its own, so
+  `translate(isPost ? "resources.posts.name" : "resources.comments.name")`
+  keeps `string` for the member no catalog holds, which comes back as the key
+  or its `_` default.
+
+The flag is off by default, because a literal union is not a `string` you can
+reassign:
+
+```ts
+let label = translate("chelone.action.save");
+label = translate("chelone.action.cancel"); // error: "Cancel" is not "Save"
+
+const [label] = useState(translate("chelone.action.save")); // state typed as the union
+```
+
+`RegisteredLiteralMessages` is the flag as core reads it, and
+`TranslateFor<typeof en | typeof fr, { literalMessages: true }>` is the same
+typing over any catalog with nothing registered.
+
 ## Checking a locale catalog
 
 `defineLocale` checks a locale catalog against a base catalog, usually

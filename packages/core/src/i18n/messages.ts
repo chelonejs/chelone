@@ -87,6 +87,52 @@ export type TranslateParams<TValue extends MessageValue> = TValue extends string
         ({ count: number } | { smart_count: number })
     : never;
 
+/** The count a plural call carries, under `count` or under `smart_count`. */
+type PluralCountOf<TParams> = TParams extends { count: infer TCount }
+  ? TCount
+  : TParams extends { smart_count: infer TCount }
+    ? TCount
+    : number;
+
+/**
+ * A message text with every `{placeholder}` filled from a params type: a
+ * literal param gives literal text (`Hello Ann`), a `string` param a
+ * `Hello ${string}` template, and a plural's `{count}` / `{smart_count}` the
+ * count carried under either name. A placeholder no param fills stays as
+ * written, exactly as the provider leaves it.
+ */
+export type InterpolateText<
+  TText extends string,
+  TParams,
+  TCount = number,
+> = TText extends `${infer Before}{${infer Name}}${infer Rest}`
+  ? Name extends keyof TParams
+    ? `${Before}${Extract<TParams[Name], string | number>}${InterpolateText<Rest, TParams, TCount>}`
+    : Name extends PluralCountName
+      ? `${Before}${Extract<TCount, string | number>}${InterpolateText<Rest, TParams, TCount>}`
+      : `${Before}{${Name}}${InterpolateText<Rest, TParams, TCount>}`
+  : TText;
+
+/** Every form a plural message holds; an optional category the message lacks is not a form. */
+type MessageForms<TValue extends MessageValue> = Extract<
+  TValue[keyof TValue],
+  string
+>;
+
+/**
+ * Every text a message value can render to: a string's own text, or a plural's
+ * every form at once. Which form a count picks depends on the locale's
+ * `Intl.PluralRules`, so the count cannot narrow a plural to one text.
+ */
+export type MessageValueText<
+  TValue extends MessageValue,
+  TParams,
+> = TValue extends string
+  ? InterpolateText<TValue, TParams>
+  : TValue extends PluralMessage
+    ? InterpolateText<MessageForms<TValue>, TParams, PluralCountOf<TParams>>
+    : string;
+
 /** A locale's value for a base entry: the same kind, whatever the text. */
 type LocaleValue<TValue extends MessageValue> = TValue extends string
   ? string
