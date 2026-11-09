@@ -155,6 +155,35 @@ a link you can share.
   `storeKey: "other"` to namespace them, or `storeKey: false` to turn the
   persistence off.
 
+### Prefetch in a route loader
+
+A loader that prefetches a list has to hit the query key the mounted list
+observes. `listFetchParams` builds those params from the same code the
+controller uses: the option defaults, then the saved params, then the URL, with
+the permanent `filter` merged over the filter.
+
+```ts
+import { getListOptions, listFetchParams } from "@chelone/core";
+
+export async function loader({ request }: { request: Request }) {
+  const { search } = new URL(request.url);
+  const params = listFetchParams(ctx, "posts", { perPage: 20 }, search);
+  await ctx.queryClient.fetchQuery(getListOptions(ctx, "posts", params));
+}
+```
+
+Pass the same options the list gets. `search` is the raw query string, with or
+without the `?`.
+
+- A server has no saved list params. A server loader passes a `ctx` with no
+  `store`, so the params are the defaults plus the URL. A browser that holds
+  saved params and opens a clean URL mounts the list on a different key and
+  fetches again. To get the same key on both sides, set `storeKey: false` on the
+  list or keep the URL canonical. A loader that runs in the browser passes the
+  `ctx` with its store and matches.
+- The loader's `QueryClient` needs a `staleTime` above 0, as dehydrate and
+  hydrate do. At 0 a mounted list refetches the entry the loader just loaded.
+
 ## Tips
 
 - A `<List>` **must** be inside a `<ResourceContextProvider>` (a `<Resource>`

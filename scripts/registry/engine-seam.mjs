@@ -46,6 +46,8 @@ export const ENGINE_PACKAGE = engine.package;
 export const IMPLICIT_DEPENDENCIES = new Set(engine.implicitDependencies);
 export const ITEM_NAMES = new Map(Object.entries(engine.itemNames));
 export const CLI = engine.cli;
+// React only: emit `"use client"` on a module that calls a client API.
+export const USE_CLIENT = engine.useClient === true;
 
 const SCRIPT_BLOCK_RE = /(<script\b[^>]*>)([\s\S]*?)(<\/script>)/g;
 
