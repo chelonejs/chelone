@@ -1,14 +1,20 @@
 /**
  * `/rsc/fields`: the server fields, rendered in a React Server Component. A
  * server function reads post 1 and its latest comment from the process-wide
- * provider and returns the rendered fields; the page shows what the loader got,
- * and ships no field code to the browser.
+ * provider, and the post's author and a product from the seed, and returns the
+ * rendered fields; the page shows what the loader got, and ships no field code
+ * to the browser.
  */
 
+import { seedData } from "@chelone/demo-data";
 import {
   ServerDateField,
+  ServerEmailField,
+  ServerFileField,
+  ServerImageField,
   ServerNumberField,
   ServerTextField,
+  ServerUrlField,
 } from "@chelone/react/rsc";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
@@ -26,6 +32,11 @@ const getPostFields = createServerFn().handler(async () => {
     pagination: { page: 1, perPage: 1 },
     sort: { field: "createdAt", order: "DESC" },
   });
+  // This app registers only posts and comments, and writes neither authors nor
+  // products, so both come straight from the seed.
+  const { authors, products } = seedData();
+  const author = authors.find(({ id }) => id === post.author_id);
+  const [product] = products;
   return renderServerComponent(
     <dl>
       <dt>Title</dt>
@@ -49,6 +60,39 @@ const getPostFields = createServerFn().handler(async () => {
           "No comments"
         )}
       </dd>
+      <dt>Author email</dt>
+      <dd>
+        {author ? (
+          <ServerEmailField record={author} source="email" />
+        ) : (
+          "No author"
+        )}
+      </dd>
+      {product ? (
+        <>
+          <dt>Product page</dt>
+          <dd>
+            <ServerUrlField
+              record={product}
+              source="url"
+              content={product.name}
+              target="_blank"
+            />
+          </dd>
+          <dt>Spec sheet</dt>
+          <dd>
+            <ServerFileField
+              record={product}
+              source="spec_sheet"
+              title="Spec sheet"
+            />
+          </dd>
+          <dt>Photo</dt>
+          <dd>
+            <ServerImageField record={product} source="image" title="name" />
+          </dd>
+        </>
+      ) : null}
     </dl>,
   );
 });
