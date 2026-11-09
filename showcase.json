@@ -3525,6 +3525,16 @@
       }
     }
   },
+  "server-link-fields": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/server-fields"
+      },
+      "demo": {
+        "path": "/rsc/fields"
+      }
+    }
+  },
   "server-scalar-fields": {
     "react": {
       "docs": {

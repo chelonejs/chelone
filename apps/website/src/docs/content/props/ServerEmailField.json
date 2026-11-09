@@ -1,0 +1,41 @@
+{
+  "name": "ServerEmailField",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the `<a>`."
+    },
+    {
+      "name": "defaultValue",
+      "type": "SourceValue<RecordType, SourceProp<RecordType>>",
+      "optional": true,
+      "comment": "The value shown when the one at `source` is `undefined`."
+    },
+    {
+      "name": "empty",
+      "type": "string",
+      "optional": true,
+      "comment": "The text shown when the value is empty. Translated through `i18n` when one\nis given, printed as is otherwise. With none, the field renders nothing."
+    },
+    {
+      "name": "i18n",
+      "type": "ServerI18n",
+      "optional": true,
+      "comment": "Translates `empty`."
+    },
+    {
+      "name": "record",
+      "type": "RecordType",
+      "optional": false,
+      "comment": "The record to read. Required: there is no record context to fall back on."
+    },
+    {
+      "name": "source",
+      "type": "SourceProp<RecordType>",
+      "optional": false,
+      "comment": "Name of the property to display (dot/bracket path)."
+    }
+  ]
+}
