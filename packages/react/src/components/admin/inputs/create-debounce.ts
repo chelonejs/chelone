@@ -4,19 +4,19 @@
  * inputs add no runtime dependency: the autocompletes only need the trailing
  * call plus a `.cancel()` to drop an in-flight call on unmount / external reset.
  */
-export interface DebouncedFn<Args extends unknown[]> {
-  (...args: Args): void;
+export interface DebouncedFn<TFn extends (...args: never[]) => void> {
+  (...args: Parameters<TFn>): void;
   /** Cancel a pending trailing call. */
   cancel(): void;
 }
 
-export function createDebounce<Args extends unknown[]>(
-  fn: (...args: Args) => void,
+export function createDebounce<TFn extends (...args: never[]) => void>(
+  fn: TFn,
   waitMs: number,
-): DebouncedFn<Args> {
+): DebouncedFn<TFn> {
   let timer: ReturnType<typeof setTimeout> | undefined;
 
-  const debounced = (...args: Args): void => {
+  const debounced = (...args: Parameters<TFn>): void => {
     if (timer !== undefined) clearTimeout(timer);
     timer = setTimeout(() => {
       timer = undefined;

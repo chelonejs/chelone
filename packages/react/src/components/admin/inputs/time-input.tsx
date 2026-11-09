@@ -195,7 +195,7 @@ function TimeInput(props: TimeInputProps) {
 }
 
 type TimeInputProps<
-  // type-escape: the no-record sentinel `SourcePath` and `SourceValue` test for
+  // type-escape: context: the no-record sentinel `SourcePath` and `SourceValue` test for
   TRecord = unknown,
   TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
 > = Omit<InputProps<TRecord, TPath>, "format" | "parse"> & {
