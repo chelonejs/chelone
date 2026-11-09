@@ -290,6 +290,9 @@ export const blocks = [
  * - implicitDependencies: npm packages every consumer has; left out of item
  *   `dependencies`.
  * - cli: the registry CLI `pnpm exec <cli> build` runs.
+ * - useClient: emit `"use client"` on each shipped module that calls a hook,
+ *   createContext, a class component or a handler prop (scripts/registry/use-client.mjs).
+ *   The source stays unmarked. The Vue config leaves it out.
  * - itemNames: a path under `src` without its extension, mapped to the item
  *   name it gets. Use it where two files share a basename (the flat item name)
  *   and generate would otherwise fail on the duplicate. Applies to the file's
@@ -300,6 +303,7 @@ export const engine = {
   sourceExtensions: [".ts", ".tsx"],
   implicitDependencies: ["react", "react-dom"],
   cli: "shadcn",
+  useClient: true,
   // `spinner` collides with admin/feedback/spinner (the app-facing
   // `@chelone/spinner` wrapper), so the ui primitive ships as `ui-spinner`.
   itemNames: {
