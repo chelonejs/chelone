@@ -347,7 +347,10 @@ function AutocompleteArrayInput<
             onOpenAutoFocus={(e) => e.preventDefault()}
             onCloseAutoFocus={(e) => e.preventDefault()}
             onInteractOutside={(e) => {
-              if (anchorRef.current?.contains(e.target as Node)) {
+              if (
+                e.target instanceof Node &&
+                anchorRef.current?.contains(e.target)
+              ) {
                 e.preventDefault();
               }
             }}
