@@ -103,7 +103,7 @@ const hasListener = () => {
 // buildRecordTree walks the parent source with getAtPath, which reads any
 // string off any record.
 const roots = computed(() =>
-  // type-escape: `parentSource` is the loose `SourceProp` a list source is.
+  // type-escape: context: `parentSource` is the loose `SourceProp` a list source is.
   buildRecordTree<TRecord>(list.data ?? [], props.parentSource as SourcePath<TRecord>),
 );
 

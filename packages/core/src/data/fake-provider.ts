@@ -162,7 +162,7 @@ export function fakeDataProvider<TResources extends ResourceMap>(
       return listLike(rows, params);
     },
     async create(resource, params) {
-      // type-escape: a fake cannot prove that the sent fields plus an id make a whole record
+      // type-escape: builder: a fake cannot prove that the sent fields plus an id make a whole record
       const row = {
         id: nextId++,
         ...structuredClone(params.data),
