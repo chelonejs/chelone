@@ -93,17 +93,20 @@ function DatagridInput<
     availableChoices = [],
     source,
     isFromReference,
-  } = useChoicesContext<TChoice>({ choices, source: sourceProp });
+  } = useChoicesContext<TChoice, SourceProp<TRecord>>({
+    choices,
+    source: sourceProp,
+  });
 
-  const finalSource = source ?? sourceProp ?? "";
-  if (finalSource === "") {
+  const finalSource = source ?? sourceProp;
+  if (finalSource === undefined || finalSource === "") {
     throw new Error(
       "If you're not wrapping the DatagridInput inside a ReferenceArrayInput, you must provide the source prop",
     );
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  const { field, fieldState } = useInput({
+  const { field, fieldState } = useInput<TRecord, SourceProp<TRecord>>({
     source: finalSource,
     defaultValue: props.defaultValue,
     format: props.format,
