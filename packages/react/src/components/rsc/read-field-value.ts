@@ -6,6 +6,8 @@
 
 import {
   type AnyCheloneI18n,
+  type ChoiceRecord,
+  type FormValue,
   getAtPath,
   type LooseRecord,
   type SourceProp,
@@ -51,3 +53,13 @@ export function readFieldValue(
 export function serverEmptyText(empty: string, i18n?: ServerI18n): string {
   return i18n ? i18n.translate(empty, { _: empty }) : empty;
 }
+
+/**
+ * Read a choice option path, as `useChoices` does. An empty path reads
+ * nothing: `getAtPath` returns the record itself for `""`, which would print
+ * `[object Object]` as the label.
+ */
+export const readChoicePath = (
+  choice: ChoiceRecord,
+  path: string,
+): FormValue => (path === "" ? undefined : getAtPath(choice, path));

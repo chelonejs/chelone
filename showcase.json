@@ -3014,6 +3014,9 @@
       }
     }
   },
+  "rating-star": {
+    "shownBy": "rating-field"
+  },
   "rating-input": {
     "react": {
       "docs": {
@@ -3574,6 +3577,16 @@
       },
       "demo": {
         "path": "/rsc/posts/1"
+      }
+    }
+  },
+  "server-value-fields": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/server-fields"
+      },
+      "demo": {
+        "path": "/rsc/fields"
       }
     }
   },

@@ -1,6 +1,6 @@
 ---
 title: "Server fields"
-description: "Text, number, date, url, email, file and image fields that render in a React Server Component, from a record passed as a prop."
+description: "Text, number, date, url, email, file, image, currency, boolean, select and rating fields that render in a React Server Component, from a record passed as a prop."
 registry: "server-link-fields"
 ---
 
@@ -15,10 +15,15 @@ the `@chelone/react/rsc` entry:
 - `<ServerEmailField>` renders what [EmailField](/docs/viewing/email-field) renders.
 - `<ServerFileField>` renders what [FileField](/docs/viewing/file-field) renders.
 - `<ServerImageField>` renders what [ImageField](/docs/viewing/image-field) renders.
+- `<ServerCurrencyField>` prints what [CurrencyField](/docs/viewing/currency-field) prints.
+- `<ServerBooleanField>` renders what [BooleanField](/docs/viewing/boolean-field) renders.
+- `<ServerSelectField>` prints what [SelectField](/docs/viewing/select-field) prints.
+- `<ServerRatingField>` renders what [RatingField](/docs/viewing/rating-field) renders.
 
 Each renders the same markup as its twin, and nothing when the value is empty
-and `empty` is unset. The install command below adds all seven: the link
-fields bring the text, number and date fields with them.
+and `empty` is unset. The install command below adds the first seven: the link
+fields bring the text, number and date fields with them. The last four are
+their own item, `npx shadcn add @chelone/server-value-fields`.
 
 ## When to use one
 
@@ -32,7 +37,7 @@ What a server field cannot do:
 - It reads no record context, so `record` is required.
 - It reads no i18n context. Pass `i18n` to translate `empty`; without it,
   `empty` prints as is.
-- It takes no function prop, so there is no `transform`. Shape the value
+- It takes no callback prop, so there is no `transform`. Shape the value
   before you pass the record.
 
 ## With TanStack Start
@@ -94,6 +99,33 @@ the path on each item:
 None takes `onClick`. The client twins stop click bubbling so a `DataTable`
 row click does not fire, and a server list has no row click handler.
 
+## Currency, boolean, select and rating
+
+These four read through the same core functions as their twins, so a value
+prints the same on the server:
+
+- `<ServerCurrencyField>` takes `currency`, `displayLocale`, `storeAsMinorUnits`
+  and `options`. With no `displayLocale`, the locale is the `i18n` locale, then
+  the runtime's. A plain number with no `currency` throws, as `CurrencyField`
+  does.
+- `<ServerBooleanField>` takes `TrueIcon`, `FalseIcon`, `valueLabelTrue`,
+  `valueLabelFalse` and `looseValue`. There is no tooltip, since that is a
+  client component. The label is the icon's `title` and a visually hidden
+  `<span>`, so a screen reader reads the state. Pass `i18n` to translate it;
+  without `i18n` it is English.
+- `<ServerSelectField>` takes `choices`, `optionValue`, `optionText` and
+  `translateChoice`. `optionValue` and `optionText` are paths into a choice,
+  checked against its type, and `optionText` takes no function.
+- `<ServerRatingField>` takes `max`, `allowHalf` and `countSource`, and renders
+  the same stars with `role="img"` and an `aria-label`.
+
+```tsx
+<ServerCurrencyField record={product} source="price" currency="USD" />
+<ServerBooleanField record={post} source="published" i18n={i18n} />
+<ServerSelectField record={post} source="status" choices={statuses} />
+<ServerRatingField record={product} source="rating" allowHalf />
+```
+
 ## Props
 
 ### ServerTextField
@@ -123,3 +155,19 @@ row click does not fire, and a server list has no row click handler.
 ### ServerImageField
 
 <PropsTable name="ServerImageField" />
+
+### ServerCurrencyField
+
+<PropsTable name="ServerCurrencyField" />
+
+### ServerBooleanField
+
+<PropsTable name="ServerBooleanField" />
+
+### ServerSelectField
+
+<PropsTable name="ServerSelectField" />
+
+### ServerRatingField
+
+<PropsTable name="ServerRatingField" />

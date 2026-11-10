@@ -1479,6 +1479,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/rating-star.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/record-field.tsx",
           "type": "registry:component"
         },
@@ -3411,9 +3415,26 @@
           "type": "registry:component"
         }
       ],
-      "registryDependencies": ["@chelone/lib-field-types"],
+      "registryDependencies": [
+        "@chelone/lib-field-types",
+        "@chelone/rating-star"
+      ],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "fields"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "rating-star",
+      "type": "registry:component",
+      "title": "Rating Star",
+      "files": [
+        {
+          "path": "src/components/admin/fields/rating-star.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
     {
@@ -8275,9 +8296,10 @@
         "@chelone/input",
         "@chelone/lib-utils",
         "@chelone/native-select",
+        "@chelone/rating-star",
         "@chelone/table"
       ],
-      "dependencies": ["@chelone/core", "@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "files": [
         {
           "path": "src/components/rsc/read-field-value.ts",
@@ -8313,6 +8335,10 @@
         },
         {
           "path": "src/components/rsc/server-show.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-value-fields.tsx",
           "type": "registry:component"
         }
       ],
@@ -8468,6 +8494,26 @@
         "@chelone/read-field-value"
       ],
       "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-value-fields",
+      "type": "registry:component",
+      "title": "Server Value Fields",
+      "files": [
+        {
+          "path": "src/components/rsc/server-value-fields.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/lib-utils",
+        "@chelone/rating-star",
+        "@chelone/read-field-value",
+        "@chelone/server-scalar-fields"
+      ],
+      "dependencies": ["@chelone/core", "lucide-react"],
       "categories": ["chelone", "components"],
       "author": "Chelone <https://chelone.dev>"
     },
