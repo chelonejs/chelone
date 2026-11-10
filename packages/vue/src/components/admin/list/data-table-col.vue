@@ -31,12 +31,11 @@ export interface DataTableColProps {
  * or — with no slot — the raw value at `source` off the record.
  */
 
-import type { SortPayload } from "@chelone/core";
+import { getAtPath, type LooseSortPayload } from "@chelone/core";
 import { computed, inject } from "vue";
 import { cn } from "../../../lib/utils";
 import { useListContext } from "../../../list/list-context";
 import { RecordContextKey } from "../../../record/record-context";
-import { useFieldValue } from "../../../record/use-field-value";
 import Button from "../../ui/button.vue";
 import { TableCell, TableHead } from "../../ui/table";
 import { ChevronDownIcon } from "../buttons/icons";
@@ -46,17 +45,23 @@ import { useDataTablePass } from "./data-table-context";
 const props = defineProps<DataTableColProps>();
 
 const pass = useDataTablePass();
-// Called unconditionally (used only in the data pass with no slot). Reads the
-// ambient row record; harmless in the header pass where no record is provided.
-const value = useFieldValue({ source: props.source ?? "" });
 const recordRef = inject(RecordContextKey, null);
 const record = computed(() => recordRef?.value);
+// Read the source value off the ambient row record (core's `getAtPath`, the read
+// `useFieldValue` makes). A column with no `source` reads nothing.
+const value = computed(() =>
+  props.source === undefined
+    ? undefined
+    : getAtPath(record.value, props.source),
+);
 
 // `<DataTableCol>` renders in the header pass inside `<List>`; the data pass
 // can also be reached without one, so only the header reads the list.
 const list = pass === "header" ? useListContext() : null;
 
-const primarySort = computed<SortPayload | undefined>(() => list?.sort[0]);
+const primarySort = computed<LooseSortPayload | undefined>(
+  () => list?.sort[0],
+);
 const isSorted = computed(
   () => !!props.source && primarySort.value?.field === props.source,
 );

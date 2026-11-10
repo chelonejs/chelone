@@ -35,6 +35,15 @@ import { useSavedQueries } from "../../../store/use-saved-queries";
 import Button from "../../ui/button.vue";
 import Input from "../../ui/input.vue";
 
+/**
+ * No record sits behind a saved query: it is stored under a resource and comes
+ * back through `setParams`, which takes the open filter keys and the open sort
+ * field the list context carries (`LooseListParamsPatch`). Naming no key is what
+ * makes `SavedQueryValue` of it that open shape, so a stored sort reads as
+ * `LooseSortPayload` end to end, as the provider verbs read it.
+ */
+type AnyQueryRecord = Record<string, never>;
+
 const props = defineProps<SavedQueriesListProps>();
 
 const resource = useRequiredResource("SavedQueriesList", {
@@ -42,7 +51,7 @@ const resource = useRequiredResource("SavedQueriesList", {
 });
 const list = useListContext();
 const translate = useTranslate();
-const { queries, save, remove } = useSavedQueries(resource, {
+const { queries, save, remove } = useSavedQueries<AnyQueryRecord>(resource, {
   storeKey: props.storeKey,
 });
 
@@ -68,7 +77,7 @@ const removeLabel = (label: string) =>
   );
 
 // The list context is reactive; `save` clones its value, which a proxy rejects.
-const current = computed<SavedQueryValue>(() => ({
+const current = computed<SavedQueryValue<AnyQueryRecord>>(() => ({
   filter: toRaw(list.filter),
   displayedFilters: toRaw(list.displayedFilters),
   sort: toRaw(list.sort),
@@ -86,7 +95,7 @@ const canSave = computed(
     !entries.value.some((entry) => entry.active),
 );
 
-function apply(value: SavedQueryValue, active: boolean) {
+function apply(value: SavedQueryValue<AnyQueryRecord>, active: boolean) {
   if (active) {
     list.setParams({ filter: {} });
     return;

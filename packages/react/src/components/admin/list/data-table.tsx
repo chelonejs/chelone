@@ -2,6 +2,7 @@ import {
   arrangeColumns,
   type DataTableColumnInfo,
   defaultDataTableStoreKey,
+  getAtPath,
   getDataTableColumnId,
   type Identifier,
   type LooseRecord,
@@ -38,7 +39,6 @@ import {
   RecordContextProvider,
   useRecordContext,
 } from "../../../record/record-context";
-import { useFieldValue } from "../../../record/use-field-value";
 import { useResourceContext, useResourceDefinition } from "../../../resource";
 import { useGetPathForRecord, useNavigate } from "../../../router";
 import { Alert, AlertDescription } from "../../ui/alert";
@@ -713,10 +713,9 @@ function DataTableCell(props: DataTableColumnProps) {
   } = props;
   const record = useRecordContext();
   const size = useDataTableSizeContext();
-  // Resolve the source value off the ambient row record (zero-lodash parity via
-  // `useFieldValue`). Called unconditionally to satisfy the Rules of Hooks; the
-  // result is only used in the source-only render branch below.
-  const sourceValue: unknown = useFieldValue({ source: source ?? "" });
+  // Resolve the source value off the ambient row record (core's `getAtPath`, the
+  // read `useFieldValue` makes). A column with no `source` reads nothing.
+  const sourceValue: unknown = source ? getAtPath(record, source) : undefined;
   // Text as is, nothing when absent, `String` for a boolean or object.
   const sourceNode: ReactNode =
     typeof sourceValue === "string" || typeof sourceValue === "number"

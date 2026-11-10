@@ -21,6 +21,15 @@ export interface SavedQueriesListProps {
 }
 
 /**
+ * No record sits behind a saved query: it is stored under a resource and comes
+ * back through `setParams`, which takes the open filter keys and the open sort
+ * field the list context carries (`LooseListParamsPatch`). Naming no key is what
+ * makes `SavedQueryValue` of it that open shape, so a stored sort reads as
+ * `LooseSortPayload` end to end, as the provider verbs read it.
+ */
+type AnyQueryRecord = Record<string, never>;
+
+/**
  * Named filter/sort sets of the ambient `<List>`: apply one with a click, save
  * the current one under a name, remove one. Place it among the list children.
  *
@@ -42,7 +51,9 @@ function SavedQueriesList({
   const translate = useTranslate();
   const { filter, displayedFilters, sort, perPage, setParams } =
     useListContext();
-  const { queries, save, remove } = useSavedQueries(resource, { storeKey });
+  const { queries, save, remove } = useSavedQueries<AnyQueryRecord>(resource, {
+    storeKey,
+  });
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState("");
   const nameId = useId();
@@ -54,7 +65,12 @@ function SavedQueriesList({
     return out === key ? fallback : out;
   };
 
-  const current: SavedQueryValue = { filter, displayedFilters, sort, perPage };
+  const current: SavedQueryValue<AnyQueryRecord> = {
+    filter,
+    displayedFilters,
+    sort,
+    perPage,
+  };
   const entries = queries.map((query) => ({
     ...query,
     active: isSavedQueryActive(query.value, current),

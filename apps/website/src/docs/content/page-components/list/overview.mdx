@@ -238,6 +238,22 @@ the rows of params it has moved off.
 - The loader's `QueryClient` needs a `staleTime` above 0, as dehydrate and
   hydrate do. At 0 a mounted list refetches the entry the loader just loaded.
 
+An edit page's loader prefetches its record the same way, with `getOneOptions`
+under the key `<Edit>` reads:
+
+```ts
+import { getOneOptions } from "@chelone/core";
+
+export const Route = createFileRoute("/admin/posts/$id")({
+  loader: ({ context, params }) =>
+    context.queryClient.ensureQueryData(
+      getOneOptions(context, "posts", { id: params.id }),
+    ),
+});
+```
+
+`apps/start-demo/src/routes/admin/posts/$id.tsx` does this.
+
 ## Tips
 
 - A `<List>` **must** be inside a `<ResourceContextProvider>` (a `<Resource>`

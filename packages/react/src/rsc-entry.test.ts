@@ -197,7 +197,9 @@ describe("the rsc entry", () => {
       "ServerListFilters",
       "ServerNumberField",
       "ServerRatingField",
+      "ServerRecordField",
       "ServerSelectField",
+      "ServerShow",
       "ServerTextField",
       "ServerUrlField",
       "readFieldValue",
@@ -227,6 +229,9 @@ describe("the rsc entry", () => {
     ]) {
       expect(files.map((file) => relative(src, file))).not.toContain(client);
     }
+    expect(files.map((file) => relative(src, file))).toContain(
+      "components/rsc/server-show.tsx",
+    );
     expect(files.flatMap(serverOffences)).toEqual([]);
   });
 

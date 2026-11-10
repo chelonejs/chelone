@@ -102,7 +102,8 @@ function PostsPage() {
 
 Two parts run on the client and hand back to the server. Both need a
 `RouterAdapterProvider` above them and import no router package, so one file
-serves every host.
+serves every host. Each is its own item, so add them with
+`npx shadcn add @chelone/server-list-filters @chelone/server-list-delete-button`.
 
 `<ServerListFilters>` is a filter bar. Its props are plain data, so a server
 component passes them: the list's `path`, the page's `params`, and `filters`,
