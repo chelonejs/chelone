@@ -28,7 +28,7 @@ export interface SortButtonProps {
  */
 
 import { computed } from "vue";
-import type { SortPayload } from "@chelone/core";
+import type { LooseSortPayload } from "@chelone/core";
 import { useTranslate } from "../../../i18n/use-translate";
 import { useListContext } from "../../../list/list-context";
 import { humanizeSource } from "../inputs/label-text";
@@ -43,14 +43,14 @@ import { ArrowUpDownIcon, ChevronDownIcon } from "./icons";
 
 const props = defineProps<SortButtonProps>();
 
-const DEFAULT_SORT: SortPayload = { field: "id", order: "DESC" };
+const DEFAULT_SORT: LooseSortPayload = { field: "id", order: "DESC" };
 const inverse = (order: "ASC" | "DESC"): "ASC" | "DESC" =>
   order === "ASC" ? "DESC" : "ASC";
 
 const list = useListContext();
 const translate = useTranslate();
 
-const primary = computed<SortPayload>(
+const primary = computed<LooseSortPayload>(
   () => list.sort[0] ?? DEFAULT_SORT,
 );
 

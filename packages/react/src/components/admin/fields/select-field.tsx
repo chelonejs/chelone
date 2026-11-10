@@ -1,9 +1,4 @@
-import {
-  isLooseRecord,
-  type LooseRecord,
-  type ResourceRecord,
-  type SourcePath,
-} from "@chelone/core";
+import type { LooseRecord, ResourceRecord, SourcePath } from "@chelone/core";
 import type { HTMLAttributes } from "react";
 import type { FieldProps } from "@/lib/field-types";
 import { genericMemo } from "@/lib/gen-memo";
@@ -57,14 +52,11 @@ const SelectFieldImpl = <
     translateChoice,
     ...rest
   } = typedProps;
-  // Read through `LooseRecord`: this `defaultValue` is a choice's value, not the
-  // value at `source`. `isLooseRecord` is what gives the caller's record the
-  // index signature that read wants.
-  const value = useFieldValue<LooseRecord>({
-    defaultValue,
-    source,
-    record: record && isLooseRecord(record) ? record : undefined,
-  });
+  // Read at the caller's record, so `source` is one of its own paths. The
+  // `defaultValue` is a choice's value, not the value at `source`, so it stands
+  // in for an unresolved read here rather than through the read's own default.
+  const read = useFieldValue<RecordType>({ source, record });
+  const value = read === undefined ? defaultValue : read;
 
   const { getChoiceText, getChoiceValue } = useChoices<TChoice>({
     optionText,
