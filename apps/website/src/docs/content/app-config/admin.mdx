@@ -229,6 +229,64 @@ export default function Posts() {
 - A server render shows an empty menu until hydration, because resources register
   in an effect.
 
+### TanStack Start
+
+A TanStack Start app routes by file, so a `/admin` layout route renders
+`<Admin routes={false}>` with `tanstackHostRouterAdapter`, and child file routes
+render the pages. `<Admin>` renders the matched child where a route table would
+sit:
+
+```tsx title="src/routes/admin.tsx"
+import { Admin, Resource } from "@chelone/react";
+import {
+  requireAuthBeforeLoad,
+  tanstackHostRouterAdapter,
+} from "@chelone/react/tanstack-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+
+export const Route = createFileRoute("/admin")({
+  beforeLoad: async ({ context, location }) => {
+    await requireAuthBeforeLoad({
+      location,
+      authProvider: context.authProvider,
+      queryClient: context.queryClient,
+    });
+    if (location.pathname === "/admin" || location.pathname === "/admin/") {
+      throw redirect({ to: "/admin/posts", replace: true });
+    }
+  },
+  component: AdminShell,
+});
+
+function AdminShell() {
+  const { authProvider, dataProvider, queryClient } = Route.useRouteContext();
+  return (
+    <Admin
+      router={tanstackHostRouterAdapter}
+      routes={false}
+      basename="/admin"
+      authProvider={authProvider}
+      requireAuth
+      dataProvider={dataProvider}
+      queryClient={queryClient}
+    >
+      <Resource name="posts" hasList hasEdit />
+    </Admin>
+  );
+}
+```
+
+- `src/routes/admin/posts/index.tsx` and `src/routes/admin/posts/$id.tsx` render
+  `List` and `Edit`, and each can export a loader that prefetches its data.
+- `requireAuthBeforeLoad` throws a redirect to `/login` before the route renders,
+  so no loader runs for a logged-out visitor.
+- A bare `/admin` has no child to render, so `beforeLoad` redirects it to the
+  first resource. The pathname check matters, since a parent's `beforeLoad` also
+  runs for `/admin/posts`.
+
+`apps/start-demo` is a full app built this way, with a login route, two
+resources and an edit loader.
+
 ## Swapping the router
 
 `<Admin>` defaults to the react-router adapter. Pass a different adapter on
@@ -392,6 +450,54 @@ param. What the App Router lacks, the adapter leaves out:
   joined with `/`.
 
 `next` is an optional peer, and only `@chelone/react/next` imports it.
+
+### Prefetching on the server
+
+A server component prefetches into a `QueryClient` that React's `cache()` scopes
+to the request, and renders the client list or form inside a
+`HydrationBoundary`. The client reads the dehydrated state, so it makes no
+browser fetch on first render. Use `listFetchParams` and `getListOptions` for a
+list and `getOneOptions` for a record, so the keys match what the mounted
+components read:
+
+```tsx title="app/admin/posts/page.tsx"
+import { getListOptions, listFetchParams } from "@chelone/core";
+import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { PostList } from "./post-list";
+import { serverContext } from "./server-context";
+
+export default async function PostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(await searchParams)) {
+    for (const item of [value ?? []].flat()) search.append(key, item);
+  }
+  const ctx = serverContext();
+  await ctx.queryClient.ensureQueryData(
+    getListOptions(
+      ctx,
+      "posts",
+      listFetchParams(ctx, "posts", {}, search.toString()),
+    ),
+  );
+  return (
+    <HydrationBoundary state={dehydrate(ctx.queryClient)}>
+      <PostList />
+    </HydrationBoundary>
+  );
+}
+```
+
+After a write in the browser, the server prefetch is stale: the server's data
+provider never sees the write, and a page rendered afterwards carries the old
+rows with a newer `dataUpdatedAt` than the browser's own. Hydrating them shows
+the old data. `apps/next-demo` wraps the boundary in a `Prefetched` component
+(`apps/next-demo/src/prefetched.tsx`) that watches the browser `QueryClient`'s
+mutations and, once one succeeds, hydrates nothing so the page reads from the
+browser. `apps/next-demo` shows the whole setup.
 
 ### Revalidating a server-rendered route
 
