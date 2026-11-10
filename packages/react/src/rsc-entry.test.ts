@@ -191,6 +191,8 @@ describe("the rsc entry", () => {
       "ServerFileField",
       "ServerImageField",
       "ServerList",
+      "ServerListDeleteButton",
+      "ServerListFilters",
       "ServerNumberField",
       "ServerTextField",
       "ServerUrlField",
@@ -213,9 +215,13 @@ describe("the rsc entry", () => {
         "components/rsc/server-list.tsx",
       ]),
     );
-    expect(files.map((file) => relative(src, file))).not.toContain(
+    for (const client of [
       "components/rsc/server-list-link.tsx",
-    );
+      "components/rsc/server-list-filters.tsx",
+      "components/rsc/server-list-delete-button.tsx",
+    ]) {
+      expect(files.map((file) => relative(src, file))).not.toContain(client);
+    }
     expect(files.flatMap(serverOffences)).toEqual([]);
   });
 
