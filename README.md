@@ -16,6 +16,8 @@ Docs and live demos: https://chelone.dev
 | `apps/demo` | React reference admin. |
 | `apps/vue-demo` | Vue reference admin. |
 | `apps/website` | Docs site with live demos. |
+| `apps/start-demo` | TanStack Start admin: route-less `<Admin>` and loader prefetch. |
+| `apps/next-demo` | Next.js App Router admin: server prefetch into a `HydrationBoundary`. |
 
 ## Develop
 
