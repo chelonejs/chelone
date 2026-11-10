@@ -91,7 +91,7 @@ export function useListContext<
       "useListContext: no <ListContextProvider> found above this component.",
     );
   }
-  // type-escape: a context cannot carry the record type, so the erased list is read back as the record the caller names
+  // type-escape: context: a context cannot carry the record type, so the erased list is read back as the record the caller names
   return ctx as ListContextValue<RecordType>;
 }
 
