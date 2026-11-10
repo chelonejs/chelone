@@ -26,7 +26,8 @@ The links render the router adapter's `Link` under a `RouterAdapterProvider`,
 so a click is a client navigation, and a plain `<a href>` with none. Either
 way the server markup holds the `href`, so the links work before hydration.
 One provider in a layout covers every server list below it. In TanStack Start,
-a layout route such as `routes/rsc.tsx` holds it for every `/rsc` route.
+a layout route such as `routes/rsc.tsx` holds it for every `/rsc` route; in
+Next.js, `app/rsc/layout.tsx` holds it for every `/rsc` segment.
 
 ## With TanStack Start
 
@@ -98,6 +99,104 @@ function PostsPage() {
 }
 ```
 
+## With Next.js
+
+The same page as an App Router route. The page is a server component, so
+`rowActions` is an ordinary prop: no composite component and no client slot.
+`onDelete` is a server action, which a server component may hand to a client
+component. The provider is module-level, so a delete shows in the next server
+render, and `nextRouterAdapter` revalidates with `router.refresh()`.
+
+```tsx
+// app/rsc/layout.tsx
+import { RouterAdapterProvider } from "@chelone/react";
+import { nextRouterAdapter } from "@chelone/react/next";
+import type { ReactNode } from "react";
+
+export default function RscLayout({ children }: { children: ReactNode }) {
+  return (
+    <RouterAdapterProvider adapter={nextRouterAdapter}>
+      {children}
+    </RouterAdapterProvider>
+  );
+}
+```
+
+```ts
+// rsc-actions.ts
+"use server";
+
+import type { Identifier } from "@chelone/core";
+import { dataProvider } from "./server-data";
+
+export async function deletePost(id: Identifier): Promise<void> {
+  await dataProvider.delete("posts", { id });
+}
+```
+
+```tsx
+// app/rsc/posts/page.tsx
+import { loadServerListPage } from "@chelone/core";
+import {
+  ServerList,
+  ServerListDeleteButton,
+  ServerListFilters,
+} from "@chelone/react/rsc";
+import { QueryClient } from "@tanstack/query-core";
+import { deletePost } from "../../../rsc-actions";
+import { dataProvider } from "../../../server-data";
+
+/** Next's `searchParams` object back into the query string `search` takes. */
+function searchOf(params: Record<string, string | string[] | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    for (const item of [value ?? []].flat()) search.append(key, item);
+  }
+  return search.toString();
+}
+
+export default async function PostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const page = await loadServerListPage(
+    { dataProvider, queryClient: new QueryClient() },
+    "posts",
+    {
+      search: searchOf(await searchParams),
+      options: { sort: { field: "id", order: "ASC" } },
+      references: { author_id: "authors" },
+    },
+  );
+  return (
+    <main>
+      <ServerListFilters
+        path="/rsc/posts"
+        params={page.params}
+        filters={[{ source: "title", label: "Title (exact)" }]}
+      />
+      <ServerList
+        page={page}
+        path="/rsc/posts"
+        columns={[
+          { source: "title", label: "Title", sortable: true },
+          {
+            source: "author_id",
+            label: "Author",
+            reference: true,
+            representation: "name",
+          },
+        ]}
+        rowActions={(post) => (
+          <ServerListDeleteButton id={post.id} onDelete={deletePost} />
+        )}
+      />
+    </main>
+  );
+}
+```
+
 ## Filters and row deletes
 
 Two parts run on the client and hand back to the server. Both need a
@@ -133,9 +232,10 @@ send.
 ```
 
 `<ServerListDeleteButton>` goes in `rowActions`. A click asks to confirm
-inline. Confirm awaits `onDelete(id)`, your server function, and then asks the
-router to run the route's loader again, so the server renders the page without
-the row. Both buttons are disabled while it runs, and a rejection shows its
+inline. Confirm awaits `onDelete(id)`, your server function or server action,
+and then asks the router to render the route's server data again, so the server
+renders the page without the row: the route's loader in Start, `router.refresh()`
+under `nextRouterAdapter`. Both buttons are disabled while it runs, and a rejection shows its
 message in a `role="alert"` element and revalidates nothing. `labels` replaces
 the English `chelone.action.delete`, `confirm` and `cancel` texts. It has no
 undo and no optimistic removal.
@@ -149,8 +249,9 @@ rowActions={(post: Post) => (
 )}
 ```
 
-`onDelete` is a function, so it cannot be a prop of the server component. The
-route fills `rowActions` as a client slot, as above.
+`onDelete` is a function, so it reaches the button one of two ways: a client
+slot the route fills, as with `createCompositeComponent` above, or a server
+action the server component hands down itself, as with Next.js above.
 
 `renderServerComponent` returns a server component with no slot. Use it in
 place of `createCompositeComponent` for a list with no `rowActions`.
