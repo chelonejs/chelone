@@ -8,11 +8,15 @@
 
 import { seedData } from "@chelone/demo-data";
 import {
+  ServerBooleanField,
+  ServerCurrencyField,
   ServerDateField,
   ServerEmailField,
   ServerFileField,
   ServerImageField,
   ServerNumberField,
+  ServerRatingField,
+  ServerSelectField,
   ServerTextField,
   ServerUrlField,
 } from "@chelone/react/rsc";
@@ -20,6 +24,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { renderServerComponent } from "@tanstack/react-start/rsc";
 import { serverDataProvider } from "../../server-data";
+
+const postStatuses = [
+  { id: "draft", name: "Draft" },
+  { id: "in_review", name: "In review" },
+  { id: "published", name: "Published" },
+];
 
 const getPostFields = createServerFn().handler(async () => {
   const { data: post } = await serverDataProvider.getOne("posts", { id: 1 });
@@ -47,6 +57,18 @@ const getPostFields = createServerFn().handler(async () => {
       <dd>
         <ServerNumberField record={post} source="views" locales="en-US" />
       </dd>
+      <dt>Published</dt>
+      <dd>
+        <ServerBooleanField record={post} source="published" />
+      </dd>
+      <dt>Status</dt>
+      <dd>
+        <ServerSelectField
+          record={post}
+          source="status"
+          choices={postStatuses}
+        />
+      </dd>
       <dt>Latest comment</dt>
       <dd>
         {comment ? (
@@ -70,6 +92,27 @@ const getPostFields = createServerFn().handler(async () => {
       </dd>
       {product ? (
         <>
+          <dt>Price</dt>
+          <dd>
+            <ServerCurrencyField
+              record={product}
+              source="price"
+              currency="USD"
+              displayLocale="en-US"
+            />
+          </dd>
+          <dt>Rating</dt>
+          <dd>
+            <ServerRatingField record={product} source="rating" allowHalf />
+          </dd>
+          <dt>Featured</dt>
+          <dd>
+            <ServerBooleanField
+              record={product}
+              source="featured"
+              empty="Not decided"
+            />
+          </dd>
           <dt>Product page</dt>
           <dd>
             <ServerUrlField
