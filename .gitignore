@@ -144,3 +144,4 @@ dist
 # Scratch consumer left by registry:test-local on failure
 temp-local-e2e/
 
+.DS_Store
