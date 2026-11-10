@@ -1835,6 +1835,9 @@
       }
     }
   },
+  "image-field-images": {
+    "shownBy": "image-field"
+  },
   "image-input": {
     "react": {
       "docs": {
@@ -3525,6 +3528,16 @@
       }
     }
   },
+  "server-link-fields": {
+    "react": {
+      "docs": {
+        "path": "/docs/viewing/server-fields"
+      },
+      "demo": {
+        "path": "/rsc/fields"
+      }
+    }
+  },
   "server-list": {
     "react": {
       "docs": {
@@ -3534,6 +3547,12 @@
         "path": "/rsc/posts"
       }
     }
+  },
+  "server-list-delete-button": {
+    "shownBy": "server-list"
+  },
+  "server-list-filters": {
+    "shownBy": "server-list"
   },
   "server-list-link": {
     "shownBy": "server-list"

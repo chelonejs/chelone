@@ -1,6 +1,8 @@
 {
   "registering-your-app": [
+    "@chelone/core:AnyRecordOf",
     "@chelone/core:Register",
+    "@chelone/core:RegisteredAnyRecord",
     "@chelone/core:RegisteredRecord",
     "@chelone/core:RegisteredResourceName",
     "@chelone/core:RegisteredResources",

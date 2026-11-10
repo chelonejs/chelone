@@ -111,6 +111,7 @@ export function useInput(options: UseInputOptions): UseInputReturn {
 
   // 4R: subscribing mounts the field (seed default + register + onMount) on
   // `setup`; `onScopeDispose` unmounts it on teardown.
+  // type-escape: context: the ambient form names no record, so its field is record-free
   const state = useSubscribable<CheloneFieldState<unknown>>(binding);
   const format = options.format ?? defaultFormat;
 
@@ -118,6 +119,7 @@ export function useInput(options: UseInputOptions): UseInputReturn {
     id: options.id ?? generatedId,
     name: source,
     value: computed(() => format(state.value.value)),
+    // type-escape: dom: an event or the raw value, told apart by `extractEventValue`
     setValue: (input: unknown) => binding.setValue(extractEventValue(input)),
     blur: () => binding.blur(),
     error: computed(() => firstFieldError(state.value.meta.errorMap)),

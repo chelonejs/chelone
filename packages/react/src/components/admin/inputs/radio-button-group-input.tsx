@@ -1,3 +1,4 @@
+import type { SourceProp } from "@chelone/core";
 import type * as React from "react";
 import { FieldLabelText } from "@/components/admin/common/field-label-text";
 import { InputHelperText } from "@/components/admin/common/input-helper-text";
@@ -91,7 +92,10 @@ function RadioButtonGroupInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     error: fetchError,
     resource,
     source,
-  } = useChoicesContext<TChoice>({ choices: choicesProp, source: sourceProp });
+  } = useChoicesContext<TChoice, SourceProp>({
+    choices: choicesProp,
+    source: sourceProp,
+  });
 
   if (source === undefined) {
     throw new Error(

@@ -25,7 +25,8 @@ names. It ships in the `@chelone/react/rsc` entry.
 The links render the router adapter's `Link` under a `RouterAdapterProvider`,
 so a click is a client navigation, and a plain `<a href>` with none. Either
 way the server markup holds the `href`, so the links work before hydration.
-One provider in a layout covers every server list below it.
+One provider in a layout covers every server list below it. In TanStack Start,
+a layout route such as `routes/rsc.tsx` holds it for every `/rsc` route.
 
 ## With TanStack Start
 
@@ -97,6 +98,60 @@ function PostsPage() {
 }
 ```
 
+## Filters and row deletes
+
+Two parts run on the client and hand back to the server. Both need a
+`RouterAdapterProvider` above them and import no router package, so one file
+serves every host.
+
+`<ServerListFilters>` is a filter bar. Its props are plain data, so a server
+component passes them: the list's `path`, the page's `params`, and `filters`,
+each `{ source, label, choices? }`. A filter is a text input, or a select when
+it has `choices`, prefilled from `params.filter`. A submit navigates to `path`
+with the new filter on page 1, keeping the sort and perPage. An emptied input
+drops its key, and a filter with no input in the bar is kept. A choice's `id`
+is what the filter sends, as the type it was given. It needs client
+JavaScript: the URL holds the filter as JSON, which a plain GET form cannot
+send.
+
+```tsx
+<ServerListFilters
+  path="/posts"
+  params={page.params}
+  filters={[
+    { source: "title", label: "Title" },
+    {
+      source: "status",
+      label: "Status",
+      choices: [
+        { id: "draft", name: "Draft" },
+        { id: "published", name: "Published" },
+      ],
+    },
+  ]}
+/>
+```
+
+`<ServerListDeleteButton>` goes in `rowActions`. A click asks to confirm
+inline. Confirm awaits `onDelete(id)`, your server function, and then asks the
+router to run the route's loader again, so the server renders the page without
+the row. Both buttons are disabled while it runs, and a rejection shows its
+message in a `role="alert"` element and revalidates nothing. `labels` replaces
+the English `chelone.action.delete`, `confirm` and `cancel` texts. It has no
+undo and no optimistic removal.
+
+```tsx
+rowActions={(post: Post) => (
+  <ServerListDeleteButton
+    id={post.id}
+    onDelete={(id) => deletePost({ data: id })}
+  />
+)}
+```
+
+`onDelete` is a function, so it cannot be a prop of the server component. The
+route fills `rowActions` as a client slot, as above.
+
 `renderServerComponent` returns a server component with no slot. Use it in
 place of `createCompositeComponent` for a list with no `rowActions`.
 
@@ -117,4 +172,14 @@ anything that needs the react-query cache stays with
 
 ## Props
 
+### ServerList
+
 <PropsTable name="ServerList" />
+
+### ServerListFilters
+
+<PropsTable name="ServerListFilters" />
+
+### ServerListDeleteButton
+
+<PropsTable name="ServerListDeleteButton" />

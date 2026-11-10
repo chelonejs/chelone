@@ -1455,6 +1455,10 @@
           "type": "registry:component"
         },
         {
+          "path": "src/components/admin/fields/image-field-images.tsx",
+          "type": "registry:component"
+        },
+        {
           "path": "src/components/admin/fields/image-field.tsx",
           "type": "registry:component"
         },
@@ -3314,6 +3318,20 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "image-field-images",
+      "type": "registry:component",
+      "title": "Image Field Images",
+      "files": [
+        {
+          "path": "src/components/admin/fields/image-field-images.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "image-field",
       "type": "registry:component",
       "title": "Image Field",
@@ -3324,6 +3342,7 @@
         }
       ],
       "registryDependencies": [
+        "@chelone/image-field-images",
         "@chelone/lib-field-types",
         "@chelone/lib-utils"
       ],
@@ -4398,7 +4417,7 @@
         "@chelone/lib-utils",
         "@chelone/text-input"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4443,7 +4462,7 @@
         "@chelone/radio-group",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4581,7 +4600,7 @@
         "@chelone/select",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -8250,11 +8269,34 @@
       "title": "Chelone Server Components",
       "categories": ["chelone", "fields"],
       "description": "The opt-in React Server Components add-on: the server text, number and date fields, readFieldValue, which reads a typed value off a record passed as a prop, serverEmptyText, which prints a field's empty text, ServerShow, which renders one read-only record page, and ServerList, which renders one loaded list page with sort and page links. Each reads a record or a page passed as a prop, with no hook or context, so it runs in a server component.",
-      "registryDependencies": ["@chelone/lib-utils", "@chelone/table"],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/image-field-images",
+        "@chelone/input",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/table"
+      ],
       "dependencies": ["@chelone/core", "@chelone/react"],
       "files": [
         {
           "path": "src/components/rsc/read-field-value.ts",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-link-fields.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list-delete-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list-filters.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list-href.ts",
           "type": "registry:component"
         },
         {
@@ -8291,6 +8333,76 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "server-link-fields",
+      "type": "registry:component",
+      "title": "Server Link Fields",
+      "files": [
+        {
+          "path": "src/components/rsc/server-link-fields.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/image-field-images",
+        "@chelone/lib-utils",
+        "@chelone/read-field-value",
+        "@chelone/server-scalar-fields"
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-list-delete-button",
+      "type": "registry:component",
+      "title": "Server List Delete Button",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list-delete-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-list-filters",
+      "type": "registry:component",
+      "title": "Server List Filters",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list-filters.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/server-list-href"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-list-href",
+      "type": "registry:component",
+      "title": "Server List Href",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list-href.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "server-list-link",
       "type": "registry:component",
       "title": "Server List Link",
@@ -8317,6 +8429,7 @@
       "registryDependencies": [
         "@chelone/lib-utils",
         "@chelone/read-field-value",
+        "@chelone/server-list-href",
         "@chelone/server-list-link",
         "@chelone/server-scalar-fields",
         "@chelone/table"

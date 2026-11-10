@@ -187,11 +187,17 @@ describe("the rsc entry", () => {
     const entry = await import("./rsc");
     expect(Object.keys(entry).sort()).toEqual([
       "ServerDateField",
+      "ServerEmailField",
+      "ServerFileField",
+      "ServerImageField",
       "ServerList",
+      "ServerListDeleteButton",
+      "ServerListFilters",
       "ServerNumberField",
       "ServerRecordField",
       "ServerShow",
       "ServerTextField",
+      "ServerUrlField",
       "readFieldValue",
       "serverEmptyText",
     ]);
@@ -207,12 +213,17 @@ describe("the rsc entry", () => {
       expect.arrayContaining([
         "components/rsc/read-field-value.ts",
         "components/rsc/server-scalar-fields.tsx",
+        "components/rsc/server-link-fields.tsx",
         "components/rsc/server-list.tsx",
       ]),
     );
-    expect(files.map((file) => relative(src, file))).not.toContain(
+    for (const client of [
       "components/rsc/server-list-link.tsx",
-    );
+      "components/rsc/server-list-filters.tsx",
+      "components/rsc/server-list-delete-button.tsx",
+    ]) {
+      expect(files.map((file) => relative(src, file))).not.toContain(client);
+    }
     expect(files.map((file) => relative(src, file))).toContain(
       "components/rsc/server-show.tsx",
     );

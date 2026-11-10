@@ -20,7 +20,7 @@ export function getDirtyFormValues<TValues extends object>(
   const dirty: Partial<TValues> = {};
   for (const [path, meta] of Object.entries(fieldMeta)) {
     if (!meta?.isDirty) continue;
-    // type-escape: the name comes from a runtime path, which the compiler cannot tie to a key of TValues
+    // type-escape: form-core: the name comes from a runtime path, which the compiler cannot tie to a key of TValues
     const name = topLevelName(path) as keyof TValues;
     dirty[name] = values[name];
   }

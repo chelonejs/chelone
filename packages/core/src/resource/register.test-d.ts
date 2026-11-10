@@ -1,8 +1,10 @@
 import { expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import type { FilterPayload, SortPayload } from "../data/types";
-import type { LooseRecord } from "./record";
+import type { LooseRecord, ResourceRecord } from "./record";
 import type {
+  AnyRecordOf,
+  RegisteredAnyRecord,
   RegisteredRecord,
   RegisteredResourceName,
   RegisteredResources,
@@ -169,4 +171,27 @@ it("ResourceRecordArg keeps the record of a RecordResources view keyed by string
   expectTypeOf<
     ResourceRecordArg<RecordResources<Post>, string>
   >().toEqualTypeOf<Post>();
+});
+
+/** An insert schema leaves `id` to the database, so its output `id` is optional. */
+const withOptionalId = defineResources({
+  posts: { schema: z.object({ id: z.number().optional(), title: z.string() }) },
+  users: { schema: z.object({ id: z.string(), name: z.string() }) },
+});
+
+it("AnyRecordOf satisfies ResourceRecord for an optional id, and keeps each resource's other fields", () => {
+  type Any = AnyRecordOf<typeof withOptionalId>;
+  expectTypeOf<Any>().toExtend<ResourceRecord>();
+  expectTypeOf<Extract<Any, { title: string }>["id"]>().toEqualTypeOf<number>();
+  expectTypeOf<
+    Extract<Any, { title: string }>["title"]
+  >().toEqualTypeOf<string>();
+  expectTypeOf<Extract<Any, { name: string }>>().toEqualTypeOf<{
+    id: string;
+    name: string;
+  }>();
+});
+
+it("with no augmentation RegisteredAnyRecord is LooseRecord", () => {
+  expectTypeOf<RegisteredAnyRecord>().toEqualTypeOf<LooseRecord>();
 });

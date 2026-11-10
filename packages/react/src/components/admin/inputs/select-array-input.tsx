@@ -90,7 +90,10 @@ function SelectArrayInput<
     source,
     resource,
     isFromReference,
-  } = useChoicesContext<TChoice>({ choices: choicesProp, source: sourceProp });
+  } = useChoicesContext<TChoice, TPath>({
+    choices: choicesProp,
+    source: sourceProp,
+  });
 
   if (source === undefined) {
     throw new Error(
@@ -111,7 +114,7 @@ function SelectArrayInput<
     });
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  const { id, field, fieldState, isRequired } = useInput({
+  const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>({
     ...inputOptions,
     source,
   });

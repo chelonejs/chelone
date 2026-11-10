@@ -41,6 +41,7 @@ export function toJsonText(
 export function fromJsonText(
   text: string,
   shape: JsonShape,
+  // type-escape: json: the parsed text, or the text itself for a string shape; only the field knows which
 ): { value: unknown; parseError: Error | null } {
   if (shape === "string") return { value: text, parseError: null };
   if (text.trim() === "") return { value: null, parseError: null };
@@ -68,6 +69,7 @@ export function formatJsonValue(value: unknown, indent = 2): string {
   }
 }
 
+// type-escape: json: `JSON.parse`'s result, or the text kept when it does not parse
 function parseOrKeep(text: string): { value: unknown; ok: boolean } {
   try {
     return { value: JSON.parse(text), ok: true };

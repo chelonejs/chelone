@@ -88,7 +88,7 @@ function AutocompleteArrayInput<
     resource,
     isFromReference,
     setFilters,
-  } = useChoicesContext<TChoice>({
+  } = useChoicesContext<TChoice, TPath>({
     choices: props.choices,
     source: props.source,
   });
@@ -100,7 +100,10 @@ function AutocompleteArrayInput<
   }
 
   // `resource`/`disabled`/`readOnly` are component-local, NOT `useInput` keys.
-  const { id, field, fieldState, isRequired } = useInput({ ...props, source });
+  const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>({
+    ...props,
+    source,
+  });
   const translate = useTranslate();
   const {
     placeholder = translate("chelone.action.search", { _: "Search..." }),

@@ -1,5 +1,5 @@
 import type { MessageCatalog } from "../i18n/messages";
-import type { LooseRecord } from "./record";
+import type { LooseRecord, ResourceRecord } from "./record";
 import type { RecordOf, ResourceMap } from "./registry";
 
 /**
@@ -71,6 +71,29 @@ export type RegisteredRecord<TName extends RegisteredResourceName> = RecordOf<
   RegisteredResources,
   TName
 >;
+
+/** A record kept as it is when it has an `id`, and given one when its schema leaves `id` optional. */
+type WithId<TRecord> = TRecord extends ResourceRecord
+  ? TRecord
+  : TRecord & ResourceRecord;
+
+/**
+ * The record of any resource in `TResources`, as a union, every member a
+ * {@link ResourceRecord}. A schema with an optional `id`, as an insert schema
+ * has, gives a record `{ id?: number }` that is not one, so a component that
+ * defaults its `TRecord` to "any registered record" cannot use
+ * {@link RecordOf} for it: the default would break its own constraint.
+ */
+export type AnyRecordOf<TResources extends ResourceMap> = {
+  [TName in keyof TResources & string]: WithId<RecordOf<TResources, TName>>;
+}[keyof TResources & string];
+
+/**
+ * The record of any registered resource, or {@link LooseRecord} when nothing is
+ * registered. It always satisfies {@link ResourceRecord}, so it is the default
+ * for a `TRecord extends ResourceRecord` generic.
+ */
+export type RegisteredAnyRecord = AnyRecordOf<RegisteredResources>;
 
 /**
  * The resource name a data hook takes, with `TName` inferred from the argument:

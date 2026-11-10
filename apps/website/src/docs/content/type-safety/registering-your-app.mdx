@@ -100,6 +100,33 @@ declare module "@chelone/core" {
 type Missing = RegisteredRecord<"commnets">;
 ```
 
+`RegisteredAnyRecord` is the record of any registered resource, as a union. It
+is what a component such as `DualApprovalButton` defaults its record to, and it
+always satisfies `ResourceRecord`, even when a schema leaves `id` optional, as an
+insert schema does. `AnyRecordOf<TResources>` is the same over an explicit map.
+
+```ts twoslash
+import {
+  defineResources,
+  type RegisteredAnyRecord,
+  type ResourceRecord,
+} from "@chelone/core";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number().optional(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+const record: RegisteredAnyRecord = { id: 1, title: "Hello" };
+const asResourceRecord: ResourceRecord = record;
+```
+
 ## What each key types
 
 | Key               | Read by                                                        | Types                                                                                       |
