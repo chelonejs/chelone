@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { test } from "node:test";
 
-import { SKIP, classify, fileSites, startsFromUnknown } from "./check-type-escapes.mjs";
+import { SKIP, classify, dropUnknownAsks, fileSites, startsFromUnknown } from "./check-type-escapes.mjs";
 
 const ts = createRequire(import.meta.url)("typescript");
 
@@ -89,6 +89,76 @@ test("a comment does not excuse a bound", () => {
     ),
     [{ line: 2, kind: "loose-bound" }],
   );
+});
+
+/** The form layer's label complaints in one file's text. */
+const asks = (file, text) => fileSites(file, text).filter((site) => site.kind === "unlabelled");
+
+const cast = "export const value = record as Post;\n";
+
+test("a labelled comment passes in the form layer", () => {
+  assert.deepEqual(fileSites("packages/core/src/form/form-handle.ts", `// type-escape: context: the ambient form names no record\n${cast}`), []);
+});
+
+test("a comment with no label fails in the form layer", () => {
+  assert.deepEqual(asks("packages/core/src/form/form-handle.ts", `// type-escape: the ambient form names no record\n${cast}`), [
+    { line: 1, kind: "unlabelled", at: "comment" },
+  ]);
+});
+
+test("a comment with an unknown label fails", () => {
+  assert.deepEqual(asks("packages/vue/src/form/use-form.ts", `// type-escape: database: a row read from any table\n${cast}`), [
+    { line: 1, kind: "unlabelled", at: "comment" },
+  ]);
+});
+
+test("an escape with no comment fails in the form layer, whatever main holds", () => {
+  // `fileSites` is handed no base: the label rule is absolute, so the count comparison cannot stand in for it.
+  assert.deepEqual(fileSites("packages/react/src/form/filter-live-form.tsx", cast), [
+    { line: 1, kind: "cast" },
+    { line: 1, kind: "unlabelled", at: "cast", start: 21 },
+  ]);
+});
+
+test("outside the form layer a plain type-escape comment still passes", () => {
+  assert.deepEqual(fileSites("packages/react/src/components/rsc/read-field-value.ts", `// type-escape: a context cannot carry the record type\n${cast}`), []);
+});
+
+test("a test file in the form layer needs no label", () => {
+  assert.deepEqual(fileSites("packages/core/src/form/form-handle.test.ts", cast), [{ line: 1, kind: "cast" }]);
+});
+
+test("a cast from unknown is not asked for a label", () => {
+  // The syntactic half: a cast to a function taking `unknown`, counted comment or not.
+  const sites = fileSites(
+    "packages/core/src/form/input-binding.ts",
+    "// type-escape: server: an app's opaque bag of any values.\nexport const text = (format as (value: unknown) => string)(raw);\n",
+  );
+  assert.deepEqual(sites.filter((site) => site.kind === "unknown-cast"), [{ line: 2, kind: "unknown-cast" }]);
+  assert.deepEqual(sites.filter((site) => site.kind === "unlabelled"), []);
+  // The checker's half: a cast whose operand it reads as `unknown`.
+  const file = "packages/core/src/form/json-text.ts";
+  assert.deepEqual(dropUnknownAsks([{ file, line: 4, kind: "unlabelled", at: "cast", start: 60 }], [{ file, line: 4, kind: "unknown-cast", start: 60 }]), []);
+});
+
+test("a cast from unknown does not excuse another escape on its line", () => {
+  const file = "packages/core/src/form/json-text.ts";
+  const text = "export const title = (raw as Post).title!;\n";
+  const asks = fileSites(file, text).filter((site) => site.kind === "unlabelled");
+  const [cast, nonNull] = [text.indexOf("raw"), text.indexOf("(raw")];
+  assert.deepEqual(asks.map((site) => [site.at, site.start]), [
+    ["non-null", nonNull],
+    ["cast", cast],
+  ]);
+  const unknownCast = { file, line: 1, kind: "unknown-cast", start: cast };
+  const kept = dropUnknownAsks(asks.map((site) => ({ file, ...site })), [unknownCast]);
+  assert.deepEqual(kept.map((site) => site.at), ["non-null"]);
+});
+
+test("an honest unknown needs no comment", () => {
+  const text =
+    "export function isPost(value: unknown): value is Post {\n  return typeof value === 'object';\n}\nexport function text(error: unknown): string {\n  return String(error);\n}\n";
+  assert.deepEqual(fileSites("packages/core/src/form/field-error.ts", text), []);
 });
 
 test("a generated route tree is skipped, and a hand-written file next to it is not", () => {
