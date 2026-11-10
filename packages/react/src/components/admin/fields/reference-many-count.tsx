@@ -1,5 +1,6 @@
 import {
   type FilterPayload,
+  getAtPath,
   isIdentifier,
   type LooseRecord,
   type ResourceRecord,
@@ -7,7 +8,7 @@ import {
 } from "@chelone/core";
 import type { ReactNode } from "react";
 import { useGetManyReference } from "../../../hooks";
-import { useFieldValue } from "../../../record/use-field-value";
+import { useRecordContext } from "../../../record/record-context";
 
 interface ReferenceManyCountProps<
   RecordType extends ResourceRecord = LooseRecord,
@@ -70,14 +71,14 @@ function ReferenceManyCount<RecordType extends ResourceRecord = LooseRecord>(
     className,
   } = props;
 
-  // Read at `ResourceRecord`: the `"id"` default is a legal path of every Chelone
-  // record, but `SourceProp<RecordType>` is deferred while `RecordType` is an
-  // unresolved parameter, so the compiler cannot see that it is one. The guard
-  // below is what makes the value an id.
-  const foreignKey = useFieldValue<ResourceRecord>({
-    source: source ?? "id",
-    record,
-  });
+  // The `"id"` default is a legal path of every Chelone record, but
+  // `SourceProp<RecordType>` is deferred while `RecordType` is an unresolved
+  // parameter, so the default reads the record's own `id` instead of a path.
+  // With a `source` the read is core's `getAtPath`, the one `useFieldValue`
+  // makes. The guard below is what makes the value an id.
+  const ambient = useRecordContext();
+  const row = record ?? ambient;
+  const foreignKey = source === undefined ? row?.id : getAtPath(row, source);
   const id = isIdentifier(foreignKey) ? foreignKey : undefined;
 
   const { data, isPending, error } = useGetManyReference(

@@ -58,7 +58,10 @@ type TextInputProps<
  *   </Edit>
  * );
  */
-function TextInput(props: TextInputProps) {
+function TextInput<
+  TRecord = unknown,
+  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
+>(props: TextInputProps<TRecord, TPath>) {
   const resource = useResourceContext(props);
   const {
     label,
@@ -72,7 +75,9 @@ function TextInput(props: TextInputProps) {
     controlSuffix,
     ...rest
   } = props;
-  const { id, field, fieldState, isRequired } = useInput(props);
+  // The component's own generics go to `useInput`, so a wrapper can hand
+  // `<TextInput>` the `SourceProp<TRecord>` it holds.
+  const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>(props);
   const translate = useTranslate();
 
   const invalid = fieldState.invalid;
