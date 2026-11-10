@@ -88,6 +88,56 @@ string and answer `notFound()` in the handler: a `z.number()` validator rejects
 `/posts/abc` before the handler runs, and the visitor gets an error page instead
 of the 404.
 
+## With Next.js
+
+The page reads the record and renders it in one pass. `notFound()` is Next's
+own, and answers with the nearest segment's `not-found.tsx`.
+
+```tsx
+// app/rsc/posts/[id]/page.tsx
+import {
+  ServerNumberField,
+  ServerRecordField,
+  ServerShow,
+  ServerTextField,
+} from "@chelone/react/rsc";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+
+export default async function PostShowPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  // A provider with no row throws: catch it and answer notFound().
+  const post = await dataProvider
+    .getOne("posts", { id: Number(id) })
+    .then(({ data }) => data)
+    .catch(() => undefined);
+  if (post === undefined) notFound();
+  return (
+    <ServerShow
+      record={post}
+      actions={<Link href={`/admin/posts/${post.id}`}>Edit</Link>}
+    >
+      <ServerRecordField label="post.title">
+        <ServerTextField record={post} source="title" />
+      </ServerRecordField>
+      <ServerRecordField label="post.views" variant="inline">
+        <ServerNumberField record={post} source="views" locales="en-US" />
+      </ServerRecordField>
+      <ServerRecordField label="post.status" variant="inline">
+        <ServerTextField record={post} source="status" />
+      </ServerRecordField>
+    </ServerShow>
+  );
+}
+```
+
+`params` is a Promise in the App Router, and `notFound()` returns `never`, so
+the code after the guard sees a record and not `undefined`.
+
 The heading defaults to `defaultRecordRepresentation(record)`: the first of
 `name`, `title`, `label`, `reference` that holds text or a number, else
 `#<id>`. That default is never translated.
