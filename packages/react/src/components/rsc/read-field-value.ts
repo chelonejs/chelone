@@ -38,9 +38,9 @@ export function readFieldValue<
 export function readFieldValue(
   record: object,
   source: string,
-  // type-escape: implementation signature; the overload above states the type
+  // type-escape: overload: implementation signature; the overload above states the type
   defaultValue?: unknown,
-  // type-escape: as above
+  // type-escape: overload: as above
 ): unknown {
   const value = getAtPath(record, source);
   return value === undefined ? defaultValue : value;
