@@ -1,5 +1,30 @@
 # @chelone/core
 
+## [0.13.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.12.0...@chelone/core@0.13.0) (2026-11-10)
+
+
+### Features
+
+* **core:** loadServerListPage fetches a list page and its referenced records in one pass ([f82639c](https://github.com/chelonejs/chelone/commit/f82639cb68b285ad5a35291a130c0e01c1839efb))
+
+
+### Bug Fixes
+
+* **core:** raise the core type-cost budget for the buildObject tests ([71b94e6](https://github.com/chelonejs/chelone/commit/71b94e66489bda6fb5330857de8857212f182672))
+* **react,vue:** default DualApprovalButton and StatusTransitionButton to a record that always has an id ([531776c](https://github.com/chelonejs/chelone/commit/531776cc6ca14927feae6d90aa3de1c0d7f7efba))
+* **react,vue:** default the approval and status buttons to a record that always has an id ([a1d65a7](https://github.com/chelonejs/chelone/commit/a1d65a791411805ea9139b41d4e25e28dbc4e4aa))
+
+
+### Refactors
+
+* **core,react,vue:** filter form helpers read and return a FilterPayload ([f082276](https://github.com/chelonejs/chelone/commit/f082276a40ce10ce7a344ca51f2ac9c8aaf5ce73))
+* **core,vue:** read a record's id through a guard and type the form schema by its output ([c4a4712](https://github.com/chelonejs/chelone/commit/c4a4712d21e0ce96dbf91a82a96975288cc55aed))
+* **core:** hand the registry schema to the form validator with no cast ([8a9f20b](https://github.com/chelonejs/chelone/commit/8a9f20b9c5cbfb36de41c5fbd40de5c3745470ed))
+* **core:** one typed builder holds the form layer's key-by-key casts ([e840e67](https://github.com/chelonejs/chelone/commit/e840e67b101e729dca28bcc28d880b91cbb9adf0))
+* **core:** one typed builder holds the form layer's key-by-key casts ([4cd92a8](https://github.com/chelonejs/chelone/commit/4cd92a8efe65000e4b6c3bf8a81d5f594447e8bb))
+* **core:** the form layer's unknowns and casts carry a boundary label ([d83c5c0](https://github.com/chelonejs/chelone/commit/d83c5c0409d7f440cd2c1df2f76e88a7db00e0f7))
+* **form:** errors become one type when they are written ([b7e8d1d](https://github.com/chelonejs/chelone/commit/b7e8d1d70c499cacc41db22da614f99617fadbaa))
+
 ## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/core@0.11.0...@chelone/core@0.12.0) (2026-11-09)
 
 

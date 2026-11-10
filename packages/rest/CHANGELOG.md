@@ -1,5 +1,19 @@
 # @chelone/rest
 
+## [0.13.0](https://github.com/chelonejs/chelone/compare/@chelone/rest@0.12.0...@chelone/rest@0.13.0) (2026-11-10)
+
+
+### Chores
+
+* **@chelone/rest:** Synchronize chelone versions
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.13.0
+
 ## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/rest@0.11.0...@chelone/rest@0.12.0) (2026-11-09)
 
 

@@ -1,5 +1,59 @@
 # @chelone/react
 
+## [0.13.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.12.0...@chelone/react@0.13.0) (2026-11-10)
+
+
+### Features
+
+* **react:** `ServerShow` renders a read-only show view as a server component ([fecefc2](https://github.com/chelonejs/chelone/commit/fecefc27550425ecfb73a78b2a1cea26f6f1e50f))
+* **react:** `ServerShow` renders a read-only show view as a server component ([1d7c515](https://github.com/chelonejs/chelone/commit/1d7c515f5d6830d3cd85086ab05cd8863306ff0e))
+* **react:** add ServerListFilters and ServerListDeleteButton islands ([62593fb](https://github.com/chelonejs/chelone/commit/62593fb9fb109a0dfdaf9171f5f27215bf9a4dfc))
+* **react:** add ServerTextField, ServerNumberField and ServerDateField ([f6f4653](https://github.com/chelonejs/chelone/commit/f6f465310cee3cb6ddde715ec27270f492095d6e))
+* **react:** add the @chelone/react/rsc subpath and turn RSC on in the Start demo ([9249259](https://github.com/chelonejs/chelone/commit/92492596bb88f90850452321a00d8baaeaec0922))
+* **react:** demo the server list islands, document them, and list them in the showcase ([452cdb3](https://github.com/chelonejs/chelone/commit/452cdb35872f84197d016bc33f7e78a6383d7c1b))
+* **react:** filter a server list through a navigating island and refresh after a row delete ([433d93b](https://github.com/chelonejs/chelone/commit/433d93bb178c690639ec9b95f447e7647fba4ac6))
+* **react:** render currency, boolean, select and rating fields in a server component ([7776636](https://github.com/chelonejs/chelone/commit/777663686786e2b9751cd5f3a4fd9b3c3f31f747))
+* **react:** render currency, boolean, select and rating fields in a server component ([ec942ed](https://github.com/chelonejs/chelone/commit/ec942ed406b336593b741e97dcec2bd9b95b1c4a))
+* **react:** ServerList renders a loaded list page as a server component ([e9f1b24](https://github.com/chelonejs/chelone/commit/e9f1b2412c0a3c374853d0542c8d35314a7281bf))
+* **react:** url, email, file and image fields render in a server component ([8e128ea](https://github.com/chelonejs/chelone/commit/8e128eafbd6f18222b65e97e194040cfc55e1dba))
+* **router:** a Next.js App Router adapter at @chelone/react/next ([7e5ef84](https://github.com/chelonejs/chelone/commit/7e5ef8468dd9cf7eefc7ebcfa1e23d7b9d1709ac))
+* **router:** useRevalidate re-runs the current route's server data ([045a4f9](https://github.com/chelonejs/chelone/commit/045a4f94d1adf6a2fa28218b660f1766ad4ce813))
+
+
+### Bug Fixes
+
+* **react,vue:** choice and grid inputs pass their source on typed ([06f3c9b](https://github.com/chelonejs/chelone/commit/06f3c9bd28dfbdde6f4ab0ea77bcc50499867a9c))
+* **react,vue:** default DualApprovalButton and StatusTransitionButton to a record that always has an id ([531776c](https://github.com/chelonejs/chelone/commit/531776cc6ca14927feae6d90aa3de1c0d7f7efba))
+* **react,vue:** default the approval and status buttons to a record that always has an id ([a1d65a7](https://github.com/chelonejs/chelone/commit/a1d65a791411805ea9139b41d4e25e28dbc4e4aa))
+* **react,vue:** pass choice and grid input sources on typed so they compile with every resource schema'd ([66f061c](https://github.com/chelonejs/chelone/commit/66f061cff7dafda9ab4807d7a44e67c176218d0f))
+* **react,vue:** pass generic sources and sort payloads through the list and field components ([3f09d0f](https://github.com/chelonejs/chelone/commit/3f09d0fedb7a1c48429be84a55b93a3fd7ddf71d))
+* **react:** forms with their own fields type those sources against their own values ([17c395d](https://github.com/chelonejs/chelone/commit/17c395d57ae0d99d1f707e14d7828b9047b2bb83))
+* **react:** name the boundary of the list context read-back ([ac81aaa](https://github.com/chelonejs/chelone/commit/ac81aaa7a87fbbf9d5d37f6a756be41d8a6039f8))
+* **react:** read the list and field components at the caller's record ([107bcb4](https://github.com/chelonejs/chelone/commit/107bcb41948b71b1033efff16c28ad082aff3bca))
+* **react:** ServerList keeps a multi-key sort and links back from past the end ([9a6de8c](https://github.com/chelonejs/chelone/commit/9a6de8cd2b1549f56a1a3c51fb3af13d65c1aa80))
+* **vue:** forms with their own fields type those sources against their own values ([e57235f](https://github.com/chelonejs/chelone/commit/e57235f6d8bffe7740f8e2c2479e7712ca068ec6))
+
+
+### Refactors
+
+* **core,react,vue:** filter form helpers read and return a FilterPayload ([f082276](https://github.com/chelonejs/chelone/commit/f082276a40ce10ce7a344ca51f2ac9c8aaf5ce73))
+* **react,vue:** label the form hooks' unknowns and type the scope's children ([68fbca5](https://github.com/chelonejs/chelone/commit/68fbca5f123b004aee9a4f39f6b475587e61729c))
+* **react:** ImageField and ServerImageField share their image markup ([5231a2d](https://github.com/chelonejs/chelone/commit/5231a2db1c6eb5280fcf78d29212505f54112153))
+* **react:** the React inputs keep only labelled unknowns and casts ([0bee383](https://github.com/chelonejs/chelone/commit/0bee383be5c5a0694e862f6c19b66ed33ddaee11))
+* **router:** type host-routes' element guards and keep navigate unique ([dd35ccd](https://github.com/chelonejs/chelone/commit/dd35ccdbc690030bd71614c56aad2fc924344a3e))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.13.0
+    * @chelone/utils bumped to 0.13.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.13.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.13.0
+
 ## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/react@0.11.0...@chelone/react@0.12.0) (2026-11-09)
 
 

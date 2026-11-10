@@ -1,5 +1,42 @@
 # @chelone/vue
 
+## [0.13.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.12.0...@chelone/vue@0.13.0) (2026-11-10)
+
+
+### Bug Fixes
+
+* **react,vue:** choice and grid inputs pass their source on typed ([06f3c9b](https://github.com/chelonejs/chelone/commit/06f3c9bd28dfbdde6f4ab0ea77bcc50499867a9c))
+* **react,vue:** default DualApprovalButton and StatusTransitionButton to a record that always has an id ([531776c](https://github.com/chelonejs/chelone/commit/531776cc6ca14927feae6d90aa3de1c0d7f7efba))
+* **react,vue:** default the approval and status buttons to a record that always has an id ([a1d65a7](https://github.com/chelonejs/chelone/commit/a1d65a791411805ea9139b41d4e25e28dbc4e4aa))
+* **react,vue:** pass choice and grid input sources on typed so they compile with every resource schema'd ([66f061c](https://github.com/chelonejs/chelone/commit/66f061cff7dafda9ab4807d7a44e67c176218d0f))
+* **react,vue:** pass generic sources and sort payloads through the list and field components ([3f09d0f](https://github.com/chelonejs/chelone/commit/3f09d0fedb7a1c48429be84a55b93a3fd7ddf71d))
+* **vue:** carry the record into the default editor of `InPlaceEditor` ([8d485a0](https://github.com/chelonejs/chelone/commit/8d485a05c7971b5a01bd9327773f52636c9e711d))
+* **vue:** forms with their own fields type those sources against their own values ([e57235f](https://github.com/chelonejs/chelone/commit/e57235f6d8bffe7740f8e2c2479e7712ca068ec6))
+* **vue:** keep the date inputs' parse out of RecordType inference ([b7f2e6f](https://github.com/chelonejs/chelone/commit/b7f2e6fcd8873882db8613ebd7d17564ef3d5ff7))
+* **vue:** phone input puts its country select back on a rejected value ([5f0b21c](https://github.com/chelonejs/chelone/commit/5f0b21caa250c7f65580e5a6ca7f8859c86ca945))
+* **vue:** read the list and column components at the caller's record ([9edafaa](https://github.com/chelonejs/chelone/commit/9edafaa08e6741d07d508703f507403ef3bf610b))
+
+
+### Refactors
+
+* **core,react,vue:** filter form helpers read and return a FilterPayload ([f082276](https://github.com/chelonejs/chelone/commit/f082276a40ce10ce7a344ca51f2ac9c8aaf5ce73))
+* **core,vue:** read a record's id through a guard and type the form schema by its output ([c4a4712](https://github.com/chelonejs/chelone/commit/c4a4712d21e0ce96dbf91a82a96975288cc55aed))
+* **react,vue:** label the form hooks' unknowns and type the scope's children ([68fbca5](https://github.com/chelonejs/chelone/commit/68fbca5f123b004aee9a4f39f6b475587e61729c))
+* **vue:** read an input event's target through a guard ([3dddb1c](https://github.com/chelonejs/chelone/commit/3dddb1c7363951c9a754d9f6c7a01cbcd45ff197))
+* **vue:** the Vue inputs name the value they store or label the boundary ([86ec558](https://github.com/chelonejs/chelone/commit/86ec558d53d3106fe74c3471526d8f2f7c644841))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @chelone/core bumped to 0.13.0
+    * @chelone/utils bumped to 0.13.0
+  * devDependencies
+    * @chelone/supabase bumped to 0.13.0
+  * peerDependencies
+    * @chelone/supabase bumped to 0.13.0
+
 ## [0.12.0](https://github.com/chelonejs/chelone/compare/@chelone/vue@0.11.0...@chelone/vue@0.12.0) (2026-11-09)
 
 
