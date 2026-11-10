@@ -169,9 +169,13 @@ form's own values instead, which
 covers.
 
 Each checked prop has an escape for a name the app builds from a runtime string,
-a config file or a URL. A `reference` built that way takes an explicit
-`<LooseRecord, ResourceMap>`, and `ResourceMap` is keyed by `string`, so
-`reference` and `target` are `string` again.
+a config file or a URL: name the map by hand. `ResourceMap` is keyed by
+`string`, so `reference` and `target` are `string` again. The arguments are the
+component's own generics in order, and those differ per component. A component
+generic over a record and a map takes `<LooseRecord, ResourceMap>`, which every
+reference field is in both adapters and every reference input in React. Vue's
+`ReferenceInput` and `ReferenceArrayInput` are generic over the map and the name
+only, so they take `<ResourceMap>`.
 
 ## Records that name no keys
 

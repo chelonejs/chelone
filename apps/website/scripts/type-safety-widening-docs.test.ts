@@ -143,6 +143,59 @@ it("the page names the escape for a reference built from a runtime string", () =
   );
 });
 
+/** One adapter's component source, named by its file stem. */
+const componentSource = (
+  adapter: "react" | "vue",
+  folder: string,
+  file: string,
+) =>
+  readFileSync(
+    new URL(
+      `../../../packages/${adapter}/src/components/admin/${folder}/${file}.${adapter === "react" ? "tsx" : "vue"}`,
+      import.meta.url,
+    ),
+    "utf8",
+  );
+
+/** Whether a component declares a generic over the record as well as the map. */
+const hasRecordGeneric = (source: string) =>
+  /RecordType extends ResourceRecord/.test(source);
+
+it("the escape names the type arguments each reference component declares", () => {
+  const text = section("Bare components").replace(/\s+/g, " ");
+  // A component generic over a record and a map is the one `<LooseRecord, ResourceMap>` fits.
+  for (const file of [
+    "reference-field",
+    "reference-array-field",
+    "reference-many-field",
+    "reference-one-field",
+  ]) {
+    for (const adapter of ["react", "vue"] as const) {
+      expect(
+        hasRecordGeneric(componentSource(adapter, "fields", file)),
+        `${file} in ${adapter}`,
+      ).toBe(true);
+    }
+  }
+  for (const file of ["reference-input", "reference-array-input"]) {
+    expect(
+      hasRecordGeneric(componentSource("react", "inputs", file)),
+      `React ${file}`,
+    ).toBe(true);
+  }
+  // Vue's two inputs are generic over the map and the name only, so the page
+  // must give them `<ResourceMap>`: `<LooseRecord, ResourceMap>` would land
+  // `LooseRecord` in the `TResources extends ResourceMap` slot.
+  for (const file of ["reference-input", "reference-array-input"]) {
+    expect(
+      hasRecordGeneric(componentSource("vue", "inputs", file)),
+      `Vue ${file}`,
+    ).toBe(false);
+  }
+  expect(text).toContain("<ResourceMap>");
+  expect(text).toContain("`ReferenceInput`");
+});
+
 it("the page names the type cost tooling and gives no figure", () => {
   const cost = page.slice(page.indexOf("## Editor performance and type cost"));
   expect(cost.length).toBeGreaterThan(0);

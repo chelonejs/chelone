@@ -205,14 +205,16 @@ A reference names another resource, and both halves of it are checked.
 follows the name, so an app with `Register` augmented writes neither type
 argument.
 
-Six components take them in both adapters, and all six are members:
+Six components take `reference` in both adapters, and all six are members:
 `ReferenceField`, `ReferenceOneField`, `ReferenceManyField`,
 `ReferenceArrayField`, `ReferenceInput` and `ReferenceArrayInput`. `target` is
-on `ReferenceOneField` and `ReferenceManyField`. The two inputs name the field
-on the referenced record with `lookupKey` instead, which stays a `string`
-because it is the value the form holds, not a field to filter on.
-`ReferenceManyCount` is a member too, and is the one reference component whose
-`reference` and `target` are still plain strings.
+on `ReferenceOneField` and `ReferenceManyField` alone; the other four take no
+`target`. The two inputs name the field on the referenced record with
+`lookupKey` instead, which stays a `string` because it is the value the form
+holds, not a field to filter on. React has `lookupKey` on both inputs; Vue has
+it on `ReferenceArrayInput` and not on `ReferenceInput`, whose choices are keyed
+by `id`. `ReferenceManyCount` is a member too, and is the one reference
+component whose `reference` and `target` are still plain strings.
 
 <FrameworkCode>
 
@@ -285,7 +287,8 @@ const posts = createResourceComponents("posts");
 `coments` is no name of the map, and `postid` is no key of a comment, so each
 line stops at the prop that carries it. A `reference` the app builds from a
 runtime string, a config file or a URL, names the map by hand instead:
-`ReferenceField<LooseRecord, ResourceMap>` puts `string` back on both props, and
+`ReferenceManyField<LooseRecord, ResourceMap>` puts `string` back on that
+component's `reference` and `target`, and
 [When Types Widen](/docs/type-safety/when-types-widen) covers that arm.
 
 ## Forms with their own values

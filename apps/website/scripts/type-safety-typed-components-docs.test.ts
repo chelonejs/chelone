@@ -183,6 +183,63 @@ it("the reference components fence fails a misspelt reference and a wrong target
   ]);
 });
 
+/** One adapter's reference input source. */
+const inputSource = (adapter: "react" | "vue", file: string) =>
+  read(
+    `../../../packages/${adapter}/src/components/admin/inputs/${file}.${adapter === "react" ? "tsx" : "vue"}`,
+  );
+
+/** Whether a component declares a `lookupKey` prop. */
+const hasLookupKey = (source: string) => /^\s+lookupKey\?:/m.test(source);
+
+it("the lookupKey sentence matches the props each input declares", () => {
+  const text = section("Reference components").replace(/\s+/g, " ");
+  expect(
+    hasLookupKey(inputSource("react", "reference-input")),
+    "React ReferenceInput",
+  ).toBe(true);
+  expect(
+    hasLookupKey(inputSource("react", "reference-array-input")),
+    "React ReferenceArrayInput",
+  ).toBe(true);
+  expect(
+    hasLookupKey(inputSource("vue", "reference-array-input")),
+    "Vue ReferenceArrayInput",
+  ).toBe(true);
+  // Vue's `ReferenceInput` keys its choices by `id` and takes no `lookupKey`.
+  expect(
+    hasLookupKey(inputSource("vue", "reference-input")),
+    "Vue ReferenceInput",
+  ).toBe(false);
+  // The page names which side has it, so no Vue reader writes a prop vue-tsc rejects.
+  expect(text).toContain(
+    "Vue has it on `ReferenceArrayInput` and not on `ReferenceInput`",
+  );
+});
+
+it("the runtime-string escape names a component that carries both props it loosens", () => {
+  const text = section("Reference components").replace(/\s+/g, " ");
+  const match =
+    /`(\w+)<LooseRecord, ResourceMap>` puts `string` back on (?:that component's|its) `reference` and `target`/.exec(
+      text,
+    );
+  expect(
+    match,
+    "an escape that loosens `reference` and `target`",
+  ).not.toBeNull();
+  const name = match?.[1] ?? "";
+  const file = name
+    .replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
+    .replace(/^-/, "");
+  // Only a component with a `target` prop can stand for both.
+  for (const adapter of ["react", "vue"] as const) {
+    const source = read(
+      `../../../packages/${adapter}/src/components/admin/fields/${file}.${adapter === "react" ? "tsx" : "vue"}`,
+    );
+    expect(/^\s+target:/m.test(source), `${name} in ${adapter}`).toBe(true);
+  }
+});
+
 it("the forms section types a form's inputs at its own values in both adapters", () => {
   const text = section("Forms with their own values");
   expect(text).toContain('<TextInput<LoginValues> source="email" />');
