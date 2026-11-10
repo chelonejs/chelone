@@ -9,11 +9,11 @@ import type { LooseRecord } from "../resource/record";
  * live once.
  */
 
-// type-escape: filter-value: a resolved filter value is whatever the form or filter held
 const resolveFilterValue = (
   formValues: LooseFilterPayload,
   key: string,
   filter: LooseFilterPayload,
+  // type-escape: filter-value: a resolved filter value is whatever the form or filter held
 ): unknown => {
   const formValue = formValues[key];
   // Nullish, arrays and Dates: take the filter value (fallback '') as-is; do
@@ -30,11 +30,15 @@ const resolveFilterValue = (
   if (isRecord(formValue)) {
     const heldFilter = filter[key];
     const nestedFilter = isRecord(heldFilter) ? heldFilter : {};
-    // type-escape: filter-value: the inner keys of a nested filter value are open
-    const rebuilt: Record<string, unknown> = {};
-    for (const innerKey of Object.keys(formValue)) {
-      rebuilt[innerKey] = resolveFilterValue(formValue, innerKey, nestedFilter);
-    }
+    const rebuilt = Object.fromEntries(
+      Object.keys(formValue).map(
+        (innerKey) =>
+          [
+            innerKey,
+            resolveFilterValue(formValue, innerKey, nestedFilter),
+          ] as const,
+      ),
+    );
     if (Object.keys(rebuilt).length === 0) return "";
     return rebuilt;
   }

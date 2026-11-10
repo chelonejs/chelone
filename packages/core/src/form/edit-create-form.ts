@@ -16,6 +16,7 @@ import { isPlainObject } from "../guards";
 import type { Identifier } from "../resource/identifier";
 import { isResourceRecord } from "../resource/record";
 import type { RecordOf, ResourceMap } from "../resource/registry";
+import { buildObject } from "./build-object";
 import { type FieldName, type FieldValue, toFieldName } from "./field-name";
 import {
   type CheloneFormApi,
@@ -43,18 +44,26 @@ export interface FormControllerContext<
  * server field never erases a default); arrays replace wholesale. Fresh
  * objects on every merged level.
  */
-function deepMerge<T>(base: T, override: T | Partial<T> | undefined): T {
+function deepMerge<T extends object>(
+  base: T,
+  override: T | Partial<T> | undefined,
+): T {
   if (override === undefined) return base;
   if (!isPlainObject(base) || !isPlainObject(override)) {
-    // type-escape: only an object `T` differs from `Partial<T>`, and this branch has no object pair to merge
+    // type-escape: builder: only an object `T` differs from `Partial<T>`, and this branch has no object pair to merge
     return override as T;
   }
-  const result: Record<string, unknown> = { ...base };
-  for (const [key, value] of Object.entries(override)) {
-    result[key] = key in base ? deepMerge(base[key], value) : value;
-  }
-  // type-escape: the merged object has `base`'s keys plus `override`'s, each a `T` member or a `Partial<T>` one
-  return result as T;
+  return buildObject<T>([
+    ...Object.entries(base),
+    ...Object.entries(override).map(([key, value]) => {
+      const held = key in base ? base[key] : undefined;
+      if (value === undefined) return [key, held] as const;
+      if (isPlainObject(held) && isPlainObject(value)) {
+        return [key, deepMerge(held, value)] as const;
+      }
+      return [key, value] as const;
+    }),
+  ]);
 }
 
 /** A record's id, or `undefined` for one whose schema output has no `id`. */
