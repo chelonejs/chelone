@@ -4,9 +4,11 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
+    types: [checks_requested]
 
 concurrency:
-  # Pull requests cancel their older runs; each push to main keeps its own result.
+  # Pull requests cancel their older runs; each push to main and each merge queue group keeps its own result.
   group: ci-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 

@@ -26,6 +26,7 @@ import { type InjectionKey, inject, provide } from "vue";
  */
 export interface ChoicesContextValue<
   TChoice extends ChoiceRecord = ChoiceRecord,
+  TSource extends string = string,
 > {
   allChoices: TChoice[];
   availableChoices: TChoice[];
@@ -43,7 +44,7 @@ export interface ChoicesContextValue<
   /** The referenced resource name (inline: `undefined`). */
   resource: string | undefined;
   /** The FK/source field on the referencing side. */
-  source: string | undefined;
+  source: TSource | undefined;
   /** `true` for a reference context, `false` for an inline-choices context. */
   isFromReference: boolean;
   setPage(page: number): void;
@@ -132,11 +133,11 @@ export function provideChoicesContext(
 }
 
 /** Options for {@link useChoicesContext} (props-over-context: inline choices win). */
-export interface UseChoicesContextOptions {
+export interface UseChoicesContextOptions<TSource extends string = string> {
   /** Inline choices — synthesized into a static context, ignoring any ambient one. */
   choices?: readonly (string | ChoiceRecord)[];
   /** The FK/source field (metadata carried onto the synthesized context). */
-  source?: string;
+  source?: TSource;
 }
 
 /**
@@ -145,9 +146,12 @@ export interface UseChoicesContextOptions {
  * {@link provideChoicesContext} value is returned. Throws if neither is present.
  * Call in `setup`.
  */
-export function useChoicesContext<TChoice extends ChoiceRecord = ChoiceRecord>(
-  options: UseChoicesContextOptions = {},
-): ChoicesContextValue<TChoice> {
+export function useChoicesContext<
+  TChoice extends ChoiceRecord = ChoiceRecord,
+  TSource extends string = string,
+>(
+  options: UseChoicesContextOptions<TSource> = {},
+): ChoicesContextValue<TChoice, TSource> {
   const ambient = inject(ChoicesContextKey, null);
   const resolved = options.choices
     ? synthesizeInlineChoices(options.choices, options.source)
@@ -157,6 +161,6 @@ export function useChoicesContext<TChoice extends ChoiceRecord = ChoiceRecord>(
       "useChoicesContext: pass `choices` or call provideChoicesContext() above.",
     );
   }
-  // type-escape: context: the context holds the erased value; the caller names its choice shape
-  return resolved as ChoicesContextValue<TChoice>;
+  // type-escape: context: the context holds the erased value; the caller names its choice shape and the source it passes on
+  return resolved as ChoicesContextValue<TChoice, TSource>;
 }

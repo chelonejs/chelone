@@ -18,8 +18,7 @@ import {
   getApprovalState,
   isLooseRecord,
   type MutationMode,
-  type RegisteredRecord,
-  type RegisteredResourceName,
+  type RegisteredAnyRecord,
   type ResourceRecord,
 } from "@chelone/core";
 import { Check } from "lucide-react";
@@ -34,7 +33,7 @@ import { useResourceContext } from "../../../resource";
 import { useMenuAccess } from "../layout/use-menu-access";
 
 interface DualApprovalButtonProps<
-  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
+  TRecord extends ResourceRecord = RegisteredAnyRecord,
 > {
   /** Approvals needed. Default 2. */
   required?: number;
@@ -68,7 +67,7 @@ interface DualApprovalButtonProps<
  * );
  */
 function DualApprovalButton<
-  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
+  TRecord extends ResourceRecord = RegisteredAnyRecord,
 >(props: DualApprovalButtonProps<TRecord>) {
   const {
     required,

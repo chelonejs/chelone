@@ -55,14 +55,40 @@ import JsonField from "../fields/json-field.vue";
 import { provideRecordContext } from "../../../record/record-context";
 import { useMenuAccess } from "../layout/use-menu-access";
 
+/**
+ * What the row's date and payload fields read: the two values taken from the
+ * job at the configured sources, since those are runtime strings no
+ * resource's paths name.
+ */
+interface JobValues {
+  id: ResourceRecord["id"];
+  // type-escape: server: getAtPath reads a record by a runtime path and returns unknown
+  createdAt: unknown;
+  // type-escape: server: getAtPath reads a record by a runtime path and returns unknown
+  payload: unknown;
+}
+
+// A template cannot pass a type argument, so the fields are the same components
+// at the job's values: `source` checks against them, not the registry.
+const CreatedAtField = DateField<JobValues>;
+const PayloadField = JsonField<JobValues>;
+
 const props = defineProps<JobMonitorRowProps<TRecord>>();
 const emit = defineEmits<{
   (event: "plan", plan: JobPlan<TRecord> | null): void;
 }>();
 
-// The fields read the job from context, so a poll that changes a reused row's
-// job reaches them: a `record` prop is read once, at setup.
-provideRecordContext(computed(() => props.job));
+const payload = computed(() =>
+  getAtPath(props.job, props.fields.payloadSource),
+);
+const values = computed<JobValues>(() => ({
+  id: props.job.id,
+  createdAt: getAtPath(props.job, props.fields.createdAtSource),
+  payload: payload.value,
+}));
+// The fields read the values from context, so a poll that changes a reused
+// row's job reaches them: a `record` prop is read once, at setup.
+provideRecordContext(values);
 const translate = useTranslate();
 const showPayload = ref(false);
 const { canAccess, isPending: isAccessPending } = useMenuAccess(
@@ -91,9 +117,7 @@ const error = computed(() =>
 const attempts = computed(() =>
   getAtPath(props.job, props.fields.attemptsSource),
 );
-const hasPayload = computed(
-  () => getAtPath(props.job, props.fields.payloadSource) != null,
-);
+const hasPayload = computed(() => payload.value != null);
 </script>
 
 <template>
@@ -120,8 +144,8 @@ const hasPayload = computed(
           })
         }}</span
       >
-      <DateField
-        :source="fields.createdAtSource"
+      <CreatedAtField
+        source="createdAt"
         show-time
         class="text-muted-foreground"
       />
@@ -174,9 +198,9 @@ const hasPayload = computed(
     >
       {{ error }}
     </p>
-    <JsonField
+    <PayloadField
       v-if="hasPayload && showPayload"
-      :source="fields.payloadSource"
+      source="payload"
       class="overflow-x-auto rounded-md bg-muted p-2 text-xs"
     />
   </li>

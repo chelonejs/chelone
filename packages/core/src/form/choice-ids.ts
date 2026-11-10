@@ -6,7 +6,7 @@ import { identifiersOf } from "../resource/identifier";
  * A member that is not an {@link Identifier} is skipped, and anything that is
  * not an array is no ids.
  */
-// type-escape: the value a `source` read hands over, which no record type pins
+// type-escape: context: the value a `source` read hands over, which no record type pins
 export function toIdentifierList(value: unknown): Identifier[] {
   return identifiersOf(value);
 }

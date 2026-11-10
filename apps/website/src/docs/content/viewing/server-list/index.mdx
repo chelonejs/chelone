@@ -1,0 +1,185 @@
+---
+title: "Server list"
+description: "A list that renders in a React Server Component from one loaded page, with sort and page links instead of client state."
+registry: "server-list"
+---
+
+`<ServerList>` renders one page of records as a table in a React Server
+Component. Its state lives in the URL: a sortable header and the previous and
+next buttons are links to a new URL, and the server renders the page that URL
+names. It ships in the `@chelone/react/rsc` entry.
+
+- `page` is what `loadServerListPage` returns: the rows, the `getList` params
+  they were fetched with, `total` or `pageInfo`, and the referenced records.
+- A column prints a [ServerTextField](/docs/viewing/server-fields) at its
+  `source`, or what its `cell` function returns.
+- A reference column (`reference: true`) prints the record a key of
+  `page.references` points at: its `representation` path, else its default
+  representation, else the raw id when the page holds no such record.
+- `rowActions` renders in a last cell of each row.
+- An empty page prints `chelone.navigation.no_results`. Past the last page,
+  previous links back to the last page that holds records.
+- The URL holds one sort, so a page link under a multi-key sort leaves the
+  sort out, and the loader's `sort` option applies on the next page too.
+
+The links render the router adapter's `Link` under a `RouterAdapterProvider`,
+so a click is a client navigation, and a plain `<a href>` with none. Either
+way the server markup holds the `href`, so the links work before hydration.
+One provider in a layout covers every server list below it. In TanStack Start,
+a layout route such as `routes/rsc.tsx` holds it for every `/rsc` route.
+
+## With TanStack Start
+
+A server function loads the page from the route's query string and returns
+the list as a composite component. `rowActions` is a function prop, so
+`createCompositeComponent` turns it into a client slot: the server leaves a
+placeholder in each row, and the route fills it with the record.
+
+```tsx
+import { loadServerListPage } from "@chelone/core";
+import { Link, RouterAdapterProvider } from "@chelone/react";
+import { ServerList } from "@chelone/react/rsc";
+import { tanstackHostRouterAdapter } from "@chelone/react/tanstack-router";
+import { QueryClient } from "@tanstack/query-core";
+import { createFileRoute } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import {
+  CompositeComponent,
+  createCompositeComponent,
+} from "@tanstack/react-start/rsc";
+import type { ReactNode } from "react";
+
+const getPostsList = createServerFn({ method: "GET" })
+  .validator((search: string) => search)
+  .handler(async ({ data: search }) => {
+    const page = await loadServerListPage(
+      { dataProvider, queryClient: new QueryClient() },
+      "posts",
+      { search, references: { author_id: "authors" } },
+    );
+    return createCompositeComponent(
+      (props: { rowActions: (post: Post) => ReactNode }) => (
+        <ServerList
+          page={page}
+          path="/posts"
+          columns={[
+            { source: "title", label: "Title", sortable: true },
+            {
+              source: "author_id",
+              label: "Author",
+              reference: true,
+              representation: "name",
+            },
+            { source: "views", label: "Views", sortable: true },
+          ]}
+          rowActions={props.rowActions}
+        />
+      ),
+    );
+  });
+
+export const Route = createFileRoute("/posts/")({
+  loaderDeps: ({ search }) => ({ search }),
+  loader: ({ location }) => getPostsList({ data: location.searchStr }),
+  component: PostsPage,
+});
+
+function PostsPage() {
+  return (
+    <RouterAdapterProvider adapter={tanstackHostRouterAdapter}>
+      <CompositeComponent
+        src={Route.useLoaderData()}
+        rowActions={(post: Post) => (
+          <Link to={`/posts/${post.id}`}>Edit</Link>
+        )}
+      />
+    </RouterAdapterProvider>
+  );
+}
+```
+
+## Filters and row deletes
+
+Two parts run on the client and hand back to the server. Both need a
+`RouterAdapterProvider` above them and import no router package, so one file
+serves every host.
+
+`<ServerListFilters>` is a filter bar. Its props are plain data, so a server
+component passes them: the list's `path`, the page's `params`, and `filters`,
+each `{ source, label, choices? }`. A filter is a text input, or a select when
+it has `choices`, prefilled from `params.filter`. A submit navigates to `path`
+with the new filter on page 1, keeping the sort and perPage. An emptied input
+drops its key, and a filter with no input in the bar is kept. A choice's `id`
+is what the filter sends, as the type it was given. It needs client
+JavaScript: the URL holds the filter as JSON, which a plain GET form cannot
+send.
+
+```tsx
+<ServerListFilters
+  path="/posts"
+  params={page.params}
+  filters={[
+    { source: "title", label: "Title" },
+    {
+      source: "status",
+      label: "Status",
+      choices: [
+        { id: "draft", name: "Draft" },
+        { id: "published", name: "Published" },
+      ],
+    },
+  ]}
+/>
+```
+
+`<ServerListDeleteButton>` goes in `rowActions`. A click asks to confirm
+inline. Confirm awaits `onDelete(id)`, your server function, and then asks the
+router to run the route's loader again, so the server renders the page without
+the row. Both buttons are disabled while it runs, and a rejection shows its
+message in a `role="alert"` element and revalidates nothing. `labels` replaces
+the English `chelone.action.delete`, `confirm` and `cancel` texts. It has no
+undo and no optimistic removal.
+
+```tsx
+rowActions={(post: Post) => (
+  <ServerListDeleteButton
+    id={post.id}
+    onDelete={(id) => deletePost({ data: id })}
+  />
+)}
+```
+
+`onDelete` is a function, so it cannot be a prop of the server component. The
+route fills `rowActions` as a client slot, as above.
+
+`renderServerComponent` returns a server component with no slot. Use it in
+place of `createCompositeComponent` for a list with no `rowActions`.
+
+A `cell` function runs on the server, between server components, so it can
+return any server markup. `source` is checked against the record's type, and a
+reference column's `source` against the keys of `page.references`, so a
+misspelled path is a type error.
+
+## What it does not do
+
+The list renders what the server loaded and keeps nothing on the client, so
+anything that needs the react-query cache stays with
+[DataTable](/docs/viewing/data-table) in a client `<List>`:
+
+- Bulk select. A follow-up may add it.
+- Undoable delete, optimistic delete, inline edit and polling. Each needs the
+  react-query cache.
+
+## Props
+
+### ServerList
+
+<PropsTable name="ServerList" />
+
+### ServerListFilters
+
+<PropsTable name="ServerListFilters" />
+
+### ServerListDeleteButton
+
+<PropsTable name="ServerListDeleteButton" />

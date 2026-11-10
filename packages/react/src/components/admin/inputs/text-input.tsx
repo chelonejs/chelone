@@ -75,8 +75,6 @@ function TextInput<
     controlSuffix,
     ...rest
   } = props;
-  // The component's own generics go to `useInput`, so a wrapper can hand
-  // `<TextInput>` the `SourceProp<TRecord>` it holds.
   const { id, field, fieldState, isRequired } = useInput<TRecord, TPath>(props);
   const translate = useTranslate();
 

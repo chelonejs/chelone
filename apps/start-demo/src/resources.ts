@@ -1,7 +1,8 @@
 /**
- * The two resources this app routes by hand. `posts` points at a Zod schema, as
- * in `apps/demo`, so its `Edit` form validates from the registry; `comments`
- * carries no schema.
+ * The resources this app reads. `posts` points at a Zod schema, as in
+ * `apps/demo`, so its `Edit` form validates from the registry; `comments` and
+ * `authors` carry none. The admin routes `posts` and `comments` by hand, and
+ * `/rsc/posts` reads `authors` for its author column.
  *
  * The mix is load-bearing, not a shortcut: `AnySourcePath` — what every
  * `source` prop falls back to for a loose record — is `string` only while some
@@ -26,6 +27,7 @@ export const postSchema = z.object({
 export const resources = defineResources({
   posts: { schema: postSchema },
   comments: {},
+  authors: {},
 });
 
 /** The registry this app registers, for typing the router context's provider. */

@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "source",
-      "type": "SourceProp<RecordType>",
+      "type": "TPath",
       "optional": false,
       "comment": ""
     },

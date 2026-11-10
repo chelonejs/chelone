@@ -1,22 +1,12 @@
-<script lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
-import type {
-  LooseRecord,
-  ResourceRecord,
-  SourceProp,
-} from "@chelone/core";
+<script lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
+import type { LooseRecord, SourceProp } from "@chelone/core";
 
-/**
- * Props for {@link TextInput}.
- *
- * The record is a type parameter so a generic wrapper can hand `<TextInput>` the
- * `SourceProp<TRecord>` it holds, as `<InPlaceEditor>` does. It stays a
- * `ResourceRecord`, which is what keeps a bare `source="nope"` checked against
- * the registered paths instead of inferring a record that has it.
- */
+/** Props for {@link TextInput}. */
 export interface TextInputProps<
-  RecordType extends ResourceRecord = LooseRecord,
+  RecordType = LooseRecord,
+  TPath extends SourceProp<RecordType> = SourceProp<RecordType>,
 > {
-  source: SourceProp<RecordType>;
+  source: TPath;
   label?: string | false;
   type?: string;
   defaultValue?: string;
@@ -33,7 +23,7 @@ export interface TextInputProps<
 }
 </script>
 
-<script setup lang="ts" generic="RecordType extends ResourceRecord = LooseRecord">
+<script setup lang="ts" generic="RecordType = LooseRecord, TPath extends SourceProp<RecordType> = SourceProp<RecordType>">
 /**
  * `<TextInput>` — single-line text input, the Vue analog of `@chelone/react`'s
  * `inputs/text-input.tsx`. Binds ONE field via `useInput` (Task 6) and renders
@@ -54,7 +44,7 @@ import Input from "../../ui/input.vue";
 import ValidationError from "../common/validation-error.vue";
 import { humanizeSource } from "./label-text";
 
-const props = withDefaults(defineProps<TextInputProps<RecordType>>(), {
+const props = withDefaults(defineProps<TextInputProps<RecordType, TPath>>(), {
   label: undefined,
 });
 

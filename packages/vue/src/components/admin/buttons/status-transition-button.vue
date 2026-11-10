@@ -1,14 +1,13 @@
-<script lang="ts" generic="TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>">
+<script lang="ts" generic="TRecord extends ResourceRecord = RegisteredAnyRecord">
 import type {
   MutationMode,
-  RegisteredRecord,
-  RegisteredResourceName,
+  RegisteredAnyRecord,
   ResourceRecord,
 } from "@chelone/core";
 
 /** Props for {@link StatusTransitionButton}. */
 export interface StatusTransitionButtonProps<
-  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
+  TRecord extends ResourceRecord = RegisteredAnyRecord,
 > {
   /** Record field holding the status, a top-level key. Default `"status"`. */
   source?: keyof TRecord & string;
@@ -31,7 +30,7 @@ export interface StatusTransitionButtonProps<
 }
 </script>
 
-<script setup lang="ts" generic="TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = RegisteredAnyRecord">
 /**
  * `<StatusTransitionButton>` — a menu of the states the record in view may move
  * to next. The Vue twin of `@chelone/react`'s

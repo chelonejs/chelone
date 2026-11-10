@@ -13,6 +13,7 @@ import { describe, expectTypeOf, it } from "vitest";
 import { z } from "zod";
 import { createResourceComponentsOf } from "../../../create-resource-components";
 import type FileInput from "./file-input.vue";
+import type PasswordInput from "./password-input.vue";
 import type RatingInput from "./rating-input.vue";
 import type ResettableTextInput from "./resettable-text-input.vue";
 import type SubscriptionPlanPicker from "./subscription-plan-picker.vue";
@@ -143,5 +144,25 @@ describe("the posts members of the currency, rating, duration, plan and webhook 
     posts.SubscriptionPlanPicker({ source: "plna", plans: [] });
     // @ts-expect-error `hok` is no path of a post
     posts.WebhookEndpointInput({ source: "hok", eventTypes: [] });
+  });
+});
+
+describe("a form whose fields belong to no resource", () => {
+  interface Credentials {
+    email: string;
+    password: string;
+  }
+
+  it("TextInput and PasswordInput take a source of the form's own values", () => {
+    type TextProps = Parameters<typeof TextInput<Credentials>>[0];
+    type PasswordProps = Parameters<typeof PasswordInput<Credentials>>[0];
+    expectTypeOf<TextProps["source"]>().toEqualTypeOf<
+      SourceProp<Credentials>
+    >();
+    expectTypeOf<PasswordProps["source"]>().toEqualTypeOf<
+      SourceProp<Credentials>
+    >();
+    expectTypeOf<"email">().toExtend<TextProps["source"]>();
+    expectTypeOf<"nope">().not.toExtend<TextProps["source"]>();
   });
 });
