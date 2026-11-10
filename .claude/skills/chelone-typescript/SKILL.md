@@ -15,9 +15,9 @@ Write the exact type, even when it costs a generic, an overload or a type test. 
 |---|---|
 | `any`, `as any` | Never. The one existing site (`genericMemo`) is a known TypeScript limit with a comment saying so. |
 | `x as unknown as T`, `x as never` | Never. Fix the type that made the cast necessary, even when that is a bigger change than the ticket looked like. |
-| `x as T` | Only for an honest narrowing the compiler cannot see, with a `// type-escape: <why>` comment saying why it holds. A narrowing it can see is a type guard or a discriminant check. |
+| `x as T` | Only for an honest narrowing the compiler cannot see, with a `// type-escape: <label>: <why>` comment saying why it holds. A narrowing it can see is a type guard or a discriminant check. |
 | A cast from an `unknown` value, or to a function taking `unknown` | Never, comment or not. It is `as unknown as` split across two statements. Keep the value typed, or narrow it with a type guard. |
-| `x!` | Only where a `// type-escape: <why>` comment proves the value exists. Otherwise handle the missing case. |
+| `x!` | Only where a `// type-escape: <label>: <why>` comment proves the value exists. Otherwise handle the missing case. |
 | `unknown` | Only at a real boundary: raw JSON from a server, a `catch` binding, a type guard's input, an app's opaque `meta` bag, a generic's default or constraint (`<TRecord = unknown>`), or a function's input when the signature declares a concrete return type (`function parse(value: unknown): string`, and a type parameter isn't one). Everywhere else the type is knowable, so write it. |
 | `Record<string, unknown>` and aliases of it | Not a record type. A record is the registered record or a generic the caller fixes. |
 | `LooseRecord` | The fallback for an app that registered nothing, so a record generic's default and never its bound: `TRecord extends ResourceRecord = LooseRecord`. An interface has no index signature, so a `LooseRecord` bound or prop refuses it. Never a shortcut for "some record": a component that handles records takes `TRecord` instead. |
@@ -88,6 +88,7 @@ A type change ships with a type test. Type tests are `*.test-d.ts` files run by 
 
 `pnpm check:type-escapes` (in CI and the pre-push hook) counts every escape per file and kind: double casts, casts from `unknown`, `as never`, `as any`, other casts, `!`, `any`, `unknown` (not a type guard's input, a `catch` binding, a conditional check, a type parameter's default or constraint, or a parameter of a function with a body and a concrete declared return type, which a type parameter isn't) and `@ts-ignore` (and `@ts-expect-error` outside tests). It fails when any count is higher than the same file's count where the branch left `origin/main` (CI compares with `main` as the pull request merges into it).
 
-- New escape: write the exact type instead. When an escape is honest (the bar above allows it), put `// type-escape: <why>` on its line or the line above, and it is not counted.
+- New escape: write the exact type instead. When an escape is honest (the bar above allows it), put `// type-escape: <label>: <why>` on its line or the line above, and it is not counted.
+- The label names the boundary the escape sits at, one of `json`, `dom`, `server`, `schema`, `context`, `builder`, `form-core`, `filter-value`, `prop` (a Vue runtime prop's `PropType` cast) or `overload` (an overload's implementation signature). A comment with no label fails in any production file, whatever main holds. In `packages/*/src/form`, `packages/react/src/form-hooks.ts` and both adapters' `components/admin/inputs`, every escape carries a labelled comment, so there an uncommented one fails too.
 - A cast from `unknown` is counted with or without that comment. Finding one needs the checker, so the pre-push hook skips it and CI runs it. In a `.vue` file only the cast to a function is seen.
 - Removed escapes pass, and there is no baseline file to update.
