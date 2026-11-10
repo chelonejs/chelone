@@ -276,7 +276,7 @@ function AdminShell() {
 }
 ```
 
-- `src/routes/admin/posts.tsx` and `src/routes/admin/posts/$id.tsx` render
+- `src/routes/admin/posts/index.tsx` and `src/routes/admin/posts/$id.tsx` render
   `List` and `Edit`, and each can export a loader that prefetches its data.
 - `requireAuthBeforeLoad` throws a redirect to `/login` before the route renders,
   so no loader runs for a logged-out visitor.
@@ -469,12 +469,19 @@ import { serverContext } from "./server-context";
 export default async function PostsPage({
   searchParams,
 }: {
-  searchParams: Promise<Record<string, string>>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const search = new URLSearchParams(await searchParams).toString();
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(await searchParams)) {
+    for (const item of [value ?? []].flat()) search.append(key, item);
+  }
   const ctx = serverContext();
   await ctx.queryClient.ensureQueryData(
-    getListOptions(ctx, "posts", listFetchParams(ctx, "posts", {}, search)),
+    getListOptions(
+      ctx,
+      "posts",
+      listFetchParams(ctx, "posts", {}, search.toString()),
+    ),
   );
   return (
     <HydrationBoundary state={dehydrate(ctx.queryClient)}>
