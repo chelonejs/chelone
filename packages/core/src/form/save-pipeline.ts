@@ -41,15 +41,13 @@ export function sanitizeEmptyValues<TValues>(
   record?: object,
 ): TValues {
   if (typeof values !== "object" || values === null) return values;
-  return buildObject<TValues & object>(
-    Object.entries(values).flatMap(([key, value]) =>
-      isEmptyValue(value)
-        ? record && key in record
-          ? [[key, null] as const]
-          : []
-        : [[key, value] as const],
-    ),
-  );
+  // type-escape: builder: each pair holds whatever value the form held
+  const entries: Array<readonly [string, unknown]> = [];
+  for (const [key, value] of Object.entries(values)) {
+    if (!isEmptyValue(value)) entries.push([key, value]);
+    else if (record && key in record) entries.push([key, null]);
+  }
+  return buildObject<TValues & object>(entries);
 }
 
 export interface ComposeFormValidatorConfig<TFormData> {
