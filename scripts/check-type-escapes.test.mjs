@@ -120,8 +120,48 @@ test("an escape with no comment fails in the form layer, whatever main holds", (
   ]);
 });
 
-test("outside the form layer a plain type-escape comment still passes", () => {
-  assert.deepEqual(fileSites("packages/react/src/components/rsc/read-field-value.ts", `// type-escape: a context cannot carry the record type\n${cast}`), []);
+test("a comment with no label fails outside the form layer even when the base has it", () => {
+  // `fileSites` is handed no base: the label rule reads none, in the form layer or out of it.
+  assert.deepEqual(
+    asks("packages/react/src/components/rsc/read-field-value.ts", `// type-escape: implementation signature; the overload above states the type\n${cast}`),
+    [{ line: 1, kind: "unlabelled", at: "comment" }],
+  );
+  assert.deepEqual(
+    asks(
+      "packages/vue/src/components/admin/view/labeled.vue",
+      '<script setup lang="ts">\n// type-escape: Vue\'s documented way to type a runtime prop.\nconst value = record as Post;\n</script>\n',
+    ),
+    [{ line: 2, kind: "unlabelled", at: "comment" }],
+  );
+});
+
+test("a labelled comment outside the form layer passes", () => {
+  assert.deepEqual(fileSites("packages/react/src/components/rsc/read-field-value.ts", `// type-escape: context: a context cannot carry the record type\n${cast}`), []);
+});
+
+test("a prop label and an overload label pass", () => {
+  assert.deepEqual(
+    fileSites(
+      "packages/vue/src/components/admin/view/labeled.vue",
+      '<script setup lang="ts">\n// type-escape: prop: Vue\'s documented way to type a runtime prop.\nconst value = record as Post;\n</script>\n',
+    ),
+    [],
+  );
+  assert.deepEqual(
+    fileSites("packages/react/src/components/rsc/read-field-value.ts", `// type-escape: overload: the implementation signature; the overload above states the type\n${cast}`),
+    [],
+  );
+});
+
+test("an uncommented escape outside the form layer is still compared with its base", () => {
+  // Out of the form layer a comment is not asked for: only one that is there must name a boundary.
+  assert.deepEqual(fileSites("packages/react/src/components/rsc/read-field-value.ts", cast), [{ line: 1, kind: "cast" }]);
+});
+
+test("a test file's unlabelled comment is not reported", () => {
+  const text = "// type-escape: the guard narrows a value the compiler sees only as `unknown`\n" + cast;
+  assert.deepEqual(fileSites("packages/core/src/form/input-binding.test.ts", text), []);
+  assert.deepEqual(fileSites("packages/core/src/resource/register.test-d.ts", text), []);
 });
 
 test("a test file in the form layer needs no label", () => {

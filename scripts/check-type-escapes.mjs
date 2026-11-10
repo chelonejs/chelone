@@ -4,15 +4,19 @@
 // <script> blocks), so the count does not move when unrelated lines do.
 //
 // A site is not counted when its line, or the line above, carries a
-// `// type-escape: <why>` comment. That is the way to add a justified escape.
+// `// type-escape: <label>: <why>` comment. That is the way to add a justified escape.
+//
+// The comment names the boundary the escape sits at in every production file the script reads, form layer or
+// not: <label> is one of `json`, `dom`, `server`, `schema`, `context`, `builder`, `form-core`, `filter-value`,
+// `prop`, `overload`. A comment with no label fails whatever the base holds. A test file is exempt.
 //
 // In the form layer (`packages/*/src/form`, `packages/react/src/form-hooks.ts` and both adapters'
-// `components/admin/inputs`) the comment names the boundary the escape sits at:
-// `// type-escape: <label>: <why>`, with <label> one of `json`, `dom`, `server`, `schema`, `context`, `builder`,
-// `form-core`, `filter-value`. There an escape with no comment and a comment with no label both fail whatever the
-// base holds: the rule reads no base, and the base tree is read under it too, so the count comparison cannot
-// enforce a label. `unknown-cast` and `loose-bound` are asked for none, since no comment excuses them, and an
-// `unknown` the script already treats as honest is never a site to begin with.
+// `components/admin/inputs`) every escape carries such a comment, so there an escape with no comment fails
+// whatever the base holds too. Outside the form layer an escape with no comment stays counted against the base
+// as it has always been: only the comment's label is absolute. Either way the rule reads no base, and the base
+// tree is read under it too, so the count comparison cannot enforce a label. `unknown-cast` and `loose-bound`
+// are asked for none, since no comment excuses them, and an `unknown` the script already treats as honest is
+// never a site to begin with.
 //
 // `unknown-cast` is the exception: a cast from an `unknown` value, `(meta ?? {}) as T` included,
 // or to a function taking `unknown`. It is a double cast split across two statements, so no comment
@@ -50,12 +54,25 @@ const JUSTIFIED = /\/\/\s*type-escape:\s*\S/;
 // @ts-expect-error is how a type test proves a call fails, so it is only counted outside tests.
 const TEST_FILE = /\.(test|spec)\.|\.test-d\.tsx?$|\/(__tests__|__fixtures__|e2e)\//;
 
-// The boundaries an escape in the form layer names, in `// type-escape: <label>: <why>`.
-export const LABELS = ["json", "dom", "server", "schema", "context", "builder", "form-core", "filter-value"];
+// The boundaries a `// type-escape:` comment names, in `// type-escape: <label>: <why>`: `prop` for a Vue
+// runtime prop's `PropType` cast, `overload` for an overload's implementation signature.
+export const LABELS = [
+  "json",
+  "dom",
+  "server",
+  "schema",
+  "context",
+  "builder",
+  "form-core",
+  "filter-value",
+  "prop",
+  "overload",
+];
 const LABELLED = new RegExp(`\\/\\/\\s*type-escape:\\s*(?:${LABELS.join("|")}):\\s*\\S`);
 // The form layer, where every escape names its boundary. Production files only: a test file stays exempt.
 const FORM_LAYER = /^packages\/(core|react|vue)\/src\/(?:form\/|form-hooks\.ts$|components\/admin\/inputs\/)/;
-// A form-layer site that names no boundary. Reported whatever the base holds, and never counted as an escape kind.
+// A `// type-escape:` comment that names no boundary, or a form-layer escape carrying no comment at all.
+// Reported whatever the base holds, and never counted as an escape kind.
 const UNLABELLED = "unlabelled";
 
 const byCodeUnit = (x, y) => (x < y ? -1 : x > y ? 1 : 0);
@@ -209,8 +226,9 @@ export function fileSites(file, text) {
   const lines = text.split("\n");
   const on = (line, pattern) => pattern.test(lines[line - 1] ?? "") || pattern.test(lines[line - 2] ?? "");
   const justified = (line) => on(line, JUSTIFIED);
-  // In the form layer only a labelled comment excuses a site, and an unlabelled one is itself a failure.
-  const formLayer = FORM_LAYER.test(file) && !TEST_FILE.test(file);
+  const production = !TEST_FILE.test(file);
+  // In the form layer only a labelled comment excuses a site, and an escape with no comment is itself a failure.
+  const formLayer = FORM_LAYER.test(file) && production;
   const excused = (line) => (formLayer ? on(line, LABELLED) : justified(line));
   for (const block of scripts(file, text)) {
     const source = ts.createSourceFile(file, block.text, ts.ScriptTarget.Latest, true, block.kind);
@@ -238,7 +256,8 @@ export function fileSites(file, text) {
     if (!excused(index + 1)) sites.push({ line: index + 1, kind: "ts-comment" });
     if (formLayer && !justified(index + 1)) sites.push({ line: index + 1, kind: UNLABELLED, at: "ts-comment" });
   });
-  if (formLayer) {
+  // A `// type-escape:` comment names its boundary in every production file, form layer or not.
+  if (production) {
     lines.forEach((content, index) => {
       if (JUSTIFIED.test(content) && !LABELLED.test(content)) sites.push({ line: index + 1, kind: UNLABELLED, at: "comment" });
     });
@@ -364,7 +383,7 @@ function main() {
 
   if (unlabelled.length > 0) {
     console.error(
-      `Unlabelled type escapes in the form layer. Every escape in \`packages/*/src/form\`, \`packages/react/src/form-hooks.ts\` and both adapters' \`components/admin/inputs\` carries a \`// type-escape: <label>: <why>\` comment naming the boundary it sits at, with <label> one of:\n  ${LABELS.join(", ")}\n`,
+      `Unlabelled type escapes. Every \`// type-escape:\` comment in a production file names the boundary its escape sits at, as \`// type-escape: <label>: <why>\`, with <label> one of:\n  ${LABELS.join(", ")}\nIn \`packages/*/src/form\`, \`packages/react/src/form-hooks.ts\` and both adapters' \`components/admin/inputs\` every escape carries such a comment.\n`,
     );
     for (const site of unlabelled) {
       const at = site.at === "comment" ? "comment names no boundary" : `${site.at} with no labelled comment`;
@@ -374,7 +393,7 @@ function main() {
 
   if (added.length > 0) {
     console.error(
-      "New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. In the form layer the comment names its boundary: `// type-escape: <label>: <why>`, with <label> one of json, dom, server, schema, context, builder, form-core, filter-value. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard. A `LooseRecord` bound takes none either: bound the type parameter on `ResourceRecord`.\n",
+      `New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a \`// type-escape: <label>: <why>\` comment naming its boundary, with <label> one of ${LABELS.join(", ")}. In \`packages/*/src/form\`, \`packages/react/src/form-hooks.ts\` and both adapters' \`components/admin/inputs\` every escape carries one. A cast from \`unknown\` takes no comment: keep the value typed, or narrow it with a type guard. A \`LooseRecord\` bound takes none either: bound the type parameter on \`ResourceRecord\`.\n`,
     );
     for (const { file, kind, found, allowed } of added) {
       console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
