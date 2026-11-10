@@ -116,7 +116,7 @@ test("an escape with no comment fails in the form layer, whatever main holds", (
   // `fileSites` is handed no base: the label rule is absolute, so the count comparison cannot stand in for it.
   assert.deepEqual(fileSites("packages/react/src/form/filter-live-form.tsx", cast), [
     { line: 1, kind: "cast" },
-    { line: 1, kind: "unlabelled", at: "cast" },
+    { line: 1, kind: "unlabelled", at: "cast", start: 21 },
   ]);
 });
 
@@ -138,7 +138,21 @@ test("a cast from unknown is not asked for a label", () => {
   assert.deepEqual(sites.filter((site) => site.kind === "unlabelled"), []);
   // The checker's half: a cast whose operand it reads as `unknown`.
   const file = "packages/core/src/form/json-text.ts";
-  assert.deepEqual(dropUnknownAsks([{ file, line: 4, kind: "unlabelled", at: "cast" }], [{ file, line: 4, kind: "unknown-cast" }]), []);
+  assert.deepEqual(dropUnknownAsks([{ file, line: 4, kind: "unlabelled", at: "cast", start: 60 }], [{ file, line: 4, kind: "unknown-cast", start: 60 }]), []);
+});
+
+test("a cast from unknown does not excuse another escape on its line", () => {
+  const file = "packages/core/src/form/json-text.ts";
+  const text = "export const title = (raw as Post).title!;\n";
+  const asks = fileSites(file, text).filter((site) => site.kind === "unlabelled");
+  const [cast, nonNull] = [text.indexOf("raw"), text.indexOf("(raw")];
+  assert.deepEqual(asks.map((site) => [site.at, site.start]), [
+    ["non-null", nonNull],
+    ["cast", cast],
+  ]);
+  const unknownCast = { file, line: 1, kind: "unknown-cast", start: cast };
+  const kept = dropUnknownAsks(asks.map((site) => ({ file, ...site })), [unknownCast]);
+  assert.deepEqual(kept.map((site) => site.at), ["non-null"]);
 });
 
 test("an honest unknown needs no comment", () => {

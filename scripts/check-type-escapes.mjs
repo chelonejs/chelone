@@ -217,14 +217,16 @@ export function fileSites(file, text) {
     const visit = (node) => {
       const kind = classify(node);
       if (kind) {
-        const line = block.line0 + source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
+        const start = node.getStart(source);
+        const line = block.line0 + source.getLineAndCharacterOfPosition(start).line + 1;
         // A cast to a function taking `unknown` is a cast from `unknown` split in two: counted comment or not.
         const fromUnknown = kind === "cast" && castsToUnknownParameter(node.type);
         // A bound is a shape every caller answers for, not an escape a comment can excuse.
         if (kind === "loose-bound" || !excused(line)) sites.push({ line, kind });
         if (fromUnknown) sites.push({ line, kind: "unknown-cast" });
-        // A label is asked only of an escape a comment could excuse.
-        if (formLayer && kind !== "loose-bound" && !fromUnknown && !justified(line)) sites.push({ line, kind: UNLABELLED, at: kind });
+        // A label is asked only of an escape a comment could excuse. `start` is what pairs the ask with the
+        // checker's `unknown-cast` for the same node, so a shared line cannot excuse two escapes at once.
+        if (formLayer && kind !== "loose-bound" && !fromUnknown && !justified(line)) sites.push({ line, kind: UNLABELLED, at: kind, start });
       }
       ts.forEachChild(node, visit);
     };
@@ -254,10 +256,13 @@ function readEscapes(tree) {
   return [...dropUnknownAsks(sites, unknownCasts), ...unknownCasts];
 }
 
-/** A cast the checker read as starting from `unknown` is an `unknown-cast`: no comment excuses it, so no label is asked for it. */
+/**
+ * A cast the checker read as starting from `unknown` is an `unknown-cast`: no comment excuses it, so no label is
+ * asked for it. The pair is the cast node's position, not its line, so another escape sharing the line keeps its ask.
+ */
 export const dropUnknownAsks = (sites, unknownCasts) => {
-  const fromUnknown = new Set(unknownCasts.map((site) => `${site.file}:${site.line}`));
-  return sites.filter((site) => site.kind !== UNLABELLED || !fromUnknown.has(`${site.file}:${site.line}`));
+  const fromUnknown = new Set(unknownCasts.map((site) => `${site.file}:${site.start}`));
+  return sites.filter((site) => site.kind !== UNLABELLED || !fromUnknown.has(`${site.file}:${site.start}`));
 };
 
 /** Casts whose operand the checker reads as `unknown`, in each package's production code. */
@@ -278,8 +283,9 @@ function readUnknownCasts(tree) {
       if (!rel.startsWith(`packages/${entry.name}/src/`) || TEST_FILE.test(rel) || source.isDeclarationFile) continue;
       const visit = (node) => {
         if (classify(node) === "cast" && startsFromUnknown(node, checker)) {
-          const line = source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
-          sites.push({ file: rel, line, kind: "unknown-cast" });
+          const start = node.getStart(source);
+          const line = source.getLineAndCharacterOfPosition(start).line + 1;
+          sites.push({ file: rel, line, kind: "unknown-cast", start });
         }
         ts.forEachChild(node, visit);
       };
