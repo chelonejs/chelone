@@ -118,6 +118,31 @@ it("the page carries every twoslash block it promises", () => {
   }
 });
 
+/** The text of the `## <heading>` section, up to the next `##`. */
+function section(heading: string): string {
+  const start = page.indexOf(`## ${heading}`);
+  if (start === -1) throw new Error(`no "## ${heading}" on the page`);
+  const next = page.indexOf("\n## ", start + 1);
+  return page.slice(start, next === -1 ? page.length : next);
+}
+
+it("the bare components section sends values that are no resource to the forms section", () => {
+  const text = section("Bare components");
+  expect(text).toContain(
+    "](/docs/type-safety/typed-components#forms-with-their-own-values)",
+  );
+  expect(text.replace(/\s+/g, " ")).toContain("no registered resource");
+});
+
+it("the page names the escape for a reference built from a runtime string", () => {
+  const text = section("Bare components").replace(/\s+/g, " ");
+  expect(text).toContain("runtime string");
+  expect(text).toContain("<LooseRecord, ResourceMap>");
+  expect(names(page, "ResourceMap"), "ResourceMap on the widening page").toBe(
+    true,
+  );
+});
+
 it("the page names the type cost tooling and gives no figure", () => {
   const cost = page.slice(page.indexOf("## Editor performance and type cost"));
   expect(cost.length).toBeGreaterThan(0);
