@@ -6,6 +6,14 @@
 // A site is not counted when its line, or the line above, carries a
 // `// type-escape: <why>` comment. That is the way to add a justified escape.
 //
+// In the form layer (`packages/*/src/form`, `packages/react/src/form-hooks.ts` and both adapters'
+// `components/admin/inputs`) the comment names the boundary the escape sits at:
+// `// type-escape: <label>: <why>`, with <label> one of `json`, `dom`, `server`, `schema`, `context`, `builder`,
+// `form-core`, `filter-value`. There an escape with no comment and a comment with no label both fail whatever the
+// base holds: the rule reads no base, and the base tree is read under it too, so the count comparison cannot
+// enforce a label. `unknown-cast` and `loose-bound` are asked for none, since no comment excuses them, and an
+// `unknown` the script already treats as honest is never a site to begin with.
+//
 // `unknown-cast` is the exception: a cast from an `unknown` value, `(meta ?? {}) as T` included,
 // or to a function taking `unknown`. It is a double cast split across two statements, so no comment
 // excuses it. Finding it needs the checker, so it reads each package's program, and a tree with no
@@ -41,6 +49,14 @@ export const SKIP = /(^|\/)(node_modules|dist|build|coverage|\.react-router|\.tu
 const JUSTIFIED = /\/\/\s*type-escape:\s*\S/;
 // @ts-expect-error is how a type test proves a call fails, so it is only counted outside tests.
 const TEST_FILE = /\.(test|spec)\.|\.test-d\.tsx?$|\/(__tests__|__fixtures__|e2e)\//;
+
+// The boundaries an escape in the form layer names, in `// type-escape: <label>: <why>`.
+export const LABELS = ["json", "dom", "server", "schema", "context", "builder", "form-core", "filter-value"];
+const LABELLED = new RegExp(`\\/\\/\\s*type-escape:\\s*(?:${LABELS.join("|")}):\\s*\\S`);
+// The form layer, where every escape names its boundary. Production files only: a test file stays exempt.
+const FORM_LAYER = /^packages\/(core|react|vue)\/src\/(?:form\/|form-hooks\.ts$|components\/admin\/inputs\/)/;
+// A form-layer site that names no boundary. Reported whatever the base holds, and never counted as an escape kind.
+const UNLABELLED = "unlabelled";
 
 const byCodeUnit = (x, y) => (x < y ? -1 : x > y ? 1 : 0);
 
@@ -191,16 +207,24 @@ export function classify(node) {
 export function fileSites(file, text) {
   const sites = [];
   const lines = text.split("\n");
-  const justified = (line) => JUSTIFIED.test(lines[line - 1] ?? "") || JUSTIFIED.test(lines[line - 2] ?? "");
+  const on = (line, pattern) => pattern.test(lines[line - 1] ?? "") || pattern.test(lines[line - 2] ?? "");
+  const justified = (line) => on(line, JUSTIFIED);
+  // In the form layer only a labelled comment excuses a site, and an unlabelled one is itself a failure.
+  const formLayer = FORM_LAYER.test(file) && !TEST_FILE.test(file);
+  const excused = (line) => (formLayer ? on(line, LABELLED) : justified(line));
   for (const block of scripts(file, text)) {
     const source = ts.createSourceFile(file, block.text, ts.ScriptTarget.Latest, true, block.kind);
     const visit = (node) => {
       const kind = classify(node);
       if (kind) {
         const line = block.line0 + source.getLineAndCharacterOfPosition(node.getStart(source)).line + 1;
+        // A cast to a function taking `unknown` is a cast from `unknown` split in two: counted comment or not.
+        const fromUnknown = kind === "cast" && castsToUnknownParameter(node.type);
         // A bound is a shape every caller answers for, not an escape a comment can excuse.
-        if (kind === "loose-bound" || !justified(line)) sites.push({ line, kind });
-        if (kind === "cast" && castsToUnknownParameter(node.type)) sites.push({ line, kind: "unknown-cast" });
+        if (kind === "loose-bound" || !excused(line)) sites.push({ line, kind });
+        if (fromUnknown) sites.push({ line, kind: "unknown-cast" });
+        // A label is asked only of an escape a comment could excuse.
+        if (formLayer && kind !== "loose-bound" && !fromUnknown && !justified(line)) sites.push({ line, kind: UNLABELLED, at: kind });
       }
       ts.forEachChild(node, visit);
     };
@@ -209,8 +233,14 @@ export function fileSites(file, text) {
   lines.forEach((content, index) => {
     const comment = /\/\/\s*@ts-(ignore|nocheck|expect-error)\b/.exec(content);
     if (!comment || (comment[1] === "expect-error" && TEST_FILE.test(file))) return;
-    if (!justified(index + 1)) sites.push({ line: index + 1, kind: "ts-comment" });
+    if (!excused(index + 1)) sites.push({ line: index + 1, kind: "ts-comment" });
+    if (formLayer && !justified(index + 1)) sites.push({ line: index + 1, kind: UNLABELLED, at: "ts-comment" });
   });
+  if (formLayer) {
+    lines.forEach((content, index) => {
+      if (JUSTIFIED.test(content) && !LABELLED.test(content)) sites.push({ line: index + 1, kind: UNLABELLED, at: "comment" });
+    });
+  }
   return sites;
 }
 
@@ -220,8 +250,15 @@ function readEscapes(tree) {
     const rel = path.relative(tree, file);
     for (const site of fileSites(rel, readFileSync(file, "utf8"))) sites.push({ file: rel, ...site });
   }
-  return [...sites, ...readUnknownCasts(tree)];
+  const unknownCasts = readUnknownCasts(tree);
+  return [...dropUnknownAsks(sites, unknownCasts), ...unknownCasts];
 }
+
+/** A cast the checker read as starting from `unknown` is an `unknown-cast`: no comment excuses it, so no label is asked for it. */
+export const dropUnknownAsks = (sites, unknownCasts) => {
+  const fromUnknown = new Set(unknownCasts.map((site) => `${site.file}:${site.line}`));
+  return sites.filter((site) => site.kind !== UNLABELLED || !fromUnknown.has(`${site.file}:${site.line}`));
+};
 
 /** Casts whose operand the checker reads as `unknown`, in each package's production code. */
 function readUnknownCasts(tree) {
@@ -251,6 +288,9 @@ function readUnknownCasts(tree) {
   }
   return sites;
 }
+
+/** The counted escapes. A label complaint is reported on its own, never compared by count. */
+const counted = (sites) => sites.filter((site) => site.kind !== UNLABELLED);
 
 function countByFile(sites) {
   const counts = new Map();
@@ -285,7 +325,8 @@ function countAt(ref) {
       const modules = path.join(root, entry, "node_modules");
       if (existsSync(modules) && existsSync(path.join(dir, entry))) symlinkSync(modules, path.join(dir, entry, "node_modules"));
     }
-    return countByFile(readEscapes(dir));
+    // The base tree is read under the label rule too, so removing a label cannot show up as a count.
+    return countByFile(counted(readEscapes(dir)));
   } finally {
     git("worktree", "remove", "--force", dir);
     rmSync(dir, { recursive: true, force: true });
@@ -293,7 +334,9 @@ function countAt(ref) {
 }
 
 function main() {
-  const sites = readEscapes(root);
+  const all = readEscapes(root);
+  const unlabelled = all.filter((site) => site.kind === UNLABELLED);
+  const sites = counted(all);
   const counts = countByFile(sites);
   const base = baseRef();
   const baseline = countAt(base);
@@ -313,8 +356,20 @@ function main() {
     }
   }
 
+  if (unlabelled.length > 0) {
+    console.error(
+      `Unlabelled type escapes in the form layer. Every escape in \`packages/*/src/form\`, \`packages/react/src/form-hooks.ts\` and both adapters' \`components/admin/inputs\` carries a \`// type-escape: <label>: <why>\` comment naming the boundary it sits at, with <label> one of:\n  ${LABELS.join(", ")}\n`,
+    );
+    for (const site of unlabelled) {
+      const at = site.at === "comment" ? "comment names no boundary" : `${site.at} with no labelled comment`;
+      console.error(`  ${site.file}:${site.line}: ${at}`);
+    }
+  }
+
   if (added.length > 0) {
-    console.error("New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard. A `LooseRecord` bound takes none either: bound the type parameter on `ResourceRecord`.\n");
+    console.error(
+      "New type escapes. Write the exact type (see .claude/skills/chelone-typescript), or justify the site with a `// type-escape: <why>` comment. In the form layer the comment names its boundary: `// type-escape: <label>: <why>`, with <label> one of json, dom, server, schema, context, builder, form-core, filter-value. A cast from `unknown` takes no comment: keep the value typed, or narrow it with a type guard. A `LooseRecord` bound takes none either: bound the type parameter on `ResourceRecord`.\n",
+    );
     for (const { file, kind, found, allowed } of added) {
       console.error(`${file}: ${found} ${kind}, ${base} has ${allowed}`);
       for (const site of sites.filter((s) => s.file === file && s.kind === kind)) console.error(`  ${site.file}:${site.line}`);
@@ -325,7 +380,7 @@ function main() {
     for (const { file, kind, found, allowed } of removed) console.log(`${file}: ${found} ${kind}, ${base} had ${allowed}`);
   }
 
-  if (added.length > 0) process.exit(1);
+  if (added.length > 0 || unlabelled.length > 0) process.exit(1);
   console.log(`No new type escapes: ${sites.length} in ${counts.size} files.`);
 }
 
