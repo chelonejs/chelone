@@ -1,14 +1,13 @@
-<script lang="ts" generic="TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>">
+<script lang="ts" generic="TRecord extends ResourceRecord = RegisteredAnyRecord">
 import type {
   MutationMode,
-  RegisteredRecord,
-  RegisteredResourceName,
+  RegisteredAnyRecord,
   ResourceRecord,
 } from "@chelone/core";
 
 /** Props for {@link DualApprovalButton}. */
 export interface DualApprovalButtonProps<
-  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
+  TRecord extends ResourceRecord = RegisteredAnyRecord,
 > {
   /** Approvals needed. Floored, minimum 1. Default `2`. */
   required?: number;
@@ -31,7 +30,7 @@ export interface DualApprovalButtonProps<
 }
 </script>
 
-<script setup lang="ts" generic="TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>">
+<script setup lang="ts" generic="TRecord extends ResourceRecord = RegisteredAnyRecord">
 /**
  * `<DualApprovalButton>` — records the signed-in user as one more approver on
  * the record in view, and flips the status once `required` approvers are in.

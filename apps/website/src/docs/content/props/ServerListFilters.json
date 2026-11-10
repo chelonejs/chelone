@@ -1,0 +1,29 @@
+{
+  "name": "ServerListFilters",
+  "props": [
+    {
+      "name": "className",
+      "type": "string",
+      "optional": true,
+      "comment": "A class name to apply to the form."
+    },
+    {
+      "name": "filters",
+      "type": "ServerListFilter<RecordType>[]",
+      "optional": false,
+      "comment": ""
+    },
+    {
+      "name": "params",
+      "type": "GetListParams",
+      "optional": false,
+      "comment": "The page's params: where the inputs get their values, and the sort and perPage a submit keeps."
+    },
+    {
+      "name": "path",
+      "type": "string",
+      "optional": false,
+      "comment": "The list's pathname, as on the `<ServerList>` it filters."
+    }
+  ]
+}

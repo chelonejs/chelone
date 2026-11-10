@@ -3551,6 +3551,12 @@
       }
     }
   },
+  "server-list-delete-button": {
+    "shownBy": "server-list"
+  },
+  "server-list-filters": {
+    "shownBy": "server-list"
+  },
   "server-list-link": {
     "shownBy": "server-list"
   },

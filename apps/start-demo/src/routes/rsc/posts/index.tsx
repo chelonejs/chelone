@@ -5,14 +5,21 @@
  * a composite component. Each sort and page link is a new URL, so a click
  * re-runs the loader and the server renders the next page.
  *
- * The row actions are a client slot: the server leaves a placeholder in each
- * row, and the page fills it here.
+ * The filter bar renders in the server component too: it is a client island
+ * that takes plain data and navigates to the filtered URL. The row actions are
+ * a client slot: the server leaves a placeholder in each row, and the page
+ * fills it here with an edit link and a delete button that calls a server
+ * function and then revalidates the route. `routes/rsc.tsx` provides the router
+ * adapter both islands and the list links navigate through.
  */
 
 import { loadServerListPage } from "@chelone/core";
-import { Link as AdminLink, RouterAdapterProvider } from "@chelone/react";
-import { ServerList } from "@chelone/react/rsc";
-import { tanstackHostRouterAdapter } from "@chelone/react/tanstack-router";
+import { Link as AdminLink } from "@chelone/react";
+import {
+  ServerList,
+  ServerListDeleteButton,
+  ServerListFilters,
+} from "@chelone/react/rsc";
 import { QueryClient } from "@tanstack/query-core";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
@@ -22,8 +29,8 @@ import {
 } from "@tanstack/react-start/rsc";
 import type { ReactNode } from "react";
 import type { z } from "zod";
-import type { postSchema } from "../../../resources";
-import { serverDataProvider } from "../../../server-data";
+import { postSchema } from "../../../resources";
+import { deletePost, serverDataProvider } from "../../../server-data";
 
 type Post = z.infer<typeof postSchema>;
 
@@ -39,25 +46,53 @@ const getPostsList = createServerFn({ method: "GET" })
         references: { author_id: "authors" },
       },
     );
+    const { data: authors } = await serverDataProvider.getList("authors", {
+      sort: { field: "name", order: "ASC" },
+    });
     return createCompositeComponent(
       (props: { rowActions: (record: Post) => ReactNode }) => (
-        <ServerList
-          page={page}
-          path="/rsc/posts"
-          columns={[
-            { source: "id", label: "Id", sortable: true },
-            { source: "title", label: "Title", sortable: true },
-            {
-              source: "author_id",
-              label: "Author",
-              reference: true,
-              representation: "name",
-            },
-            { source: "views", label: "Views", sortable: true },
-            { source: "status", label: "Status" },
-          ]}
-          rowActions={props.rowActions}
-        />
+        <>
+          <ServerListFilters<Post>
+            path="/rsc/posts"
+            params={page.params}
+            filters={[
+              { source: "title", label: "Title (exact)" },
+              {
+                source: "status",
+                label: "Status",
+                choices: postSchema.shape.status.options.map((status) => ({
+                  id: status,
+                  name: status,
+                })),
+              },
+              {
+                source: "author_id",
+                label: "Author",
+                choices: authors.map(({ id, name }) => ({
+                  id,
+                  name: String(name),
+                })),
+              },
+            ]}
+          />
+          <ServerList
+            page={page}
+            path="/rsc/posts"
+            columns={[
+              { source: "id", label: "Id", sortable: true },
+              { source: "title", label: "Title", sortable: true },
+              {
+                source: "author_id",
+                label: "Author",
+                reference: true,
+                representation: "name",
+              },
+              { source: "views", label: "Views", sortable: true },
+              { source: "status", label: "Status" },
+            ]}
+            rowActions={props.rowActions}
+          />
+        </>
       ),
     );
   });
@@ -70,16 +105,20 @@ export const Route = createFileRoute("/rsc/posts/")({
 
 function PostsPage() {
   return (
-    <RouterAdapterProvider adapter={tanstackHostRouterAdapter}>
-      <main>
-        <h1>Server list</h1>
-        <CompositeComponent
-          src={Route.useLoaderData()}
-          rowActions={(post: Post) => (
+    <main>
+      <h1>Server list</h1>
+      <CompositeComponent
+        src={Route.useLoaderData()}
+        rowActions={(post: Post) => (
+          <>
             <AdminLink to={`/admin/posts/${post.id}`}>Edit</AdminLink>
-          )}
-        />
-      </main>
-    </RouterAdapterProvider>
+            <ServerListDeleteButton
+              id={post.id}
+              onDelete={(id) => deletePost({ data: id })}
+            />
+          </>
+        )}
+      />
+    </main>
   );
 }
