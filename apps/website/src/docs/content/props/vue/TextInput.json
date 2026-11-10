@@ -3,7 +3,7 @@
   "props": [
     {
       "name": "source",
-      "type": "string",
+      "type": "SourceProp<RecordType>",
       "optional": false,
       "comment": ""
     },

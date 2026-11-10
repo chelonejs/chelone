@@ -189,7 +189,9 @@ import SubscriptionPlanPicker, {
   type SubscriptionPlanPickerProps,
 } from "./components/admin/inputs/subscription-plan-picker.vue";
 import TextArrayInput from "./components/admin/inputs/text-array-input.vue";
-import TextInput from "./components/admin/inputs/text-input.vue";
+import TextInput, {
+  type TextInputProps,
+} from "./components/admin/inputs/text-input.vue";
 import TimeInput, {
   type TimeInputProps,
 } from "./components/admin/inputs/time-input.vue";
@@ -497,6 +499,7 @@ type TypedInputMembers<TRecord> = {
       VNodeProps &
       AllowedComponentProps,
   ) => VNode;
+  TextInput: GenericValueMember<TextInputProps, TRecord>;
   TimeInput: GenericValueMember<TimeInputProps, TRecord>;
   WebhookEndpointInput: <TPath extends SourceProp<TRecord>>(
     props: WebhookEndpointInputProps<TRecord, TPath> &

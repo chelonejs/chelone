@@ -27,7 +27,8 @@ describe("rating to subscription-plan input sources", () => {
   });
 
   it("the TextInput source prop is SourceProp", () => {
-    type Props = InstanceType<typeof TextInput>["$props"];
+    // A generic SFC is a function whose first parameter is its props.
+    type Props = Parameters<typeof TextInput>[0];
     expectTypeOf<Props["source"]>().toEqualTypeOf<SourceProp>();
   });
 

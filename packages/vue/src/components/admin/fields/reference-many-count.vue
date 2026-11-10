@@ -37,24 +37,25 @@ export interface ReferenceManyCountProps<RecordType extends ResourceRecord = Loo
  * renders as `0`. No `link` prop and no number formatting.
  */
 
-import { isIdentifier } from "@chelone/core";
+import { getAtPath, isIdentifier } from "@chelone/core";
 import { computed } from "vue";
 import { useGetManyReference } from "../../../data/queries";
-import { useFieldValue } from "../../../record/use-field-value";
+import { useRecordContextRef } from "../../../record/record-context";
 
 const props = defineProps<ReferenceManyCountProps<RecordType>>();
 
-// `useFieldValue` reads `record` inside its computed, so the getter makes a
-// `record` prop land live; with no prop it falls back to the ambient record,
-// which is a ref and lands live too. `source` follows deep paths, as in React.
-const fieldValue = useFieldValue<ResourceRecord>({
-  source: props.source ?? "id",
-  get record() {
-    return props.record;
-  },
-});
+// The `"id"` default is a legal path of every Chelone record, but
+// `SourceProp<RecordType>` is deferred while `RecordType` is an unresolved
+// parameter, so the default reads the record's own `id` instead of a path. With
+// a `source` the read is core's `getAtPath`, the one `useFieldValue` makes, and
+// the getter keeps a `record` prop live over the ambient ref. The guard below is
+// what makes the value an id.
+const row = useRecordContextRef(() => props.record);
+const foreignKey = computed(() =>
+  props.source === undefined ? row.value?.id : getAtPath(row.value, props.source),
+);
 const id = computed(() =>
-  isIdentifier(fieldValue.value) ? fieldValue.value : undefined,
+  isIdentifier(foreignKey.value) ? foreignKey.value : undefined,
 );
 
 const query = useGetManyReference(
