@@ -1,6 +1,6 @@
 ---
 title: "Typed components"
-description: "How a component's source narrows to one resource's record, and createResourceComponents, the factory that binds a resource into every field, input and view."
+description: "How a component's source narrows to one resource's record, what a reference's reference and target are checked against, how a form with values of its own types its inputs, and createResourceComponents, the factory that binds a resource into every field, input and view."
 ---
 
 A `source` is a path into a record. What the path may be depends on which
@@ -194,6 +194,189 @@ A `source` that is optional on a component stays optional on the member. In
 React, `ReferenceManyCount` declares `source?`, so
 `<posts.ReferenceManyCount reference="comments" target="post_id" />` compiles,
 while `<posts.TextInput />` does not.
+
+## Reference components
+
+A reference names another resource, and both halves of it are checked.
+`reference` is a name of the map: `keyof TResources & string`, which is
+`RegisteredResourceName` when the app writes no type argument. `target` is
+`ReferenceTargetOf<TResources, TReference>`, a top-level key of the record
+`reference` names, because `getManyReference` filters on one flat field. It
+follows the name, so an app with `Register` augmented writes neither type
+argument.
+
+Six components take them in both adapters, and all six are members:
+`ReferenceField`, `ReferenceOneField`, `ReferenceManyField`,
+`ReferenceArrayField`, `ReferenceInput` and `ReferenceArrayInput`. `target` is
+on `ReferenceOneField` and `ReferenceManyField`. The two inputs name the field
+on the referenced record with `lookupKey` instead, which stays a `string`
+because it is the value the form holds, not a field to filter on.
+`ReferenceManyCount` is a member too, and is the one reference component whose
+`reference` and `target` are still plain strings.
+
+<FrameworkCode>
+
+```tsx twoslash title="src/posts.tsx"
+import { defineResources } from "@chelone/core";
+import { createResourceComponents } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: {
+    schema: z.object({
+      id: z.number(),
+      title: z.string(),
+      author_id: z.number(),
+    }),
+  },
+  comments: {
+    schema: z.object({ id: z.number(), body: z.string(), post_id: z.number() }),
+  },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+const posts = createResourceComponents("posts");
+
+export const postComments = (
+  <posts.ReferenceManyField
+    source="title"
+    reference="comments"
+    target="post_id"
+  />
+);
+
+// @errors: 2820
+export const wrongName = (
+  <posts.ReferenceField source="author_id" reference="coments" />
+);
+
+// @errors: 2820
+export const wrongTarget = (
+  <posts.ReferenceOneField reference="comments" target="postid" />
+);
+```
+
+```vue title="src/PostShow.vue"
+<script setup lang="ts">
+import { createResourceComponents } from "@chelone/vue";
+
+const posts = createResourceComponents("posts");
+</script>
+
+<template>
+  <!-- reference is a registered name, target a key of that record. -->
+  <posts.ReferenceManyField reference="comments" target="post_id" />
+  <posts.ReferenceField source="author_id" reference="comments" />
+  <!-- Error: "coments" is no registered resource name. -->
+  <posts.ReferenceField source="author_id" reference="coments" />
+  <!-- Error: "postid" is no key of a comment. -->
+  <posts.ReferenceOneField reference="comments" target="postid" />
+</template>
+```
+
+</FrameworkCode>
+
+`coments` is no name of the map, and `postid` is no key of a comment, so each
+line stops at the prop that carries it. A `reference` the app builds from a
+runtime string, a config file or a URL, names the map by hand instead:
+`ReferenceField<LooseRecord, ResourceMap>` puts `string` back on both props, and
+[When Types Widen](/docs/type-safety/when-types-widen) covers that arm.
+
+## Forms with their own values
+
+A login, a search box, a settings panel: the fields collect values that belong
+to no registered resource. A bare component checks a `source` against the
+registry, so an app with a schema on every resource rejects `source="email"`.
+Type the component at the form's own values instead, and `source` is checked
+against them.
+
+`TextInput` and `PasswordInput` take the record as a generic in both adapters.
+React writes it at the call. Vue writes an instantiation expression once and
+uses the result as the component.
+
+<FrameworkCode>
+
+```tsx twoslash title="src/login.tsx"
+import { defineResources } from "@chelone/core";
+import { TextInput } from "@chelone/react";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+// ---cut---
+interface LoginValues {
+  email: string;
+  password: string;
+}
+
+export const LoginForm = () => (
+  <form>
+    <TextInput<LoginValues> source="email" />
+    <TextInput<LoginValues> source="password" type="password" />
+  </form>
+);
+
+// @errors: 2820
+export const typo = <TextInput<LoginValues> source="emial" />;
+```
+
+```vue twoslash title="src/LoginForm.vue"
+<script setup lang="ts">
+import { defineResources, type SourceProp } from "@chelone/core";
+import { TextInput } from "@chelone/vue";
+import { z } from "zod";
+
+const resources = defineResources({
+  posts: { schema: z.object({ id: z.number(), title: z.string() }) },
+});
+
+declare module "@chelone/core" {
+  interface Register {
+    resources: typeof resources;
+  }
+}
+
+interface LoginValues {
+  email: string;
+  password: string;
+}
+
+// The component, typed against the form's own values.
+const CredentialInput = TextInput<LoginValues>;
+
+// What that pins `source` to.
+type CredentialSource = SourceProp<LoginValues>;
+//    ^?
+
+// @errors: 2820
+const typo: CredentialSource = "emial";
+</script>
+
+<template>
+  <CredentialInput source="email" type="email" />
+  <CredentialInput source="password" type="password" />
+</template>
+```
+
+</FrameworkCode>
+
+`LoginValues` is an ordinary interface, not a schema: the form's values are no
+record the app reads with a data provider. `useForm<LoginValues>` takes the same
+type in both adapters, so `onSuccess` and `validate` see them too.
 
 ## Value callbacks
 
