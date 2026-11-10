@@ -46,6 +46,12 @@
     "@chelone/vue:UsePermissionsResult"
   ],
   "typed-components": [
+    "@chelone/react:ReferenceArrayField",
+    "@chelone/react:ReferenceArrayInput",
+    "@chelone/react:ReferenceField",
+    "@chelone/react:ReferenceInput",
+    "@chelone/react:ReferenceManyField",
+    "@chelone/react:ReferenceOneField",
     "@chelone/react:ResourceComponents",
     "@chelone/react:createResourceComponents",
     "@chelone/react:createResourceComponentsOf",

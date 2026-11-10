@@ -161,6 +161,22 @@ looking at. A component from the factory is checked against one record.
 [Typed components](/docs/type-safety/typed-components) covers what the factory
 hands back and how its members are retyped.
 
+Values that belong to no registered resource at all, a login form's `email` and
+`password`, are the third case. Neither arm fits them: the registry has no
+`email` to find, and there is no resource to bind. The component is typed at the
+form's own values instead, which
+[Forms with their own values](/docs/type-safety/typed-components#forms-with-their-own-values)
+covers.
+
+Each checked prop has an escape for a name the app builds from a runtime string,
+a config file or a URL: name the map by hand. `ResourceMap` is keyed by
+`string`, so `reference` and `target` are `string` again. The arguments are the
+component's own generics in order, and those differ per component. A component
+generic over a record and a map takes `<LooseRecord, ResourceMap>`, which every
+reference field is in both adapters and every reference input in React. Vue's
+`ReferenceInput` and `ReferenceArrayInput` are generic over the map and the name
+only, so they take `<ResourceMap>`.
+
 ## Records that name no keys
 
 `LooseRecord` is `ResourceRecord & { [key: string]: unknown }`. A field of a
