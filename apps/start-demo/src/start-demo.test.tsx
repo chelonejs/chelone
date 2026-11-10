@@ -25,6 +25,7 @@ import {
   type SessionGateway,
 } from "./auth";
 import { getRouter } from "./router";
+import { findPost } from "./server-data";
 
 afterEach(cleanup);
 
@@ -265,5 +266,19 @@ describe("the Start demo's auth", () => {
     await expect(auth.checkAuth({})).resolves.toBeUndefined();
     expect(session(written.at(-1)).user).toBe("a@example.com");
     expect(session(await inner.read()).user).toBe("a@example.com");
+  });
+});
+
+describe("the server post page's reader", () => {
+  it("reads a post by the path id", async () => {
+    const post = await findPost("1");
+    expect(post?.title).toBe(seeded(seedData().posts[0], "post").title);
+  });
+
+  it("answers nothing for an id that names no row", async () => {
+    // A path id that is not a row's id must reach the page's notFound(), which
+    // means reading it as a string instead of rejecting it in a validator.
+    expect(await findPost("abc")).toBeUndefined();
+    expect(await findPost("999999")).toBeUndefined();
   });
 });

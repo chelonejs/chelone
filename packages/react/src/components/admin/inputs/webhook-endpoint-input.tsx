@@ -54,10 +54,11 @@ function withEmptyEndpoint(options: Pick<UseInputOptions, "defaultValue">) {
  *
  * <WebhookEndpointInput source="endpoint" eventTypes={EVENT_TYPES} />
  */
-function WebhookEndpointInput<
-  TRecord = LooseRecord,
-  TPath extends SourceProp<TRecord> = SourceProp<TRecord>,
->(props: WebhookEndpointInputProps<TRecord, TPath>) {
+// The props carry the record and path generics; the component itself reads them
+// at their defaults, as `<TextInput>` and `<BooleanInput>` do: `DEFAULT_VALUE`
+// is the endpoint this input edits, which no `SourceValue` of an unresolved
+// record can name.
+function WebhookEndpointInput(props: WebhookEndpointInputProps) {
   const {
     label,
     source,
@@ -71,8 +72,6 @@ function WebhookEndpointInput<
   } = props;
   const resource = useResourceContext({ resource: resourceProp });
 
-  // type-escape: context: the options reach `useInput` record-free, since
-  // `DEFAULT_VALUE` is a `WebhookEndpoint`, not the value at `source`.
   const { id, field, fieldState, isRequired } = useInput({
     ...withEmptyEndpoint(inputProps),
     source,

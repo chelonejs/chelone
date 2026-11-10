@@ -14,6 +14,22 @@ export const serverDataProvider = fakeDataProvider<StartDemoResources>(
 );
 
 /**
+ * The post `/rsc/posts/$id` shows, or undefined when `rawId` names no row. The
+ * id arrives as a path string, so it is read here rather than validated on the
+ * way in: a validator that rejects `abc` before the handler runs answers an
+ * unknown post with an error page instead of the router's 404.
+ */
+export async function findPost(rawId: string) {
+  const id = Number(rawId);
+  if (!Number.isInteger(id)) return undefined;
+  try {
+    return (await serverDataProvider.getOne("posts", { id })).data;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Deletes one post from the process-wide provider. `/rsc/posts` passes it to
  * `ServerListDeleteButton`, which revalidates the route once it resolves, so
  * the next server render no longer holds the row.

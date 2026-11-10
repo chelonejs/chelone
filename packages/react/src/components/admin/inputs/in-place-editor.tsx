@@ -150,7 +150,12 @@ function InPlaceEditor<TRecord extends ResourceRecord = LooseRecord>(
   const editor =
     editorProp ??
     (source === undefined ? null : (
-      <TextInput source={source} label={false} helperText={false} autoFocus />
+      <TextInput<TRecord>
+        source={source}
+        label={false}
+        helperText={false}
+        autoFocus
+      />
     ));
 
   const save = (before: TRecord, dirty: Partial<TRecord>) => {

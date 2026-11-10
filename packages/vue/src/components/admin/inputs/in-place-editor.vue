@@ -79,6 +79,11 @@ import { useMenuAccess } from "../layout/use-menu-access";
 import InPlaceEditorForm from "./in-place-editor-form.vue";
 import TextInput from "./text-input.vue";
 
+// A template tag cannot carry type arguments, so the default editor is aliased
+// with this component's own record and path: `<TextInput>` is then typed by
+// `TRecord`, the same record its `source` is a path into.
+const DefaultEditor = TextInput<TRecord, SourceProp<TRecord>>;
+
 const props = withDefaults(defineProps<InPlaceEditorProps<TRecord>>(), {
   source: undefined,
   mutationMode: undefined,
@@ -204,7 +209,7 @@ function onReadingKeydown(event: KeyboardEvent) {
       @cancel="dispatch({ type: 'cancel' })"
     >
       <slot name="editor">
-        <TextInput
+        <DefaultEditor
           v-if="source !== undefined"
           :source="source"
           :label="false"

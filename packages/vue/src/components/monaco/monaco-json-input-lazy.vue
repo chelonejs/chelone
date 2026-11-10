@@ -1,4 +1,21 @@
-<script setup lang="ts">
+<script lang="ts">
+import type { SourceProp } from "@chelone/core";
+import type { MonacoJsonInputProps } from "./monaco-json-input.vue";
+
+/**
+ * The lazy half's props: the public props with `source` open. `<MonacoJsonInput>`
+ * is generic over its record and its path, and a template cannot carry a record
+ * through to a child, so the path arrives as the open `string` its `useInput`
+ * call reads it at.
+ */
+export interface MonacoJsonInputLazyProps<
+  TPath extends string = SourceProp,
+> extends Omit<MonacoJsonInputProps, "source"> {
+  source: TPath;
+}
+</script>
+
+<script setup lang="ts" generic="TPath extends string = SourceProp">
 /**
  * The lazy half of `<MonacoJsonInput>` and the only file that imports
  * `monaco-editor` at run time.
@@ -34,7 +51,6 @@ import {
 } from "./internal/monaco-composables";
 import { useJsonSchema } from "./internal/use-json-schema";
 import { useMonacoMarkers } from "./internal/use-monaco-markers";
-import type { MonacoJsonInputProps } from "./monaco-json-input.vue";
 
 // Serve the bundled copy instead of the binding's default CDN fetch.
 loader.config({ monaco });
@@ -43,7 +59,7 @@ const identity = (value: unknown) => value;
 
 // Explicit `undefined` defaults disable Vue's absent-Boolean cast of the
 // `string | false` props (else absent becomes `false` and hides the label).
-const props = withDefaults(defineProps<MonacoJsonInputProps>(), {
+const props = withDefaults(defineProps<MonacoJsonInputLazyProps<TPath>>(), {
   label: undefined,
   helperText: undefined,
   height: 300,
