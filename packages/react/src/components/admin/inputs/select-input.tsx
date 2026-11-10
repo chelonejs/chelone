@@ -1,3 +1,4 @@
+import type { SourceProp } from "@chelone/core";
 import { X } from "lucide-react";
 import type { ComponentProps, ReactElement } from "react";
 import { useCallback, useEffect } from "react";
@@ -99,7 +100,10 @@ function SelectInput<TChoice extends ChoiceRecord = ChoiceRecord>(
     source,
     resource,
     isFromReference,
-  } = useChoicesContext<TChoice>({ choices: choicesProp, source: sourceProp });
+  } = useChoicesContext<TChoice, SourceProp>({
+    choices: choicesProp,
+    source: sourceProp,
+  });
 
   if (source === undefined) {
     throw new Error(

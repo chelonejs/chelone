@@ -6,7 +6,6 @@
 
 import {
   createI18n,
-  DEFAULT_PER_PAGE,
   defaultRecordRepresentation,
   englishMessages,
   formatFieldText,
@@ -15,11 +14,9 @@ import {
   type Identifier,
   isIdentifier,
   type LooseRecord,
-  type LooseSortPayload,
   type PageInfo,
   type ResourceRecord,
   type SourceProp,
-  serializeListParams,
   type TranslateParamValues,
 } from "@chelone/core";
 import type { ReactNode } from "react";
@@ -33,6 +30,7 @@ import {
   TableRow,
 } from "../ui/table";
 import type { ServerI18n } from "./read-field-value";
+import { hrefOf, readUrlState } from "./server-list-href";
 import { ServerListLink } from "./server-list-link";
 import { ServerTextField } from "./server-scalar-fields";
 
@@ -125,26 +123,6 @@ function translate(
   return i18n ? i18n.translate(key, { _: fallback, ...params }) : fallback;
 }
 
-/** The URL for the page's params with `patch` over them. */
-function hrefOf(
-  path: string,
-  current: { sort?: LooseSortPayload; filter?: object; perPage: number },
-  patch: { sort?: LooseSortPayload; page: number },
-): string {
-  const sort = patch.sort ?? current.sort;
-  const filter =
-    current.filter && Object.keys(current.filter).length > 0
-      ? current.filter
-      : undefined;
-  return `${path}${serializeListParams({
-    filter,
-    sort: sort?.field,
-    order: sort?.order,
-    page: patch.page,
-    perPage: current.perPage,
-  })}`;
-}
-
 /**
  * What a reference cell prints: per id at `source`, the referenced record's
  * `representation`, else its default representation, else the id itself when
@@ -198,17 +176,7 @@ function ServerList<
   rowActions,
   className,
 }: ServerListProps<RecordType, TReferences>) {
-  const { pagination, sort, filter } = page.params;
-  const { page: current, perPage } =
-    pagination && "page" in pagination
-      ? pagination
-      : { page: 1, perPage: DEFAULT_PER_PAGE };
-  const primary = Array.isArray(sort) ? sort[0] : sort;
-  // The URL holds one sort. A page link that wrote the primary key alone would
-  // fetch the next page on a different order, so it leaves the sort out and
-  // the loader's own multi-key sort applies again.
-  const multiKey = Array.isArray(sort) && sort.length > 1;
-  const state = { sort: multiKey ? undefined : primary, filter, perPage };
+  const { page: current, perPage, primary, state } = readUrlState(page.params);
 
   const lastPage =
     page.total === undefined

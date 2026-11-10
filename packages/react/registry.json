@@ -4462,7 +4462,7 @@
         "@chelone/radio-group",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/react"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -4600,7 +4600,7 @@
         "@chelone/select",
         "@chelone/skeleton"
       ],
-      "dependencies": ["@chelone/react", "lucide-react"],
+      "dependencies": ["@chelone/core", "@chelone/react", "lucide-react"],
       "categories": ["chelone", "inputs"],
       "author": "Chelone <https://chelone.dev>"
     },
@@ -8270,8 +8270,11 @@
       "categories": ["chelone", "fields"],
       "description": "The opt-in React Server Components add-on: the server text, number and date fields, and ServerList, which renders one loaded list page with sort and page links. Each reads a record or a page passed as a prop, with no hook or context, so it runs in a server component.",
       "registryDependencies": [
+        "@chelone/button",
         "@chelone/image-field-images",
+        "@chelone/input",
         "@chelone/lib-utils",
+        "@chelone/native-select",
         "@chelone/table"
       ],
       "dependencies": ["@chelone/core", "@chelone/react"],
@@ -8282,6 +8285,18 @@
         },
         {
           "path": "src/components/rsc/server-link-fields.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list-delete-button.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list-filters.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "src/components/rsc/server-list-href.ts",
           "type": "registry:component"
         },
         {
@@ -8334,6 +8349,56 @@
       "author": "Chelone <https://chelone.dev>"
     },
     {
+      "name": "server-list-delete-button",
+      "type": "registry:component",
+      "title": "Server List Delete Button",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list-delete-button.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": ["@chelone/button"],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "buttons"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-list-filters",
+      "type": "registry:component",
+      "title": "Server List Filters",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list-filters.tsx",
+          "type": "registry:component"
+        }
+      ],
+      "registryDependencies": [
+        "@chelone/button",
+        "@chelone/input",
+        "@chelone/lib-utils",
+        "@chelone/native-select",
+        "@chelone/server-list-href"
+      ],
+      "dependencies": ["@chelone/core", "@chelone/react"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
+      "name": "server-list-href",
+      "type": "registry:component",
+      "title": "Server List Href",
+      "files": [
+        {
+          "path": "src/components/rsc/server-list-href.ts",
+          "type": "registry:component"
+        }
+      ],
+      "dependencies": ["@chelone/core"],
+      "categories": ["chelone", "components"],
+      "author": "Chelone <https://chelone.dev>"
+    },
+    {
       "name": "server-list-link",
       "type": "registry:component",
       "title": "Server List Link",
@@ -8360,6 +8425,7 @@
       "registryDependencies": [
         "@chelone/lib-utils",
         "@chelone/read-field-value",
+        "@chelone/server-list-href",
         "@chelone/server-list-link",
         "@chelone/server-scalar-fields",
         "@chelone/table"

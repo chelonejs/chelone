@@ -9,7 +9,7 @@
     },
     {
       "name": "value",
-      "type": "ChoicesContextValue<ChoiceRecord> | InlineChoicesConfig",
+      "type": "ChoicesContextValue<ChoiceRecord, string> | InlineChoicesConfig",
       "optional": false,
       "comment": "A ready ChoicesContextValue (e.g. `useReferenceInput`'s context)\nOR an inline-choices config (`{ choices }`) synthesized here."
     }

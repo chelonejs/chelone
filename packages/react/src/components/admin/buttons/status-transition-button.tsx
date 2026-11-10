@@ -20,8 +20,7 @@ import {
   getAllowedTransitions,
   isLooseRecord,
   type MutationMode,
-  type RegisteredRecord,
-  type RegisteredResourceName,
+  type RegisteredAnyRecord,
   type ResourceRecord,
 } from "@chelone/core";
 import { ChevronDown } from "lucide-react";
@@ -41,7 +40,7 @@ import { Confirm } from "../feedback/confirm";
 import { useMenuAccess } from "../layout/use-menu-access";
 
 interface StatusTransitionButtonProps<
-  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
+  TRecord extends ResourceRecord = RegisteredAnyRecord,
 > {
   /** Record field holding the status, a top-level key. Default `"status"`. */
   source?: keyof TRecord & string;
@@ -88,7 +87,7 @@ interface StatusTransitionButtonProps<
  * );
  */
 function StatusTransitionButton<
-  TRecord extends ResourceRecord = RegisteredRecord<RegisteredResourceName>,
+  TRecord extends ResourceRecord = RegisteredAnyRecord,
 >(props: StatusTransitionButtonProps<TRecord>) {
   const {
     source,
