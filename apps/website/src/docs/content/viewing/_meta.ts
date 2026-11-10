@@ -64,6 +64,7 @@ export default [
     category: "Lists & show layouts",
     slugs: [
       "data-table",
+      "server-list",
       "simple-list",
       "simple-list-item",
       "simple-list-loading",
