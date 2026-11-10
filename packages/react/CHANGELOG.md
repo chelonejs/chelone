@@ -5,8 +5,8 @@
 
 ### Features
 
-* **react:** &lt;ServerShow&gt; renders a read-only show view as a server component ([fecefc2](https://github.com/chelonejs/chelone/commit/fecefc27550425ecfb73a78b2a1cea26f6f1e50f))
-* **react:** &lt;ServerShow&gt; renders a read-only show view as a server component ([1d7c515](https://github.com/chelonejs/chelone/commit/1d7c515f5d6830d3cd85086ab05cd8863306ff0e))
+* **react:** `ServerShow` renders a read-only show view as a server component ([fecefc2](https://github.com/chelonejs/chelone/commit/fecefc27550425ecfb73a78b2a1cea26f6f1e50f))
+* **react:** `ServerShow` renders a read-only show view as a server component ([1d7c515](https://github.com/chelonejs/chelone/commit/1d7c515f5d6830d3cd85086ab05cd8863306ff0e))
 * **react:** add ServerListFilters and ServerListDeleteButton islands ([62593fb](https://github.com/chelonejs/chelone/commit/62593fb9fb109a0dfdaf9171f5f27215bf9a4dfc))
 * **react:** add ServerTextField, ServerNumberField and ServerDateField ([f6f4653](https://github.com/chelonejs/chelone/commit/f6f465310cee3cb6ddde715ec27270f492095d6e))
 * **react:** add the @chelone/react/rsc subpath and turn RSC on in the Start demo ([9249259](https://github.com/chelonejs/chelone/commit/92492596bb88f90850452321a00d8baaeaec0922))
