@@ -1,7 +1,7 @@
 import { Prefetched } from "../../../prefetched";
 import { prefetchList } from "../../../server-context";
 import { CommentList } from "../../../views";
-import { type SearchParams, searchOf } from "../search-of";
+import { type SearchParams, searchOf } from "../../search-of";
 
 export default async function CommentsPage({
   searchParams,
