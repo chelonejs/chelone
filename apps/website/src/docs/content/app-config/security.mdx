@@ -116,6 +116,90 @@ navigates to `redirectTo` when it is a string. A logged-out visit to the login
 path resolves `redirectTo: null`, so a global guard does not loop. Use
 `safeRedirectTarget(raw)` to validate any redirect target you read from a URL.
 
+### On the server
+
+A server render has no browser storage to read a session from. `localStorage`
+is not there, and a session kept in it would let the server render a page the
+browser then hides. The session comes from a cookie the server reads instead,
+and the auth provider is built once per request with that session, so the
+guard, the loaders and the page all answer from one request.
+
+In a Start app the router context carries that provider. Start calls
+`getRouter()` once per request, and `getRouter()` reads the request's own
+cookie and puts the provider it built on the router context. That context is
+where the `beforeLoad` snippet above gets `context.authProvider` and
+`context.queryClient` (`apps/start-demo/src/router.tsx`).
+
+```tsx title="apps/start-demo/src/router.tsx"
+export async function getRouter() {
+  const queryClient = new QueryClient();
+  const dataProvider = fakeDataProvider<StartDemoResources>(seedData());
+  // Seeded with this request's session, so every guard reads the same one.
+  const authProvider = await makeSessionAuthProvider(
+    queryClient,
+    cookieSessionGateway,
+  );
+  return createRouter({
+    routeTree,
+    context: {
+      queryClient,
+      dataProvider,
+      authProvider,
+      notifications: createNotificationStore(),
+    } satisfies StartDemoContext,
+  });
+}
+```
+
+- The cookie is the session's only home, and it is `httpOnly`, so no page
+  script reads it. The browser reads the session through the same server
+  function, which answers from the cookie the browser sends, so
+  `requireAuthBeforeLoad` gives the same answer on both sides.
+- A sign-in writes the cookie through that server function before `login`
+  resolves, and `router.invalidate()` then re-runs `beforeLoad` on the new
+  session.
+- `apps/start-demo/src/auth.ts` is the cookie read/write pair, and
+  `apps/start-demo/src/routes/__root.tsx` the context type every loader reads.
+
+Next gates the same way in `proxy` (`apps/next-demo/src/proxy.ts`), which
+matches `/admin/:path*` and runs before any page, layout or prefetch under it:
+
+```ts title="apps/next-demo/src/proxy.ts"
+import { checkRouteAuth } from "@chelone/core";
+import { QueryClient } from "@tanstack/query-core";
+import { type NextRequest, NextResponse } from "next/server";
+import { requestAuthProvider } from "./auth";
+
+export async function proxy(request: NextRequest) {
+  const { pathname, search } = request.nextUrl;
+  const result = await checkRouteAuth(
+    new QueryClient(),
+    requestAuthProvider(request.cookies),
+    { location: pathname + search },
+  );
+  if (result.authenticated || result.redirectTo === null) {
+    return NextResponse.next();
+  }
+  return NextResponse.redirect(new URL(result.redirectTo, request.url));
+}
+
+export const config = { matcher: "/admin/:path*" };
+```
+
+- `requestAuthProvider(request.cookies)` is the per-request provider again: a
+  store over a read-only view of this request's cookies, so the proxy and a
+  server component answer from the same session.
+- The check lives in `proxy` and not in the admin layout because a layout does
+  not run again on a client navigation between its own pages, so a layout check
+  gates the first render only.
+- `redirectTo` is `null` when the visited path is the login path itself, so the
+  guard tests it before redirecting rather than sending a logged-out visitor to
+  the page they already stand on.
+- `result.redirectTo` carries `?redirect=<the page the visitor asked for>`. The
+  login page reads the param back (`apps/next-demo/src/app/login/page.tsx`),
+  and `safeRedirectTarget` validates it before the browser navigates there
+  (`apps/next-demo/src/login-form.tsx`).
+
 ## The auth hooks
 
 Components call auth through hooks rather than the provider directly. `useLogin`

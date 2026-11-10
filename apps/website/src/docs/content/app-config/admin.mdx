@@ -451,6 +451,10 @@ param. What the App Router lacks, the adapter leaves out:
 
 `next` is an optional peer, and only `@chelone/react/next` imports it.
 
+[On the server](/docs/app-config/security#on-the-server) covers gating these
+routes on the server: the `proxy` check that keeps a logged-out visit from
+rendering an admin page, and the login redirect it hands to the browser.
+
 ### Prefetching on the server
 
 A server component prefetches into a `QueryClient` that React's `cache()` scopes
